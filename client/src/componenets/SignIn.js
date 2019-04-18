@@ -8,7 +8,6 @@ import { withFirebase } from './Firebase';
 import * as Routes from '../constants/routes';
 import { Row, Col, Button, Form, FormGroup, Label, Input } from "reactstrap";
 import WelcomeMessage from './WelcomeMessage';
-import Footer from './Footer';
 
 const inputStyle = {
     width: '75%',
@@ -34,7 +33,7 @@ const initialState = {
 };
 
 const SignInPage = () => (
-    < div style={formStyle} >
+    <div style={formStyle}>
         <Row>
             <Col xs='1' />
             <Col xs='5'>
@@ -48,7 +47,6 @@ const SignInPage = () => (
             </Col>
             <Col xs='1' />
         </Row>
-        <Footer />
     </div>
 );
 

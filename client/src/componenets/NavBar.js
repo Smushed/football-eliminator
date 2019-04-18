@@ -41,7 +41,6 @@ const NavBar = (props) => {
                                             <HomeLink />
                                         </NavItem>
                                         <NavItem >
-                                            <CreateGroupLink />
                                         </NavItem>
                                         <NavItem>
                                             <SignOutButton />
