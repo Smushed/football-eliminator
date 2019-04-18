@@ -35,8 +35,6 @@ const initialState = {
     password: '',
     confirmPassword: '',
     email: '',
-    firstname: '',
-    lastname: '',
     redirectTo: null,
     error: null,
     emailValid: false,
@@ -157,14 +155,12 @@ class SignUpFormBase extends Component {
     };
 
     render() {
-        const { username, email, passwordOne, passwordTwo, firstname, lastname, error, validMessage } = this.state;
+        const { username, email, passwordOne, passwordTwo, error, validMessage } = this.state;
 
         const isInvalid =
             passwordOne !== passwordTwo ||
             passwordOne === '' ||
             email === '' ||
-            firstname === '' ||
-            lastname === '' ||
             username.length < 3 ||
             passwordOne < 6;
 
@@ -243,34 +239,6 @@ class SignUpFormBase extends Component {
                             type='username'
                             name='username'
                             value={this.state.username}
-                            onChange={this.handleChange}
-                        />
-                    </FormGroup>
-
-                    <FormGroup>
-                        <Label style={labelStyle}>
-                            First Name:
-                        </Label>
-                        <Input
-                            style={inputStyle}
-                            placeholder='ex. Jane'
-                            type='firstname'
-                            name='firstname'
-                            value={this.state.firstname}
-                            onChange={this.handleChange}
-                        />
-                    </FormGroup>
-
-                    <FormGroup>
-                        <Label style={labelStyle}>
-                            Last Name:
-                        </Label>
-                        <Input
-                            style={inputStyle}
-                            placeholder='ex. Doe'
-                            type='lastname'
-                            name='lastname'
-                            value={this.state.lastname}
                             onChange={this.handleChange}
                         />
                     </FormGroup>
