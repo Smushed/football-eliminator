@@ -37,6 +37,7 @@ module.exports = app => {
         const foundUser = await userHandler.userSearch(query, searchParam);
         res.status(200).send(foundUser);
     });
+
     app.get(`/api/getuserbyid/:userid`, async (req, res) => {
         const userID = req.params.userid;
         const foundUser = await userHandler.getUserByID(userID);

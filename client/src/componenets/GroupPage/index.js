@@ -1,11 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
-import CurrentBook from './CurrentBook';
-import AddBook from './AddBook';
 
-import ShowAllPosts from './ShowAllPosts';
-import UpdateBenchmark from './UpdateBenchmark';
 import UserSearch from '../UserSearch';
 import UserList from './UserList';
 import GroupNav from './GroupNav';
@@ -73,11 +69,6 @@ class GroupPage extends Component {
           groupName: dbResponse.data.name,
           groupDescription: dbResponse.data.description,
           userlist: dbResponse.data.userlist,
-          currentBook: dbResponse.data.currentBook,
-          pastBook: dbResponse.data.pastBook,
-          currentBenchmark: dbResponse.data.currentBenchmark,
-          previousBenchmark: dbResponse.data.previousBenchmark,
-          totalBenchmark: dbResponse.data.totalBenchmark
         },
         () => {
           //If statement incase the componentDidMount happens first
@@ -144,9 +135,6 @@ class GroupPage extends Component {
       groupName,
       groupDescription,
       userlist,
-      currentBook,
-      currentBenchmark,
-      totalBenchmark,
       error,
       isAdmin,
       showMainPage,
@@ -171,17 +159,7 @@ class GroupPage extends Component {
               </Row>
             }
             <div style={columnbackground}>
-              {currentBook && (
-                <CurrentBook
-                  currentBook={currentBook}
-                  currentBenchmark={currentBenchmark}
-                  totalBenchmark={totalBenchmark}
-                />
-              )}
-
-              <div>
-                <UserList userlist={userlist} />
-              </div>
+              <UserList userlist={userlist} />
             </div>
           </Col>
 
@@ -193,27 +171,6 @@ class GroupPage extends Component {
               />
             </div>
 
-            {showMainPage && (
-              <Fragment>
-                <ShowAllPosts groupID={groupID} userID={userID} />
-              </Fragment>
-            )}
-
-            {updateBook && (
-              <Fragment>
-                <UpdateBenchmark
-                  isAdmin={isAdmin}
-                  groupID={groupID}
-                  updatePage={this.updatePage}
-                />
-                <AddBook
-                  groupID={groupID}
-                  isAdmin={isAdmin}
-                  updatePage={this.updatePage}
-                />
-
-              </Fragment>
-            )}
             {addUser && (
               <UserSearch
                 groupID={groupID}

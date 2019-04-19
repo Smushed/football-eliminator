@@ -1,7 +1,5 @@
 const userHandler = require(`../handlers/userHandler`);
 const groupHandler = require(`../handlers/groupHandler`);
-const postHandler = require(`../handlers/postHandler`);
-
 
 module.exports = app => {
     app.get(`/api/getuser/`, async (req, res) => {

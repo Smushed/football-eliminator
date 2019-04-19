@@ -10,7 +10,7 @@ const Cors = require(`cors`);
 
 //Setting up mongoose
 const mongoose = require(`mongoose`);
-const MONGODB_URI = process.env.MONGODB_URI || `mongodb://localhost/bookClub`;
+const MONGODB_URI = process.env.MONGODB_URI || `mongodb://localhost/fantasyEliminator`;
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
 app.use(Cors());
@@ -24,7 +24,6 @@ if (process.env.NODE_ENV === `production`) {
 };
 
 require(`./routes/groupRoutes`)(app);
-require(`./routes/bookRoutes`)(app);
 require(`./routes/userRoutes`)(app);
 
 // Send every other request to the React app

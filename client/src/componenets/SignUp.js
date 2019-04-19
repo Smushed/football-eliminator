@@ -191,6 +191,26 @@ class SignUpFormBase extends Component {
 
                     <FormGroup>
                         <Label style={labelStyle}>
+                            Username
+                            <br />
+                        </Label>
+                        <div style={labelDescription}>
+                            <strong>
+                                (Must be between 3 & 16 characters, no special characters & no spaces)
+                            </strong>
+                        </div>
+                        <Input
+                            style={inputStyle}
+                            placeholder='ex. JaneDoe14'
+                            type='username'
+                            name='username'
+                            value={this.state.username}
+                            onChange={this.handleChange}
+                        />
+                    </FormGroup>
+
+                    <FormGroup>
+                        <Label style={labelStyle}>
                             Password
                                 <br />
                         </Label>
@@ -219,26 +239,6 @@ class SignUpFormBase extends Component {
                             type='password'
                             name='confirmPassword'
                             value={this.state.confirmPassword}
-                            onChange={this.handleChange}
-                        />
-                    </FormGroup>
-
-                    <FormGroup>
-                        <Label style={labelStyle}>
-                            Username
-                            <br />
-                        </Label>
-                        <div style={labelDescription}>
-                            <strong>
-                                (Must be between 3 & 16 characters, no special characters & no spaces)
-                            </strong>
-                        </div>
-                        <Input
-                            style={inputStyle}
-                            placeholder='ex. JaneDoe14'
-                            type='username'
-                            name='username'
-                            value={this.state.username}
                             onChange={this.handleChange}
                         />
                     </FormGroup>
