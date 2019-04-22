@@ -9,3 +9,8 @@ This app will be a mix of a daily and season long NFL fantasy game. The goal of 
 API http://nflgame.derekadair.com/
 - Figure out how to use this thing, if I even can do this.
 If this doesn't work then I don't really see how I can do this. The Stats for individual players are not easy to find. This seems like something they keep under lock and key with good reason.
+- Pull their data, organize it into a SQL database. From there use it to implement a fantasy football game
+
+Installing nflgame from above (nflgame-redux), postgres
+
+For right now, I need to get this project on track through learning more about python & get the POSTgres database up and running. There is an nfldb which I am aparently able to use, however I'm wandering lost trying to figure it out.

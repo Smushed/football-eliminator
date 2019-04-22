@@ -5,12 +5,11 @@ mydb = mysql.connector.connect(
     user='root',
     password='swip867E!',
     host='localhost',
-    database='employees')
+    database='football')
 
 mycursor = mydb.cursor()
 
-mycursor.execute(
-    "SHOW TABLES")
+mycursor.execute("CREATE TABLE players")
 
 for thing in mycursor:
     print(thing)
