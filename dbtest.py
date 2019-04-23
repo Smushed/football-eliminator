@@ -1,17 +1,10 @@
-import mysql.connector
-from mysql.connector import errorcode
+import nfldb
 
-mydb = mysql.connector.connect(
-    user='root',
-    password='swip867E!',
-    host='localhost',
-    database='football')
+db = nfldb.connect()
+q = nfldb.Query(db)
 
-mycursor = mydb.cursor()
+q.game(season_year=2012, season_type='Regular')
+for pp in q.sort('passing_yds').limit(10).as_aggregate():
+    print pp.player, pp.passing_yds
 
-mycursor.execute("CREATE TABLE players")
-
-for thing in mycursor:
-    print(thing)
-
-mydb.close()
+nfldb-update
