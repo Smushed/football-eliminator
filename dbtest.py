@@ -3,8 +3,24 @@ import nfldb
 db = nfldb.connect()
 q = nfldb.Query(db)
 
-q.game(season_year=2012, season_type='Regular')
-for pp in q.sort('passing_yds').limit(10).as_aggregate():
-    print pp.player, pp.passing_yds
+weeknum = 1
 
-nfldb-update
+# Start here - https://pynative.com/python-postgresql-tutorial/
+
+q.game(season_year=2018, season_type='Regular')
+q.player()
+
+for player in q.sort('passing_yds').limit(1).as_aggregate():
+    print player
+
+    # topQB = game.players.sort('passing_yds').limit(1)
+    # print topQB
+
+
+# for weeknum in range(17):
+#     player = q.sort('passing_yds').limit(1).as_aggregate()
+#     topplayers.append(player[0].player)
+#     weeknum = weeknum + 1
+
+# for pp in q.sort('passing_yds').limit(10).as_aggregate():
+#     print pp.player, pp.passing_yds
