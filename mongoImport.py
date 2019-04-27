@@ -44,7 +44,7 @@ def season_player_stats(player_id, season, weeknum):
 # Store how the players did in mongo each week
 
 
-weeknum = 2
+weeknum = 1
 
 search.game(season_year=2018, season_type='Regular', week=weeknum)
 
@@ -78,7 +78,6 @@ for player in search.as_players():
                 "1": {}
             }
         }
-        pprint(currentplayer)
         for field in sorted(stats.fields):
             currentplayer["2018"]["1"][field] = getattr(stats, field)
         collection.insert_one(currentplayer)
