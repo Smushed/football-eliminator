@@ -45,12 +45,13 @@ def season_player_stats(player_id, season, weeknum):
 
 
 weeknum = 17
+season = 2018
 
-search.game(season_year=2018, season_type='Regular', week=weeknum)
+search.game(season_year=season, season_type='Regular', week=weeknum)
 
 for player in search.as_players():
     foundplayer = collection.find_one({"player_id": player.player_id})
-    stats = season_player_stats(player.player_id, 2018, weeknum)
+    stats = season_player_stats(player.player_id, season, weeknum)
 
     if foundplayer:
         weekstats = {}

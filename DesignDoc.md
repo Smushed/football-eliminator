@@ -9,3 +9,5 @@ This will be hidden behind a login system which is always running. The goal is n
 Leaderboard of all people who are playing the game.
 Groups of people who are off and playing.
 Each time a player joins one group they start a new entry and are able to pick anew with that.
+
+The players will be scored on weekly totals. How many yards and totals. For now there will be no play by play variation (no bonus points for long touchdowns or anything along those lines)

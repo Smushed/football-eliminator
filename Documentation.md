@@ -14,6 +14,10 @@ def season_player_stats(full_name, season):
     return pps[0]
 
 
+### Some examples for basic FFL stuff
+https://github.com/BurntSushi/nfldb/wiki/Aggregate-searching
+https://github.com/BurntSushi/nfldb/issues/35
+
 search.game(season_year=2018, season_type='Regular', week=1, team="CHI")
 for players in search.as_players():
     # print repr(players.position)
