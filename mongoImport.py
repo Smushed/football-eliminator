@@ -44,40 +44,42 @@ def season_player_stats(player_id, season, weeknum):
 # Store how the players did in mongo each week
 
 
-weeknum = 1
+weeknum = 17
 
 search.game(season_year=2018, season_type='Regular', week=weeknum)
 
 for player in search.as_players():
-    # foundplayer = collection.find_one({"player_id": player.player_id})
-    stats = season_player_stats(player.player_id, 2018, 1)
+    foundplayer = collection.find_one({"player_id": player.player_id})
+    stats = season_player_stats(player.player_id, 2018, weeknum)
 
-    # if foundplayer:
-    #     weekstats = {}
-    #     for field in sorted(stats.fields):
-    #         weekstats[field] = getattr(stats, field)
-    #     collection.update_one(
-    #         {"player_id": player.player_id},
-    #         {
-    #             "$set": {
-    #                 "2018": {
-    #                     "2": weekstats
-    #                 }
-    #             }
-    #         }
-    #     )
-    # else:
-    currentplayer = {}
-    if player.position.value == 21 or player.position.value == 11 or player.position.value == 22 or player.position.value == 26 or player.position.value == 27:
-        currentplayer = {
-            "full_name": player.full_name,
-            "player_id": player.player_id,
-            "player_position": player.position.name,
-            "team": player.team,
-            "2018": {
-                "1": {}
-            }
-        }
+    if foundplayer:
+        weekstats = {}
         for field in sorted(stats.fields):
-            currentplayer["2018"]["1"][field] = getattr(stats, field)
-        collection.insert_one(currentplayer)
+            weekstats[field] = getattr(stats, field)
+        foundplayer["2018"][str(weeknum)] = weekstats
+        newstats = foundplayer["2018"]
+
+        collection.update_one(
+            {"player_id": player.player_id},
+            {
+                "$set": {
+                    "2018": newstats
+                }
+            }
+        )
+    else:
+        currentplayer = {}
+        if player.position.value == 21 or player.position.value == 11 or player.position.value == 22 or player.position.value == 26 or player.position.value == 27:
+            currentplayer = {
+                "full_name": player.full_name,
+                "player_id": player.player_id,
+                "player_position": player.position.name,
+                "team": player.team,
+                "2018": {
+                    str(weeknum): {}
+                }
+            }
+            for field in sorted(stats.fields):
+                currentplayer["2018"][str(weeknum)][field] = getattr(
+                    stats, field)
+            collection.insert_one(currentplayer)
