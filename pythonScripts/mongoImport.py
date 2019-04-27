@@ -11,19 +11,6 @@ client = MongoClient('localhost', 27017)
 mongo = client.fantasyEliminator
 collection = mongo.players
 
-# test1 = {
-#     "name": "Kevin",
-#     "something": "yup",
-#     "age": 28
-# }
-
-# collection.insert_one(test1)
-
-# finder = collection.find()
-
-# for record in finder:
-#     pprint(record)
-
 # -----------------
 
 
@@ -38,10 +25,6 @@ def season_player_stats(player_id, season, weeknum):
     if len(pps) == 0:  # No players found to aggregate
         return None
     return pps[0]
-
-# START HERE
-# Iterate through the games, grab the players for each week
-# Store how the players did in mongo each week
 
 
 weeknum = 17
