@@ -13,15 +13,9 @@ const initialState = {
   groupName: '',
   groupDescription: '',
   userlist: [],
-  currentBook: '',
-  pastBook: [],
-  currentBenchmark: 0,
-  previousBenchmark: [],
-  totalBenchmark: 0,
   isAdmin: false,
   error: null,
   showMainPage: true,
-  updateBook: false,
   addUser: false
 };
 
@@ -138,7 +132,6 @@ class GroupPage extends Component {
       error,
       isAdmin,
       showMainPage,
-      updateBook,
       addUser
     } = this.state;
 

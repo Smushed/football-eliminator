@@ -5,6 +5,10 @@ THis is a game which combines daily fantasy with the challenge of a year long ga
 <br />
 ### Webpage Layout
 This will be hidden behind a login system which is always running. The goal is never to make this a public app. Rather, the goal is to enjoy a style of fantasy football which we once played but is no longer available.<br />
+
+This app is going to have two main sections. One where you sign up for groups with people that are invited to them, and a leaderboard which will show all players.
+###On Login
+Once a player logs in they have the option
 ### Features
 Leaderboard of all people who are playing the game.
 Groups of people who are off and playing.
