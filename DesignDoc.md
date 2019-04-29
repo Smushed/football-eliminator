@@ -15,3 +15,30 @@ Groups of people who are off and playing.
 Each time a player joins one group they start a new entry and are able to pick anew with that.
 
 The players will be scored on weekly totals. How many yards and totals. For now there will be no play by play variation (no bonus points for long touchdowns or anything along those lines)
+
+# Mongo Structure
+- Users
+    - local
+        - username
+        - email
+    - notifications (FUTURE USE)
+    - grouplist
+    - facebook (FUTURE)
+    - twitter (FUTURE)
+    - google (FUTURE)
+- Groups
+    - TBD
+- Fantasy 
+(All the data for the game are stored here. What each person has picked for each week.)
+    - userID
+        - 2019
+            - 1
+                - PlayerID
+                - PlayerID
+            - 2
+                - PlayerID
+- Players **Big question right now is if I do this or not.**
+    - If I don't do this I would have to make an API or something to then go to Python and query the data as needed.
+    I feel like that's going to be the way to go for this other than loading the data into another database to then manipulate it.
+    Do I then mantain an active player list seperatley and try and merge the two? Or do I keep the mongo database and do everything I need for my website there?
+    Not sure the best path forward.
