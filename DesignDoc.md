@@ -42,3 +42,4 @@ The players will be scored on weekly totals. How many yards and totals. For now 
     I feel like that's going to be the way to go for this other than loading the data into another database to then manipulate it.
     Do I then mantain an active player list seperatley and try and merge the two? Or do I keep the mongo database and do everything I need for my website there?
     Not sure the best path forward.
+        - Probably going to have this as a record of all the players, that way I can merge this and the nflDB to get an accurate player list
