@@ -18,6 +18,7 @@ import PasswordChange from './componenets/PasswordChange';
 import UserProfile from './componenets/UserProfile'
 import CreateGroup from './componenets/CreateGroup';
 import GroupPage from './componenets/GroupPage';
+import TestRoster from './componenets/TestRoster';
 
 //adding a comment hoping it will help merge on github
 class App extends Component {
@@ -112,6 +113,12 @@ class App extends Component {
             path={`/user/:userID`}
             render={() =>
               <UserProfile userID={this.state.currentUser.userID} />}
+          />
+          <Route
+            path={`/testroster`}
+            render={() =>
+              <TestRoster />
+            }
           />
 
         </div>
