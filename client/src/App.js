@@ -19,6 +19,7 @@ import UserProfile from './componenets/UserProfile'
 import CreateGroup from './componenets/CreateGroup';
 import GroupPage from './componenets/GroupPage';
 import TestRoster from './componenets/TestRoster';
+import TestGameData from './componenets/TestGameData'
 
 //adding a comment hoping it will help merge on github
 class App extends Component {
@@ -120,7 +121,12 @@ class App extends Component {
               <TestRoster />
             }
           />
-
+          <Route
+            path={`/testgamedata`}
+            render={() =>
+              <TestGameData />
+            }
+          />
         </div>
       </BrowserRouter>
     );

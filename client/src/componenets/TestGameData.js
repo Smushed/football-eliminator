@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import axios from 'axios';
 
-class TestRoster extends Component {
+class TestGameData extends Component {
     constructor(props) {
         super(props)
         this.state = {
@@ -10,7 +10,7 @@ class TestRoster extends Component {
     };
 
     componentDidMount = async () => {
-        const dbResponse = await axios.get(`/api/testroster`);
+        const dbResponse = await axios.get(`/api/testgame`);
 
         if (dbResponse) {
 
@@ -35,4 +35,4 @@ class TestRoster extends Component {
     }
 }
 
-export default TestRoster;
+export default TestGameData;
