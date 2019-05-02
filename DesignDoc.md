@@ -3,18 +3,51 @@ THis is a game which combines daily fantasy with the challenge of a year long ga
 - For example: If you were to play Tom Brady week 1, then you are unable to play Tom Brady week 2-17. You can play any other QB in that slot.
 <br />
 <br />
-### Webpage Layout
+## Webpage Layout
 This will be hidden behind a login system which is always running. The goal is never to make this a public app. Rather, the goal is to enjoy a style of fantasy football which we once played but is no longer available.<br />
 
-This app is going to have two main sections. One where you sign up for groups with people that are invited to them, and a leaderboard which will show all players.
-###On Login
-Once a player logs in they have the option
-### Features
-Leaderboard of all people who are playing the game.
-Groups of people who are off and playing.
-Each time a player joins one group they start a new entry and are able to pick anew with that.
+This app is going to have two main sections. One where you sign up for groups with people that are invited to them, and a leaderboard which will show all players.<br />
 
-The players will be scored on weekly totals. How many yards and totals. For now there will be no play by play variation (no bonus points for long touchdowns or anything along those lines)
+This app must be designed with mobile users in mind. There will be many potential players of this app who will be using mobile phones and would only like to use this on a mobile phone.
+
+## Features
+- Leaderboard of all the top players
+    - Since players can have more than one entry, only their top entry will be displayed
+        - Scores are normalized to the "standard scoring"
+- Groups for people to join
+    - Groups are public, anyone can peek into their group and see what they're doing
+    - In the groups players are ranked
+    - Groups are also ranked for the highest rated group
+        - This should only take place if the scoring is normalized before ranking the groups
+    - Groups should have custom scoring
+- Rosters
+    - Users fill out a roster for each group they are a part of
+        - Users will not be able to fill out a roster without being part of a group
+
+### On Login
+Once a player logs in they have the option to either create a group or to search for a user / another group. If they search for a group then they have the option to request to join the group. Where an admin needs to approve.
+
+- User Logs in
+    - User Searches for a Group to join
+        - User finds group and requests to join
+            - User fills out a custom message
+        - Custom Message & Username is sent to the group admin who then can approve or reject the request
+    - User is accepted into the group
+        - User fills out roster for the current group
+
+If they create a group then they are taken to a page where they can then configure their roster or they can add people to the group.
+- User Logs In
+    - User Creates a Group
+        - User makes a name, description and sets the scoring rules for the game
+    - User adds people
+        - User can search the app by username or email
+        - User can email other people outside of the app to come and join the group
+
+## Group Structure
+TODO
+
+# MVP
+TODO MVP
 
 # Mongo Structure
 - Users
