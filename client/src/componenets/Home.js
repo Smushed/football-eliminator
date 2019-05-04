@@ -7,11 +7,12 @@ import * as Routes from '../constants/routes';
 //Stateful component to allow the grouplist to properly populate
 class Home extends Component {
 
-    //TODO This only displays 3 groups properly!!
     render() {
         return (
             <Fragment>
-                This is working
+                <Link to={Routes.createGroup}>
+                    Create a Group
+                </Link>
             </Fragment>
         );
     };

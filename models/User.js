@@ -32,8 +32,6 @@ const UserSchema = new Schema({
         username: String,
         email: String
     },
-    favoriteGenre: [String], //Makes this an array of strings to store the user's favorite genres
-    readingPace: String,
     grouplist: [String],
     notification: [
         {
