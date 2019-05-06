@@ -23,7 +23,7 @@ if (process.env.NODE_ENV === `production`) {
   app.use(express.static(`client/build`));
 };
 
-require(`./routes/testRoutes`)(app);
+require(`./routes/mySportsRoutes`)(app);
 require(`./routes/groupRoutes`)(app);
 require(`./routes/userRoutes`)(app);
 
