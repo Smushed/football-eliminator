@@ -27,7 +27,7 @@ class TestGameData extends Component {
                 <br />
                 {this.state.exampleArray.map((example, i) => (
                     <div>
-                        {example}
+                        {example.name} {example.position}
                     </div>
                 ))}
             </div>
