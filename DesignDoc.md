@@ -47,7 +47,9 @@ If they create a group then they are taken to a page where they can then configu
 TODO
 
 # MVP
-TODO MVP
+MVP for this project will be allowing users to pick a player to play each week. Also not allowing the user to pick the same player in another week. At the end of the week (Tuesday morning) the stats pulling software will run and the user will have their stats updated.
+MVP does NOT include group functionality.
+MVP does include the leaderboard and viewing other people's picks that week.
 
 # Mongo Structure
 - Users
