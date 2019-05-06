@@ -29,7 +29,6 @@ const getStats = (player, stats, season, week) => {
     console.log(fullStats)
 
     //TODO Iterate through the different stats and check if available. If so then put them into the player objects
-    //TODO TEST THIS
     combinedStats.stats = {
         [season]: {
             [week]: {
@@ -74,22 +73,34 @@ const getStats = (player, stats, season, week) => {
         }
     };
     return combinedStats;
-}
+};
+
+const parseRoster = (playerArray) => {
+    for (let i = 0; i < playerArray.length; i++) {
+        console.log(playerArray[i])
+        //TODO Issue with the line below this one
+        const position = playerArray[i].player.position;
+        if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
+            console.log(playerArray[i])
+        }
+    };
+};
 
 module.exports = {
-    getRosterData: async () => {
+    getRosterData: async (season) => {
         const search = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
             auth: {
                 username: mySportsFeedsAPI,
                 password: `MYSPORTSFEEDS`
             },
             params: {
-                season: `2018-2019-regular`,
+                season: season,
                 team: `CHI`,
                 rosterstatus: `assigned-to-roster`
             }
         });
-        console.log(search.data.players[0], search.data.players.length)
+        parseRoster(search.data.players);
+
         return ['Working', 0, 0, 0]
     },
     getWeeklyData: async (season, week) => {
@@ -114,6 +125,7 @@ module.exports = {
                 weeklyPlayerArray.push(player)
             };
         };
+        //TODO Send the weekly player array (or something like it) to a function to then write it to the database
         return weeklyPlayerArray;
     },
     getPlayerData: async (season, week) => {
