@@ -13,6 +13,14 @@ class Home extends Component {
                 <Link to={Routes.createGroup}>
                     Create a Group
                 </Link>
+                <br />
+                <Link to={`/testroster`}>
+                    Roster
+                </Link>
+                <br />
+                <Link to={`/testgamedata`}>
+                    Game Data
+                </Link>
             </Fragment>
         );
     };

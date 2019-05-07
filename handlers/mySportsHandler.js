@@ -15,6 +15,20 @@ const placeholderStats = (stats) => {
         }
     };
     return stats;
+};
+
+const writePlayerToDB = async (player) => {
+    const playerInDB = await db.FantasyStats.find({ mySports_id: player.id });
+    console.log(playerInDB);
+    //TODO Start here. Make it so I can write players to the database
+    //First check if the player is currently in the database
+    //If they are not then create the record
+    //If they are in the database then update the current week
+    if (playerInDB == true) {
+        console.log(`true`)
+    } else {
+        console.log(`false`)
+    }
 }
 
 const getStats = (player, stats, season, week) => {
@@ -26,9 +40,8 @@ const getStats = (player, stats, season, week) => {
 
     //This runs through the stats and fills in any objects that aren't available
     const fullStats = placeholderStats(stats)
-    console.log(fullStats)
 
-    //TODO Iterate through the different stats and check if available. If so then put them into the player objects
+    //Iterate through the different stats and check if available. If so then put them into the player objects
     combinedStats.stats = {
         [season]: {
             [week]: {
@@ -122,6 +135,7 @@ module.exports = {
             if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
 
                 player = getStats(search.data.gamelogs[i].player, search.data.gamelogs[i].stats, season, week);
+                writePlayerToDB(player)
                 weeklyPlayerArray.push(player)
             };
         };

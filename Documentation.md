@@ -64,3 +64,6 @@ player_pos = _Enum('player_pos',
                         ])
 
 Offensive positions - 11, 21, 22, 26, 27
+
+## Next Season
+- Update the FantasyStats Schema

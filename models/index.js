@@ -1,5 +1,6 @@
 module.exports = {
     User: require(`./User`),
     Group: require(`./Group`),
-    Post: require(`./Post`),
+    FantasyStats: require(`./FantasyStats`),
+    Post: require(`./Post`)
 };
