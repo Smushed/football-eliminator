@@ -17,26 +17,48 @@ const placeholderStats = (stats) => {
     return stats;
 };
 
-const writePlayerToDB = async (player) => {
-    const playerInDB = await db.FantasyStats.find({ mySports_id: player.id });
-    console.log(playerInDB);
-    //TODO Start here. Make it so I can write players to the database
-    //First check if the player is currently in the database
-    //If they are not then create the record
-    //If they are in the database then update the current week
-    if (playerInDB == true) {
-        console.log(`true`)
-    } else {
-        console.log(`false`)
-    }
-}
+const updateDBWithCurrentWeek = (weeklyPlayerArray) => {
+    //TODO Write the players to the database
+    db.FantasyStats.collection.insertMany(weeklyPlayerArray, (err, writtenObj) => {
+        if (err) {
+            //TODO Handle the error
+            console.log(err);
+        } else {
+            return weeklyPlayerArray;
+        }
+    });
+};
 
-const getStats = (player, stats, season, week) => {
+const mergeMySportsWithDB = (player, season) => {
+    //TODO DO SOMETHING
+    //Merge the player with the current pull. Take the current stats and then send it
+};
+
+const findPlayerInDB = async (player, season) => {
+    try {
+        const playerInDB = await db.FantasyStats.findOne({ mySports_id: player.id });
+        //TODO Start here. Make it so I can write players to the database
+        //First check if the player is currently in the database
+        if (playerInDB === null) {
+            //Send the player data back, they are not currently in the DB and can be added as is
+            return player;
+        } else {
+            //The player is currently in the DB, send the current player in the DB and the mySports Player to a function
+            mergeMySportsWithDB(player, season);
+            console.log(playerInDB)
+        }
+    } catch (err) {
+        console.log(err);
+    };
+};
+
+const getStats = (player, stats, team, season, week) => {
     const combinedStats = {};
 
-    combinedStats.name = `${player.firstName} ${player.lastName}`;
+    combinedStats.full_name = `${player.firstName} ${player.lastName}`;
     combinedStats.id = player.id;
     combinedStats.position = player.position;
+    combinedStats.team = { id: team.id, abbreviation: team.abbreviation }
 
     //This runs through the stats and fills in any objects that aren't available
     const fullStats = placeholderStats(stats)
@@ -134,15 +156,19 @@ module.exports = {
 
             if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
 
-                player = getStats(search.data.gamelogs[i].player, search.data.gamelogs[i].stats, season, week);
-                writePlayerToDB(player)
-                weeklyPlayerArray.push(player)
+                player = getStats(search.data.gamelogs[i].player, search.data.gamelogs[i].stats, search.data.gamelogs[i].team, season, week);
+                const DBReadyPlayer = await findPlayerInDB(player, season)
+                weeklyPlayerArray.push(DBReadyPlayer)
+
             };
         };
-        //TODO Send the weekly player array (or something like it) to a function to then write it to the database
+        //TODO Now have the player array written to the DB
+        updateDBWithCurrentWeek(weeklyPlayerArray);
+        console.log(`hitting write to DB`, weeklyPlayerArray)
         return weeklyPlayerArray;
     },
     getPlayerData: async (season, week) => {
+        //This is useless right now. Has the same functionality as the function above it
         const search = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${week}/player_gamelogs.json`, {
             auth: {
                 username: mySportsFeedsAPI,

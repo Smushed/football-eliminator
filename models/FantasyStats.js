@@ -22,11 +22,10 @@ const FantasyStatsSchema = new Schema({
             trim: true
         },
     },
-    player_position: {
+    position: {
         type: String,
         default: `UNK`
     },
-    2018: {} //Leaving this blank so I can iterate over the weeks
 });
 
 module.exports = mongoose.model(`FantasyStats`, FantasyStatsSchema);
