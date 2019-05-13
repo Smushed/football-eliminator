@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import ReactTable from 'react-table';
+import 'react-table/react-table.css';
 
 class DisplayPlayers extends Component {
     constructor(props) {
@@ -12,9 +14,7 @@ class DisplayPlayers extends Component {
     componentDidMount = async () => {
         const dbResponse = await axios.get(`/api/displayplayers`);
 
-        console.log(dbResponse)
         if (dbResponse) {
-
             this.setState({
                 playersArray: dbResponse.data
             })
@@ -22,16 +22,23 @@ class DisplayPlayers extends Component {
     };
 
     render() {
+        const columns = [{ Header: 'Full Name', accessor: 'full_name', show: true }, { Header: 'Position', accessor: 'position', show: true }, { Header: 'Team', accessor: 'team.abbreviation', show: true }]
         return (
             <div>
+
                 {/* TODO React Table Package might be good */}
-                Bazinga
                 <br />
-                {this.state.playersArray.map((player, i) => (
-                    <div>
-                        {player.full_name} {player.position}
-                    </div>
-                ))}
+                {this.state.playersArray ? (
+
+                    <ReactTable
+                        data={this.state.playersArray}
+                        columns={columns}
+                    />
+                ) : (
+                        <div>
+                            Nothing
+                        </div>
+                    )}
             </div>
         )
     }

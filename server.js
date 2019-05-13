@@ -14,7 +14,7 @@ const MONGODB_URI = process.env.MONGODB_URI || `mongodb://localhost/fantasyElimi
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
 app.use(Cors());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 

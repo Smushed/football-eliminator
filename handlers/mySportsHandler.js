@@ -29,26 +29,28 @@ const updateDBWithCurrentWeek = (weeklyPlayerArray) => {
     });
 };
 
-const mergeMySportsWithDB = (player, season) => {
-    //TODO DO SOMETHING
+const mergeMySportsWithDB = (playerInDB, player, season, week) => {
+    //TODO For some reason when I try and access stats it's undefined
     //Merge the player with the current pull. Take the current stats and then send it
+    console.log(playerInDB.full_name, playerInDB['stats'])
+    // playerInDB.stats[season][week] = player.stats[season][week]
 };
 
-const findPlayerInDB = async (player, season) => {
+const findPlayerInDB = async (player, week) => {
+
     try {
-        const playerInDB = await db.FantasyStats.findOne({ mySports_id: player.id });
-        //TODO Start here. Make it so I can write players to the database
+        const playerInDB = await db.FantasyStats.findOne({ 'mySportsId': player.mySportsId });
         //First check if the player is currently in the database
         if (playerInDB === null) {
             //Send the player data back, they are not currently in the DB and can be added as is
-            return player;
+            return player
         } else {
             //The player is currently in the DB, send the current player in the DB and the mySports Player to a function
-            mergeMySportsWithDB(player, season);
-            console.log(playerInDB)
+            const mergedPlayer = mergeMySportsWithDB(playerInDB, player, week);
+            return mergedPlayer;
         }
     } catch (err) {
-        console.log(err);
+        console.log("what", err);
     };
 };
 
@@ -56,7 +58,7 @@ const getStats = (player, stats, team, season, week) => {
     const combinedStats = {};
 
     combinedStats.full_name = `${player.firstName} ${player.lastName}`;
-    combinedStats.id = player.id;
+    combinedStats.mySportsId = player.id;
     combinedStats.position = player.position;
     combinedStats.team = { id: team.id, abbreviation: team.abbreviation }
 
@@ -156,15 +158,14 @@ module.exports = {
 
             if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
 
-                player = getStats(search.data.gamelogs[i].player, search.data.gamelogs[i].stats, search.data.gamelogs[i].team, season, week);
-                const DBReadyPlayer = await findPlayerInDB(player, season)
+                player = await getStats(search.data.gamelogs[i].player, search.data.gamelogs[i].stats, search.data.gamelogs[i].team, season, week);
+                const DBReadyPlayer = await findPlayerInDB(player, season, week)
                 weeklyPlayerArray.push(DBReadyPlayer)
 
             };
         };
         //TODO Now have the player array written to the DB
         updateDBWithCurrentWeek(weeklyPlayerArray);
-        console.log(`hitting write to DB`, weeklyPlayerArray)
         return weeklyPlayerArray;
     },
     getPlayerData: async (season, week) => {

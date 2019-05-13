@@ -9,8 +9,8 @@ const FantasyStatsSchema = new Schema({
         required: true,
         trim: true
     },
-    mySports_id: {
-        type: String,
+    mySportsId: {
+        type: Number,
     },
     team: {
         id: {
