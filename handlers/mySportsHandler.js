@@ -32,8 +32,9 @@ const updateDBWithCurrentWeek = (weeklyPlayerArray) => {
 const mergeMySportsWithDB = (playerInDB, player, season, week) => {
     //TODO For some reason when I try and access stats it's undefined
     //Merge the player with the current pull. Take the current stats and then send it
-    console.log(playerInDB.full_name, playerInDB['stats'])
-    // playerInDB.stats[season][week] = player.stats[season][week]
+
+    playerInDB.stats[season][week] = player.stats[season][week]
+    return playerInDB;
 };
 
 const findPlayerInDB = async (player, week) => {
