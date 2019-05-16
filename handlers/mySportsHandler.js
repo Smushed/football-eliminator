@@ -28,61 +28,62 @@ const addPlayerToDB = (weeklyPlayerArray) => {
     });
 };
 
-const updatePlayerWithCurrentWeek = (playerInDB, stats, season, week) => {
-    const fullStats = placeholderStats(stats)
+const updatePlayerWithCurrentWeek = (playerInDB, newWeekStats, season, week) => {
+    const fullStats = placeholderStats(newWeekStats)
+    const stats = "stats"
 
-    playerInDB.stats = {
-        [season]: {
-            [week]: {
-                //Needs the 0s here in case the object is blank from placeholderStats
-                passing: {
-                    passTD: fullStats.passing.passTD || 0,
-                    passYards: fullStats.passing.passYards || 0,
-                    passInt: fullStats.passing.passInt || 0,
-                    passAttempts: fullStats.passing.passAttempts || 0,
-                    passCompletions: fullStats.passing.passCompletions || 0,
-                    twoPtPassMade: fullStats.twoPointAttempts.twoPtPassMade || 0
-                },
-                rushing: {
-                    rushAttempts: fullStats.rushing.rushAttempts || 0,
-                    rushYards: fullStats.rushing.rushYards || 0,
-                    rushTD: fullStats.rushing.rushTD || 0,
-                    rush20Plus: fullStats.rushing.rush20Plus || 0,
-                    rush40Plus: fullStats.rushing.rush40Plus || 0,
-                    rushFumbles: fullStats.rushing.rushFumbles || 0
-                },
-                receiving: {
-                    targets: fullStats.receiving.targets || 0,
-                    receptions: fullStats.receiving.receptions || 0,
-                    recYards: fullStats.receiving.receptions || 0,
-                    recTD: fullStats.receiving.recTD || 0,
-                    rec20Plus: fullStats.receiving.rec20Plus || 0,
-                    rec40Plus: fullStats.receiving.rec40Plus || 0,
-                    recFumbles: fullStats.receiving.recFumbles || 0
-                },
-                fumbles: {
-                    fumbles: fullStats.fumbles.fumbles || 0,
-                    fumbles: fullStats.fumbles.fumLost || 0
-                },
-                fieldGoals: {
-                    fgMade1_19: fullStats.fieldGoals.fgMade1_19 || 0,
-                    fgMade20_29: fullStats.fieldGoals.fgMade20_29 || 0,
-                    fgmade30_39: fullStats.fieldGoals.fgmade30_39 || 0,
-                    fgMade40_49: fullStats.fieldGoals.fgMade40_49 || 0,
-                    fgMade50Plus: fullStats.fieldGoals.fgMade50Plus || 0
-                }
-            }
+    playerInDB[stats][season][week] = {
+        //Needs the 0s here in case the object is blank from placeholderStats
+        passing: {
+            passTD: fullStats.passing.passTD || 0,
+            passYards: fullStats.passing.passYards || 0,
+            passInt: fullStats.passing.passInt || 0,
+            passAttempts: fullStats.passing.passAttempts || 0,
+            passCompletions: fullStats.passing.passCompletions || 0,
+            twoPtPassMade: fullStats.twoPointAttempts.twoPtPassMade || 0
+        },
+        rushing: {
+            rushAttempts: fullStats.rushing.rushAttempts || 0,
+            rushYards: fullStats.rushing.rushYards || 0,
+            rushTD: fullStats.rushing.rushTD || 0,
+            rush20Plus: fullStats.rushing.rush20Plus || 0,
+            rush40Plus: fullStats.rushing.rush40Plus || 0,
+            rushFumbles: fullStats.rushing.rushFumbles || 0
+        },
+        receiving: {
+            targets: fullStats.receiving.targets || 0,
+            receptions: fullStats.receiving.receptions || 0,
+            recYards: fullStats.receiving.receptions || 0,
+            recTD: fullStats.receiving.recTD || 0,
+            rec20Plus: fullStats.receiving.rec20Plus || 0,
+            rec40Plus: fullStats.receiving.rec40Plus || 0,
+            recFumbles: fullStats.receiving.recFumbles || 0
+        },
+        fumbles: {
+            fumbles: fullStats.fumbles.fumbles || 0,
+            fumbles: fullStats.fumbles.fumLost || 0
+        },
+        fieldGoals: {
+            fgMade1_19: fullStats.fieldGoals.fgMade1_19 || 0,
+            fgMade20_29: fullStats.fieldGoals.fgMade20_29 || 0,
+            fgmade30_39: fullStats.fieldGoals.fgmade30_39 || 0,
+            fgMade40_49: fullStats.fieldGoals.fgMade40_49 || 0,
+            fgMade50Plus: fullStats.fieldGoals.fgMade50Plus || 0
         }
     };
-    console.log(playerInDB.full_name, fullStats)
+    mergeMySportsWithDB(playerInDB);
 };
 
-const mergeMySportsWithDB = (playerInDB, player, season, week) => {
+const mergeMySportsWithDB = (playerInDB) => {
     //TODO For some reason when I try and access stats it's undefined
     //Merge the player with the current pull. Take the current stats and then send it
-
-    playerInDB.stats[season][week] = player.stats[season][week]
-    return playerInDB;
+    db.FantasyStats.findByIdAndUpdate(playerInDB._id, playerInDB, (err) => {
+        console.log("updating DB")
+        if (err) {
+            //TODO Do more than just log the error
+            console.log(err)
+        };
+    });
 };
 
 const findPlayerInDB = async (playerID) => {
@@ -229,7 +230,8 @@ module.exports = {
         //TODO Now have the player array written to the DB
         if (weeklyPlayerArray.length >= 1) {
             addPlayerToDB(weeklyPlayerArray);
-        }
+        };
+        console.log(`done`)
         return weeklyPlayerArray;
     },
     getPlayerData: async (season, week) => {
