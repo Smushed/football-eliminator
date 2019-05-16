@@ -30,648 +30,1974 @@ const FantasyStatsSchema = new Schema({
         '2018-2019-regular': {
             '1': {
                 passing: {
-                    passTD: Number,
-                    passYards: Number,
-                    passInt: Number,
-                    passAttempts: Number,
-                    passCompletions: Number,
-                    twoPtPassMade: Number,
+                    passTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    passYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    passInt: {
+                        type: Number,
+                        default: 0
+                    },
+                    passAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    passCompletions: {
+                        type: Number,
+                        default: 0
+                    },
+                    twoPtPassMade: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 rushing: {
-                    rushAttempts: Number,
-                    rushYards: Number,
-                    rushTD: Number,
-                    rush20Plus: Number,
-                    rush40Plus: Number,
-                    rushFumbles: Number,
+                    rushAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 receiving: {
-                    targets: Number,
-                    receptions: Number,
-                    recYards: Number,
-                    recTD: Number,
-                    rec20Plus: Number,
-                    rec40Plus: Number,
-                    recFumbles: Number,
+                    targets: {
+                        type: Number,
+                        default: 0
+                    },
+                    receptions: {
+                        type: Number,
+                        default: 0
+                    },
+                    recYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    recTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    recFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fumbles: {
-                    fumbles: Number,
-                    fumbles: Number,
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fieldGoals: {
-                    fgMade1_19: Number,
-                    fgMade20_29: Number,
-                    fgmade30_39: Number,
-                    fgMade40_49: Number,
-                    fgMade50Plus: Number,
+                    fgMade1_19: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade20_29: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgmade30_39: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade40_49: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade50Plus: {
+                        type: Number,
+                        default: 0
+                    },
                 }
             },
             '2': {
                 passing: {
-                    passTD: Number,
-                    passYards: Number,
-                    passInt: Number,
-                    passAttempts: Number,
-                    passCompletions: Number,
-                    twoPtPassMade: Number,
+                    passTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    passYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    passInt: {
+                        type: Number,
+                        default: 0
+                    },
+                    passAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    passCompletions: {
+                        type: Number,
+                        default: 0
+                    },
+                    twoPtPassMade: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 rushing: {
-                    rushAttempts: Number,
-                    rushYards: Number,
-                    rushTD: Number,
-                    rush20Plus: Number,
-                    rush40Plus: Number,
-                    rushFumbles: Number,
+                    rushAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 receiving: {
-                    targets: Number,
-                    receptions: Number,
-                    recYards: Number,
-                    recTD: Number,
-                    rec20Plus: Number,
-                    rec40Plus: Number,
-                    recFumbles: Number,
+                    targets: {
+                        type: Number,
+                        default: 0
+                    },
+                    receptions: {
+                        type: Number,
+                        default: 0
+                    },
+                    recYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    recTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    recFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fumbles: {
-                    fumbles: Number,
-                    fumbles: Number,
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fieldGoals: {
-                    fgMade1_19: Number,
-                    fgMade20_29: Number,
-                    fgmade30_39: Number,
-                    fgMade40_49: Number,
-                    fgMade50Plus: Number,
+                    fgMade1_19: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade20_29: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgmade30_39: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade40_49: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade50Plus: {
+                        type: Number,
+                        default: 0
+                    },
                 }
             },
             '3': {
                 passing: {
-                    passTD: Number,
-                    passYards: Number,
-                    passInt: Number,
-                    passAttempts: Number,
-                    passCompletions: Number,
-                    twoPtPassMade: Number,
+                    passTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    passYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    passInt: {
+                        type: Number,
+                        default: 0
+                    },
+                    passAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    passCompletions: {
+                        type: Number,
+                        default: 0
+                    },
+                    twoPtPassMade: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 rushing: {
-                    rushAttempts: Number,
-                    rushYards: Number,
-                    rushTD: Number,
-                    rush20Plus: Number,
-                    rush40Plus: Number,
-                    rushFumbles: Number,
+                    rushAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 receiving: {
-                    targets: Number,
-                    receptions: Number,
-                    recYards: Number,
-                    recTD: Number,
-                    rec20Plus: Number,
-                    rec40Plus: Number,
-                    recFumbles: Number,
+                    targets: {
+                        type: Number,
+                        default: 0
+                    },
+                    receptions: {
+                        type: Number,
+                        default: 0
+                    },
+                    recYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    recTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    recFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fumbles: {
-                    fumbles: Number,
-                    fumbles: Number,
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fieldGoals: {
-                    fgMade1_19: Number,
-                    fgMade20_29: Number,
-                    fgmade30_39: Number,
-                    fgMade40_49: Number,
-                    fgMade50Plus: Number,
+                    fgMade1_19: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade20_29: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgmade30_39: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade40_49: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade50Plus: {
+                        type: Number,
+                        default: 0
+                    },
                 }
             },
             '4': {
                 passing: {
-                    passTD: Number,
-                    passYards: Number,
-                    passInt: Number,
-                    passAttempts: Number,
-                    passCompletions: Number,
-                    twoPtPassMade: Number,
+                    passTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    passYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    passInt: {
+                        type: Number,
+                        default: 0
+                    },
+                    passAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    passCompletions: {
+                        type: Number,
+                        default: 0
+                    },
+                    twoPtPassMade: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 rushing: {
-                    rushAttempts: Number,
-                    rushYards: Number,
-                    rushTD: Number,
-                    rush20Plus: Number,
-                    rush40Plus: Number,
-                    rushFumbles: Number,
+                    rushAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 receiving: {
-                    targets: Number,
-                    receptions: Number,
-                    recYards: Number,
-                    recTD: Number,
-                    rec20Plus: Number,
-                    rec40Plus: Number,
-                    recFumbles: Number,
+                    targets: {
+                        type: Number,
+                        default: 0
+                    },
+                    receptions: {
+                        type: Number,
+                        default: 0
+                    },
+                    recYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    recTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    recFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fumbles: {
-                    fumbles: Number,
-                    fumbles: Number,
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fieldGoals: {
-                    fgMade1_19: Number,
-                    fgMade20_29: Number,
-                    fgmade30_39: Number,
-                    fgMade40_49: Number,
-                    fgMade50Plus: Number,
+                    fgMade1_19: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade20_29: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgmade30_39: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade40_49: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade50Plus: {
+                        type: Number,
+                        default: 0
+                    },
                 }
             },
             '5': {
                 passing: {
-                    passTD: Number,
-                    passYards: Number,
-                    passInt: Number,
-                    passAttempts: Number,
-                    passCompletions: Number,
-                    twoPtPassMade: Number,
+                    passTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    passYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    passInt: {
+                        type: Number,
+                        default: 0
+                    },
+                    passAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    passCompletions: {
+                        type: Number,
+                        default: 0
+                    },
+                    twoPtPassMade: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 rushing: {
-                    rushAttempts: Number,
-                    rushYards: Number,
-                    rushTD: Number,
-                    rush20Plus: Number,
-                    rush40Plus: Number,
-                    rushFumbles: Number,
+                    rushAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 receiving: {
-                    targets: Number,
-                    receptions: Number,
-                    recYards: Number,
-                    recTD: Number,
-                    rec20Plus: Number,
-                    rec40Plus: Number,
-                    recFumbles: Number,
+                    targets: {
+                        type: Number,
+                        default: 0
+                    },
+                    receptions: {
+                        type: Number,
+                        default: 0
+                    },
+                    recYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    recTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    recFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fumbles: {
-                    fumbles: Number,
-                    fumbles: Number,
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fieldGoals: {
-                    fgMade1_19: Number,
-                    fgMade20_29: Number,
-                    fgmade30_39: Number,
-                    fgMade40_49: Number,
-                    fgMade50Plus: Number,
+                    fgMade1_19: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade20_29: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgmade30_39: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade40_49: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade50Plus: {
+                        type: Number,
+                        default: 0
+                    },
                 }
             },
             '6': {
                 passing: {
-                    passTD: Number,
-                    passYards: Number,
-                    passInt: Number,
-                    passAttempts: Number,
-                    passCompletions: Number,
-                    twoPtPassMade: Number,
+                    passTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    passYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    passInt: {
+                        type: Number,
+                        default: 0
+                    },
+                    passAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    passCompletions: {
+                        type: Number,
+                        default: 0
+                    },
+                    twoPtPassMade: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 rushing: {
-                    rushAttempts: Number,
-                    rushYards: Number,
-                    rushTD: Number,
-                    rush20Plus: Number,
-                    rush40Plus: Number,
-                    rushFumbles: Number,
+                    rushAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 receiving: {
-                    targets: Number,
-                    receptions: Number,
-                    recYards: Number,
-                    recTD: Number,
-                    rec20Plus: Number,
-                    rec40Plus: Number,
-                    recFumbles: Number,
+                    targets: {
+                        type: Number,
+                        default: 0
+                    },
+                    receptions: {
+                        type: Number,
+                        default: 0
+                    },
+                    recYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    recTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    recFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fumbles: {
-                    fumbles: Number,
-                    fumbles: Number,
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fieldGoals: {
-                    fgMade1_19: Number,
-                    fgMade20_29: Number,
-                    fgmade30_39: Number,
-                    fgMade40_49: Number,
-                    fgMade50Plus: Number,
+                    fgMade1_19: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade20_29: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgmade30_39: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade40_49: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade50Plus: {
+                        type: Number,
+                        default: 0
+                    },
                 }
             },
             '7': {
                 passing: {
-                    passTD: Number,
-                    passYards: Number,
-                    passInt: Number,
-                    passAttempts: Number,
-                    passCompletions: Number,
-                    twoPtPassMade: Number,
+                    passTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    passYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    passInt: {
+                        type: Number,
+                        default: 0
+                    },
+                    passAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    passCompletions: {
+                        type: Number,
+                        default: 0
+                    },
+                    twoPtPassMade: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 rushing: {
-                    rushAttempts: Number,
-                    rushYards: Number,
-                    rushTD: Number,
-                    rush20Plus: Number,
-                    rush40Plus: Number,
-                    rushFumbles: Number,
+                    rushAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 receiving: {
-                    targets: Number,
-                    receptions: Number,
-                    recYards: Number,
-                    recTD: Number,
-                    rec20Plus: Number,
-                    rec40Plus: Number,
-                    recFumbles: Number,
+                    targets: {
+                        type: Number,
+                        default: 0
+                    },
+                    receptions: {
+                        type: Number,
+                        default: 0
+                    },
+                    recYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    recTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    recFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fumbles: {
-                    fumbles: Number,
-                    fumbles: Number,
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fieldGoals: {
-                    fgMade1_19: Number,
-                    fgMade20_29: Number,
-                    fgmade30_39: Number,
-                    fgMade40_49: Number,
-                    fgMade50Plus: Number,
+                    fgMade1_19: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade20_29: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgmade30_39: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade40_49: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade50Plus: {
+                        type: Number,
+                        default: 0
+                    },
                 }
             },
             '8': {
                 passing: {
-                    passTD: Number,
-                    passYards: Number,
-                    passInt: Number,
-                    passAttempts: Number,
-                    passCompletions: Number,
-                    twoPtPassMade: Number,
+                    passTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    passYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    passInt: {
+                        type: Number,
+                        default: 0
+                    },
+                    passAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    passCompletions: {
+                        type: Number,
+                        default: 0
+                    },
+                    twoPtPassMade: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 rushing: {
-                    rushAttempts: Number,
-                    rushYards: Number,
-                    rushTD: Number,
-                    rush20Plus: Number,
-                    rush40Plus: Number,
-                    rushFumbles: Number,
+                    rushAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 receiving: {
-                    targets: Number,
-                    receptions: Number,
-                    recYards: Number,
-                    recTD: Number,
-                    rec20Plus: Number,
-                    rec40Plus: Number,
-                    recFumbles: Number,
+                    targets: {
+                        type: Number,
+                        default: 0
+                    },
+                    receptions: {
+                        type: Number,
+                        default: 0
+                    },
+                    recYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    recTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    recFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fumbles: {
-                    fumbles: Number,
-                    fumbles: Number,
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fieldGoals: {
-                    fgMade1_19: Number,
-                    fgMade20_29: Number,
-                    fgmade30_39: Number,
-                    fgMade40_49: Number,
-                    fgMade50Plus: Number,
+                    fgMade1_19: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade20_29: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgmade30_39: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade40_49: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade50Plus: {
+                        type: Number,
+                        default: 0
+                    },
                 }
             },
             '9': {
                 passing: {
-                    passTD: Number,
-                    passYards: Number,
-                    passInt: Number,
-                    passAttempts: Number,
-                    passCompletions: Number,
-                    twoPtPassMade: Number,
+                    passTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    passYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    passInt: {
+                        type: Number,
+                        default: 0
+                    },
+                    passAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    passCompletions: {
+                        type: Number,
+                        default: 0
+                    },
+                    twoPtPassMade: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 rushing: {
-                    rushAttempts: Number,
-                    rushYards: Number,
-                    rushTD: Number,
-                    rush20Plus: Number,
-                    rush40Plus: Number,
-                    rushFumbles: Number,
+                    rushAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 receiving: {
-                    targets: Number,
-                    receptions: Number,
-                    recYards: Number,
-                    recTD: Number,
-                    rec20Plus: Number,
-                    rec40Plus: Number,
-                    recFumbles: Number,
+                    targets: {
+                        type: Number,
+                        default: 0
+                    },
+                    receptions: {
+                        type: Number,
+                        default: 0
+                    },
+                    recYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    recTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    recFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fumbles: {
-                    fumbles: Number,
-                    fumbles: Number,
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fieldGoals: {
-                    fgMade1_19: Number,
-                    fgMade20_29: Number,
-                    fgmade30_39: Number,
-                    fgMade40_49: Number,
-                    fgMade50Plus: Number,
+                    fgMade1_19: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade20_29: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgmade30_39: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade40_49: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade50Plus: {
+                        type: Number,
+                        default: 0
+                    },
                 }
             },
             '10': {
                 passing: {
-                    passTD: Number,
-                    passYards: Number,
-                    passInt: Number,
-                    passAttempts: Number,
-                    passCompletions: Number,
-                    twoPtPassMade: Number,
+                    passTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    passYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    passInt: {
+                        type: Number,
+                        default: 0
+                    },
+                    passAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    passCompletions: {
+                        type: Number,
+                        default: 0
+                    },
+                    twoPtPassMade: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 rushing: {
-                    rushAttempts: Number,
-                    rushYards: Number,
-                    rushTD: Number,
-                    rush20Plus: Number,
-                    rush40Plus: Number,
-                    rushFumbles: Number,
+                    rushAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 receiving: {
-                    targets: Number,
-                    receptions: Number,
-                    recYards: Number,
-                    recTD: Number,
-                    rec20Plus: Number,
-                    rec40Plus: Number,
-                    recFumbles: Number,
+                    targets: {
+                        type: Number,
+                        default: 0
+                    },
+                    receptions: {
+                        type: Number,
+                        default: 0
+                    },
+                    recYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    recTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    recFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fumbles: {
-                    fumbles: Number,
-                    fumbles: Number,
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fieldGoals: {
-                    fgMade1_19: Number,
-                    fgMade20_29: Number,
-                    fgmade30_39: Number,
-                    fgMade40_49: Number,
-                    fgMade50Plus: Number,
+                    fgMade1_19: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade20_29: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgmade30_39: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade40_49: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade50Plus: {
+                        type: Number,
+                        default: 0
+                    },
                 }
             },
             '11': {
                 passing: {
-                    passTD: Number,
-                    passYards: Number,
-                    passInt: Number,
-                    passAttempts: Number,
-                    passCompletions: Number,
-                    twoPtPassMade: Number,
+                    passTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    passYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    passInt: {
+                        type: Number,
+                        default: 0
+                    },
+                    passAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    passCompletions: {
+                        type: Number,
+                        default: 0
+                    },
+                    twoPtPassMade: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 rushing: {
-                    rushAttempts: Number,
-                    rushYards: Number,
-                    rushTD: Number,
-                    rush20Plus: Number,
-                    rush40Plus: Number,
-                    rushFumbles: Number,
+                    rushAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 receiving: {
-                    targets: Number,
-                    receptions: Number,
-                    recYards: Number,
-                    recTD: Number,
-                    rec20Plus: Number,
-                    rec40Plus: Number,
-                    recFumbles: Number,
+                    targets: {
+                        type: Number,
+                        default: 0
+                    },
+                    receptions: {
+                        type: Number,
+                        default: 0
+                    },
+                    recYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    recTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    recFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fumbles: {
-                    fumbles: Number,
-                    fumbles: Number,
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fieldGoals: {
-                    fgMade1_19: Number,
-                    fgMade20_29: Number,
-                    fgmade30_39: Number,
-                    fgMade40_49: Number,
-                    fgMade50Plus: Number,
+                    fgMade1_19: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade20_29: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgmade30_39: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade40_49: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade50Plus: {
+                        type: Number,
+                        default: 0
+                    },
                 }
             },
             '12': {
                 passing: {
-                    passTD: Number,
-                    passYards: Number,
-                    passInt: Number,
-                    passAttempts: Number,
-                    passCompletions: Number,
-                    twoPtPassMade: Number,
+                    passTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    passYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    passInt: {
+                        type: Number,
+                        default: 0
+                    },
+                    passAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    passCompletions: {
+                        type: Number,
+                        default: 0
+                    },
+                    twoPtPassMade: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 rushing: {
-                    rushAttempts: Number,
-                    rushYards: Number,
-                    rushTD: Number,
-                    rush20Plus: Number,
-                    rush40Plus: Number,
-                    rushFumbles: Number,
+                    rushAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 receiving: {
-                    targets: Number,
-                    receptions: Number,
-                    recYards: Number,
-                    recTD: Number,
-                    rec20Plus: Number,
-                    rec40Plus: Number,
-                    recFumbles: Number,
+                    targets: {
+                        type: Number,
+                        default: 0
+                    },
+                    receptions: {
+                        type: Number,
+                        default: 0
+                    },
+                    recYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    recTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    recFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fumbles: {
-                    fumbles: Number,
-                    fumbles: Number,
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fieldGoals: {
-                    fgMade1_19: Number,
-                    fgMade20_29: Number,
-                    fgmade30_39: Number,
-                    fgMade40_49: Number,
-                    fgMade50Plus: Number,
+                    fgMade1_19: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade20_29: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgmade30_39: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade40_49: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade50Plus: {
+                        type: Number,
+                        default: 0
+                    },
                 }
             },
             '13': {
                 passing: {
-                    passTD: Number,
-                    passYards: Number,
-                    passInt: Number,
-                    passAttempts: Number,
-                    passCompletions: Number,
-                    twoPtPassMade: Number,
+                    passTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    passYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    passInt: {
+                        type: Number,
+                        default: 0
+                    },
+                    passAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    passCompletions: {
+                        type: Number,
+                        default: 0
+                    },
+                    twoPtPassMade: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 rushing: {
-                    rushAttempts: Number,
-                    rushYards: Number,
-                    rushTD: Number,
-                    rush20Plus: Number,
-                    rush40Plus: Number,
-                    rushFumbles: Number,
+                    rushAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 receiving: {
-                    targets: Number,
-                    receptions: Number,
-                    recYards: Number,
-                    recTD: Number,
-                    rec20Plus: Number,
-                    rec40Plus: Number,
-                    recFumbles: Number,
+                    targets: {
+                        type: Number,
+                        default: 0
+                    },
+                    receptions: {
+                        type: Number,
+                        default: 0
+                    },
+                    recYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    recTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    recFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fumbles: {
-                    fumbles: Number,
-                    fumbles: Number,
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fieldGoals: {
-                    fgMade1_19: Number,
-                    fgMade20_29: Number,
-                    fgmade30_39: Number,
-                    fgMade40_49: Number,
-                    fgMade50Plus: Number,
+                    fgMade1_19: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade20_29: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgmade30_39: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade40_49: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade50Plus: {
+                        type: Number,
+                        default: 0
+                    },
                 }
             },
             '14': {
                 passing: {
-                    passTD: Number,
-                    passYards: Number,
-                    passInt: Number,
-                    passAttempts: Number,
-                    passCompletions: Number,
-                    twoPtPassMade: Number,
+                    passTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    passYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    passInt: {
+                        type: Number,
+                        default: 0
+                    },
+                    passAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    passCompletions: {
+                        type: Number,
+                        default: 0
+                    },
+                    twoPtPassMade: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 rushing: {
-                    rushAttempts: Number,
-                    rushYards: Number,
-                    rushTD: Number,
-                    rush20Plus: Number,
-                    rush40Plus: Number,
-                    rushFumbles: Number,
+                    rushAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 receiving: {
-                    targets: Number,
-                    receptions: Number,
-                    recYards: Number,
-                    recTD: Number,
-                    rec20Plus: Number,
-                    rec40Plus: Number,
-                    recFumbles: Number,
+                    targets: {
+                        type: Number,
+                        default: 0
+                    },
+                    receptions: {
+                        type: Number,
+                        default: 0
+                    },
+                    recYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    recTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    recFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fumbles: {
-                    fumbles: Number,
-                    fumbles: Number,
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fieldGoals: {
-                    fgMade1_19: Number,
-                    fgMade20_29: Number,
-                    fgmade30_39: Number,
-                    fgMade40_49: Number,
-                    fgMade50Plus: Number,
+                    fgMade1_19: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade20_29: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgmade30_39: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade40_49: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade50Plus: {
+                        type: Number,
+                        default: 0
+                    },
                 }
             },
             '15': {
                 passing: {
-                    passTD: Number,
-                    passYards: Number,
-                    passInt: Number,
-                    passAttempts: Number,
-                    passCompletions: Number,
-                    twoPtPassMade: Number,
+                    passTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    passYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    passInt: {
+                        type: Number,
+                        default: 0
+                    },
+                    passAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    passCompletions: {
+                        type: Number,
+                        default: 0
+                    },
+                    twoPtPassMade: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 rushing: {
-                    rushAttempts: Number,
-                    rushYards: Number,
-                    rushTD: Number,
-                    rush20Plus: Number,
-                    rush40Plus: Number,
-                    rushFumbles: Number,
+                    rushAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 receiving: {
-                    targets: Number,
-                    receptions: Number,
-                    recYards: Number,
-                    recTD: Number,
-                    rec20Plus: Number,
-                    rec40Plus: Number,
-                    recFumbles: Number,
+                    targets: {
+                        type: Number,
+                        default: 0
+                    },
+                    receptions: {
+                        type: Number,
+                        default: 0
+                    },
+                    recYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    recTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    recFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fumbles: {
-                    fumbles: Number,
-                    fumbles: Number,
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fieldGoals: {
-                    fgMade1_19: Number,
-                    fgMade20_29: Number,
-                    fgmade30_39: Number,
-                    fgMade40_49: Number,
-                    fgMade50Plus: Number,
+                    fgMade1_19: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade20_29: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgmade30_39: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade40_49: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade50Plus: {
+                        type: Number,
+                        default: 0
+                    },
                 }
             },
             '16': {
                 passing: {
-                    passTD: Number,
-                    passYards: Number,
-                    passInt: Number,
-                    passAttempts: Number,
-                    passCompletions: Number,
-                    twoPtPassMade: Number,
+                    passTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    passYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    passInt: {
+                        type: Number,
+                        default: 0
+                    },
+                    passAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    passCompletions: {
+                        type: Number,
+                        default: 0
+                    },
+                    twoPtPassMade: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 rushing: {
-                    rushAttempts: Number,
-                    rushYards: Number,
-                    rushTD: Number,
-                    rush20Plus: Number,
-                    rush40Plus: Number,
-                    rushFumbles: Number,
+                    rushAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 receiving: {
-                    targets: Number,
-                    receptions: Number,
-                    recYards: Number,
-                    recTD: Number,
-                    rec20Plus: Number,
-                    rec40Plus: Number,
-                    recFumbles: Number,
+                    targets: {
+                        type: Number,
+                        default: 0
+                    },
+                    receptions: {
+                        type: Number,
+                        default: 0
+                    },
+                    recYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    recTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    recFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fumbles: {
-                    fumbles: Number,
-                    fumbles: Number,
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fieldGoals: {
-                    fgMade1_19: Number,
-                    fgMade20_29: Number,
-                    fgmade30_39: Number,
-                    fgMade40_49: Number,
-                    fgMade50Plus: Number,
+                    fgMade1_19: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade20_29: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgmade30_39: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade40_49: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade50Plus: {
+                        type: Number,
+                        default: 0
+                    },
                 }
             },
             '17': {
                 passing: {
-                    passTD: Number,
-                    passYards: Number,
-                    passInt: Number,
-                    passAttempts: Number,
-                    passCompletions: Number,
-                    twoPtPassMade: Number,
+                    passTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    passYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    passInt: {
+                        type: Number,
+                        default: 0
+                    },
+                    passAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    passCompletions: {
+                        type: Number,
+                        default: 0
+                    },
+                    twoPtPassMade: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 rushing: {
-                    rushAttempts: Number,
-                    rushYards: Number,
-                    rushTD: Number,
-                    rush20Plus: Number,
-                    rush40Plus: Number,
-                    rushFumbles: Number,
+                    rushAttempts: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rush40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rushFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 receiving: {
-                    targets: Number,
-                    receptions: Number,
-                    recYards: Number,
-                    recTD: Number,
-                    rec20Plus: Number,
-                    rec40Plus: Number,
-                    recFumbles: Number,
+                    targets: {
+                        type: Number,
+                        default: 0
+                    },
+                    receptions: {
+                        type: Number,
+                        default: 0
+                    },
+                    recYards: {
+                        type: Number,
+                        default: 0
+                    },
+                    recTD: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec20Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    rec40Plus: {
+                        type: Number,
+                        default: 0
+                    },
+                    recFumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fumbles: {
-                    fumbles: Number,
-                    fumbles: Number,
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
+                    fumbles: {
+                        type: Number,
+                        default: 0
+                    },
                 },
                 fieldGoals: {
-                    fgMade1_19: Number,
-                    fgMade20_29: Number,
-                    fgmade30_39: Number,
-                    fgMade40_49: Number,
-                    fgMade50Plus: Number,
+                    fgMade1_19: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade20_29: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgmade30_39: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade40_49: {
+                        type: Number,
+                        default: 0
+                    },
+                    fgMade50Plus: {
+                        type: Number,
+                        default: 0
+                    },
                 }
             }
         }
