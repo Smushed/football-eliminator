@@ -29,10 +29,9 @@ const addPlayerToDB = (weeklyPlayerArray) => {
 };
 
 const updatePlayerWithCurrentWeek = (playerInDB, newWeekStats, season, week) => {
-    const fullStats = placeholderStats(newWeekStats)
-    const stats = "stats"
+    const fullStats = placeholderStats(newWeekStats);
 
-    playerInDB[stats][season][week] = {
+    playerInDB.stats[season][week] = {
         //Needs the 0s here in case the object is blank from placeholderStats
         passing: {
             passTD: fullStats.passing.passTD || 0,
