@@ -21,6 +21,10 @@ class Home extends Component {
                 <Link to={`/testgamedata`}>
                     Game Data
                 </Link>
+                <br />
+                <Link to={`/displayplayers`}>
+                    Display Players
+                </Link>
             </Fragment>
         );
     };

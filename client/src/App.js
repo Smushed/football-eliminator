@@ -20,6 +20,7 @@ import CreateGroup from './componenets/CreateGroup';
 import GroupPage from './componenets/GroupPage';
 import TestRoster from './componenets/TestRoster';
 import TestGameData from './componenets/TestGameData'
+import DisplayPlayers from './componenets/DisplayPlayers'
 
 //adding a comment hoping it will help merge on github
 class App extends Component {
@@ -125,6 +126,12 @@ class App extends Component {
             path={`/testgamedata`}
             render={() =>
               <TestGameData />
+            }
+          />
+          <Route
+            path={`/displayplayers`}
+            render={() =>
+              <DisplayPlayers />
             }
           />
         </div>

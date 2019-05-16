@@ -17,8 +17,7 @@ const placeholderStats = (stats) => {
     return stats;
 };
 
-const updateDBWithCurrentWeek = (weeklyPlayerArray) => {
-    //TODO Write the players to the database
+const addPlayerToDB = (weeklyPlayerArray) => {
     db.FantasyStats.collection.insertMany(weeklyPlayerArray, (err, writtenObj) => {
         if (err) {
             //TODO Handle the error
@@ -29,34 +28,87 @@ const updateDBWithCurrentWeek = (weeklyPlayerArray) => {
     });
 };
 
-const mergeMySportsWithDB = (player, season) => {
-    //TODO DO SOMETHING
-    //Merge the player with the current pull. Take the current stats and then send it
+const updatePlayerWithCurrentWeek = (playerInDB, newWeekStats, season, week) => {
+    const fullStats = placeholderStats(newWeekStats);
+
+    playerInDB.stats[season][week] = {
+        //Needs the 0s here in case the object is blank from placeholderStats
+        passing: {
+            passTD: fullStats.passing.passTD || 0,
+            passYards: fullStats.passing.passYards || 0,
+            passInt: fullStats.passing.passInt || 0,
+            passAttempts: fullStats.passing.passAttempts || 0,
+            passCompletions: fullStats.passing.passCompletions || 0,
+            twoPtPassMade: fullStats.twoPointAttempts.twoPtPassMade || 0
+        },
+        rushing: {
+            rushAttempts: fullStats.rushing.rushAttempts || 0,
+            rushYards: fullStats.rushing.rushYards || 0,
+            rushTD: fullStats.rushing.rushTD || 0,
+            rush20Plus: fullStats.rushing.rush20Plus || 0,
+            rush40Plus: fullStats.rushing.rush40Plus || 0,
+            rushFumbles: fullStats.rushing.rushFumbles || 0
+        },
+        receiving: {
+            targets: fullStats.receiving.targets || 0,
+            receptions: fullStats.receiving.receptions || 0,
+            recYards: fullStats.receiving.receptions || 0,
+            recTD: fullStats.receiving.recTD || 0,
+            rec20Plus: fullStats.receiving.rec20Plus || 0,
+            rec40Plus: fullStats.receiving.rec40Plus || 0,
+            recFumbles: fullStats.receiving.recFumbles || 0
+        },
+        fumbles: {
+            fumbles: fullStats.fumbles.fumbles || 0,
+            fumbles: fullStats.fumbles.fumLost || 0
+        },
+        fieldGoals: {
+            fgMade1_19: fullStats.fieldGoals.fgMade1_19 || 0,
+            fgMade20_29: fullStats.fieldGoals.fgMade20_29 || 0,
+            fgmade30_39: fullStats.fieldGoals.fgmade30_39 || 0,
+            fgMade40_49: fullStats.fieldGoals.fgMade40_49 || 0,
+            fgMade50Plus: fullStats.fieldGoals.fgMade50Plus || 0
+        }
+    };
+    mergeMySportsWithDB(playerInDB);
 };
 
-const findPlayerInDB = async (player, season) => {
+const mergeMySportsWithDB = (playerInDB) => {
+    //TODO For some reason when I try and access stats it's undefined
+    //Merge the player with the current pull. Take the current stats and then send it
+    db.FantasyStats.findByIdAndUpdate(playerInDB._id, playerInDB, (err) => {
+        console.log("updating DB")
+        if (err) {
+            //TODO Do more than just log the error
+            console.log(err)
+        };
+    });
+};
+
+const findPlayerInDB = async (playerID) => {
+
     try {
-        const playerInDB = await db.FantasyStats.findOne({ mySports_id: player.id });
-        //TODO Start here. Make it so I can write players to the database
+        const playerInDB = await db.FantasyStats.findOne({ 'mySportsId': playerID });
         //First check if the player is currently in the database
         if (playerInDB === null) {
             //Send the player data back, they are not currently in the DB and can be added as is
-            return player;
+            return false;
         } else {
             //The player is currently in the DB, send the current player in the DB and the mySports Player to a function
-            mergeMySportsWithDB(player, season);
-            console.log(playerInDB)
+            // const mergedPlayer = mergeMySportsWithDB(playerInDB);
+            // updatePlayerWithCurrentWeek(mergedPlayer)
+            return playerInDB;
         }
     } catch (err) {
-        console.log(err);
+        console.log("what", err);
     };
 };
 
-const getStats = (player, stats, team, season, week) => {
+const getNewPlayerStats = (player, stats, team, season, week) => {
     const combinedStats = {};
 
     combinedStats.full_name = `${player.firstName} ${player.lastName}`;
-    combinedStats.id = player.id;
+    combinedStats.mySportsId = player.id;
     combinedStats.position = player.position;
     combinedStats.team = { id: team.id, abbreviation: team.abbreviation }
 
@@ -112,7 +164,6 @@ const getStats = (player, stats, team, season, week) => {
 
 const parseRoster = (playerArray) => {
     for (let i = 0; i < playerArray.length; i++) {
-        console.log(playerArray[i])
         //TODO Issue with the line below this one
         const position = playerArray[i].player.position;
         if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
@@ -130,7 +181,7 @@ module.exports = {
             },
             params: {
                 season: season,
-                team: `CHI`,
+                team: `DAL`,
                 rosterstatus: `assigned-to-roster`
             }
         });
@@ -156,15 +207,30 @@ module.exports = {
 
             if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
 
-                player = getStats(search.data.gamelogs[i].player, search.data.gamelogs[i].stats, search.data.gamelogs[i].team, season, week);
-                const DBReadyPlayer = await findPlayerInDB(player, season)
-                weeklyPlayerArray.push(DBReadyPlayer)
+                //This is going to go two ways after this point
+                //If the player is found in the database then go and update the record
+                //This searches the database and then returns true if they are in there and false if they are not
+                //If they are in the database then the findPlayerInDB function convers it. Since we are already accessing the database with this, there is no reason to try and pass it back and then go out again
+                const playerInDB = await findPlayerInDB(search.data.gamelogs[i].player.id);
 
+                //False is first because false is directly returned in querying the database
+                if (!playerInDB) {
+                    //They are not in the database. Init the object and then add them to an array which whill then be written to the database
+                    console.log(`not in DB`)
+                    player = await getNewPlayerStats(search.data.gamelogs[i].player, search.data.gamelogs[i].stats, search.data.gamelogs[i].team, season, week);
+                    //If they are not found in the database, add them to an array and then
+                    weeklyPlayerArray.push(player);
+                } else {
+                    //TODO If the player is in the database
+                    updatePlayerWithCurrentWeek(playerInDB, search.data.gamelogs[i].stats, season, week);
+                };
             };
         };
         //TODO Now have the player array written to the DB
-        updateDBWithCurrentWeek(weeklyPlayerArray);
-        console.log(`hitting write to DB`, weeklyPlayerArray)
+        if (weeklyPlayerArray.length >= 1) {
+            addPlayerToDB(weeklyPlayerArray);
+        };
+        console.log(`done`)
         return weeklyPlayerArray;
     },
     getPlayerData: async (season, week) => {

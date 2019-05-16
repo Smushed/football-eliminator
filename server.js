@@ -14,7 +14,7 @@ const MONGODB_URI = process.env.MONGODB_URI || `mongodb://localhost/fantasyElimi
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
 app.use(Cors());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
@@ -23,6 +23,7 @@ if (process.env.NODE_ENV === `production`) {
   app.use(express.static(`client/build`));
 };
 
+require(`./routes/displayPlayersRoutes`)(app);
 require(`./routes/mySportsRoutes`)(app);
 require(`./routes/groupRoutes`)(app);
 require(`./routes/userRoutes`)(app);
