@@ -4,9 +4,6 @@ import { Route, BrowserRouter } from 'react-router-dom';
 import { withFirebase } from './componenets/Firebase';
 import axios from 'axios';
 
-//background
-
-
 // Components
 import SignUpPage from './componenets/SignUp';
 import SignInPage from './componenets/SignIn';
@@ -123,10 +120,9 @@ class App extends Component {
             }
           />
           <Route
-            path={`/testgamedata`}
-            render={() =>
-              <TestGameData />
-            }
+            path={`/testgamedata/:week`}
+            render={props =>
+              <TestGameData {...props} />}
           />
           <Route
             path={`/displayplayers`}

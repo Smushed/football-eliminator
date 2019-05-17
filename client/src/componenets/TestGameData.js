@@ -9,16 +9,23 @@ class TestGameData extends Component {
         };
     };
 
-    componentDidMount = async () => {
-        const dbResponse = await axios.get(`/api/testgame`);
+    componentDidMount() {
+        const week = this.props.match.params.week;
+        if (typeof week !== 'undefined') {
+            console.log(week)
+            this.getWeeklyData(week);
+        }
+    };
+
+    getWeeklyData = async (week) => {
+        const dbResponse = await axios.get(`/api/testgame/${week}`);
 
         if (dbResponse) {
-
             this.setState({
                 exampleArray: dbResponse.data
             })
         }
-    };
+    }
 
     render() {
         return (
