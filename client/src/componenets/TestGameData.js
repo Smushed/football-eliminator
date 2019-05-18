@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import axios from 'axios';
 
 class TestGameData extends Component {
@@ -18,7 +18,7 @@ class TestGameData extends Component {
     };
 
     getWeeklyData = async (week) => {
-        const dbResponse = await axios.get(`/api/testgame/${week}`);
+        const dbResponse = await axios.get(`/api/updatePlayers/${week}`);
 
         if (dbResponse) {
             this.setState({
