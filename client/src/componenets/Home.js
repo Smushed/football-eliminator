@@ -22,8 +22,8 @@ class Home extends Component {
                     Game Data
                 </Link>
                 <br />
-                <Link to={`/displayplayers`}>
-                    Display Players
+                <Link to={`/getweeklydata`}>
+                    Update Weekly Player Data
                 </Link>
             </Fragment>
         );
