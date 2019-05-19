@@ -29,6 +29,7 @@ const addPlayerToDB = (weeklyPlayerArray) => {
 };
 
 const updatePlayerWithCurrentWeek = (playerInDB, newWeekStats, season, week) => {
+
     const fullStats = placeholderStats(newWeekStats);
 
     playerInDB.stats[season][week] = {
@@ -221,7 +222,6 @@ module.exports = {
                     //If they are not found in the database, add them to an array and then
                     weeklyPlayerArray.push(player);
                 } else {
-                    //TODO If the player is in the database
                     updatePlayerWithCurrentWeek(playerInDB, search.data.gamelogs[i].stats, season, week);
                 };
             };
@@ -230,8 +230,12 @@ module.exports = {
         if (weeklyPlayerArray.length >= 1) {
             addPlayerToDB(weeklyPlayerArray);
         };
-        console.log(`done`)
-        return weeklyPlayerArray;
+        //TODO Do more than just send the same thing
+        const response = {
+            status: 200,
+            text: `DB Updated`
+        }
+        return response;
     },
     getPlayerData: async (season, week) => {
         //This is useless right now. Has the same functionality as the function above it
