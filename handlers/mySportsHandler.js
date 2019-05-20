@@ -217,7 +217,7 @@ module.exports = {
                 //False is first because false is directly returned in querying the database
                 if (!playerInDB) {
                     //They are not in the database. Init the object and then add them to an array which whill then be written to the database
-                    console.log(`not in DB`)
+                    console.log(`not in DB`, search.data.gamelogs[i].player.id)
                     player = await getNewPlayerStats(search.data.gamelogs[i].player, search.data.gamelogs[i].stats, search.data.gamelogs[i].team, season, week);
                     //If they are not found in the database, add them to an array and then
                     weeklyPlayerArray.push(player);
@@ -235,6 +235,7 @@ module.exports = {
             status: 200,
             text: `DB Updated`
         }
+        console.log(`done`)
         return response;
     },
     getPlayerData: async (season, week) => {

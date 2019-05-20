@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import { Button, Form, FormGroup, Label, Input } from 'reactstrap';
+import { Button, Form, FormGroup, Label, Input, Container, Row, Col } from 'reactstrap';
 import { PropagateLoader } from "react-spinners";
 
-const loaderStyle = `
-    display: block;
-    margin: 0 auto;
-`;
+const loaderStyle = {
+    display: 'block',
+    margin: '0 auto'
+};
 
 class GetWeeklyData extends Component {
     constructor(props) {
@@ -32,15 +32,15 @@ class GetWeeklyData extends Component {
         this.setState({ loading: true });
 
         event.preventDefault();
-        const dbResponse = await axios.get(`/api/updatePlayers/${this.state.seasonSelect}/${this.state.weekSelect}`);
-
-        if (dbResponse) {
-            console.log('worked', dbResponse)
-            this.setState({
-                loading: false,
-                serverResponse: dbResponse.data
+        axios.get(`/api/updatePlayers/${this.state.seasonSelect}/${this.state.weekSelect}`)
+            .then(response => {
+                this.setState({ loading: false })
+                console.log(response)
             })
-        }
+            .catch(err =>
+                //TODO Do more than log the error
+                console.log(err)
+            )
     };
 
     handleChange = event => {
@@ -51,61 +51,68 @@ class GetWeeklyData extends Component {
 
     render() {
         return (
-            <div>
-                Bazinga
+            <Container>
+                <Row>
+                    <Col xs={{ size: 6, offset: 3 }}>
+                        <div>
+                            Bazinga
                 <br />
-                {this.state.loading ? (
-                    <PropagateLoader
-                        css={loaderStyle}
-                        sizeUnit={'px'}
-                        height={4}
-                        width={200}
-                        loading={this.state.loading}
-                    />
-                ) : (
-                        <Form onSubmit={this.getWeeklyData}>
-                            <FormGroup>
-                                <Label for='seasonSelect'>
-                                    Select Season
-                            </Label>
-                                <Input type='select' name='seasonSelect' value={this.state.seasonSelect} onChange={this.handleChange}>
-                                    <option>2017-2018-regular</option>
-                                    <option>2018-2019-regular</option>
-                                    <option>2019-2020-regular</option>
-                                </Input>
-                            </FormGroup>
-                            <FormGroup>
-                                <Label for='weekSelect'>
-                                    Select Week
-                            </Label>
-                                <Input type='select' name='weekSelect' value={this.state.weekSelect} onChange={this.handleChange}>
-                                    <option>1</option>
-                                    <option>2</option>
-                                    <option>3</option>
-                                    <option>4</option>
-                                    <option>5</option>
-                                    <option>6</option>
-                                    <option>7</option>
-                                    <option>8</option>
-                                    <option>9</option>
-                                    <option>10</option>
-                                    <option>11</option>
-                                    <option>12</option>
-                                    <option>13</option>
-                                    <option>14</option>
-                                    <option>15</option>
-                                    <option>16</option>
-                                    <option>17</option>
-                                </Input>
-                            </FormGroup>
-                            <Button color='primary' size='lg' type='submit'>
-                                Submit
-                        </Button>
-                        </Form>
-                    )}
-                <div>
-                </div>
-            </div>
+                            {this.state.loading ? (
+                                <PropagateLoader
+                                    css={loaderStyle}
+                                    sizeUnit={'px'}
+                                    height={4}
+                                    width={200}
+                                    color={"#36D7B7"}
+                                    loading={this.state.loading}
+                                />
+                            ) : (
+                                    <Form onSubmit={this.getWeeklyData}>
+                                        <FormGroup>
+                                            <Label for='seasonSelect'>
+                                                Select Season
+                                            </Label>
+                                            <Input type='select' name='seasonSelect' value={this.state.seasonSelect} onChange={this.handleChange}>
+                                                <option>2017-2018-regular</option>
+                                                <option>2018-2019-regular</option>
+                                                <option>2019-2020-regular</option>
+                                            </Input>
+                                        </FormGroup>
+                                        <FormGroup>
+                                            <Label for='weekSelect'>
+                                                Select Week
+                                            </Label>
+                                            <Input type='select' name='weekSelect' value={this.state.weekSelect} onChange={this.handleChange}>
+                                                <option>1</option>
+                                                <option>2</option>
+                                                <option>3</option>
+                                                <option>4</option>
+                                                <option>5</option>
+                                                <option>6</option>
+                                                <option>7</option>
+                                                <option>8</option>
+                                                <option>9</option>
+                                                <option>10</option>
+                                                <option>11</option>
+                                                <option>12</option>
+                                                <option>13</option>
+                                                <option>14</option>
+                                                <option>15</option>
+                                                <option>16</option>
+                                                <option>17</option>
+                                            </Input>
+                                        </FormGroup>
+                                        <Button color='primary' size='lg' type='submit'>
+                                            Submit
+                                        </Button>
+                                    </Form>
+                                )}
+                            <div>
+                            </div>
+                        </div>
+                    </Col>
+                </Row>
+            </Container>
         )
     }
 }

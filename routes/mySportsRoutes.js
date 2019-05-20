@@ -15,8 +15,8 @@ module.exports = app => {
         //getWeeklyData returns all player data for that week in an array
         //TODO Change this
         //Currently if this runs while there is no new players to add the front end will break
-        if (response.status = 200) {
-            res.status(200).send(response.text)
-        }
+
+        res.status(200).send(response.text)
+
     });
 }
