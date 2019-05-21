@@ -107,8 +107,6 @@ class GetWeeklyData extends Component {
                                         </Button>
                                     </Form>
                                 )}
-                            <div>
-                            </div>
                         </div>
                     </Col>
                 </Row>

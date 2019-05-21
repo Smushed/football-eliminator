@@ -190,6 +190,21 @@ module.exports = {
 
         return ['Working', 0, 0, 0]
     },
+    getMassData: function () {
+        const seasonList = [`2017-2018-regular`, `2018-2019-regular`];
+        const weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
+
+        for (let i = 0; i < seasonList.length; i++) {
+            for (let ii = 0; ii < weeks.length; ii++) {
+                this.getWeeklyData(seasonList[i], weeks[ii]);
+            };
+        };
+        const testReturn = {
+            status: 200,
+            text: `working`
+        }
+        return testReturn;
+    },
     getWeeklyData: async (season, week) => {
         //This gets a specific week's worth of games and iterates through the list of players to come up with an array
         //The array has player id, names, positions and stats in it. It then should feed an update a database

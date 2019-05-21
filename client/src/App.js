@@ -18,6 +18,7 @@ import GroupPage from './componenets/GroupPage';
 import TestRoster from './componenets/TestRoster';
 import GetWeeklyData from './componenets/GetWeeklyData'
 import DisplayPlayers from './componenets/DisplayPlayers'
+import GetMassData from './componenets/GetMassData'
 
 //adding a comment hoping it will help merge on github
 class App extends Component {
@@ -128,6 +129,12 @@ class App extends Component {
             path={`/displayplayers`}
             render={() =>
               <DisplayPlayers />
+            }
+          />
+          <Route
+            path={`/getmassdata`}
+            render={() =>
+              <GetMassData />
             }
           />
         </div>
