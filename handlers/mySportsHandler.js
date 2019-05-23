@@ -255,27 +255,5 @@ module.exports = {
         }
         console.log(`get weekly data done`)
         return response;
-    },
-    getPlayerData: async (season, week) => {
-        //This is useless right now. Has the same functionality as the function above it
-        const search = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${week}/player_gamelogs.json`, {
-            auth: {
-                username: mySportsFeedsAPI,
-                password: `MYSPORTSFEEDS`
-            },
-            params: {
-                team: `CHI`,
-                position: `qb`
-            }
-        });
-
-        const builtPlayerArray = [{
-            name: `${search.data.gamelogs[0].player.firstName} ${search.data.gamelogs[0].player.lastName}`,
-            position: search.data.gamelogs[0].player.position,
-            passYards: search.data.gamelogs[0].stats.passing.passingYards
-        }];
-
-        console.log(builtPlayerArray)
-        return builtPlayerArray
     }
 };

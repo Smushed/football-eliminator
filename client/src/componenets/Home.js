@@ -29,6 +29,10 @@ class Home extends Component {
                 <Link to={`/getmassdata`}>
                     Update all the player data
                 </Link>
+                <br />
+                <Link to={`/displayplayers`}>
+                    Display Player Data
+                </Link>
             </Fragment>
         );
     };
