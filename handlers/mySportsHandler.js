@@ -190,13 +190,16 @@ module.exports = {
 
         return ['Working', 0, 0, 0]
     },
-    getMassData: function () {
+    getMassData: async function () {
         const seasonList = [`2017-2018-regular`, `2018-2019-regular`];
         const weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
 
         for (let i = 0; i < seasonList.length; i++) {
             for (let ii = 0; ii < weeks.length; ii++) {
-                this.getWeeklyData(seasonList[i], weeks[ii]);
+                //TODO This is firing through and sending out 17x2 requests rather than waiting for each one
+                //Need to make async???
+                await this.getWeeklyData(seasonList[i], weeks[ii]);
+                console.log('data has been updated')
             };
         };
         const testReturn = {
@@ -250,7 +253,7 @@ module.exports = {
             status: 200,
             text: `DB Updated`
         }
-        console.log(`done`)
+        console.log(`get weekly data done`)
         return response;
     },
     getPlayerData: async (season, week) => {
