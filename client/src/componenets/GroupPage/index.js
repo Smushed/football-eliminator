@@ -124,18 +124,7 @@ class GroupPage extends Component {
   };
 
   render() {
-    const {
-      groupID,
-      groupName,
-      groupDescription,
-      userlist,
-      error,
-      isAdmin,
-      showMainPage,
-      addUser
-    } = this.state;
-
-    const { userID } = this.props;
+    const { groupID, groupName, groupDescription, userlist, error, isAdmin, addUser } = this.state;
 
     return (
       <div>

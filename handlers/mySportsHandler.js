@@ -190,6 +190,24 @@ module.exports = {
 
         return ['Working', 0, 0, 0]
     },
+    getMassData: async function () {
+        const seasonList = [`2017-2018-regular`, `2018-2019-regular`];
+        const weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
+
+        for (let i = 0; i < seasonList.length; i++) {
+            for (let ii = 0; ii < weeks.length; ii++) {
+                //TODO This is firing through and sending out 17x2 requests rather than waiting for each one
+                //Need to make async???
+                await this.getWeeklyData(seasonList[i], weeks[ii]);
+                console.log('data has been updated')
+            };
+        };
+        const testReturn = {
+            status: 200,
+            text: `working`
+        }
+        return testReturn;
+    },
     getWeeklyData: async (season, week) => {
         //This gets a specific week's worth of games and iterates through the list of players to come up with an array
         //The array has player id, names, positions and stats in it. It then should feed an update a database
@@ -217,7 +235,7 @@ module.exports = {
                 //False is first because false is directly returned in querying the database
                 if (!playerInDB) {
                     //They are not in the database. Init the object and then add them to an array which whill then be written to the database
-                    console.log(`not in DB`)
+                    console.log(`not in DB`, search.data.gamelogs[i].player.id)
                     player = await getNewPlayerStats(search.data.gamelogs[i].player, search.data.gamelogs[i].stats, search.data.gamelogs[i].team, season, week);
                     //If they are not found in the database, add them to an array and then
                     weeklyPlayerArray.push(player);
@@ -235,6 +253,7 @@ module.exports = {
             status: 200,
             text: `DB Updated`
         }
+        console.log(`get weekly data done`)
         return response;
     },
     getPlayerData: async (season, week) => {
