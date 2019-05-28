@@ -14,7 +14,7 @@ class Home extends Component {
                     Create a Group
                 </Link>
                 <br />
-                <Link to={`/testroster`}>
+                <Link to={`/roster/${this.props.userID}`}>
                     Roster
                 </Link>
                 <br />
