@@ -26,7 +26,8 @@ class App extends Component {
 
     this.state = {
       authUser: null,
-      currentUser: {}
+      currentUser: {},
+      currentWeek: 0
     }
 
   };
@@ -36,6 +37,7 @@ class App extends Component {
       if (authUser) {
         this.setState({ authUser });
         this.isSignedIn(authUser.email);
+        this.getCurrentData();
       } else {
         this.setState({ authUser: null, currentUser: {} });
       }
@@ -54,8 +56,12 @@ class App extends Component {
       grouplist: dbResponse.data.grouplist
     }
     this.setState({ currentUser })
-  }
+  };
 
+  getCurrentData = async () => {
+    const currentWeek = await axios.get(`/api/currentWeekData`);
+    this.setState(currentWeek)
+  };
 
   render() {
 

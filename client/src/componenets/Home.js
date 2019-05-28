@@ -15,7 +15,7 @@ class Home extends Component {
                 </Link>
                 <br />
                 <Link to={`/roster/${this.props.userID}`}>
-                    Roster
+                    My Roster
                 </Link>
                 <br />
                 <Link to={`/testgamedata`}>

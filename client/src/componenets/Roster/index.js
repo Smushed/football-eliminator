@@ -25,7 +25,7 @@ class Roster extends Component {
 
     getRosterData = (userIDFromURL) => {
         if (userIDFromURL === this.props.userID) {
-            console.log(`working`)
+            console.log(date)
         }
     }
 
