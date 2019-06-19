@@ -4,6 +4,8 @@ import axios from 'axios';
 
 import { Row, Col } from 'reactstrap';
 
+//Start here and use React DND
+
 class Roster extends Component {
     constructor(props) {
         super(props);
