@@ -196,8 +196,6 @@ module.exports = {
 
         for (let i = 0; i < seasonList.length; i++) {
             for (let ii = 0; ii < weeks.length; ii++) {
-                //TODO This is firing through and sending out 17x2 requests rather than waiting for each one
-                //Need to make async???
                 await this.getWeeklyData(seasonList[i], weeks[ii]);
                 console.log('data has been updated')
             };
@@ -244,7 +242,6 @@ module.exports = {
                 };
             };
         };
-        //TODO Now have the player array written to the DB
         if (weeklyPlayerArray.length >= 1) {
             addPlayerToDB(weeklyPlayerArray);
         };
@@ -255,27 +252,5 @@ module.exports = {
         }
         console.log(`get weekly data done`)
         return response;
-    },
-    getPlayerData: async (season, week) => {
-        //This is useless right now. Has the same functionality as the function above it
-        const search = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${week}/player_gamelogs.json`, {
-            auth: {
-                username: mySportsFeedsAPI,
-                password: `MYSPORTSFEEDS`
-            },
-            params: {
-                team: `CHI`,
-                position: `qb`
-            }
-        });
-
-        const builtPlayerArray = [{
-            name: `${search.data.gamelogs[0].player.firstName} ${search.data.gamelogs[0].player.lastName}`,
-            position: search.data.gamelogs[0].player.position,
-            passYards: search.data.gamelogs[0].stats.passing.passingYards
-        }];
-
-        console.log(builtPlayerArray)
-        return builtPlayerArray
     }
 };

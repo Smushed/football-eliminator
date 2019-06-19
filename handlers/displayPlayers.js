@@ -5,7 +5,9 @@ module.exports = {
     byRoster: async () => {
         const players = await db.FantasyStats.find({ 'team.abbreviation': 'CHI' })
 
-        console.log(players)
         return players
+    },
+    playerRoster: () => {
+
     }
 }

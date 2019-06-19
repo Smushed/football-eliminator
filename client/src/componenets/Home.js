@@ -14,8 +14,8 @@ class Home extends Component {
                     Create a Group
                 </Link>
                 <br />
-                <Link to={`/testroster`}>
-                    Roster
+                <Link to={`/roster/${this.props.userID}`}>
+                    My Roster
                 </Link>
                 <br />
                 <Link to={`/testgamedata`}>
@@ -28,6 +28,10 @@ class Home extends Component {
                 <br />
                 <Link to={`/getmassdata`}>
                     Update all the player data
+                </Link>
+                <br />
+                <Link to={`/displayplayers`}>
+                    Display Player Data
                 </Link>
             </Fragment>
         );

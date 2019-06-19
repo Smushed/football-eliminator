@@ -15,19 +15,19 @@ import PasswordChange from './componenets/PasswordChange';
 import UserProfile from './componenets/UserProfile'
 import CreateGroup from './componenets/CreateGroup';
 import GroupPage from './componenets/GroupPage';
-import TestRoster from './componenets/TestRoster';
-import GetWeeklyData from './componenets/GetWeeklyData'
-import DisplayPlayers from './componenets/DisplayPlayers'
-import GetMassData from './componenets/GetMassData'
+import GetWeeklyData from './componenets/GetWeeklyData';
+import DisplayPlayers from './componenets/DisplayPlayers';
+import GetMassData from './componenets/GetMassData';
+import Roster from './componenets/Roster'
 
-//adding a comment hoping it will help merge on github
 class App extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       authUser: null,
-      currentUser: {}
+      currentUser: {},
+      currentWeek: 0
     }
 
   };
@@ -37,6 +37,7 @@ class App extends Component {
       if (authUser) {
         this.setState({ authUser });
         this.isSignedIn(authUser.email);
+        this.getCurrentData();
       } else {
         this.setState({ authUser: null, currentUser: {} });
       }
@@ -55,8 +56,12 @@ class App extends Component {
       grouplist: dbResponse.data.grouplist
     }
     this.setState({ currentUser })
-  }
+  };
 
+  getCurrentData = async () => {
+    const currentWeek = await axios.get(`/api/currentWeekData`);
+    this.setState(currentWeek)
+  };
 
   render() {
 
@@ -73,7 +78,7 @@ class App extends Component {
           <Route
             exact path={Routes.home}
             render={() =>
-              <Home grouplist={grouplist} />} />
+              <Home userID={this.state.currentUser.userID} />} />
           <Route
             path={Routes.signin}
             render={() =>
@@ -115,12 +120,6 @@ class App extends Component {
               <UserProfile userID={this.state.currentUser.userID} />}
           />
           <Route
-            path={`/testroster`}
-            render={() =>
-              <TestRoster />
-            }
-          />
-          <Route
             path={`/getWeeklyData/`}
             render={props =>
               <GetWeeklyData {...props} />}
@@ -135,6 +134,12 @@ class App extends Component {
             path={`/getmassdata`}
             render={() =>
               <GetMassData />
+            }
+          />
+          <Route
+            path={Routes.roster}
+            render={props =>
+              <Roster {...props} userID={this.state.currentUser.userID} />
             }
           />
         </div>
