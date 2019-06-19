@@ -4,7 +4,8 @@ import axios from 'axios';
 
 import { Row, Col } from 'reactstrap';
 
-//Start here and use React DND
+import { DragDropContext } from 'react-beautiful-dnd';
+//Start here and use React Beautiful DND
 
 class Roster extends Component {
     constructor(props) {
