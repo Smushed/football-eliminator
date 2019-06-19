@@ -196,8 +196,6 @@ module.exports = {
 
         for (let i = 0; i < seasonList.length; i++) {
             for (let ii = 0; ii < weeks.length; ii++) {
-                //TODO This is firing through and sending out 17x2 requests rather than waiting for each one
-                //Need to make async???
                 await this.getWeeklyData(seasonList[i], weeks[ii]);
                 console.log('data has been updated')
             };
@@ -244,7 +242,6 @@ module.exports = {
                 };
             };
         };
-        //TODO Now have the player array written to the DB
         if (weeklyPlayerArray.length >= 1) {
             addPlayerToDB(weeklyPlayerArray);
         };
