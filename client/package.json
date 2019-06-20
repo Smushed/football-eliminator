@@ -1,7 +1,7 @@
 {
-  "name": "mern",
+  "name": "fantasyelim",
   "version": "0.1.0",
-  "description": "Mern Demo",
+  "description": "Fantasy Football Eliminator",
   "private": true,
   "proxy": "http://localhost:3001/",
   "dependencies": {
@@ -10,11 +10,11 @@
     "dotenv": "^6.2.0",
     "install": "^0.12.2",
     "npm": "^6.9.0",
-    "react": "^16.8.3",
+    "react": "^16.8.6",
     "react-beautiful-dnd": "^11.0.4",
-    "react-bootstrap": "^1.0.0-beta.5",
-    "react-burger-menu": "^1.1.6",
-    "react-dom": "^16.8.3",
+    "react-bootstrap": "^1.0.0-beta.9",
+    "react-burger-menu": "^1.12.0",
+    "react-dom": "^16.8.6",
     "react-quill": "^1.3.3",
     "react-router-dom": "^4.3.1",
     "react-scripts": "^3.0.1",
@@ -25,7 +25,7 @@
     "recompose": "^0.27.1",
     "spectre.css": "^0.5.8",
     "sweetalert2": "^7.33.1",
-    "sweetalert2-react-content": "^1.0.3"
+    "sweetalert2-react-content": "^1.1.0"
   },
   "scripts": {
     "start": "react-scripts start",
