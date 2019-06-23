@@ -1,7 +1,7 @@
 {
-  "name": "mern",
+  "name": "fantasyelim",
   "version": "1.0.0",
-  "description": "Mern Demo",
+  "description": "Fantasy Football Eliminator",
   "main": "server.js",
   "engines": {
     "node": "8.11.3"
@@ -38,11 +38,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ourbookclub/ourbookclub.git"
+    "url": "git+https://github.com/fantasyelim/fantasyelim.git"
   },
   "keywords": [],
   "bugs": {
-    "url": "https://github.com/ourbookclub/ourbookclub/issues"
+    "url": "https://github.com/fantasyelim/fantasyelim/issues"
   },
-  "homepage": "https://github.com/ourbookclub/ourbookclub#readme"
+  "homepage": "https://github.com/fantasyelim/fantasyelim#readme"
 }

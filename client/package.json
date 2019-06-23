@@ -1,7 +1,7 @@
 {
-  "name": "mern",
+  "name": "fantasyelim",
   "version": "0.1.0",
-  "description": "Mern Demo",
+  "description": "Fantasy Football Eliminator",
   "private": true,
   "proxy": "http://localhost:3001/",
   "dependencies": {
