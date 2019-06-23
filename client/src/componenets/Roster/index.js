@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Row, Col } from 'reactstrap';
 
 //Start here and use React DND
+import { DragDropContext } from 'react-beautiful-dnd';
 
 class Roster extends Component {
     constructor(props) {
@@ -31,11 +32,30 @@ class Roster extends Component {
         }
     }
 
+    onBeforeDragStart = () => {
+        /*...*/
+    };
+
+    onDragStart = () => {
+        /*...*/
+    };
+    onDragUpdate = () => {
+        /*...*/
+    };
+    onDragEnd = () => {
+        // the only one that is required
+    };
+
     render() {
         return (
-            <div>
-                working
-            </div>
+            <DragDropContext
+                onBeforeDragStart={this.onBeforeDragStart}
+                onDragStart={this.onDragStart}
+                onDragUpdate={this.onDragUpdate}
+                onDragEnd={this.onDragEnd}
+            >
+                <div>Hello world</div>
+            </DragDropContext>
         )
     }
 }
