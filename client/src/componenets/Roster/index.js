@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
 import { withAuthorization } from '../Session';
-import axios from 'axios';
 
-import { Row, Col } from 'reactstrap';
-
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext, Draggable } from 'react-beautiful-dnd';
 import initialData from './InitialData';
 import Column from './Column';
 //Start here and use React Beautiful DND
@@ -35,18 +32,22 @@ class Roster extends Component {
         }
     }
 
-    onDragEnd = () => {
+    onDragEnd = result => {
         // the only one that is required
     };
 
     render() {
         return (
-            this.state.columnOrder.map((columnId) => {
-                const column = this.state.columns[columnId]; 
-                const players = column.playerIds.map(playerId => this.state.players[playerId]);
+            <DragDropContext
+                onDragEnd={this.onDragEnd}
+            >
+                {this.state.columnOrder.map((columnId) => {
+                    const column = this.state.columns[columnId];
+                    const players = column.playerIds.map(playerId => this.state.players[playerId]);
 
-                return <Column key={column.id} column={column} players={players} />;
-            })
+                    return <Column key={column.id} column={column} players={players} />;
+                })}
+            </DragDropContext>
         )
     }
 }
