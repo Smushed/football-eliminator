@@ -5,11 +5,14 @@ import axios from 'axios';
 import { Row, Col } from 'reactstrap';
 
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import initialData from './InitialData';
+import Column from './Column';
 //Start here and use React Beautiful DND
 
 class Roster extends Component {
     constructor(props) {
         super(props);
+        this.state = initialData;
     }
 
     componentDidMount() {
@@ -31,61 +34,19 @@ class Roster extends Component {
             console.log(`working`)
         }
     }
-    onBeforeDragStart = () => {
-        /*...*/
-    };
 
-    onDragStart = () => {
-        /*...*/
-    };
-    onDragUpdate = () => {
-        /*...*/
-    };
-    onDragEnd = () => {
-        // the only one that is required
-    };
-
-    onBeforeDragStart = () => {
-        /*...*/
-    };
-
-    onDragStart = () => {
-        /*...*/
-    };
-    onDragUpdate = () => {
-        /*...*/
-    };
     onDragEnd = () => {
         // the only one that is required
     };
 
     render() {
         return (
-            <DragDropContext
-                onBeforeDragStart={this.onBeforeDragStart}
-                onDragStart={this.onDragStart}
-                onDragUpdate={this.onDragUpdate}
-                onDragEnd={this.onDragEnd}
-            >
-                <Droppable droppableId="droppable-1" type="PERSON">
-                    {(provided, snapshot) => (
-                        <div
-                            ref={provided.innerRef}
-                            style={{ backgroundColor: snapshot.isDraggingOver ? 'blue' : 'grey' }}
-                            {...provided.droppableProps}
-                        >
-                            <h2>I am a droppable!</h2>
-                            {provided.placeholder}
-                        </div>
-                    )}
-                    <Draggable draggableId="draggable-1" index={0}>
-                        {(provided, snapshot) => (
-                            <h4>My draggable 1</h4>
-                        )}
-                    </Draggable>
-                </Droppable>
-                <div>Hello world</div>
-            </DragDropContext>
+            this.state.columnOrder.map((columnId) => {
+                const column = this.state.columns[columnId]; 
+                const players = column.playerIds.map(playerId => this.state.players[playerId]);
+
+                return <Column key={column.id} column={column} players={players} />;
+            })
         )
     }
 }

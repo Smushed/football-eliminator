@@ -24,6 +24,7 @@
     "reactstrap": "^7.1.0",
     "recompose": "^0.27.1",
     "spectre.css": "^0.5.8",
+    "styled-components": "^4.3.2",
     "sweetalert2": "^7.33.1",
     "sweetalert2-react-content": "^1.1.0"
   },
