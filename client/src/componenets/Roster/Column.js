@@ -12,9 +12,17 @@ const Container = styled.div`
 const Title = styled.h3`
     padding: 8px;
 `;
-const PlayerList = styled.div`
-    padding: 8px;
-`;
+
+class PlayerList extends Component {
+    render() {
+        const { provided, innerRef, children } = this.props;
+        return (
+            <div {...provided.droppableProps} ref={innerRef}>
+                {children}
+            </div>
+        )
+    }
+}
 
 
 export default class Column extends Component {
@@ -24,16 +32,15 @@ export default class Column extends Component {
                 <Title>
                     {this.props.column.title}
                 </Title>
-                <Droppable droppableId={this.props.players.id}>
-                    {(provided) => (
+                <Droppable droppableId={this.props.column.id}>
+                    {provided => (
                         <PlayerList
-                            forwardRef={provided.forwardRef}
-                            {...provided.droppableProps}
+                            innerRef={provided.innerRef}
+                            provided={provided}
                         >
-                            {/* TODO Places to start with next time
-                            https://egghead.io/lessons/react-reorder-a-list-with-react-beautiful-dnd
-                            https://github.com/atlassian/react-beautiful-dnd/issues/875 */}
-                            {this.props.players.map((player, index) => <Player key={player.id} player={player} index={index} />)}
+                            {this.props.players.map((player, index) => (
+                                <Player key={player.id} player={player} index={index} provided={provided} innerRef={provided.innerRef} />
+                            ))}
                             {provided.placeholder}
                         </PlayerList>
                     )}

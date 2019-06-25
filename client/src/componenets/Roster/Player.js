@@ -17,7 +17,7 @@ export default class Player extends Component {
                     <Container
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
-                        forwardRef={provided.forwardRef}
+                        ref={provided.innerRef}
                     >
                         {this.props.player.passingyds}
                     </Container>
