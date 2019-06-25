@@ -22,8 +22,7 @@ class PlayerList extends Component {
             </div>
         )
     }
-}
-
+};
 
 export default class Column extends Component {
     render() {
