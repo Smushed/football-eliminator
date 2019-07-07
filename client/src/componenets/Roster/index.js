@@ -52,38 +52,84 @@ class Roster extends Component {
         //This is how to re order the array after a drag ends
 
         //Get the column out of the state so we don't mutate the state
-        const column = this.state.columns[source.droppableId];
-        //Make an array with the same contents as the old array
-        const newPlayerIds = Array.from(column.playerIds);
-        //Now move the task ID from its old index to its new index
-        newPlayerIds.splice(source.index, 1);
-        //Start at the destination index, remove nothing and insert the draggableId in that spot
-        newPlayerIds.splice(destination.index, 0, draggableId);
+        //Must be the start and finish since there is a chance that we are moving between two columns
+        //Start and finish is where the drag started and where it finishes
+        const start = this.state.columns[source.droppableId];
+        const finish = this.state.columns[destination.droppableId];
 
-        //Create a new column which has the same properites as the old column but with the newPlayerIds array
-        const newColumn = {
-            ...column,
-            playerIds: newPlayerIds
+        if (start === finish) {
+            // If we are not changing columns, only reordering within the columns then we can reorganize the list in the order the user wants
+
+            //Make an array with the same contents as the old array
+            const newPlayerIds = Array.from(start.playerIds);
+            //Now move the task ID from its old index to its new index
+            newPlayerIds.splice(source.index, 1);
+            //Start at the destination index, remove nothing and insert the draggableId in that spot
+            newPlayerIds.splice(destination.index, 0, draggableId);
+
+            //Create a new column which has the same properites as the old column but with the newPlayerIds array
+            const newColumn = {
+                ...start,
+                playerIds: newPlayerIds
+            };
+
+            //Now put this into a new picture of the state
+            //Using spread to keep the references and updating the parts we want to change
+            const newState = {
+                ...this.state,
+                columns: {
+                    ...this.state.columns,
+                    //Now insert the new column
+                    [newColumn.id]: newColumn
+                },
+            };
+            //Now push the changes to the state
+            this.setState(newState);
+            return;
+        }
+
+        // Moving from one column to another
+        const startNewPlayerIds = Array.from(start.playerIds);
+        //Remove the dragged task Id from this array
+        startNewPlayerIds.splice(source.index, 1);
+        //Create a new start column that contains the new properties as the old column but with the new start task Ids array
+        const newStart = {
+            ...start,
+            playerIds: startNewPlayerIds
         };
 
-        //Now put this into a new picture of the state
-        //Using spread to keep the references and updating the parts we want to change
+        //Creating a new array for the dropped column that contains the same Ids as the finished task array
+        const finishPlayerIds = Array.from(finish.playerIds);
+        //Splice in the dropped player into the array
+        finishPlayerIds.splice(destination.index, 0, draggableId);
+        const newFinish = {
+            ...finish,
+            playerIds: finishPlayerIds
+        };
+
         const newState = {
             ...this.state,
             columns: {
+                //Update the columns in the state object
                 ...this.state.columns,
-                //Now insert the new column
-                [newColumn.id]: newColumn
-            },
+                //Specifically only overwrite the start and finish column.
+                //If there are more than two on the screen we only want to overwrite what has been dragged and dropped
+                [newStart.id]: newStart,
+                [newFinish.id]: newFinish
+            }
         };
 
-        //Now push the changes to the state
         this.setState(newState);
+
     };
 
     render() {
         return (
-            <DragDropContext onDragEnd={this.onDragEnd}>
+            <DragDropContext
+                // These are callbacks for updating the drag when someone picks something up or drops it
+                // Others are onDragStart and onDragUpdate. They can be used when people pick up the draggable or if they move it around
+                onDragEnd={this.onDragEnd}
+            >
                 <Container>
                     {/* Iterate through all the columns to then display as many columns as needed */}
                     {this.state.columnOrder.map((columnId) => {

@@ -9,18 +9,18 @@ const Container = styled.div`
     border: 1px solid lightgrey;
     border-radius: 2px;
     width: 50%;
-    height: 750px;
+    min-height: 250px;
 
     display: flex;
     flex-direction: column;
 `;
+// The contiainer for the column should be display flex with a flex-direction or some other sort of growing box
+// This is to allow the column to grow with the drag and dropping
+
 const Title = styled.h3`
     padding: 8px;
 `;
 
-const flexForColumn = {
-    flexGrow: '1',
-};
 
 class PlayerList extends Component {
     render() {
@@ -28,10 +28,16 @@ class PlayerList extends Component {
         return (
             <div {...provided.droppableProps}
                 ref={innerRef}
-                className={flexForColumn}
 
                 // Passing down the snapshot into the actual div to color the background when it is dragged over
-                style={{ transition: 'background-color 0.2s', backgroundColor: snapshot.isDraggingOver ? 'blue' : 'white' }}>
+                style={{
+                    transition: 'background-color 0.2s',
+                    backgroundColor: snapshot.isDraggingOver ? 'blue' : 'white',
+
+                    // Be sure to have the flexGrow in combination with the display flex and flex-direction above.
+                    // This will allow the lists to grow to the height of the column
+                    flexGrow: '1'
+                }}>
                 {children}
             </div>
         )
@@ -54,7 +60,6 @@ export default class Column extends Component {
                             provided={provided}
                             snapshot={snapshot}
                         >
-                            {console.log(snapshot.isDraggingOver)}
                             {this.props.players.map((player, index) => (
                                 <Player key={player.id} player={player} index={index} provided={provided} innerRef={provided.innerRef} />
                             ))}
