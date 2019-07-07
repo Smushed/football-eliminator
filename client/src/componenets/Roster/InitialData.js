@@ -9,12 +9,17 @@ const initialData = {
     columns: {
         'column-1': {
             id: 'column-1',
-            title: 'Avaliable',
+            title: 'On Roster',
             playerIds: ['player-1', 'player-2', 'player-3', 'player-4']
+        },
+        'column-2': {
+            id: 'column-2',
+            title: 'Avaliable',
+            playerIds: []
         },
     },
     //Able to order the columns
-    columnOrder: ['column-1'],
+    columnOrder: ['column-1', 'column-2'],
 };
 
 export default initialData;

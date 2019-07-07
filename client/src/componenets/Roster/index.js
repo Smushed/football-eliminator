@@ -4,7 +4,11 @@ import { withAuthorization } from '../Session';
 import { DragDropContext, Draggable } from 'react-beautiful-dnd';
 import initialData from './InitialData';
 import Column from './Column';
-//Start here and use React Beautiful DND
+import styled from 'styled-components';
+
+const Container = styled.div`
+    display: flex;
+`;
 
 class Roster extends Component {
     constructor(props) {
@@ -79,17 +83,17 @@ class Roster extends Component {
 
     render() {
         return (
-            <DragDropContext
-                onDragEnd={this.onDragEnd}
-            >
-                {/* Iterate through all the columns to then display as many columns as needed */}
-                {this.state.columnOrder.map((columnId) => {
-                    const column = this.state.columns[columnId];
-                    //Iterate through all the players in the array of the column and then create an array of them all to show in a column
-                    const players = column.playerIds.map(playerId => this.state.players[playerId]);
+            <DragDropContext onDragEnd={this.onDragEnd}>
+                <Container>
+                    {/* Iterate through all the columns to then display as many columns as needed */}
+                    {this.state.columnOrder.map((columnId) => {
+                        const column = this.state.columns[columnId];
+                        //Iterate through all the players in the array of the column and then create an array of them all to show in a column
+                        const players = column.playerIds.map(playerId => this.state.players[playerId]);
 
-                    return <Column key={column.id} column={column} players={players} />;
-                })}
+                        return <Column key={column.id} column={column} players={players} />;
+                    })}
+                </Container>
             </DragDropContext>
         )
     }
