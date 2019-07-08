@@ -1,5 +1,4 @@
 const db = require(`../models`);
-const axios = require(`axios`);
 
 module.exports = {
     byRoster: async () => {
@@ -7,7 +6,7 @@ module.exports = {
 
         return players
     },
-    playerRoster: () => {
-
+    availablePlayers: (userID) => {
+        return 'working'
     }
 }

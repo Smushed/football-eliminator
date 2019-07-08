@@ -1,4 +1,5 @@
 const userHandler = require(`../handlers/userHandler`);
+const rosterHandler = require(`../handlers/rosterHandler`);
 
 
 module.exports = app => {
@@ -42,5 +43,5 @@ module.exports = app => {
         const userID = req.params.userid;
         const foundUser = await userHandler.getUserByID(userID);
         res.status(200).send(foundUser);
-    })
+    });
 }

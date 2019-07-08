@@ -32,7 +32,7 @@ class PlayerList extends Component {
                 // Passing down the snapshot into the actual div to color the background when it is dragged over
                 style={{
                     transition: 'background-color 0.2s',
-                    backgroundColor: snapshot.isDraggingOver ? 'blue' : 'white',
+                    backgroundColor: snapshot.isDraggingOver ? 'lightblue' : 'white',
 
                     // Be sure to have the flexGrow in combination with the display flex and flex-direction above.
                     // This will allow the lists to grow to the height of the column

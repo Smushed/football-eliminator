@@ -174,6 +174,8 @@ const parseRoster = (playerArray) => {
 };
 
 module.exports = {
+
+    //TODO this is currently not working as intended
     getRosterData: async (season) => {
         const search = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
             auth: {

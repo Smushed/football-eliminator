@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { withAuthorization } from '../Session';
+import axios from 'axios';
 
-import { DragDropContext, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext } from 'react-beautiful-dnd';
 import initialData from './InitialData';
 import Column from './Column';
 import styled from 'styled-components';
@@ -14,27 +15,42 @@ class Roster extends Component {
     constructor(props) {
         super(props);
         this.state = initialData;
-    }
+    };
 
     componentDidMount() {
         const userIDFromURL = this.props.match.params.userID;
         if (typeof userIDFromURL !== 'undefined') {
             this.getRosterData(userIDFromURL);
         }
-    }
+    };
 
     componentDidUpdate(prevProps) {
         if (this.props.userID !== prevProps.userID) {
             const userIDFromURL = this.props.match.params.userID;
             this.getRosterData(userIDFromURL);
         }
-    }
+    };
 
     getRosterData = (userIDFromURL) => {
         if (userIDFromURL === this.props.userID) {
-            console.log(`working`)
+
+            //Inside here after the current roster is hit, then go in and pull the other data
+            //Make the pull avaliable players easily hit from other places as well, since I want a dropdown that defaults to this week
+            //But can be changed in case people want to update more than just this week at once.
+
+            this.getAvailablePlayers(userIDFromURL);
+        } else {
+            //TODO update the styling on this page to then center the Roster as they are looking at another player
+            //Maybe redirect these people to another page? Where they are instead viewing a snapshot of players they've used as well as current roster
         }
-    }
+    };
+
+    getAvailablePlayers = async (userID) => {
+        console.log(`avail hit`)
+        const dbResponse = await axios.get(`/api/availablePlayers/${userID}`);
+
+        console.log(dbResponse);
+    };
 
     onDragEnd = result => {
         const { destination, source, draggableId } = result;
