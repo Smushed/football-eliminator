@@ -166,34 +166,51 @@ const getNewPlayerStats = (player, stats, team, season, week) => {
 const parseRoster = (playerArray) => {
     for (let i = 0; i < playerArray.length; i++) {
         //TODO Issue with the line below this one
-        const position = playerArray[i].player.position;
+        const position = playerArray[i].player.primaryPosition;
         if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
-            console.log(playerArray[i])
+            //This then takes the player that it pulled out of the player array and updates them in the database
+            updatePlayerTeam(playerArray[i])
         }
     };
+};
+
+const updatePlayerTeam = (player) => {
+    console.log(player)
+
+    //TODO Start here and begin updating the database with the updated player
 };
 
 module.exports = {
 
     //TODO this is currently not working as intended
-    getRosterData: async (season) => {
-        const search = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
-            auth: {
-                username: mySportsFeedsAPI,
-                password: `MYSPORTSFEEDS`
-            },
-            params: {
-                season: season,
-                team: `DAL`,
-                rosterstatus: `assigned-to-roster`
-            }
-        });
-        parseRoster(search.data.players);
+    updateRoster: async (season) => {
 
-        return ['Working', 0, 0, 0]
+        const teams = [`ARI`, `ATL`, `BAL`, `BUF`, `CAR`, `CHI`, `CIN`, `CLE`, `DAL`, `DEN`, `DET`, `GB`, `HOU`, `IND`, `JAX`, `KC`, `LAC`, `LAR`, `MIA`, `MIN`, `NE`, `NO`, `NYG`, `NYJ`, `OAK`, `PHI`, `PIT`, `SEA`, `SF`, `TB`, `TEN`, `WAS`];
+
+        teams.forEach(team => {
+            axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
+                auth: {
+                    username: mySportsFeedsAPI,
+                    password: `MYSPORTSFEEDS`
+                },
+                params: {
+                    season: season,
+                    team: team,
+                    rosterstatus: `assigned-to-roster`
+                }
+            }).then((response) => parseRoster(response.data.players));
+        });
+
+        //TODO fix this and make it complete
+        const response = {
+            status: 200,
+            text: 'working?'
+        }
+
+        return response;
     },
     getMassData: async function () {
-        const seasonList = [`2017-2018-regular`, `2018-2019-regular`];
+        const seasonList = [`2017-2018-regular`, `2018-2019-regular`, `2019-2020-regular`];
         const weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
 
         for (let i = 0; i < seasonList.length; i++) {
@@ -221,7 +238,7 @@ module.exports = {
         const weeklyPlayerArray = [];
 
         for (let i = 0; i < search.data.gamelogs.length; i++) {
-            const position = search.data.gamelogs[i].player.position;
+            const position = search.data.gamelogs[i].player.primaryPosition;
             let player = {};
 
             if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
