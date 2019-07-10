@@ -4,10 +4,10 @@ const rosterHandler = require(`../handlers/rosterHandler`);
 
 module.exports = app => {
     app.put(`/api/updateuser`, async (req, res) => {
-        const { userID, value, request } = req.body;
+        const { userId, value, request } = req.body;
 
         //Pass the user to change's field, their updated value and what field they would like to change
-        const updatedUser = await userHandler.updateProfile(userID, value, request);
+        const updatedUser = await userHandler.updateProfile(userId, value, request);
         res.status(200).send(updatedUser)
     });
 
@@ -40,8 +40,8 @@ module.exports = app => {
     });
 
     app.get(`/api/getuserbyid/:userid`, async (req, res) => {
-        const userID = req.params.userid;
-        const foundUser = await userHandler.getUserByID(userID);
+        const userId = req.params.userid;
+        const foundUser = await userHandler.getUserByID(userId);
         res.status(200).send(foundUser);
     });
 }

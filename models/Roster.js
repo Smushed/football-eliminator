@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 //Everything is to be singular
 const RosterSchema = new Schema({
 
-    userID: { //This is who the roster belongs to
+    userId: { //This is who the roster belongs to
         type: String,
         unique: true,
         required: true
