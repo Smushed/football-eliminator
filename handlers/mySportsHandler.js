@@ -101,6 +101,7 @@ const findPlayerInDB = async (playerID) => {
             return playerInDB;
         }
     } catch (err) {
+        //TODO Do something more with the error
         console.log("what", err);
     };
 };
@@ -110,7 +111,7 @@ const getNewPlayerStats = (player, stats, team, season, week) => {
 
     combinedStats.full_name = `${player.firstName} ${player.lastName}`;
     combinedStats.mySportsId = player.id;
-    combinedStats.position = player.position;
+    combinedStats.position = player.primaryPosition;
     combinedStats.team = { id: team.id, abbreviation: team.abbreviation }
 
     //This runs through the stats and fills in any objects that aren't available
@@ -163,21 +164,21 @@ const getNewPlayerStats = (player, stats, team, season, week) => {
     return combinedStats;
 };
 
-const parseRoster = (playerArray) => {
+const parseRoster = (playerArray, team) => {
     for (let i = 0; i < playerArray.length; i++) {
-        //TODO Issue with the line below this one
         const position = playerArray[i].player.primaryPosition;
         if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
             //This then takes the player that it pulled out of the player array and updates them in the database
-            updatePlayerTeam(playerArray[i])
+            updatePlayerTeam(playerArray[i].player, team);
         }
     };
 };
 
-const updatePlayerTeam = (player) => {
-    console.log(player)
+const updatePlayerTeam = async (player, team) => {
 
     //TODO Start here and begin updating the database with the updated player
+    const dbPlayer = await findPlayerInDB(player.id);
+    console.log(dbPlayer.team.id, team, player.id)
 };
 
 module.exports = {
@@ -187,8 +188,10 @@ module.exports = {
 
         const teams = [`ARI`, `ATL`, `BAL`, `BUF`, `CAR`, `CHI`, `CIN`, `CLE`, `DAL`, `DEN`, `DET`, `GB`, `HOU`, `IND`, `JAX`, `KC`, `LAC`, `LAR`, `MIA`, `MIN`, `NE`, `NO`, `NYG`, `NYJ`, `OAK`, `PHI`, `PIT`, `SEA`, `SF`, `TB`, `TEN`, `WAS`];
 
-        teams.forEach(team => {
-            axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
+        //TODO Part of the issue is the data that is coming back into good. The .id in the updatePLayerTeam isn't working correctly
+        //Part of the other reason is it's not waiting until the ajax call in the for loop to complete.
+        for (const team of teams) {
+            await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
                 auth: {
                     username: mySportsFeedsAPI,
                     password: `MYSPORTSFEEDS`
@@ -198,8 +201,11 @@ module.exports = {
                     team: team,
                     rosterstatus: `assigned-to-roster`
                 }
-            }).then((response) => parseRoster(response.data.players));
-        });
+            }).then((response) => {
+                console.log(team)
+                parseRoster(response.data.players, team)
+            });
+        };
 
         //TODO fix this and make it complete
         const response = {
