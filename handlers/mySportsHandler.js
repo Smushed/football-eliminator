@@ -164,21 +164,23 @@ const getNewPlayerStats = (player, stats, team, season, week) => {
     return combinedStats;
 };
 
-const parseRoster = (playerArray, team) => {
+const parseRoster = async (playerArray, team) => {
     for (let i = 0; i < playerArray.length; i++) {
         const position = playerArray[i].player.primaryPosition;
         if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
             //This then takes the player that it pulled out of the player array and updates them in the database
-            updatePlayerTeam(playerArray[i].player, team);
+            await updatePlayerTeam(playerArray[i].player, team);
         }
     };
 };
 
 const updatePlayerTeam = async (player, team) => {
-
     //TODO Start here and begin updating the database with the updated player
     const dbPlayer = await findPlayerInDB(player.id);
-    console.log(dbPlayer.team.id, team, player.id)
+
+    //If dbPlayer is false then we need to write them into the database
+    //If the dbPlayer is not false then we need to overwrite the team that the player is currently on
+    console.log(dbPlayer, team, player.id)
 };
 
 module.exports = {
@@ -186,10 +188,10 @@ module.exports = {
     //TODO this is currently not working as intended
     updateRoster: async (season) => {
 
-        const teams = [`ARI`, `ATL`, `BAL`, `BUF`, `CAR`, `CHI`, `CIN`, `CLE`, `DAL`, `DEN`, `DET`, `GB`, `HOU`, `IND`, `JAX`, `KC`, `LAC`, `LAR`, `MIA`, `MIN`, `NE`, `NO`, `NYG`, `NYJ`, `OAK`, `PHI`, `PIT`, `SEA`, `SF`, `TB`, `TEN`, `WAS`];
+        //TODO put this on another file for general use throughout the app??
+        const teams = [`ARI`, `ATL`, `BAL`, `BUF`, `CAR`, `CHI`, `CIN`, `CLE`, `DAL`, `DEN`, `DET`, `GB`, `HOU`, `IND`, `JAX`, `KC`, `LAC`, `LA`, `MIA`, `MIN`, `NE`, `NO`, `NYG`, `NYJ`, `OAK`, `PHI`, `PIT`, `SEA`, `SF`, `TB`, `TEN`, `WAS`];
 
-        //TODO Part of the issue is the data that is coming back into good. The .id in the updatePLayerTeam isn't working correctly
-        //Part of the other reason is it's not waiting until the ajax call in the for loop to complete.
+        // This loops through the array of all the teams above and gets the current rosters
         for (const team of teams) {
             await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
                 auth: {
@@ -201,10 +203,11 @@ module.exports = {
                     team: team,
                     rosterstatus: `assigned-to-roster`
                 }
-            }).then((response) => {
-                console.log(team)
-                parseRoster(response.data.players, team)
+            }).then(async (response) => {
+                // Then parses through the roster and pulls out of all the offensive players and updates their data
+                await parseRoster(response.data.players, team)
             });
+            //TODO Error handling if the AJAX failed
         };
 
         //TODO fix this and make it complete

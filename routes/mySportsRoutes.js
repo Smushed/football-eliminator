@@ -31,7 +31,7 @@ module.exports = app => {
     //It then takes the rosters it gets from mySportsFeeds and updates the players it finds
     app.get(`/api/updateteams`, async (req, res) => {
         //TODO make this so you can feed in the season you want to change
-        const season = `2018-2019-regular`
+        const season = `2019-2020-regular`
 
         const dbResponse = await mySportsHandler.updateRoster(season);
 
