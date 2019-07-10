@@ -12,13 +12,14 @@ import NavBar from './componenets/NavBar';
 import Home from './componenets/Home';
 import PasswordReset from './componenets/PasswordReset';
 import PasswordChange from './componenets/PasswordChange';
-import UserProfile from './componenets/UserProfile'
+import UserProfile from './componenets/UserProfile';
 import CreateGroup from './componenets/CreateGroup';
 import GroupPage from './componenets/GroupPage';
 import GetWeeklyData from './componenets/GetWeeklyData';
 import DisplayPlayers from './componenets/DisplayPlayers';
 import GetMassData from './componenets/GetMassData';
-import Roster from './componenets/Roster'
+import Roster from './componenets/Roster';
+import CurrentTesting from './componenets/CurrentTesting';
 
 class App extends Component {
   constructor(props) {
@@ -128,6 +129,12 @@ class App extends Component {
             path={`/displayplayers`}
             render={() =>
               <DisplayPlayers />
+            }
+          />
+          <Route
+            path={`/currenttesting`}
+            render={() =>
+              <CurrentTesting />
             }
           />
           <Route

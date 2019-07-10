@@ -18,8 +18,8 @@ class Home extends Component {
                     My Roster
                 </Link>
                 <br />
-                <Link to={`/testgamedata`}>
-                    Game Data
+                <Link to={`/currenttesting`}>
+                    Current Testing
                 </Link>
                 <br />
                 <Link to={`/getweeklydata`}>

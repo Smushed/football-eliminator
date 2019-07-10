@@ -23,10 +23,11 @@ if (process.env.NODE_ENV === `production`) {
   app.use(express.static(`client/build`));
 };
 
-require(`./routes/displayPlayersRoutes`)(app);
+require(`./routes/rosterRoutes`)(app);
 require(`./routes/mySportsRoutes`)(app);
 require(`./routes/groupRoutes`)(app);
 require(`./routes/userRoutes`)(app);
+require(`./routes/testingRoutes`)(app);
 
 // Send every other request to the React app
 // Define any API routes before this runs
