@@ -12,8 +12,8 @@ export default class CurrentTesting extends Component {
 
     componentDidMount = async () => {
         try {
-            const dbResponse = await axios.get(`/api/currenttesting`);
-            this.setState({ playersArray: dbResponse.data })
+            const dbResponse = await axios.get(`/api/updateteams`);
+            // this.setState({ playersArray: dbResponse.data })
             console.log(dbResponse.data);
         } catch (err) {
             console.log(err)
@@ -26,7 +26,7 @@ export default class CurrentTesting extends Component {
             <div>
                 Working
 
-                {this.state.playersArray.map(player => <SinglePlayer player={player} key={player.id} />)}
+                {/* {this.state.playersArray.map(player => <SinglePlayer player={player} key={player.id} />)} */}
             </div>
         );
     }

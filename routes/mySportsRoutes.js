@@ -2,11 +2,6 @@ const mySportsHandler = require(`../handlers/mySportsHandler`);
 
 
 module.exports = app => {
-    app.get(`/api/testroster`, async (req, res) => {
-        const testing = await mySportsHandler.getRosterData(`2018-2019-regular`)
-        console.log(testing)
-        res.status(200).send(testing)
-    });
 
     app.get(`/api/updatePlayers/:season/:week`, async (req, res) => {
         const { season, week } = req.params;
@@ -26,6 +21,24 @@ module.exports = app => {
         console.log(dbResponse);
         if (dbResponse.status === 200) {
             res.status(200).send(dbResponse.text)
+        } else {
+            //TODO Better error handling
+            console.log(dbResponse.text)
+        }
+    });
+
+    //This iterates through all the teams (all 32) and pulls mySportsFeeds for the current rosters
+    //It then takes the rosters it gets from mySportsFeeds and updates the players it finds
+    app.get(`/api/updateteams`, async (req, res) => {
+        //TODO make this so you can feed in the season you want to change
+        const season = `2019-2020-regular`
+
+        const dbResponse = await mySportsHandler.updateRoster(season);
+
+        console.log(dbResponse)
+
+        if (dbResponse.status === 200) {
+            res.status(dbResponse.status).send(dbResponse.text)
         } else {
             //TODO Better error handling
             console.log(dbResponse.text)

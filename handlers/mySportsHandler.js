@@ -1,12 +1,13 @@
 const db = require(`../models`);
 const axios = require(`axios`);
+const nflTeams = require(`../constants/nflTeams`)
 require(`dotenv`).config();
 
 const mySportsFeedsAPI = process.env.MY_SPORTS_FEEDS_API
 
 const placeholderStats = (stats) => {
     //This goes through the returned stats and adds a blank object to any field where the player doesn't have any information
-    //This is done for the getStats function. It needs to have an object to read
+    //This is done for the getStats function. It needs to have an object to read & assign new values to
     const scoringArray = [`passing`, `rushing`, `receiving`, `fumbles`, `kickoffReturns`, `puntReturns`, `twoPointAttempts`, `extraPointAttempts`, `fieldGoals`];
 
     for (let i = 0; i <= 8; i++) {
@@ -17,13 +18,13 @@ const placeholderStats = (stats) => {
     return stats;
 };
 
-const addPlayerToDB = (weeklyPlayerArray) => {
-    db.FantasyStats.collection.insertMany(weeklyPlayerArray, (err, writtenObj) => {
+const addPlayerToDB = (playerArray) => {
+    db.FantasyStats.collection.insertMany(playerArray, (err, writtenObj) => {
         if (err) {
             //TODO Handle the error
             console.log(err);
         } else {
-            return weeklyPlayerArray;
+            return playerArray;
         }
     });
 };
@@ -101,6 +102,7 @@ const findPlayerInDB = async (playerID) => {
             return playerInDB;
         }
     } catch (err) {
+        //TODO Do something more with the error
         console.log("what", err);
     };
 };
@@ -110,7 +112,7 @@ const getNewPlayerStats = (player, stats, team, season, week) => {
 
     combinedStats.full_name = `${player.firstName} ${player.lastName}`;
     combinedStats.mySportsId = player.id;
-    combinedStats.position = player.position;
+    combinedStats.position = player.primaryPosition;
     combinedStats.team = { id: team.id, abbreviation: team.abbreviation }
 
     //This runs through the stats and fills in any objects that aren't available
@@ -163,37 +165,89 @@ const getNewPlayerStats = (player, stats, team, season, week) => {
     return combinedStats;
 };
 
-const parseRoster = (playerArray) => {
+//Goes through the roster of the team and pulls out all offensive players
+const parseRoster = async (playerArray, team, season) => {
+    const newPlayerArray = [];
     for (let i = 0; i < playerArray.length; i++) {
-        //TODO Issue with the line below this one
-        const position = playerArray[i].player.position;
+        const position = playerArray[i].player.primaryPosition;
         if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
-            console.log(playerArray[i])
-        }
+            //This then takes the player that it pulled out of the player array and updates them in the database
+            //TODO Add a status code or something to the updatePlayerTeam function.
+            //TODO This should something we can then run the if statement on to see if they are new or not
+            const dbResponse = await updatePlayerTeam(playerArray[i].player, team, season);
+            //If the updatePlayerTeam returns a certian value pass it along to the new player array to then add to the database
+            //This happens if the player on the roster is not currently in the database and needs to be added
+            if (dbResponse.newPlayer) {
+                newPlayerArray.push(dbResponse.newPlayer);
+            };
+        };
     };
+    // If the amount of new players are over one, then add them all to the database
+    if (newPlayerArray.length >= 1) {
+        addPlayerToDB(newPlayerArray)
+    }
+};
+
+const updatePlayerTeam = async (player, team, season) => {
+    //Check the database for the player
+    const dbPlayer = await findPlayerInDB(player.id);
+    const response = {};
+
+    //If dbPlayer is false then we need to write them into the database
+    //If the dbPlayer is not false then we need to overwrite the team that the player is currently on
+    if (!dbPlayer) {
+        //Stats are going to be passed in a blank object. This API call doesn't return stats, so we just want to feed it an empty object
+        //The getNewPlayerStats needs stats to be passed in, but if there are none available it will default them to 0.
+        //A player must be created with stats
+        //Week here can be 17 because only new players should be added. If any of them aren't new then this will overwrite their week 17 stats
+        //TODO Something better then feeding in bogus data. Likely make the getNewPlayer more robust by adding another field
+        response.newPlayer = getNewPlayerStats(player, {}, team, season, 17);
+    } else {
+        response.newPlayer = false;
+        const updatedPlayer = await db.FantasyStats.findOneAndUpdate({ 'mySportsId': player.id }, { 'team': team }, { new: true });
+        console.log(updatedPlayer)
+        response.updatedPlayer = updatedPlayer;
+    };
+    return response;
 };
 
 module.exports = {
 
     //TODO this is currently not working as intended
-    getRosterData: async (season) => {
-        const search = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
-            auth: {
-                username: mySportsFeedsAPI,
-                password: `MYSPORTSFEEDS`
-            },
-            params: {
-                season: season,
-                team: `DAL`,
-                rosterstatus: `assigned-to-roster`
-            }
-        });
-        parseRoster(search.data.players);
+    updateRoster: async (season) => {
 
-        return ['Working', 0, 0, 0]
+        // This loops through the array of all the teams above and gets the current rosters
+        for (const team of nflTeams.teamMapping) {
+            console.log(team)
+            await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
+                auth: {
+                    username: mySportsFeedsAPI,
+                    password: `MYSPORTSFEEDS`
+                },
+                params: {
+                    season: season,
+                    team: team.abbreviation,
+                    rosterstatus: `assigned-to-roster`
+                }
+            }).then(async (response) => {
+                // Then parses through the roster and pulls out of all the offensive players and updates their data
+                //This also gets any new players and adds them to the DB but inside this function
+                //Await because I want it to iterate through the whole roster that was provided before moving onto the next one
+                await parseRoster(response.data.players, team, season)
+            });
+            //TODO Error handling if the AJAX failed
+        };
+
+        //TODO fix this and make it complete
+        const response = {
+            status: 200,
+            text: 'working?'
+        }
+
+        return response;
     },
     getMassData: async function () {
-        const seasonList = [`2017-2018-regular`, `2018-2019-regular`];
+        const seasonList = [`2017-2018-regular`, `2018-2019-regular`, `2019-2020-regular`];
         const weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
 
         for (let i = 0; i < seasonList.length; i++) {
@@ -221,7 +275,7 @@ module.exports = {
         const weeklyPlayerArray = [];
 
         for (let i = 0; i < search.data.gamelogs.length; i++) {
-            const position = search.data.gamelogs[i].player.position;
+            const position = search.data.gamelogs[i].player.primaryPosition;
             let player = {};
 
             if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
