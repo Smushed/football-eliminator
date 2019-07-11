@@ -18,13 +18,13 @@ const placeholderStats = (stats) => {
     return stats;
 };
 
-const addPlayerToDB = (weeklyPlayerArray) => {
-    db.FantasyStats.collection.insertMany(weeklyPlayerArray, (err, writtenObj) => {
+const addPlayerToDB = (playerArray) => {
+    db.FantasyStats.collection.insertMany(playerArray, (err, writtenObj) => {
         if (err) {
             //TODO Handle the error
             console.log(err);
         } else {
-            return weeklyPlayerArray;
+            return playerArray;
         }
     });
 };
@@ -174,22 +174,24 @@ const parseRoster = async (playerArray, team, season) => {
             //This then takes the player that it pulled out of the player array and updates them in the database
             //TODO Add a status code or something to the updatePlayerTeam function.
             //TODO This should something we can then run the if statement on to see if they are new or not
-            const newPlayer = await updatePlayerTeam(playerArray[i].player, team, season);
+            const dbResponse = await updatePlayerTeam(playerArray[i].player, team, season);
             //If the updatePlayerTeam returns a certian value pass it along to the new player array to then add to the database
-            if (newPlayer) {
-                newPlayerArray.push(newPlayer)
+            //This happens if the player on the roster is not currently in the database and needs to be added
+            if (dbResponse.newPlayer) {
+                newPlayerArray.push(dbResponse.newPlayer);
             };
         };
     };
     // If the amount of new players are over one, then add them all to the database
     if (newPlayerArray.length >= 1) {
-        console.log(newPlayerArray)
+        addPlayerToDB(newPlayerArray)
     }
 };
 
 const updatePlayerTeam = async (player, team, season) => {
     //Check the database for the player
     const dbPlayer = await findPlayerInDB(player.id);
+    const response = {};
 
     //If dbPlayer is false then we need to write them into the database
     //If the dbPlayer is not false then we need to overwrite the team that the player is currently on
@@ -199,16 +201,20 @@ const updatePlayerTeam = async (player, team, season) => {
         //A player must be created with stats
         //Week here can be 17 because only new players should be added. If any of them aren't new then this will overwrite their week 17 stats
         //TODO Something better then feeding in bogus data. Likely make the getNewPlayer more robust by adding another field
-        return getNewPlayerStats(player, {}, team, season, 17);
+        response.newPlayer = getNewPlayerStats(player, {}, team, season, 17);
+    } else {
+        response.newPlayer = false;
+        const updatedPlayer = await db.FantasyStats.findOneAndUpdate({ 'mySportsId': player.id }, { 'team': team }, { new: true });
+        console.log(updatedPlayer)
+        response.updatedPlayer = updatedPlayer;
     };
+    return response;
 };
 
 module.exports = {
 
     //TODO this is currently not working as intended
     updateRoster: async (season) => {
-
-        //TODO put this on another file for general use throughout the app??
 
         // This loops through the array of all the teams above and gets the current rosters
         for (const team of nflTeams.teamMapping) {
@@ -225,6 +231,8 @@ module.exports = {
                 }
             }).then(async (response) => {
                 // Then parses through the roster and pulls out of all the offensive players and updates their data
+                //This also gets any new players and adds them to the DB but inside this function
+                //Await because I want it to iterate through the whole roster that was provided before moving onto the next one
                 await parseRoster(response.data.players, team, season)
             });
             //TODO Error handling if the AJAX failed
