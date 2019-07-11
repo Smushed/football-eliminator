@@ -1,12 +1,13 @@
 const db = require(`../models`);
 const axios = require(`axios`);
+const nflTeams = require(`../constants/nflTeams`)
 require(`dotenv`).config();
 
 const mySportsFeedsAPI = process.env.MY_SPORTS_FEEDS_API
 
 const placeholderStats = (stats) => {
     //This goes through the returned stats and adds a blank object to any field where the player doesn't have any information
-    //This is done for the getStats function. It needs to have an object to read
+    //This is done for the getStats function. It needs to have an object to read & assign new values to
     const scoringArray = [`passing`, `rushing`, `receiving`, `fumbles`, `kickoffReturns`, `puntReturns`, `twoPointAttempts`, `extraPointAttempts`, `fieldGoals`];
 
     for (let i = 0; i <= 8; i++) {
@@ -164,23 +165,42 @@ const getNewPlayerStats = (player, stats, team, season, week) => {
     return combinedStats;
 };
 
-const parseRoster = async (playerArray, team) => {
+//Goes through the roster of the team and pulls out all offensive players
+const parseRoster = async (playerArray, team, season) => {
+    const newPlayerArray = [];
     for (let i = 0; i < playerArray.length; i++) {
         const position = playerArray[i].player.primaryPosition;
         if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
             //This then takes the player that it pulled out of the player array and updates them in the database
-            await updatePlayerTeam(playerArray[i].player, team);
-        }
+            //TODO Add a status code or something to the updatePlayerTeam function.
+            //TODO This should something we can then run the if statement on to see if they are new or not
+            const newPlayer = await updatePlayerTeam(playerArray[i].player, team, season);
+            //If the updatePlayerTeam returns a certian value pass it along to the new player array to then add to the database
+            if (newPlayer) {
+                newPlayerArray.push(newPlayer)
+            };
+        };
     };
+    // If the amount of new players are over one, then add them all to the database
+    if (newPlayerArray.length >= 1) {
+        console.log(newPlayerArray)
+    }
 };
 
-const updatePlayerTeam = async (player, team) => {
-    //TODO Start here and begin updating the database with the updated player
+const updatePlayerTeam = async (player, team, season) => {
+    //Check the database for the player
     const dbPlayer = await findPlayerInDB(player.id);
 
     //If dbPlayer is false then we need to write them into the database
     //If the dbPlayer is not false then we need to overwrite the team that the player is currently on
-    console.log(dbPlayer, team, player.id)
+    if (!dbPlayer) {
+        //Stats are going to be passed in a blank object. This API call doesn't return stats, so we just want to feed it an empty object
+        //The getNewPlayerStats needs stats to be passed in, but if there are none available it will default them to 0.
+        //A player must be created with stats
+        //Week here can be 17 because only new players should be added. If any of them aren't new then this will overwrite their week 17 stats
+        //TODO Something better then feeding in bogus data. Likely make the getNewPlayer more robust by adding another field
+        return getNewPlayerStats(player, {}, team, season, 17);
+    };
 };
 
 module.exports = {
@@ -189,10 +209,10 @@ module.exports = {
     updateRoster: async (season) => {
 
         //TODO put this on another file for general use throughout the app??
-        const teams = [`ARI`, `ATL`, `BAL`, `BUF`, `CAR`, `CHI`, `CIN`, `CLE`, `DAL`, `DEN`, `DET`, `GB`, `HOU`, `IND`, `JAX`, `KC`, `LAC`, `LA`, `MIA`, `MIN`, `NE`, `NO`, `NYG`, `NYJ`, `OAK`, `PHI`, `PIT`, `SEA`, `SF`, `TB`, `TEN`, `WAS`];
 
         // This loops through the array of all the teams above and gets the current rosters
-        for (const team of teams) {
+        for (const team of nflTeams.teamMapping) {
+            console.log(team)
             await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
                 auth: {
                     username: mySportsFeedsAPI,
@@ -200,12 +220,12 @@ module.exports = {
                 },
                 params: {
                     season: season,
-                    team: team,
+                    team: team.abbreviation,
                     rosterstatus: `assigned-to-roster`
                 }
             }).then(async (response) => {
                 // Then parses through the roster and pulls out of all the offensive players and updates their data
-                await parseRoster(response.data.players, team)
+                await parseRoster(response.data.players, team, season)
             });
             //TODO Error handling if the AJAX failed
         };
