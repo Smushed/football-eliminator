@@ -23,3 +23,39 @@ const initialData = {
 };
 
 export default initialData;
+
+//Roster Data: {
+// userRoster: {
+//     QB: #,
+//     WR1: #,
+//     WR2: #,
+//     RB1: #,
+//     RB2: #,
+//     FLEX: #,
+//     TE: #,
+//     K: #
+//  },
+//  columns: {
+//     'userRoster': {
+//         id: 'userRoster',
+//             title: 'Current Roster',
+//                 playerIds: {
+            //     QB: #,
+            //     WR1: #,
+            //     WR2: #,
+            //     RB1: #,
+            //     RB2: #,
+            //     FLEX: #,
+            //     TE: #,
+            //     K: #
+        // }
+//     }, 'availablePlayers': {
+//         QB: [],
+//         WR: [],
+//         RB: [],
+//         TE: [],
+//         K: []
+//     }
+//  },
+//  columnOrder: ['userRoster', 'availablePlayers']
+//}

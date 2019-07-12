@@ -7,9 +7,9 @@ module.exports = app => {
         res.status(200).send(response);
     });
 
-    app.get(`/api/availablePlayers/:userid`, async (req, res) => {
+    app.get(`/api/userroster/:userid`, async (req, res) => {
         const userId = req.params.userid;
-        const availablePlayers = await rosterHandler.availablePlayers(userId);
-        res.status(200).send(availablePlayers);
+        const userRoster = await rosterHandler.userRoster(userId);
+        res.status(200).send(userRoster);
     });
 }

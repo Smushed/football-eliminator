@@ -205,7 +205,6 @@ const updatePlayerTeam = async (player, team, season) => {
     } else {
         response.newPlayer = false;
         const updatedPlayer = await db.FantasyStats.findOneAndUpdate({ 'mySportsId': player.id }, { 'team': team }, { new: true });
-        console.log(updatedPlayer)
         response.updatedPlayer = updatedPlayer;
     };
     return response;

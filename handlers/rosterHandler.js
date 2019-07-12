@@ -6,7 +6,9 @@ module.exports = {
 
         return players
     },
-    availablePlayers: (userID) => {
-        return 'working'
+    userRoster: (userId) => {
+
+        const currentRoster = db.UserRoster.findOne({})
+        return userId
     }
 }

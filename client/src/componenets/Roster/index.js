@@ -38,16 +38,16 @@ class Roster extends Component {
             //Make the pull avaliable players easily hit from other places as well, since I want a dropdown that defaults to this week
             //But can be changed in case people want to update more than just this week at once.
 
-            this.getAvailablePlayers(userIDFromURL);
+            this.getUserRoster(userIDFromURL);
         } else {
             //TODO update the styling on this page to then center the Roster as they are looking at another player
             //Maybe redirect these people to another page? Where they are instead viewing a snapshot of players they've used as well as current roster
         }
     };
 
-    getAvailablePlayers = async (userID) => {
+    getUserRoster = async (userID) => {
         console.log(`avail hit`)
-        const dbResponse = await axios.get(`/api/availablePlayers/${userID}`);
+        const dbResponse = await axios.get(`/api/userroster/${userID}`);
 
         console.log(dbResponse);
     };
