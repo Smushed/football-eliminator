@@ -3,7 +3,7 @@ const mongoose = require(`mongoose`);
 const Schema = mongoose.Schema;
 
 //Everything is to be singular
-const RosterSchema = new Schema({
+const UserRosterSchema = new Schema({
 
     userId: { //This is who the roster belongs to
         type: String,
@@ -1040,4 +1040,4 @@ const RosterSchema = new Schema({
 });
 
 
-module.exports = mongoose.model(`Roster`, RosterSchema);
+module.exports = mongoose.model(`UserRoster`, UserRosterSchema);

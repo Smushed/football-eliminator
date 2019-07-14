@@ -8,7 +8,7 @@ module.exports = {
     },
     userRoster: (userId) => {
 
-        const currentRoster = db.UserRoster.findOne({})
-        return userId
+        const currentRoster = db.UserRoster.findOne({ userId: userId })
+        return currentRoster
     }
 }
