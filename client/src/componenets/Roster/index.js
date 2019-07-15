@@ -151,9 +151,9 @@ class Roster extends Component {
                     {this.state.columnOrder.map((columnId) => {
                         const column = this.state.columns[columnId];
                         //Iterate through all the players in the array of the column and then create an array of them all to show in a column
-                        const players = column.playerIds.map(playerId => this.state.players[playerId]);
+                        const userRoster = column.playerIds.map(playerId => this.state.userRoster[playerId]);
 
-                        return <Column key={column.id} column={column} players={players} />;
+                        return <Column key={column.id} column={column} userRoster={userRoster} />;
                     })}
                 </Container>
             </DragDropContext>

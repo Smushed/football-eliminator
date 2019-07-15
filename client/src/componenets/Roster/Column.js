@@ -60,7 +60,7 @@ export default class Column extends Component {
                             provided={provided}
                             snapshot={snapshot}
                         >
-                            {this.props.players.map((player, index) => (
+                            {this.props.userRoster.map((player, index) => (
                                 <Player key={player.id} player={player} index={index} provided={provided} innerRef={provided.innerRef} />
                             ))}
                             {provided.placeholder}
