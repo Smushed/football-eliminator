@@ -12,4 +12,10 @@ module.exports = app => {
         const userRoster = await rosterHandler.userRoster(userId);
         res.status(200).send(userRoster);
     });
+
+    app.put(`/api/dummyroster/:userid`, async (req, res) => {
+        const userId = req.params.userid;
+        const newRoster = await rosterHandler.dummyRoster(userId);
+        res.status(200).send(newRoster)
+    })
 }
