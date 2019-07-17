@@ -15,7 +15,9 @@ module.exports = app => {
 
     app.put(`/api/dummyroster/:userid`, async (req, res) => {
         const userId = req.params.userid;
-        const newRoster = await rosterHandler.dummyRoster(userId);
-        res.status(200).send(newRoster)
+        //TODO This is not waiting for the dummyRoster to be completed
+        rosterHandler.dummyRoster(userId).then(newRoster =>
+            res.status(200).send(newRoster)
+        );
     })
 }

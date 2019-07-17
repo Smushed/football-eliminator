@@ -26,7 +26,7 @@ module.exports = {
         //     8003: { full_name: 'Sebastian Janikowski', mySportsId: 8003, position: 'K', team: 'SEA' }
         // };
 
-        //The userRoster can ONLY be numbers. We will then pull from the sheet at another day
+        //The userRoster can ONLY be numbers. We will then pull from the sheet at another time
         const dummyRoster2 = {
             QB: 7549,
             RB1: 8102,
@@ -41,25 +41,21 @@ module.exports = {
         let updatedRoster = {};
 
         //TODO Can I do a findOneAndUpdate instead of getting it, processing and then rewriting it?
-        await db.UserRoster.findOne({ userId: userId }, (err, currentRoster) => {
-            currentRoster.roster[season][week] = dummyRoster2;
-
-            console.log(currentRoster)
-
-            currentRoster.save((err, result) => {
-                if (err) {
-                    console.log(err);
-                } else {
-                    updatedRoster = result;
-                    console.log(`inside`, updatedRoster)
-                    return updatedRoster
-                }
-            })
-
-        });
-
-
         // const updatedRoster = await db.UserRoster.findOneAndUpdate({ userId: userId }, { '$set': { 'roster[season][week]': currentRoster.roster[season][week] } }, { new: true });
+        return new Promise((res, rej) => {
+            db.UserRoster.findOne({ userId: userId }, (err, currentRoster) => {
+                currentRoster.roster[season][week] = dummyRoster2;
 
-    }
-}
+                currentRoster.save((err, result) => {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        updatedRoster = result;
+                        console.log(`inside`, updatedRoster);
+                        res(updatedRoster);
+                    };
+                });
+            });
+        });
+    }//Next method here
+};
