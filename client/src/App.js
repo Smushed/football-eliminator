@@ -146,7 +146,7 @@ class App extends Component {
           <Route
             path={Routes.roster}
             render={props =>
-              <Roster {...props} userID={this.state.currentUser.userID} />
+              <Roster {...props} userId={this.state.currentUser.userId} />
             }
           />
         </div>

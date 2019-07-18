@@ -246,7 +246,7 @@ module.exports = {
         return response;
     },
     getMassData: async function () {
-        const seasonList = [`2017-2018-regular`, `2018-2019-regular`, `2019-2020-regular`];
+        const seasonList = [`2018-2019-regular`, `2019-2020-regular`];
         const weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
 
         for (let i = 0; i < seasonList.length; i++) {
