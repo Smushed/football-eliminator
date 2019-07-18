@@ -53,7 +53,7 @@ class App extends Component {
     const dbResponse = await axios.get(`/api/getuser/${email}`);
     const currentUser = {
       username: dbResponse.data.local.username,
-      userID: dbResponse.data._id,
+      userId: dbResponse.data._id,
       grouplist: dbResponse.data.grouplist
     }
     this.setState({ currentUser })
@@ -79,7 +79,7 @@ class App extends Component {
           <Route
             exact path={Routes.home}
             render={() =>
-              <Home userID={this.state.currentUser.userID} />} />
+              <Home userId={this.state.currentUser.userId} />} />
           <Route
             path={Routes.signin}
             render={() =>
@@ -146,7 +146,7 @@ class App extends Component {
           <Route
             path={Routes.roster}
             render={props =>
-              <Roster {...props} userID={this.state.currentUser.userID} />
+              <Roster {...props} userId={this.state.currentUser.userId} />
             }
           />
         </div>

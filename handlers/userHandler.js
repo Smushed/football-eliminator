@@ -54,6 +54,14 @@ module.exports = {
     },
     saveNewUser: async (newUser) => {
         const newUserInDB = await db.User.create(newUser);
+
+        console.log(newUserInDB)
+
+        //This then creates a new roster for the user that just signed up
+        const newUserRoster = {
+            userId: newUserInDB._id
+        }
+        await db.UserRoster.create(newUserRoster)
         return newUserInDB;
     },
     getUserByEmail: async (email) => {

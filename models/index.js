@@ -3,5 +3,5 @@ module.exports = {
     Group: require(`./Group`),
     FantasyStats: require(`./FantasyStats`),
     Post: require(`./Post`),
-    Roster: require(`./Roster`)
+    UserRoster: require(`./UserRoster`)
 };

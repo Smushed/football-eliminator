@@ -17,40 +17,78 @@ class Roster extends Component {
         this.state = initialData;
     };
 
+    // componentWillUnmount() {
+    //     this.setState({ userRoster: initialData.userRoster, columns: initialData.columns, columnOrder: initialData.columnOrder })
+    // };
+
     componentDidMount() {
-        const userIDFromURL = this.props.match.params.userID;
-        if (typeof userIDFromURL !== 'undefined') {
-            this.getRosterData(userIDFromURL);
+        // Not sure if I need this, when I put it in it hits the method twice
+        const userIdFromURL = this.props.match.params.userId;
+        if (typeof userIdFromURL !== 'undefined' && typeof this.props.userId !== 'undefined') {
+            this.getRosterData(userIdFromURL);
         }
     };
 
     componentDidUpdate(prevProps) {
-        if (this.props.userID !== prevProps.userID) {
-            const userIDFromURL = this.props.match.params.userID;
-            this.getRosterData(userIDFromURL);
+        if (this.props.userId !== prevProps.userId) {
+            const userIdFromURL = this.props.match.params.userId;
+            this.getRosterData(userIdFromURL);
         }
     };
 
-    getRosterData = (userIDFromURL) => {
-        if (userIDFromURL === this.props.userID) {
-
+    getRosterData = async function (userIdFromURL) {
+        //We want to go and grab the roster no matter what
+        //This is in case another user comes to the profile and wants to view their picks
+        //We pass in a params along with the API call stating if this is the current user or not
+        if (userIdFromURL === this.props.userId) {
             //Inside here after the current roster is hit, then go in and pull the other data
             //Make the pull avaliable players easily hit from other places as well, since I want a dropdown that defaults to this week
             //But can be changed in case people want to update more than just this week at once.
+            axios.get(`/api/userroster/${this.props.userId}`,
+                { params: { currentUser: true } })
+                .then(res => {
+                    //Save down the player array so I can use it for the DnD 
+                    const playerList = res.data.playerArray;
+                    delete res.data.playerArray;
 
-            this.getAvailablePlayers(userIDFromURL);
+                    //We need to make a copy of the columns object and update it
+                    //React doesn't like us updating nested state otherwise
+                    const columns = { ...this.state.columns }
+                    columns.userRoster.playerIds = playerList
+
+                    //Save what we got from the database into state
+                    this.setState({ userRoster: res.data, columns })
+                }).catch(err => {
+                    console.log(err.response.data); //TODO Make this better
+                });
         } else {
             //TODO update the styling on this page to then center the Roster as they are looking at another player
             //Maybe redirect these people to another page? Where they are instead viewing a snapshot of players they've used as well as current roster
-        }
+            axios.get(`/api/userroster/${this.props.userId}`,
+                { params: { currentUser: false } })
+                .then(res => {
+                    console.log(res);
+                }).catch(err => {
+                    console.log(err.response.data); //TODO Make this more robust
+                });
+        };
     };
 
-    getAvailablePlayers = async (userID) => {
-        console.log(`avail hit`)
-        const dbResponse = await axios.get(`/api/availablePlayers/${userID}`);
-
-        console.log(dbResponse);
+    //This just goes and grabs the user roster from the userId provided from the URL
+    getUserRoster = async (userId) => {
+        // this.populateRosterData(dbResponse.data.roster)
     };
+
+    //Goes through the roster and pulls out full data on each player to then be stored as state
+    populateRosterData = async (currentRoster) => {
+        //TODO Make season & week dynamic
+        const season = `2019-2020-regular`;
+        const week = 1
+        const playerRoster = await axios.get(`/api/playerdataforroster`,
+            { params: { currentRoster: currentRoster[season][week] } });
+        console.log(`populate`, playerRoster.data)
+
+    }
 
     onDragEnd = result => {
         const { destination, source, draggableId } = result;
@@ -151,9 +189,9 @@ class Roster extends Component {
                     {this.state.columnOrder.map((columnId) => {
                         const column = this.state.columns[columnId];
                         //Iterate through all the players in the array of the column and then create an array of them all to show in a column
-                        const players = column.playerIds.map(playerId => this.state.players[playerId]);
+                        const userRoster = column.playerIds.map(playerId => this.state.userRoster[playerId]);
 
-                        return <Column key={column.id} column={column} players={players} />;
+                        return <Column key={column.id} column={column} userRoster={userRoster} />;
                     })}
                 </Container>
             </DragDropContext>

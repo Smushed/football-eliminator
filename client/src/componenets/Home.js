@@ -2,10 +2,16 @@ import React, { Component, Fragment } from 'react';
 import { withAuthorization } from './Session';
 import { Link } from 'react-router-dom';
 import * as Routes from '../constants/routes';
-
+import { Button } from 'reactstrap';
+import axios from 'axios';
 
 //Stateful component to allow the grouplist to properly populate
 class Home extends Component {
+
+    loadDummyRoster = async () => {
+        const loaded = await axios.put(`/api/dummyroster/${this.props.userId}`)
+        console.log(loaded)
+    }
 
     render() {
         return (
@@ -14,7 +20,7 @@ class Home extends Component {
                     Create a Group
                 </Link>
                 <br />
-                <Link to={`/roster/${this.props.userID}`}>
+                <Link to={`/roster/${this.props.userId}`}>
                     My Roster
                 </Link>
                 <br />
@@ -33,6 +39,12 @@ class Home extends Component {
                 <Link to={`/displayplayers`}>
                     Display Player Data
                 </Link>
+                <br />
+                <br />
+                <br />
+                <Button color='success' onClick={this.loadDummyRoster}>
+                    Load Dummy Roster
+                </Button>
             </Fragment>
         );
     };
