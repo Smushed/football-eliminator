@@ -9,10 +9,11 @@ module.exports = app => {
 
     app.get(`/api/userroster/:userid`, async (req, res) => {
         const userId = req.params.userid;
+        //TODO Currently we don't do anything with the currentUser field. We need to change this at some point
         const currentUser = req.query.currentUser;
         if (userId !== 'undefined') { //Checks if this route received the userId before it was ready in react
             //The check already comes in as the string undefined, rather than undefined itself. It comes in as truthly
-            const userRoster = await rosterHandler.userRoster(userId, currentUser);
+            const userRoster = await rosterHandler.userRoster(userId);
             res.status(200).send(userRoster);
         } else {
             //TODO Do something with this error
@@ -26,11 +27,4 @@ module.exports = app => {
             res.status(200).send(newRoster)
         );
     });
-
-    //TODO Start here
-    // app.get(`/api/playerdataforroster`, async (req, res) => {
-    //     console.log(req.query.currentRoster);
-    //     const filledRoster = rosterHandler.getRosterPlayers(req.query.currentRoster);
-    //     res.status(200).send(filledRoster);
-    // })
-}
+};

@@ -17,10 +17,14 @@ class Roster extends Component {
         this.state = initialData;
     };
 
+    // componentWillUnmount() {
+    //     this.setState({ userRoster: initialData.userRoster, columns: initialData.columns, columnOrder: initialData.columnOrder })
+    // };
+
     componentDidMount() {
         // Not sure if I need this, when I put it in it hits the method twice
         const userIdFromURL = this.props.match.params.userId;
-        if (typeof userIdFromURL !== 'undefined') {
+        if (typeof userIdFromURL !== 'undefined' && typeof this.props.userId !== 'undefined') {
             this.getRosterData(userIdFromURL);
         }
     };
@@ -35,7 +39,6 @@ class Roster extends Component {
     getRosterData = async function (userIdFromURL) {
         //We want to go and grab the roster no matter what
         //This is in case another user comes to the profile and wants to view their picks
-        // this.getUserRoster(userIdFromURL);
         //We pass in a params along with the API call stating if this is the current user or not
         if (userIdFromURL === this.props.userId) {
             //Inside here after the current roster is hit, then go in and pull the other data

@@ -16,11 +16,6 @@ module.exports = {
         //If the user is currently looking at their page, then currentUser will be true
         //This then will push the currentRoster along further to get the available players
         return this.getRosterPlayers(currentRoster, season, week)
-        if (currentUser) {
-            //TODO Send it here that the player can edit it
-        } else {
-            //TODO sent it back to the user
-        }
     },
     dummyRoster: async (userId) => {
         //TODO Error handling if userId is undefined
@@ -61,26 +56,26 @@ module.exports = {
         currentRoster = currentRoster.roster[season][week].toJSON(); //Must be toJSON otherwise there will be mongo built in keys and methods
         rosterArray = Object.values(currentRoster);
 
-        const displayRoster = {};
+        const responseRoster = {};
         for (const player of rosterArray) {
             //Go through the object that was given to us
             const response = await db.FantasyStats.findOne({ mySportsId: player })
 
             //Declaring what needs to be declared for the nested objects
-            displayRoster[player] = {};
-            displayRoster[player].stats = {};
-            displayRoster[player].stats[season] = {};
+            responseRoster[player] = {};
+            responseRoster[player].stats = {};
+            responseRoster[player].stats[season] = {};
 
             //Parsing the roster and pulling in all the data we need
-            displayRoster[player].team = response.team.abbreviation;
-            displayRoster[player].stats[season] = response.stats[season];
-            displayRoster[player].full_name = response.full_name;
-            displayRoster[player].mySportsId = response.mySportsId;
-            displayRoster[player].position = response.team.position;
+            responseRoster[player].team = response.team.abbreviation;
+            responseRoster[player].stats[season] = response.stats[season];
+            responseRoster[player].full_name = response.full_name;
+            responseRoster[player].mySportsId = response.mySportsId;
+            responseRoster[player].position = response.team.position;
         };
 
         //We also return the array so the drag & drop component can populate this without having to pull it again
-        displayRoster.playerArray = rosterArray
-        return (displayRoster);
+        responseRoster.playerArray = rosterArray
+        return (responseRoster);
     }//Next method goes here
 };

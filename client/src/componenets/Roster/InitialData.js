@@ -1,4 +1,5 @@
 const initialData = {
+    //TODO Clean this up a bit. This should just be dummy data until it actually loads
     //Player ID must equal the playerIds array in the columns object. Without that there can be no reordering of the lists
     userRoster: {
         1: { full_name: 'Loading', mySportsId: 1, position: 'QB', team: 'NE' },
