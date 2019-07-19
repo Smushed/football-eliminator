@@ -17,10 +17,6 @@ class Roster extends Component {
         this.state = initialData;
     };
 
-    // componentWillUnmount() {
-    //     this.setState({ userRoster: initialData.userRoster, columns: initialData.columns, columnOrder: initialData.columnOrder })
-    // };
-
     componentDidMount() {
         // Not sure if I need this, when I put it in it hits the method twice
         const userIdFromURL = this.props.match.params.userId;

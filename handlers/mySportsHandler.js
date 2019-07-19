@@ -76,7 +76,6 @@ const updatePlayerWithCurrentWeek = (playerInDB, newWeekStats, season, week) => 
 };
 
 const mergeMySportsWithDB = (playerInDB) => {
-    //TODO For some reason when I try and access stats it's undefined
     //Merge the player with the current pull. Take the current stats and then send it
     db.FantasyStats.findByIdAndUpdate(playerInDB._id, playerInDB, (err) => {
         console.log("updating DB")
@@ -113,7 +112,8 @@ const getNewPlayerStats = (player, stats, team, season, week) => {
     combinedStats.full_name = `${player.firstName} ${player.lastName}`;
     combinedStats.mySportsId = player.id;
     combinedStats.position = player.primaryPosition;
-    combinedStats.team = { id: team.id, abbreviation: team.abbreviation }
+    combinedStats.team = { id: team.id, abbreviation: team.abbreviation };
+    combinedStats.active = true;
 
     //This runs through the stats and fills in any objects that aren't available
     const fullStats = placeholderStats(stats)
@@ -168,25 +168,75 @@ const getNewPlayerStats = (player, stats, team, season, week) => {
 //Goes through the roster of the team and pulls out all offensive players
 const parseRoster = async (playerArray, team, season) => {
     const newPlayerArray = [];
+    const totalPlayerArray = [];
     for (let i = 0; i < playerArray.length; i++) {
         const position = playerArray[i].player.primaryPosition;
         if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
             //This then takes the player that it pulled out of the player array and updates them in the database
-            //TODO Add a status code or something to the updatePlayerTeam function.
-            //TODO This should something we can then run the if statement on to see if they are new or not
             const dbResponse = await updatePlayerTeam(playerArray[i].player, team, season);
+            //TODO iterate through the dbNFLRoster right now and pull out all players which are not part of the current roster
+            //Then pass them through to another function and mark them all as inactive
+
             //If the updatePlayerTeam returns a certian value pass it along to the new player array to then add to the database
             //This happens if the player on the roster is not currently in the database and needs to be added
             if (dbResponse.newPlayer) {
                 newPlayerArray.push(dbResponse.newPlayer);
             };
+            totalPlayerArray.push(dbResponse.player);
         };
     };
     // If the amount of new players are over one, then add them all to the database
     if (newPlayerArray.length >= 1) {
         addPlayerToDB(newPlayerArray)
     }
-};
+
+    const dbNFLRoster = await db.FantasyStats.find({ 'team.abbreviation': team.abbreviation }); //TODO UPDATE CHI BACK TO team
+
+    //TODO TESTING THIS
+    //Get the length of the array of the players we just updated
+    // const playerArrayLength = updatedPlayerArray.length + newPlayerArray.length;
+
+    //Iterate through the players we have sitting in the database
+    //Take out all the players which we just wrote to the database and update all the rest to be inactive
+    //TODO start here - https://stackoverflow.com/questions/54142112/compare-2-arrays-of-objects-and-remove-duplicates
+    const inactivePlayerArray = dbNFLRoster.filter((player, index, self) => {
+        for (updatedPlayer of totalPlayerArray) { //updatedPlayer since it is what the database returned. The player has been updated
+            //We iterate through the players that are currently in the database. If the player is in the DB but not in the API call we assume that they are no longer on the roster
+            if (updatedPlayer.mySportsId === player.mySportsId) {
+                return false;
+            } else {
+                //We then make a new array of players who are no longer on the team
+                return true;
+            };
+        }
+    });
+    console.log(inactivePlayerArray)
+    return inactivePlayerArray;
+}
+
+//This works but pulls out the players that are in both. I want players that are ONLY in dbNFLRoster
+// const inactivePlayerArray = [];
+// for (dbPlayer of dbNFLRoster) {
+//     for (updatedPlayer of totalPlayerArray) { //updatedPlayer since it is what the database returned. The player has been updated
+//         console.log(updatedPlayer.mySportsId, dbPlayer.mySportsId)
+//         if (updatedPlayer.mySportsId === dbPlayer.mySportsId) {
+//             inactivePlayerArray.push(dbPlayer);
+//         };
+//     };
+// };
+
+
+// const playerNoLongerActive = await dbNFLRoster.filter(player => {
+//     for (let i = 0; i < playerArrayLength; i++) {
+//         if (updatedPlayerArray[i].player.id === player.mySportsId || newPlayerArray[i].player.id === player.mySportsId) {
+//             console.log(player.mySportsId)
+//             return false;
+//         } else {
+//             return true;
+//         }
+//     };
+// });
+
 
 const updatePlayerTeam = async (player, team, season) => {
     //Check the database for the player
@@ -196,54 +246,49 @@ const updatePlayerTeam = async (player, team, season) => {
     //If dbPlayer is false then we need to write them into the database
     //If the dbPlayer is not false then we need to overwrite the team that the player is currently on
     if (!dbPlayer) {
-        //Stats are going to be passed in a blank object. This API call doesn't return stats, so we just want to feed it an empty object
+        //Stats are going to be passed in a blank object. The Team API call doesn't return stats, so we just want to feed it an empty object
         //The getNewPlayerStats needs stats to be passed in, but if there are none available it will default them to 0.
         //A player must be created with stats
         //Week here can be 17 because only new players should be added. If any of them aren't new then this will overwrite their week 17 stats
         //TODO Something better then feeding in bogus data. Likely make the getNewPlayer more robust by adding another field
-        response.newPlayer = getNewPlayerStats(player, {}, team, season, 17);
+        response.newPlayer = true;
+        response.player = getNewPlayerStats(player, {}, team, season, 17);
     } else {
         response.newPlayer = false;
-        const updatedPlayer = await db.FantasyStats.findOneAndUpdate({ 'mySportsId': player.id }, { 'team': team }, { new: true });
-        response.updatedPlayer = updatedPlayer;
+        response.player = await db.FantasyStats.findOneAndUpdate({ 'mySportsId': player.id }, { 'team': team, 'active': true }, { new: true });
     };
     return response;
 };
 
 module.exports = {
 
-    //TODO this is currently not working as intended
     updateRoster: async (season) => {
-
         // This loops through the array of all the teams above and gets the current rosters
-        for (const team of nflTeams.teamMapping) {
-            console.log(team)
-            await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
-                auth: {
-                    username: mySportsFeedsAPI,
-                    password: `MYSPORTSFEEDS`
-                },
-                params: {
-                    season: season,
-                    team: team.abbreviation,
-                    rosterstatus: `assigned-to-roster`
-                }
-            }).then(async (response) => {
-                // Then parses through the roster and pulls out of all the offensive players and updates their data
-                //This also gets any new players and adds them to the DB but inside this function
-                //Await because I want it to iterate through the whole roster that was provided before moving onto the next one
-                await parseRoster(response.data.players, team, season)
-            });
+        const updatedRoster = [];
+        //TODO UNDO THIS JUST FOR TESTING
+        // for (const team of nflTeams.teamMapping) {
+        await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
+            auth: {
+                username: mySportsFeedsAPI,
+                password: `MYSPORTSFEEDS`
+            },
+            params: {
+                season: season,
+                team: `CHI`,//TODO Change this back to team.abbreviation
+                rosterstatus: `assigned-to-roster`
+            }
+        }).then(async (response) => {
+            // Then parses through the roster and pulls out of all the offensive players and updates their data
+            //This also gets any new players and adds them to the DB but inside this function
+            //Await because I want it to iterate through the whole roster that was provided before moving onto the next one
+            updatedRoster = await parseRoster(response.data.players, { abbreviation: 'CHI', id: 60 }, season) //TODO CHANGE BACK CHI TO team when undoing loop
+        }).catch(err => {
             //TODO Error handling if the AJAX failed
-        };
+        });
+        // }
 
-        //TODO fix this and make it complete
-        const response = {
-            status: 200,
-            text: 'working?'
-        }
-
-        return response;
+        console.log(updatedRoster)
+        return updatedRoster;
     },
     getMassData: async function () {
         const seasonList = [`2018-2019-regular`, `2019-2020-regular`];
@@ -288,7 +333,6 @@ module.exports = {
                 //False is first because false is directly returned in querying the database
                 if (!playerInDB) {
                     //They are not in the database. Init the object and then add them to an array which whill then be written to the database
-                    console.log(`not in DB`, search.data.gamelogs[i].player.id)
                     player = await getNewPlayerStats(search.data.gamelogs[i].player, search.data.gamelogs[i].stats, search.data.gamelogs[i].team, season, week);
                     //If they are not found in the database, add them to an array and then
                     weeklyPlayerArray.push(player);
@@ -307,5 +351,47 @@ module.exports = {
         }
         console.log(`get weekly data done`)
         return response;
-    }
+    },
+    availablePlayers: async () => {
+        //This returns an array of objects from mySports
+        const mySportsResponse = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
+            auth: {
+                username: mySportsFeedsAPI,
+                password: `MYSPORTSFEEDS`
+            },
+            params: {
+                season: `2019-2020-regular`,
+                team: `CHI`,
+                rosterstatus: `assigned-to-roster`
+            }
+        });
+        //Use response.data.players;
+
+        //Returns an array of objects from the DB
+        const dbResponse = await db.FantasyStats.find({ 'team.abbreviation': 'CHI' });
+        // dbResponse;
+
+        //Iterate through the array of players and mark the ones that are neither in the DB or the API call
+        const playerNoLongerActive = await dbResponse.filter(player => {
+            for (let i = 0; i < mySportsResponse.data.players.length; i++) {
+                //TODO Need to test this mysportsresponse thing not sure
+                if (mySportsResponse.data.players[i].player.id === player.mySportsId) {
+                    return false;
+                } else {
+                    if (player.mySportsId === 12816) {
+                        console.log(mySportsResponse.data.players[i].player.id, player.mySportsId)
+                    }
+                    return true;
+                }
+            };
+        });
+
+        return playerNoLongerActive
+        // for (let i = 0; i < mySportsResponse.length; i++) {
+        //     for (let ii = 0; ii < dbResponse.length; ii++) {
+        //         //TODO do this nested for loop but only after pulling out all the of non playable positions from mySportsResponse
+        //         //I need to find a place to iterate over these two arrays and pull out originals based off the mySportsId or their ID in mySports
+        //     }
+        // }
+    }// Next method goes here
 };

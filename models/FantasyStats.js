@@ -26,6 +26,7 @@ const FantasyStatsSchema = new Schema({
         type: String,
         default: `UNK`
     },
+    active: Boolean,
     stats: {
         '2018-2019-regular': {
             '1': {
