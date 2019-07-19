@@ -35,8 +35,6 @@ module.exports = app => {
 
         const dbResponse = await mySportsHandler.updateRoster(season);
 
-        console.log(dbResponse)
-
         res.status(200).send(dbResponse)
     });
 

@@ -190,56 +190,38 @@ const parseRoster = async (playerArray, team, season) => {
         addPlayerToDB(newPlayerArray);
     };
 
+    //Grab all the players in the database for that team so then we can check against the recent players in the API
     const dbNFLRoster = await db.FantasyStats.find({ 'team.abbreviation': team.abbreviation }); //TODO UPDATE CHI BACK TO team
-    //TODO TESTING THIS
-    //Get the length of the array of the players we just updated
-    // const playerArrayLength = updatedPlayerArray.length + newPlayerArray.length;
-
     //Iterate through the players we have sitting in the database
     //Take out all the players which we just wrote to the database and update all the rest to be inactive
-    //TODO start here - https://stackoverflow.com/questions/54142112/compare-2-arrays-of-objects-and-remove-duplicates
+
+    //This makes a new set of mySportsIds that we then iterate over and see if the dbRoster contains these Ids. If they don't then add them to the new Array
     const totalPlayerArrayIds = new Set(totalPlayerArray.map(({ mySportsId }) => mySportsId));
-    const inactivePlayerArray = dbNFLRoster.filter((player) => {
+    const inactivePlayerArray = dbNFLRoster.filter((player) => !totalPlayerArrayIds.has(player.mySportsId));
 
-        console.log(totalPlayerArrayIds.has(player.mySportsId))
-        return !totalPlayerArrayIds.has(player.mySportsId)
+    //Now that we have all the players who are still registered as on team in the DB but not in the API we inactivate them
+    inactivatePlayers(inactivePlayerArray);
 
-        // for (updatedPlayer of totalPlayerArray) { //updatedPlayer since it is what the database returned. The player has been updated
-        //     //We iterate through the players that are currently in the database. If the player is in the DB but not in the API call we assume that they are no longer on the roster
-        //     if (updatedPlayer.mySportsId === player.mySportsId) {
-        //         return false;
-        //     } else {
-        //         //We then make a new array of players who are no longer on the team
-        //         return true;
-        //     };
-        // }
-    });
-    console.log(`inactive`, inactivePlayerArray)
     return inactivePlayerArray;
-}
+};
 
-//This works but pulls out the players that are in both. I want players that are ONLY in dbNFLRoster
-// const inactivePlayerArray = [];
-// for (dbPlayer of dbNFLRoster) {
-//     for (updatedPlayer of totalPlayerArray) { //updatedPlayer since it is what the database returned. The player has been updated
-//         console.log(updatedPlayer.mySportsId, dbPlayer.mySportsId)
-//         if (updatedPlayer.mySportsId === dbPlayer.mySportsId) {
-//             inactivePlayerArray.push(dbPlayer);
-//         };
-//     };
-// };
+const inactivatePlayers = (inactivePlayerArray) => {
+    //TODO This is not working fully. but moving correctly
+    for (const player of inactivePlayerArray) {
+        db.FantasyStats.findOne({ mySportsId: player.mySportsId }, (err, dbPlayer) => {
+            dbPlayer.active = false;
 
-
-// const playerNoLongerActive = await dbNFLRoster.filter(player => {
-//     for (let i = 0; i < playerArrayLength; i++) {
-//         if (updatedPlayerArray[i].player.id === player.mySportsId || newPlayerArray[i].player.id === player.mySportsId) {
-//             console.log(player.mySportsId)
-//             return false;
-//         } else {
-//             return true;
-//         }
-//     };
-// });
+            dbPlayer.save((err, result) => {
+                if (err) {
+                    //TODO Better error handling
+                    console.log(err);
+                } else {
+                    return result;
+                };
+            });
+        });
+    };
+};
 
 
 const updatePlayerTeam = async (player, team, season) => {
@@ -268,10 +250,9 @@ module.exports = {
 
     updateRoster: async (season) => {
         // This loops through the array of all the teams above and gets the current rosters
-        const updatedRoster = [];
         //TODO UNDO THIS JUST FOR TESTING
         // for (const team of nflTeams.teamMapping) {
-        await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
+        const updatedRoster = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
             auth: {
                 username: mySportsFeedsAPI,
                 password: `MYSPORTSFEEDS`
@@ -285,13 +266,12 @@ module.exports = {
             // Then parses through the roster and pulls out of all the offensive players and updates their data
             //This also gets any new players and adds them to the DB but inside this function
             //Await because I want it to iterate through the whole roster that was provided before moving onto the next one
-            updatedRoster = await parseRoster(response.data.players, { abbreviation: 'CHI', id: 60 }, season) //TODO CHANGE BACK CHI TO team when undoing loop
+            return await parseRoster(response.data.players, { abbreviation: 'CHI', id: 60 }, season) //TODO CHANGE BACK CHI TO team when undoing loop
         }).catch(err => {
             //TODO Error handling if the AJAX failed
         });
         // }
 
-        console.log(updatedRoster)
         return updatedRoster;
     },
     getMassData: async function () {
