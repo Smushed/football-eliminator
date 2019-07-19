@@ -78,7 +78,7 @@ const updatePlayerWithCurrentWeek = (playerInDB, newWeekStats, season, week) => 
 const mergeMySportsWithDB = (playerInDB) => {
     //Merge the player with the current pull. Take the current stats and then send it
     db.FantasyStats.findByIdAndUpdate(playerInDB._id, playerInDB, (err) => {
-        console.log("updating DB")
+        console.log(`updating DB`)
         if (err) {
             //TODO Do more than just log the error
             console.log(err)
@@ -102,7 +102,7 @@ const findPlayerInDB = async (playerID) => {
         }
     } catch (err) {
         //TODO Do something more with the error
-        console.log("what", err);
+        console.log(`what`, err);
     };
 };
 
@@ -250,29 +250,29 @@ module.exports = {
 
     updateRoster: async (season) => {
         // This loops through the array of all the teams above and gets the current rosters
-        //TODO UNDO THIS JUST FOR TESTING
-        // for (const team of nflTeams.teamMapping) {
-        const updatedRoster = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
-            auth: {
-                username: mySportsFeedsAPI,
-                password: `MYSPORTSFEEDS`
-            },
-            params: {
-                season: season,
-                team: `CHI`,//TODO Change this back to team.abbreviation
-                rosterstatus: `assigned-to-roster`
-            }
-        }).then(async (response) => {
-            // Then parses through the roster and pulls out of all the offensive players and updates their data
-            //This also gets any new players and adds them to the DB but inside this function
-            //Await because I want it to iterate through the whole roster that was provided before moving onto the next one
-            return await parseRoster(response.data.players, { abbreviation: 'CHI', id: 60 }, season) //TODO CHANGE BACK CHI TO team when undoing loop
-        }).catch(err => {
-            //TODO Error handling if the AJAX failed
-        });
-        // }
+        for (const team of nflTeams.teamMapping) {
+            axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
+                auth: {
+                    username: mySportsFeedsAPI,
+                    password: `MYSPORTSFEEDS`
+                },
+                params: {
+                    season: season,
+                    team: team.abbreviation,
+                    rosterstatus: `assigned-to-roster`
+                }
+            }).then(async (response) => {
+                // Then parses through the roster and pulls out of all the offensive players and updates their data
+                //This also gets any new players and adds them to the DB but inside this function
+                //Await because I want it to iterate through the whole roster that was provided before moving onto the next one
+                parseRoster(response.data.players, team, season);
+            }).catch(err => {
+                //TODO Error handling if the AJAX failed
+                console.log(err);
+            });
+        };
 
-        return updatedRoster;
+        return `Rosters updated!`;
     },
     getMassData: async function () {
         const seasonList = [`2018-2019-regular`, `2019-2020-regular`];
