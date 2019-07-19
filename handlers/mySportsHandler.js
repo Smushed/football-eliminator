@@ -387,11 +387,5 @@ module.exports = {
         });
 
         return playerNoLongerActive
-        // for (let i = 0; i < mySportsResponse.length; i++) {
-        //     for (let ii = 0; ii < dbResponse.length; ii++) {
-        //         //TODO do this nested for loop but only after pulling out all the of non playable positions from mySportsResponse
-        //         //I need to find a place to iterate over these two arrays and pull out originals based off the mySportsId or their ID in mySports
-        //     }
-        // }
     }// Next method goes here
 };
