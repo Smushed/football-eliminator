@@ -39,6 +39,10 @@ const UserRosterSchema = new Schema({
                     type: Number,
                     default: 0
                 },
+                TE: {
+                    type: Number,
+                    default: 0
+                },
                 K: {
                     type: Number,
                     default: 0
@@ -66,6 +70,10 @@ const UserRosterSchema = new Schema({
                     default: 0
                 },
                 Flex: {
+                    type: Number,
+                    default: 0
+                },
+                TE: {
                     type: Number,
                     default: 0
                 },
@@ -99,6 +107,10 @@ const UserRosterSchema = new Schema({
                     type: Number,
                     default: 0
                 },
+                TE: {
+                    type: Number,
+                    default: 0
+                },
                 K: {
                     type: Number,
                     default: 0
@@ -126,6 +138,10 @@ const UserRosterSchema = new Schema({
                     default: 0
                 },
                 Flex: {
+                    type: Number,
+                    default: 0
+                },
+                TE: {
                     type: Number,
                     default: 0
                 },
@@ -159,6 +175,10 @@ const UserRosterSchema = new Schema({
                     type: Number,
                     default: 0
                 },
+                TE: {
+                    type: Number,
+                    default: 0
+                },
                 K: {
                     type: Number,
                     default: 0
@@ -186,6 +206,10 @@ const UserRosterSchema = new Schema({
                     default: 0
                 },
                 Flex: {
+                    type: Number,
+                    default: 0
+                },
+                TE: {
                     type: Number,
                     default: 0
                 },
@@ -219,6 +243,10 @@ const UserRosterSchema = new Schema({
                     type: Number,
                     default: 0
                 },
+                TE: {
+                    type: Number,
+                    default: 0
+                },
                 K: {
                     type: Number,
                     default: 0
@@ -246,6 +274,10 @@ const UserRosterSchema = new Schema({
                     default: 0
                 },
                 Flex: {
+                    type: Number,
+                    default: 0
+                },
+                TE: {
                     type: Number,
                     default: 0
                 },
@@ -279,6 +311,10 @@ const UserRosterSchema = new Schema({
                     type: Number,
                     default: 0
                 },
+                TE: {
+                    type: Number,
+                    default: 0
+                },
                 K: {
                     type: Number,
                     default: 0
@@ -306,6 +342,10 @@ const UserRosterSchema = new Schema({
                     default: 0
                 },
                 Flex: {
+                    type: Number,
+                    default: 0
+                },
+                TE: {
                     type: Number,
                     default: 0
                 },
@@ -339,6 +379,10 @@ const UserRosterSchema = new Schema({
                     type: Number,
                     default: 0
                 },
+                TE: {
+                    type: Number,
+                    default: 0
+                },
                 K: {
                     type: Number,
                     default: 0
@@ -366,6 +410,10 @@ const UserRosterSchema = new Schema({
                     default: 0
                 },
                 Flex: {
+                    type: Number,
+                    default: 0
+                },
+                TE: {
                     type: Number,
                     default: 0
                 },
@@ -399,6 +447,10 @@ const UserRosterSchema = new Schema({
                     type: Number,
                     default: 0
                 },
+                TE: {
+                    type: Number,
+                    default: 0
+                },
                 K: {
                     type: Number,
                     default: 0
@@ -426,6 +478,10 @@ const UserRosterSchema = new Schema({
                     default: 0
                 },
                 Flex: {
+                    type: Number,
+                    default: 0
+                },
+                TE: {
                     type: Number,
                     default: 0
                 },
@@ -459,6 +515,10 @@ const UserRosterSchema = new Schema({
                     type: Number,
                     default: 0
                 },
+                TE: {
+                    type: Number,
+                    default: 0
+                },
                 K: {
                     type: Number,
                     default: 0
@@ -489,6 +549,10 @@ const UserRosterSchema = new Schema({
                     type: Number,
                     default: 0
                 },
+                TE: {
+                    type: Number,
+                    default: 0
+                },
                 K: {
                     type: Number,
                     default: 0
@@ -516,6 +580,10 @@ const UserRosterSchema = new Schema({
                     default: 0
                 },
                 Flex: {
+                    type: Number,
+                    default: 0
+                },
+                TE: {
                     type: Number,
                     default: 0
                 },

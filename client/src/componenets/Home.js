@@ -11,7 +11,25 @@ class Home extends Component {
     loadDummyRoster = async () => {
         const loaded = await axios.put(`/api/dummyroster/${this.props.userId}`)
         console.log(loaded)
-    }
+    };
+
+    updateNFLRoster = async () => {
+        try {
+            const dbResponse = await axios.get(`/api/updateteams`);
+            console.log(dbResponse.data);
+        } catch (err) {
+            console.log(err)
+        }
+    };
+
+    availablePlayer = async () => {
+        try {
+            const dbResponse = await axios.get(`/api/avaliableplayers`);
+            console.log(dbResponse.data);
+        } catch (err) {
+            console.log(err)
+        }
+    };
 
     render() {
         return (
@@ -44,6 +62,18 @@ class Home extends Component {
                 <br />
                 <Button color='success' onClick={this.loadDummyRoster}>
                     Load Dummy Roster
+                </Button>
+                <br />
+                <br />
+                <br />
+                <Button color='primary' onClick={this.updateNFLRoster}>
+                    Update NFL Roster
+                </Button>
+                <br />
+                <br />
+                <br />
+                <Button color='secondary' onClick={this.availablePlayer}>
+                    TEST Available Players
                 </Button>
             </Fragment>
         );

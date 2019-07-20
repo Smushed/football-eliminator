@@ -11,14 +11,6 @@ export default class CurrentTesting extends Component {
     };
 
     componentDidMount = async () => {
-        try {
-            const dbResponse = await axios.get(`/api/updateteams`);
-            // this.setState({ playersArray: dbResponse.data })
-            console.log(dbResponse.data);
-        } catch (err) {
-            console.log(err)
-        }
-
     };
 
     render() {

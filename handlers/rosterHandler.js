@@ -35,7 +35,6 @@ module.exports = {
         };
 
         //TODO Can I do a findOneAndUpdate instead of getting it, processing and then rewriting it?
-        // const updatedRoster = await db.UserRoster.findOneAndUpdate({ userId: userId }, { '$set': { 'roster[season][week]': currentRoster.roster[season][week] } }, { new: true });
         return new Promise((res, rej) => {
             db.UserRoster.findOne({ userId: userId }, (err, currentRoster) => {
                 currentRoster.roster[season][week] = dummyRoster;

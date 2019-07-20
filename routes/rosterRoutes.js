@@ -18,7 +18,7 @@ module.exports = app => {
         } else {
             //TODO Do something with this error
             res.status(400).send(`userId is undefined. Try refreshing if this persists`)
-        }
+        };
     });
 
     app.put(`/api/dummyroster/:userid`, async (req, res) => {

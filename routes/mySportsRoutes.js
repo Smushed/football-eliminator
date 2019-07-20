@@ -35,13 +35,11 @@ module.exports = app => {
 
         const dbResponse = await mySportsHandler.updateRoster(season);
 
-        console.log(dbResponse)
-
-        if (dbResponse.status === 200) {
-            res.status(dbResponse.status).send(dbResponse.text)
-        } else {
-            //TODO Better error handling
-            console.log(dbResponse.text)
-        }
+        res.status(200).send(dbResponse)
     });
+
+    app.get(`/api/avaliableplayers`, async (req, res) => {
+        const working = await mySportsHandler.availablePlayers();
+        res.status(200).send(working);
+    })
 }

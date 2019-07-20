@@ -26,15 +26,13 @@ const FantasyStatsSchema = new Schema({
         type: String,
         default: `UNK`
     },
+    active: Boolean,
     stats: {
         '2018-2019-regular': {
             '1': {
                 passing: {
                     passTD: {
-                        type: {
-                            type: Number,
-                            default: 0
-                        },
+                        type: Number,
                         default: 0
                     },
                     passYards: {
@@ -2008,10 +2006,7 @@ const FantasyStatsSchema = new Schema({
             '1': {
                 passing: {
                     passTD: {
-                        type: {
-                            type: Number,
-                            default: 0
-                        },
+                        type: Number,
                         default: 0
                     },
                     passYards: {

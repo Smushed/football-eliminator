@@ -17,10 +17,6 @@ class Roster extends Component {
         this.state = initialData;
     };
 
-    // componentWillUnmount() {
-    //     this.setState({ userRoster: initialData.userRoster, columns: initialData.columns, columnOrder: initialData.columnOrder })
-    // };
-
     componentDidMount() {
         // Not sure if I need this, when I put it in it hits the method twice
         const userIdFromURL = this.props.match.params.userId;
@@ -35,6 +31,14 @@ class Roster extends Component {
             this.getRosterData(userIdFromURL);
         }
     };
+
+    componentWillUnmount() {
+        //TODO The issue has something to do with the state not resetting properly
+        //If you get in and out of the app before the state updates then everything is fine
+        //Once state loads then you're screwed
+        this.setState({ userRoster: initialData.userRoster, columns: initialData.columns, columnOrder: initialData.columnOrder })
+        console.log(initialData.userRoster)
+    }
 
     getRosterData = async function (userIdFromURL) {
         //We want to go and grab the roster no matter what

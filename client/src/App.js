@@ -38,7 +38,6 @@ class App extends Component {
       if (authUser) {
         this.setState({ authUser });
         this.isSignedIn(authUser.email);
-        this.getCurrentData();
       } else {
         this.setState({ authUser: null, currentUser: {} });
       }
@@ -59,10 +58,12 @@ class App extends Component {
     this.setState({ currentUser })
   };
 
-  getCurrentData = async () => {
-    const currentWeek = await axios.get(`/api/currentWeekData`);
-    this.setState(currentWeek)
-  };
+  //TODO WHY DID I DO THIS?
+  //TODO Maybe just delete it?
+  // getCurrentData = async () => {
+  //   const currentWeek = await axios.get(`/api/currentWeekData`);
+  //   this.setState({ currentWeek })
+  // };
 
   render() {
 
