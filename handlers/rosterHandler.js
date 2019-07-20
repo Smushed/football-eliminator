@@ -77,7 +77,7 @@ module.exports = {
         };
 
         //We also return the array so the drag & drop component can populate this without having to pull it again
-        responseRoster.playerArray = rosterArray
+        responseRoster.playerArray = rosterArray;
         return (responseRoster);
     }//Next method goes here
 };

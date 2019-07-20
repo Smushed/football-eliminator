@@ -19,7 +19,6 @@ const placeholderStats = (stats) => {
 };
 
 const addPlayerToDB = (playerArray) => {
-    console.log(playerArray)
     db.FantasyStats.collection.insertMany(playerArray, (err, writtenObj) => {
         if (err) {
             //TODO Handle the error
@@ -275,7 +274,7 @@ module.exports = {
         const weeklyPlayerArray = [];
 
         for (let i = 0; i < search.data.gamelogs.length; i++) {
-            const position = search.data.gamelogs[i].player.position;
+            const position = search.data.gamelogs[i].player.position || search.data.gamelogs[i].player.primaryPosition;
             let player = {};
 
             if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
@@ -311,35 +310,7 @@ module.exports = {
         return response;
     },
     availablePlayers: async () => {
-        //This returns an array of objects from mySports
-        const mySportsResponse = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
-            auth: {
-                username: mySportsFeedsAPI,
-                password: `MYSPORTSFEEDS`
-            },
-            params: {
-                season: `2019-2020-regular`,
-                team: `CHI`,
-                rosterstatus: `assigned-to-roster`
-            }
-        });
-
-        //Returns an array of objects from the DB
-        const dbResponse = await db.FantasyStats.find({ 'team.abbreviation': 'CHI' });
-        // dbResponse;
-
-        //Iterate through the array of players and mark the ones that are neither in the DB or the API call
-        const playerNoLongerActive = await dbResponse.filter(player => {
-            for (let i = 0; i < mySportsResponse.data.players.length; i++) {
-                //TODO Need to test this mysportsresponse thing not sure
-                if (mySportsResponse.data.players[i].player.id === player.mySportsId) {
-                    return false;
-                } else {
-                    return true;
-                }
-            };
-        });
-
+        //TODO Iterate through all the available players in the database and shove them into the new Avaliable players Schema
         return playerNoLongerActive
     }// Next method goes here
 };
