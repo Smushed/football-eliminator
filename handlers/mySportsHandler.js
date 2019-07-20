@@ -19,6 +19,7 @@ const placeholderStats = (stats) => {
 };
 
 const addPlayerToDB = (playerArray) => {
+    console.log(playerArray)
     db.FantasyStats.collection.insertMany(playerArray, (err, writtenObj) => {
         if (err) {
             //TODO Handle the error
@@ -31,7 +32,7 @@ const addPlayerToDB = (playerArray) => {
 
 const completeStats = (player, stats, season, week) => {
     //First we iterate through and ensure that the objects are there to put stats in
-    const fullStats = placeholderStats(stats)
+    const fullStats = placeholderStats(stats);
 
     //Add in the object if it is not there. We need this for new players, we have to define the objects before we use bracket notation
     if (typeof player.stats[season] === 'undefined' || typeof player.stats[season][week] === 'undefined') {
@@ -119,7 +120,7 @@ const getNewPlayerStats = (player, stats, team, season, week) => {
 
     combinedStats.full_name = `${player.firstName} ${player.lastName}`;
     combinedStats.mySportsId = player.id;
-    combinedStats.position = player.position;
+    combinedStats.position = player.primaryPosition || player.position;
     combinedStats.team = { id: team.id, abbreviation: team.abbreviation };
     combinedStats.active = true;
 
@@ -136,14 +137,14 @@ const parseRoster = async (playerArray, team, season) => {
     const newPlayerArray = [];
     const totalPlayerArray = [];
     for (let i = 0; i < playerArray.length; i++) {
-        const position = playerArray[i].player.primaryPosition;
+        const position = playerArray[i].player.primaryPosition || playerArray[i].player.position;
         if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
             //This then takes the player that it pulled out of the player array and updates them in the database
             const dbResponse = await updatePlayerTeam(playerArray[i].player, team, season);
             //If the updatePlayerTeam returns a certian value pass it along to the new player array to then add to the database
             //This happens if the player on the roster is not currently in the database and needs to be added
             if (dbResponse.newPlayer) {
-                newPlayerArray.push(dbResponse.newPlayer);
+                newPlayerArray.push(dbResponse.player);
             };
             totalPlayerArray.push(dbResponse.player);
         };

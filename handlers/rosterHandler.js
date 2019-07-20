@@ -34,10 +34,13 @@ module.exports = {
             K: 8003
         };
 
+        const usedPlayers = [8190, 7564, 13255, 14830, 7198, 8562, 7299, 6460]
+
         //TODO Can I do a findOneAndUpdate instead of getting it, processing and then rewriting it?
         return new Promise((res, rej) => {
             db.UserRoster.findOne({ userId: userId }, (err, currentRoster) => {
                 currentRoster.roster[season][week] = dummyRoster;
+                currentRoster.roster[season].usedPlayers = usedPlayers;
 
                 currentRoster.save((err, result) => {
                     if (err) {
