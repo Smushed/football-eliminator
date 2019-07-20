@@ -32,10 +32,7 @@ const FantasyStatsSchema = new Schema({
             '1': {
                 passing: {
                     passTD: {
-                        type: {
-                            type: Number,
-                            default: 0
-                        },
+                        type: Number,
                         default: 0
                     },
                     passYards: {
@@ -2009,10 +2006,7 @@ const FantasyStatsSchema = new Schema({
             '1': {
                 passing: {
                     passTD: {
-                        type: {
-                            type: Number,
-                            default: 0
-                        },
+                        type: Number,
                         default: 0
                     },
                     passYards: {

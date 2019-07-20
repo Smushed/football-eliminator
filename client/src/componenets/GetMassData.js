@@ -32,10 +32,8 @@ class GetWeeklyData extends Component {
         }).then(result => {
             if (result.value) {
                 Alert.fire(`Success`, `This will be a while. Go play some games?`, `success`);
-                this.setState({ loading: true });
                 axios.get(`/api/massplayerupdate`)
                     .then(response => {
-                        this.setState({ loading: false });
                         console.log(response.data)
                     })
                     .catch(err => {
