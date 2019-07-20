@@ -3,7 +3,6 @@ import { withAuthorization } from '../Session';
 import axios from 'axios';
 
 import { DragDropContext } from 'react-beautiful-dnd';
-import initialData from './InitialData';
 import Column from './Column';
 import styled from 'styled-components';
 
@@ -14,11 +13,29 @@ const Container = styled.div`
 class Roster extends Component {
     constructor(props) {
         super(props);
-        this.state = initialData;
+        //Must set state hard here to ensure that it is loaded properly when the component unmounts and remounts±
+        this.state = {
+            userRoster: {
+                1: { full_name: 'Loading', mySportsId: 1, position: 'QB', team: 'NE' },
+            },
+            columns: {
+                'userRoster': {
+                    id: 'userRoster',
+                    title: 'On Roster',
+                    playerIds: [1] //These have the be the same as the keys above & the same as the mySportsId
+                },
+                'available': {
+                    id: 'available',
+                    title: 'Avaliable',
+                    playerIds: []
+                },
+            },
+            //Able to order the columns
+            columnOrder: ['userRoster', 'available'],
+        }
     };
 
     componentDidMount() {
-        // Not sure if I need this, when I put it in it hits the method twice
         const userIdFromURL = this.props.match.params.userId;
         if (typeof userIdFromURL !== 'undefined' && typeof this.props.userId !== 'undefined') {
             this.getRosterData(userIdFromURL);
@@ -33,12 +50,25 @@ class Roster extends Component {
     };
 
     componentWillUnmount() {
-        //TODO The issue has something to do with the state not resetting properly
-        //If you get in and out of the app before the state updates then everything is fine
-        //Once state loads then you're screwed
-        this.setState({ userRoster: initialData.userRoster, columns: initialData.columns, columnOrder: initialData.columnOrder })
-        console.log(initialData.userRoster)
-    }
+        this.setState({
+            userRoster: {
+                1: { full_name: 'Loading', mySportsId: 1, position: 'QB', team: 'NE' },
+            },
+            columns: {
+                'userRoster': {
+                    id: 'userRoster',
+                    title: 'On Roster',
+                    playerIds: [1] //These have the be the same as the keys above & the same as the mySportsId
+                },
+                'available': {
+                    id: 'available',
+                    title: 'Avaliable',
+                    playerIds: []
+                }
+            }
+        })
+
+    };
 
     getRosterData = async function (userIdFromURL) {
         //We want to go and grab the roster no matter what
@@ -76,11 +106,6 @@ class Roster extends Component {
                     console.log(err.response.data); //TODO Make this more robust
                 });
         };
-    };
-
-    //This just goes and grabs the user roster from the userId provided from the URL
-    getUserRoster = async (userId) => {
-        // this.populateRosterData(dbResponse.data.roster)
     };
 
     //Goes through the roster and pulls out full data on each player to then be stored as state

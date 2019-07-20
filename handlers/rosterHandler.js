@@ -25,7 +25,7 @@ module.exports = {
         //The userRoster can ONLY be numbers. We will then pull from the sheet at another time
         const dummyRoster = {
             QB: 7549,
-            RB1: 8102,
+            RB1: 8469,
             RB2: 5940,
             WR1: 5946,
             WR2: 6477,
