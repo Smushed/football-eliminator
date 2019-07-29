@@ -85,13 +85,16 @@ module.exports = {
         responseRoster.playerArray = rosterArray;
         return responseRoster;
     },
-    availablePlayers: async (usedPlayers) => {
+    availablePlayers: async (usedPlayers, searchedPosition) => {
         //usedPlayers is the array from the database of all players that the user has used
         //We need to grab ALL the playerIds that are currently active in the database and pull out any that are in the usedPlayers array
         //Then maybe sort by position? There needs to be some sort of sorting, otherwise we are going to have a GIGANTIC list of available players
-        console.log(`avail hit`)
-        const activePlayers = await db.FantasyStats.find({ active: true, position: 'RB' });
+        const activePlayers = await db.FantasyStats.find({ active: true, position: searchedPosition });
 
-        return activePlayers;
+        //This turns the array into a set which then we iterate over the fantasy players we pulled from the DB and pull out duplicates
+        const usedPlayerSet = new Set(usedPlayers);
+        const availablePlayerArray = activePlayers.filter((player) => !usedPlayerSet.has(player.mySportsId));
+
+        return availablePlayerArray;
     }//Next method goes here
 };

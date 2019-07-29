@@ -65,16 +65,24 @@ class Roster extends Component {
 
                     //We need to make a copy of the columns object and update it
                     //React doesn't like us updating nested state otherwise
-                    const columns = { ...this.state.columns }
-                    columns.userRoster.playerIds = playerList
+                    const columns = { ...this.state.columns };
+                    columns.userRoster.playerIds = playerList;
 
                     //Save what we got from the database into state
-                    this.setState({ userRoster: res.data, columns })
+                    this.setState({ userRoster: res.data, columns });
 
                     axios.get(`/api/availableplayers`,
                         { params: res.data.usedPlayers })
                         .then(res => {
-                            console.log(res)
+                            //What comes back is an array of objects for all the available players
+                            //We need to first change the array of objects into just an array to put into the playerIds state
+                            const availablePlayerIdArray = new Array(res.data.map(({ mySportsId }) => mySportsId));
+                            //TODO Start here the error is coming from adding things to state
+                            // columns.available.playerIds = availablePlayerIdArray
+
+                            // this.setState({ available: res.data, columns });
+
+                            console.log(availablePlayerIdArray)
                         })
                 }).catch(err => {
                     console.log(err.response.data); //TODO better error handling

@@ -7,14 +7,17 @@ module.exports = app => {
         res.status(200).send(response);
     });
 
-    //This must be above the userroster to pick it up properly
-    //TODO START HERE
-    app.get(`/api/availableplayers`, (req, res) => {
-        console.log(`avail hit`, req.query)
+    //TODO This takes a very long time. Needs some serious optimization
+    app.get(`/api/availableplayers`, async (req, res) => {
+        //req.query passes the array as an object. We turn this back to an array
+        let usedPlayerArray = Object.values(req.query);
+        //Then iterate over the array and turn the strings into numbers to compare it to the DB
+        usedPlayerArray = usedPlayerArray.map(Number)
+
         //TODO Make the position that is fed in dynamic
-        // const searchedPosition = `QB`;
-        // const availablePlayers = await rosterHandler.availablePlayers(userRoster.usedPlayers, searchedPosition);
-        // console.log(availablePlayers)
+        const searchedPosition = `QB`;
+        const availablePlayers = await rosterHandler.availablePlayers(usedPlayerArray, searchedPosition);
+        res.status(200).send(availablePlayers)
     });
 
     app.get(`/api/userroster/:userid`, async (req, res) => {
