@@ -10,8 +10,8 @@ module.exports = {
         //TODO dynamically do season and week
         const season = '2019-2020-regular';
         const week = 1;
-        //This goes and grabs the user's roster that the page is on
 
+        //This goes and grabs the user's roster that the page is currently on
         const currentRoster = await db.UserRoster.findOne({ userId: userId });
 
         //Parse the data we pulled out of the database and send it back in a useable format

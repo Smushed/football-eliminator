@@ -10,7 +10,7 @@ const placeholderStats = (stats) => {
     //This is done for the getStats function. It needs to have an object to read & assign new values to
     const scoringArray = [`passing`, `rushing`, `receiving`, `fumbles`, `kickoffReturns`, `puntReturns`, `twoPointAttempts`, `extraPointAttempts`, `fieldGoals`];
 
-    for (let i = 0; i <= 8; i++) {
+    for (let i = 0; i < scoringArray.length; i++) {
         if (typeof (stats[scoringArray[i]]) == `undefined`) {
             stats[scoringArray[i]] = {};
         }
