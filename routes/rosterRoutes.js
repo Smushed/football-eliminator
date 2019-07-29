@@ -7,17 +7,22 @@ module.exports = app => {
         res.status(200).send(response);
     });
 
+    //This must be above the userroster to pick it up properly
+    //TODO START HERE
+    app.get(`/api/availableplayers`, (req, res) => {
+        console.log(`avail hit`, req.query)
+        //TODO Make the position that is fed in dynamic
+        // const searchedPosition = `QB`;
+        // const availablePlayers = await rosterHandler.availablePlayers(userRoster.usedPlayers, searchedPosition);
+        // console.log(availablePlayers)
+    });
+
     app.get(`/api/userroster/:userid`, async (req, res) => {
         const userId = req.params.userid;
         //TODO Currently we don't do anything with the currentUser field. We need to change this at some point
-        const currentUser = req.query.currentUser;
         if (userId !== 'undefined') { //Checks if this route received the userId before it was ready in react
             //The check already comes in as the string undefined, rather than undefined itself. It comes in as truthly
-            let userRoster = await rosterHandler.userRoster(userId);
-            if (currentUser) {
-                userRoster.availablePlayers = await rosterHandler.availablePlayers(userRoster.usedPlayers);
-                console.log(userRoster.availablePlayers)
-            }
+            const userRoster = await rosterHandler.userRoster(userId);
             res.status(200).send(userRoster);
         } else {
             //TODO Do something with this error
@@ -25,7 +30,7 @@ module.exports = app => {
         };
     });
 
-    app.put(`/api/dummyroster/:userid`, async (req, res) => {
+    app.put(`/api/dummyroster/:userid`, (req, res) => {
         const userId = req.params.userid;
         rosterHandler.dummyRoster(userId).then(newRoster => res.status(200).send(newRoster));
     });

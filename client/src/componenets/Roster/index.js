@@ -57,8 +57,7 @@ class Roster extends Component {
             //Inside here after the current roster is hit, then go in and pull the other data
             //Make the pull avaliable players easily hit from other places as well, since I want a dropdown that defaults to this week
             //But can be changed in case people want to update more than just this week at once.
-            axios.get(`/api/userroster/${this.props.userId}`,
-                { params: { currentUser: true } })
+            axios.get(`/api/userroster/${this.props.userId}`)
                 .then(res => {
                     //Save down the player array so I can use it for the DnD 
                     const playerList = res.data.playerArray;
@@ -71,6 +70,12 @@ class Roster extends Component {
 
                     //Save what we got from the database into state
                     this.setState({ userRoster: res.data, columns })
+
+                    axios.get(`/api/availableplayers`,
+                        { params: res.data.usedPlayers })
+                        .then(res => {
+                            console.log(res)
+                        })
                 }).catch(err => {
                     console.log(err.response.data); //TODO better error handling
                 });
