@@ -6,16 +6,20 @@ module.exports = {
 
         return players
     },
-    userRoster: async function (userId, currentUser) {
+    userRoster: async function (userId) {
         //TODO dynamically do season and week
         const season = '2019-2020-regular';
         const week = 1;
         //This goes and grabs the user's roster that the page is on
 
         const currentRoster = await db.UserRoster.findOne({ userId: userId });
-        //If the user is currently looking at their page, then currentUser will be true
-        //This then will push the currentRoster along further to get the available players
-        return this.getRosterPlayers(currentRoster, season, week)
+
+        //Parse the data we pulled out of the database and send it back in a useable format
+        const parsedRoster = await this.getRosterPlayers(currentRoster, season, week)
+
+        parsedRoster.usedPlayers = currentRoster.roster[season].usedPlayers;
+
+        return parsedRoster;
     },
     dummyRoster: async (userId) => {
         //TODO Error handling if userId is undefined
@@ -34,7 +38,8 @@ module.exports = {
             K: 8003
         };
 
-        const usedPlayers = [8190, 7564, 13255, 14830, 7198, 8562, 7299, 6460]
+        //usedPlayers in the database is an array of mySportsIds. This will overwrite all the used players if there are any in the database
+        const usedPlayers = [7549, 8469, 5940, 5946, 6477, 9910, 7485, 8003]
 
         //TODO Can I do a findOneAndUpdate instead of getting it, processing and then rewriting it?
         return new Promise((res, rej) => {
@@ -78,6 +83,11 @@ module.exports = {
 
         //We also return the array so the drag & drop component can populate this without having to pull it again
         responseRoster.playerArray = rosterArray;
-        return (responseRoster);
+        return responseRoster;
+    },
+    availablePlayers: (usedPlayers) => {
+        //usedPlayers is the array from the database of all players that the user has used
+        //We need to grab ALL the playerIds that are currently active in the database and pull out any that are in the usedPlayers array
+        //Then maybe sort by position? There needs to be some sort of sorting, otherwise we are going to have a GIGANTIC list of available players
     }//Next method goes here
 };

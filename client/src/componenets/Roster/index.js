@@ -49,27 +49,6 @@ class Roster extends Component {
         }
     };
 
-    componentWillUnmount() {
-        this.setState({
-            userRoster: {
-                1: { full_name: 'Loading', mySportsId: 1, position: 'QB', team: 'NE' },
-            },
-            columns: {
-                'userRoster': {
-                    id: 'userRoster',
-                    title: 'On Roster',
-                    playerIds: [1] //These have the be the same as the keys above & the same as the mySportsId
-                },
-                'available': {
-                    id: 'available',
-                    title: 'Avaliable',
-                    playerIds: []
-                }
-            }
-        })
-
-    };
-
     getRosterData = async function (userIdFromURL) {
         //We want to go and grab the roster no matter what
         //This is in case another user comes to the profile and wants to view their picks
@@ -93,7 +72,7 @@ class Roster extends Component {
                     //Save what we got from the database into state
                     this.setState({ userRoster: res.data, columns })
                 }).catch(err => {
-                    console.log(err.response.data); //TODO Make this better
+                    console.log(err.response.data); //TODO better error handling
                 });
         } else {
             //TODO update the styling on this page to then center the Roster as they are looking at another player

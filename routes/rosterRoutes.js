@@ -13,18 +13,20 @@ module.exports = app => {
         const currentUser = req.query.currentUser;
         if (userId !== 'undefined') { //Checks if this route received the userId before it was ready in react
             //The check already comes in as the string undefined, rather than undefined itself. It comes in as truthly
-            const userRoster = await rosterHandler.userRoster(userId);
+            let userRoster = await rosterHandler.userRoster(userId);
+            if (currentUser) {
+                userRoster.availablePlayers = await rosterHandler.availablePlayers(userRoster.usedPlayers);
+                console.log(userRoster.availablePlayers)
+            }
             res.status(200).send(userRoster);
         } else {
             //TODO Do something with this error
-            res.status(400).send(`userId is undefined. Try refreshing if this persists`)
+            res.status(400).send(`userId is undefined. Try refreshing if this persists`);
         };
     });
 
     app.put(`/api/dummyroster/:userid`, async (req, res) => {
         const userId = req.params.userid;
-        rosterHandler.dummyRoster(userId).then(newRoster =>
-            res.status(200).send(newRoster)
-        );
+        rosterHandler.dummyRoster(userId).then(newRoster => res.status(200).send(newRoster));
     });
 };
