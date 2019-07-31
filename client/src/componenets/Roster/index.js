@@ -104,6 +104,7 @@ class Roster extends Component {
         };
     };
 
+    //TODO Update arrays. The Arrays are what keep track of everything. How does this work???
     onDragEnd = result => {
         const { destination, source, draggableId } = result;
         //If the drag was cancelled then back out of this
@@ -140,16 +141,6 @@ class Roster extends Component {
                 playerIds: newPlayerIds
             };
 
-            //TODO Start here. Maybe check which column it was dropped in and then add or delete accordingly?
-            const newRoster = {
-                ...this.state.userRoster,
-
-            };
-
-            const newAvailable = {
-
-            };
-
             //Now put this into a new picture of the state
             //Using spread to keep the references and updating the parts we want to change
             const newState = {
@@ -163,7 +154,22 @@ class Roster extends Component {
             //Now push the changes to the state
             this.setState(newState);
             return;
+        };
+
+        //TODO Start here. Maybe check which column it was dropped in and then add or delete accordingly?
+        if (finish.id === `userRoster`) {
+            console.log(`userRoster`)
+        } else if (finish.id === `available`) {
+
         }
+        const newRoster = {
+            ...this.state.userRoster,
+
+        };
+
+        const newAvailable = {
+
+        };
 
         // Moving from one column to another
         const startNewPlayerIds = Array.from(start.playerIds);
@@ -196,7 +202,6 @@ class Roster extends Component {
                 [newFinish.id]: newFinish
             }
         };
-        console.log(this.state)
         this.setState(newState);
     };
 
