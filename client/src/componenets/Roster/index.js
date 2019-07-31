@@ -18,6 +18,9 @@ class Roster extends Component {
             userRoster: {
                 1: { full_name: 'Loading', mySportsId: 1, position: 'QB', team: 'NE' },
             },
+            available: {
+                2: { full_name: 'Loading', mySportsId: 2, position: 'QB', team: 'NE' },
+            },
             columns: {
                 'userRoster': {
                     id: 'userRoster',
@@ -27,7 +30,7 @@ class Roster extends Component {
                 'available': {
                     id: 'available',
                     title: 'Avaliable',
-                    playerIds: []
+                    playerIds: [2]
                 },
             },
             //Able to order the columns
@@ -49,7 +52,23 @@ class Roster extends Component {
         }
     };
 
-    getRosterData = async function (userIdFromURL) {
+    getAvailablePlayers = usedPlayers => {
+
+        axios.get(`/api/availableplayers`,
+            { params: usedPlayers })
+            .then(res => {
+                //What comes back is an array of objects for all the available players
+                //We need to first change the array of objects into just an array to put into the playerIds state
+                let columns = { ...this.state.columns };
+
+                columns.available.playerIds = res.data.idArray;
+                delete res.data.idArray;
+
+                this.setState({ available: res.data, columns });
+            })
+    };
+
+    getRosterData = userIdFromURL => {
         //We want to go and grab the roster no matter what
         //This is in case another user comes to the profile and wants to view their picks
         //We pass in a params along with the API call stating if this is the current user or not
@@ -59,31 +78,17 @@ class Roster extends Component {
             //But can be changed in case people want to update more than just this week at once.
             axios.get(`/api/userroster/${this.props.userId}`)
                 .then(res => {
-                    //Save down the player array so I can use it for the DnD 
-                    const playerList = res.data.playerArray;
-                    delete res.data.playerArray;
-
+                    let columns = { ...this.state.columns };
                     //We need to make a copy of the columns object and update it
                     //React doesn't like us updating nested state otherwise
-                    const columns = { ...this.state.columns };
-                    columns.userRoster.playerIds = playerList;
+                    columns.userRoster.playerIds = res.data.playerArray;
+                    delete res.data.playerArray;
 
                     //Save what we got from the database into state
                     this.setState({ userRoster: res.data, columns });
 
-                    axios.get(`/api/availableplayers`,
-                        { params: res.data.usedPlayers })
-                        .then(res => {
-                            //What comes back is an array of objects for all the available players
-                            //We need to first change the array of objects into just an array to put into the playerIds state
-                            const availablePlayerIdArray = new Array(res.data.map(({ mySportsId }) => mySportsId));
-                            //TODO Start here the error is coming from adding things to state
-                            // columns.available.playerIds = availablePlayerIdArray
+                    this.getAvailablePlayers(res.data.usedPlayers)
 
-                            // this.setState({ available: res.data, columns });
-
-                            console.log(availablePlayerIdArray)
-                        })
                 }).catch(err => {
                     console.log(err.response.data); //TODO better error handling
                 });
@@ -99,17 +104,6 @@ class Roster extends Component {
                 });
         };
     };
-
-    //Goes through the roster and pulls out full data on each player to then be stored as state
-    populateRosterData = async (currentRoster) => {
-        //TODO Make season & week dynamic
-        const season = `2019-2020-regular`;
-        const week = 1
-        const playerRoster = await axios.get(`/api/playerdataforroster`,
-            { params: { currentRoster: currentRoster[season][week] } });
-        console.log(`populate`, playerRoster.data)
-
-    }
 
     onDragEnd = result => {
         const { destination, source, draggableId } = result;
@@ -210,8 +204,7 @@ class Roster extends Component {
                     {this.state.columnOrder.map((columnId) => {
                         const column = this.state.columns[columnId];
                         //Iterate through all the players in the array of the column and then create an array of them all to show in a column
-                        const userRoster = column.playerIds.map(playerId => this.state.userRoster[playerId]);
-
+                        const userRoster = column.playerIds.map(playerId => this.state[column.id][playerId]);
                         return <Column key={column.id} column={column} userRoster={userRoster} />;
                     })}
                 </Container>

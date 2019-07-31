@@ -245,6 +245,7 @@ module.exports = {
         for (let i = 0; i < seasonList.length; i++) {
             for (let ii = 0; ii < weeks.length; ii++) {
                 //We send what week we're currently on to the weeklydata where that's used to update pull the API and parse the data
+                console.log(`hitting season ${seasonList[i]} - week ${weeks[ii]}`)
                 await this.getWeeklyData(seasonList[i], weeks[ii]);
                 console.log('data has been updated')
             };
@@ -252,7 +253,7 @@ module.exports = {
 
         //After this is done we want to run the updateRoster function to pull in players who have retired
         //There is no way in the API to get if they currently play when pulling historical data
-        this.updateRoster(seasonList[1]);
+        this.updateRoster(`2019-2020-regular`);
 
         //TODO Actually return something useful
         const testReturn = {
@@ -270,6 +271,8 @@ module.exports = {
                 password: `MYSPORTSFEEDS`
             }
         });
+
+        console.log(`weekly data received, parsing`)
 
         const weeklyPlayerArray = [];
 

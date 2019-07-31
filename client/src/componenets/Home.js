@@ -5,6 +5,13 @@ import * as Routes from '../constants/routes';
 import { Button } from 'reactstrap';
 import axios from 'axios';
 
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+
+//Using Swal to display messages when add book button is hit
+const Alert = withReactContent(Swal);
+
+
 //Stateful component to allow the grouplist to properly populate
 class Home extends Component {
 
@@ -31,6 +38,27 @@ class Home extends Component {
         }
     };
 
+    getMassData = () => {
+        //Send alert to user that they should add the chapters
+        Alert.fire({
+            type: `warning`,
+            title: `Are you sure?`,
+            text: `It will take a LONG time`,
+            showCancelButton: true,
+        }).then(result => {
+            if (result.value) {
+                Alert.fire(`Success`, `This will be a while. Go play some games?`, `success`);
+                axios.get(`/api/massplayerupdate`)
+                    .then(response => {
+                        console.log(response.data)
+                    })
+                    .catch(err => {
+                        console.log(err)
+                    });
+            };
+        });
+    };
+
     render() {
         return (
             <Fragment>
@@ -48,10 +76,6 @@ class Home extends Component {
                 <br />
                 <Link to={`/getweeklydata`}>
                     Update Weekly Player Data
-                </Link>
-                <br />
-                <Link to={`/getmassdata`}>
-                    Update all the player data
                 </Link>
                 <br />
                 <Link to={`/displayplayers`}>
@@ -74,6 +98,12 @@ class Home extends Component {
                 <br />
                 <Button color='secondary' onClick={this.availablePlayer}>
                     TEST Available Players
+                </Button>
+                <br />
+                <br />
+                <br />
+                <Button color='primary' onClick={() => this.getMassData()}>
+                    Mass Update All Players
                 </Button>
             </Fragment>
         );

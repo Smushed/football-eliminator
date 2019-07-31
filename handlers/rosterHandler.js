@@ -86,15 +86,38 @@ module.exports = {
         return responseRoster;
     },
     availablePlayers: async (usedPlayers, searchedPosition) => {
+        //TODO dynamically do season and week
+        const season = '2019-2020-regular';
+
         //usedPlayers is the array from the database of all players that the user has used
         //We need to grab ALL the playerIds that are currently active in the database and pull out any that are in the usedPlayers array
         //Then maybe sort by position? There needs to be some sort of sorting, otherwise we are going to have a GIGANTIC list of available players
         const activePlayers = await db.FantasyStats.find({ active: true, position: searchedPosition });
-
         //This turns the array into a set which then we iterate over the fantasy players we pulled from the DB and pull out duplicates
         const usedPlayerSet = new Set(usedPlayers);
+
+        //This creates an array of objects. We need to turn this into an object for all the players and an array of all player Ids
         const availablePlayerArray = activePlayers.filter((player) => !usedPlayerSet.has(player.mySportsId));
 
-        return availablePlayerArray;
+        const availablePlayerIdArray = availablePlayerArray.map(({ mySportsId }) => mySportsId);
+
+        const responseAvailablePlayers = { idArray: availablePlayerIdArray };
+
+        for (const player of availablePlayerArray) {
+            //Go through the object that was given to us
+            //Declaring what needs to be declared for the nested objects
+            responseAvailablePlayers[player.mySportsId] = {};
+            responseAvailablePlayers[player.mySportsId].stats = {};
+            responseAvailablePlayers[player.mySportsId].stats[season] = {};
+
+            //Parsing the roster and pulling in all the data we need
+            responseAvailablePlayers[player.mySportsId].team = player.team.abbreviation;
+            responseAvailablePlayers[player.mySportsId].stats[season] = player.stats[season];
+            responseAvailablePlayers[player.mySportsId].full_name = player.full_name;
+            responseAvailablePlayers[player.mySportsId].mySportsId = player.mySportsId;
+            responseAvailablePlayers[player.mySportsId].position = player.team.position;
+        };
+
+        return responseAvailablePlayers;
     }//Next method goes here
 };
