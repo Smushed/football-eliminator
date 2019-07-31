@@ -86,7 +86,7 @@ class Roster extends Component {
                     //Save what we got from the database into state
                     this.setState({ userRoster: res.data, columns });
 
-                    this.getAvailablePlayers(res.data.usedPlayers);
+                    this.getAvailablePlayers(columns.userRoster.playerIds);
 
                 }).catch(err => {
                     console.log(err.response.data); //TODO better error handling

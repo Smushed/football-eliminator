@@ -13,7 +13,6 @@ module.exports = app => {
         let usedPlayerArray = Object.values(req.query);
         //Then iterate over the array and turn the strings into numbers to compare it to the DB
         usedPlayerArray = usedPlayerArray.map(Number)
-
         //TODO Make the position that is fed in dynamic
         const searchedPosition = `QB`;
         const availablePlayers = await rosterHandler.availablePlayers(usedPlayerArray, searchedPosition);
