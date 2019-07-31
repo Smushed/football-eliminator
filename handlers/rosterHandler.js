@@ -17,7 +17,6 @@ module.exports = {
         //Parse the data we pulled out of the database and send it back in a useable format
         const parsedRoster = await this.getRosterPlayers(currentRoster, season, week)
 
-        parsedRoster.usedPlayers = currentRoster.roster[season].usedPlayers;
 
         return parsedRoster;
     },

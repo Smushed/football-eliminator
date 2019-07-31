@@ -19,7 +19,6 @@ class Roster extends Component {
                 1: { full_name: 'Loading', mySportsId: 1, position: 'QB', team: 'NE' },
             },
             available: {
-                2: { full_name: 'Loading', mySportsId: 2, position: 'QB', team: 'NE' },
             },
             columns: {
                 'userRoster': {
@@ -30,7 +29,7 @@ class Roster extends Component {
                 'available': {
                     id: 'available',
                     title: 'Avaliable',
-                    playerIds: [2]
+                    playerIds: []
                 },
             },
             //Able to order the columns
@@ -87,7 +86,7 @@ class Roster extends Component {
                     //Save what we got from the database into state
                     this.setState({ userRoster: res.data, columns });
 
-                    this.getAvailablePlayers(res.data.usedPlayers)
+                    this.getAvailablePlayers(res.data.usedPlayers);
 
                 }).catch(err => {
                     console.log(err.response.data); //TODO better error handling
@@ -107,7 +106,6 @@ class Roster extends Component {
 
     onDragEnd = result => {
         const { destination, source, draggableId } = result;
-
         //If the drag was cancelled then back out of this
         if (!destination) {
             return;
@@ -131,7 +129,7 @@ class Roster extends Component {
 
             //Make an array with the same contents as the old array
             const newPlayerIds = Array.from(start.playerIds);
-            //Now move the task ID from its old index to its new index
+            //Now move the player ID from its old index to its new index
             newPlayerIds.splice(source.index, 1);
             //Start at the destination index, remove nothing and insert the draggableId in that spot
             newPlayerIds.splice(destination.index, 0, draggableId);
@@ -140,6 +138,16 @@ class Roster extends Component {
             const newColumn = {
                 ...start,
                 playerIds: newPlayerIds
+            };
+
+            //TODO Start here. Maybe check which column it was dropped in and then add or delete accordingly?
+            const newRoster = {
+                ...this.state.userRoster,
+
+            };
+
+            const newAvailable = {
+
             };
 
             //Now put this into a new picture of the state
@@ -159,15 +167,15 @@ class Roster extends Component {
 
         // Moving from one column to another
         const startNewPlayerIds = Array.from(start.playerIds);
-        //Remove the dragged task Id from this array
+        //Remove the dragged player Id from this array
         startNewPlayerIds.splice(source.index, 1);
-        //Create a new start column that contains the new properties as the old column but with the new start task Ids array
+        //Create a new start column that contains the new properties as the old column but with the new start player Ids array
         const newStart = {
             ...start,
             playerIds: startNewPlayerIds
         };
 
-        //Creating a new array for the dropped column that contains the same Ids as the finished task array
+        //Creating a new array for the dropped column that contains the same Ids as the finished player array
         const finishPlayerIds = Array.from(finish.playerIds);
         //Splice in the dropped player into the array
         finishPlayerIds.splice(destination.index, 0, draggableId);
@@ -175,6 +183,7 @@ class Roster extends Component {
             ...finish,
             playerIds: finishPlayerIds
         };
+        //TODO The issue is coming from saving the object into the userRoster or Available object. The array of ids is working as intended
 
         const newState = {
             ...this.state,
@@ -187,9 +196,8 @@ class Roster extends Component {
                 [newFinish.id]: newFinish
             }
         };
-
+        console.log(this.state)
         this.setState(newState);
-
     };
 
     render() {
