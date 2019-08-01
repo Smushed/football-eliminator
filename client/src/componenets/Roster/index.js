@@ -18,8 +18,6 @@ class Roster extends Component {
             userRoster: {
                 1: { full_name: 'Loading', mySportsId: 1, position: 'QB', team: 'NE' },
             },
-            available: {
-            },
             columns: {
                 'userRoster': {
                     id: 'userRoster',
@@ -63,7 +61,9 @@ class Roster extends Component {
                 columns.available.playerIds = res.data.idArray;
                 delete res.data.idArray;
 
-                this.setState({ available: res.data, columns });
+                const currentRoster = { ...this.state.userRoster, ...res.data }
+
+                this.setState({ userRoster: currentRoster, columns: columns });
             })
     };
 
@@ -157,19 +157,7 @@ class Roster extends Component {
         };
 
         //TODO Start here. Maybe check which column it was dropped in and then add or delete accordingly?
-        if (finish.id === `userRoster`) {
-            console.log(`userRoster`)
-        } else if (finish.id === `available`) {
-
-        }
-        const newRoster = {
-            ...this.state.userRoster,
-
-        };
-
-        const newAvailable = {
-
-        };
+        //TODO I need one large object of all the players and only
 
         // Moving from one column to another
         const startNewPlayerIds = Array.from(start.playerIds);
@@ -217,8 +205,8 @@ class Roster extends Component {
                     {this.state.columnOrder.map((columnId) => {
                         const column = this.state.columns[columnId];
                         //Iterate through all the players in the array of the column and then create an array of them all to show in a column
-                        const userRoster = column.playerIds.map(playerId => this.state[column.id][playerId]);
-                        return <Column key={column.id} column={column} userRoster={userRoster} />;
+                        const roster = column.playerIds.map(playerId => this.state.userRoster[playerId]);
+                        return <Column key={column.id} column={column} roster={roster} />;
                     })}
                 </Container>
             </DragDropContext>
