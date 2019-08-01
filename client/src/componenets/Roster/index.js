@@ -49,28 +49,25 @@ class Roster extends Component {
         }
     };
 
-    componentWillUnmount() {
-        this.setState({
-            userRoster: {
-                1: { full_name: 'Loading', mySportsId: 1, position: 'QB', team: 'NE' },
-            },
-            columns: {
-                'userRoster': {
-                    id: 'userRoster',
-                    title: 'On Roster',
-                    playerIds: [1] //These have the be the same as the keys above & the same as the mySportsId
-                },
-                'available': {
-                    id: 'available',
-                    title: 'Avaliable',
-                    playerIds: []
-                }
-            }
-        })
+    getAvailablePlayers = usedPlayers => {
 
+        axios.get(`/api/availableplayers`,
+            { params: usedPlayers })
+            .then(res => {
+                //What comes back is an array of objects for all the available players
+                //We need to first change the array of objects into just an array to put into the playerIds state
+                let columns = { ...this.state.columns };
+
+                columns.available.playerIds = res.data.idArray;
+                delete res.data.idArray;
+
+                const currentRoster = { ...this.state.userRoster, ...res.data }
+
+                this.setState({ userRoster: currentRoster, columns: columns });
+            })
     };
 
-    getRosterData = async function (userIdFromURL) {
+    getRosterData = userIdFromURL => {
         //We want to go and grab the roster no matter what
         //This is in case another user comes to the profile and wants to view their picks
         //We pass in a params along with the API call stating if this is the current user or not
@@ -78,22 +75,21 @@ class Roster extends Component {
             //Inside here after the current roster is hit, then go in and pull the other data
             //Make the pull avaliable players easily hit from other places as well, since I want a dropdown that defaults to this week
             //But can be changed in case people want to update more than just this week at once.
-            axios.get(`/api/userroster/${this.props.userId}`,
-                { params: { currentUser: true } })
+            axios.get(`/api/userroster/${this.props.userId}`)
                 .then(res => {
-                    //Save down the player array so I can use it for the DnD 
-                    const playerList = res.data.playerArray;
-                    delete res.data.playerArray;
-
+                    let columns = { ...this.state.columns };
                     //We need to make a copy of the columns object and update it
                     //React doesn't like us updating nested state otherwise
-                    const columns = { ...this.state.columns }
-                    columns.userRoster.playerIds = playerList
+                    columns.userRoster.playerIds = res.data.playerArray;
+                    delete res.data.playerArray;
 
                     //Save what we got from the database into state
-                    this.setState({ userRoster: res.data, columns })
+                    this.setState({ userRoster: res.data, columns });
+
+                    this.getAvailablePlayers(columns.userRoster.playerIds);
+
                 }).catch(err => {
-                    console.log(err.response.data); //TODO Make this better
+                    console.log(err.response.data); //TODO better error handling
                 });
         } else {
             //TODO update the styling on this page to then center the Roster as they are looking at another player
@@ -108,20 +104,9 @@ class Roster extends Component {
         };
     };
 
-    //Goes through the roster and pulls out full data on each player to then be stored as state
-    populateRosterData = async (currentRoster) => {
-        //TODO Make season & week dynamic
-        const season = `2019-2020-regular`;
-        const week = 1
-        const playerRoster = await axios.get(`/api/playerdataforroster`,
-            { params: { currentRoster: currentRoster[season][week] } });
-        console.log(`populate`, playerRoster.data)
-
-    }
-
+    //TODO Update arrays. The Arrays are what keep track of everything. How does this work???
     onDragEnd = result => {
         const { destination, source, draggableId } = result;
-
         //If the drag was cancelled then back out of this
         if (!destination) {
             return;
@@ -145,7 +130,7 @@ class Roster extends Component {
 
             //Make an array with the same contents as the old array
             const newPlayerIds = Array.from(start.playerIds);
-            //Now move the task ID from its old index to its new index
+            //Now move the player ID from its old index to its new index
             newPlayerIds.splice(source.index, 1);
             //Start at the destination index, remove nothing and insert the draggableId in that spot
             newPlayerIds.splice(destination.index, 0, draggableId);
@@ -169,19 +154,22 @@ class Roster extends Component {
             //Now push the changes to the state
             this.setState(newState);
             return;
-        }
+        };
+
+        //TODO Start here. Maybe check which column it was dropped in and then add or delete accordingly?
+        //TODO I need one large object of all the players and only
 
         // Moving from one column to another
         const startNewPlayerIds = Array.from(start.playerIds);
-        //Remove the dragged task Id from this array
+        //Remove the dragged player Id from this array
         startNewPlayerIds.splice(source.index, 1);
-        //Create a new start column that contains the new properties as the old column but with the new start task Ids array
+        //Create a new start column that contains the new properties as the old column but with the new start player Ids array
         const newStart = {
             ...start,
             playerIds: startNewPlayerIds
         };
 
-        //Creating a new array for the dropped column that contains the same Ids as the finished task array
+        //Creating a new array for the dropped column that contains the same Ids as the finished player array
         const finishPlayerIds = Array.from(finish.playerIds);
         //Splice in the dropped player into the array
         finishPlayerIds.splice(destination.index, 0, draggableId);
@@ -189,6 +177,7 @@ class Roster extends Component {
             ...finish,
             playerIds: finishPlayerIds
         };
+        //TODO The issue is coming from saving the object into the userRoster or Available object. The array of ids is working as intended
 
         const newState = {
             ...this.state,
@@ -201,9 +190,7 @@ class Roster extends Component {
                 [newFinish.id]: newFinish
             }
         };
-
         this.setState(newState);
-
     };
 
     render() {
@@ -218,9 +205,8 @@ class Roster extends Component {
                     {this.state.columnOrder.map((columnId) => {
                         const column = this.state.columns[columnId];
                         //Iterate through all the players in the array of the column and then create an array of them all to show in a column
-                        const userRoster = column.playerIds.map(playerId => this.state.userRoster[playerId]);
-
-                        return <Column key={column.id} column={column} userRoster={userRoster} />;
+                        const roster = column.playerIds.map(playerId => this.state.userRoster[playerId]);
+                        return <Column key={column.id} column={column} roster={roster} />;
                     })}
                 </Container>
             </DragDropContext>

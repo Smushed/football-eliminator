@@ -10,7 +10,7 @@ const placeholderStats = (stats) => {
     //This is done for the getStats function. It needs to have an object to read & assign new values to
     const scoringArray = [`passing`, `rushing`, `receiving`, `fumbles`, `kickoffReturns`, `puntReturns`, `twoPointAttempts`, `extraPointAttempts`, `fieldGoals`];
 
-    for (let i = 0; i <= 8; i++) {
+    for (let i = 0; i < scoringArray.length; i++) {
         if (typeof (stats[scoringArray[i]]) == `undefined`) {
             stats[scoringArray[i]] = {};
         }
@@ -19,7 +19,6 @@ const placeholderStats = (stats) => {
 };
 
 const addPlayerToDB = (playerArray) => {
-    console.log(playerArray)
     db.FantasyStats.collection.insertMany(playerArray, (err, writtenObj) => {
         if (err) {
             //TODO Handle the error
@@ -246,6 +245,7 @@ module.exports = {
         for (let i = 0; i < seasonList.length; i++) {
             for (let ii = 0; ii < weeks.length; ii++) {
                 //We send what week we're currently on to the weeklydata where that's used to update pull the API and parse the data
+                console.log(`hitting season ${seasonList[i]} - week ${weeks[ii]}`)
                 await this.getWeeklyData(seasonList[i], weeks[ii]);
                 console.log('data has been updated')
             };
@@ -253,7 +253,7 @@ module.exports = {
 
         //After this is done we want to run the updateRoster function to pull in players who have retired
         //There is no way in the API to get if they currently play when pulling historical data
-        this.updateRoster(seasonList[1]);
+        this.updateRoster(`2019-2020-regular`);
 
         //TODO Actually return something useful
         const testReturn = {
@@ -272,10 +272,12 @@ module.exports = {
             }
         });
 
+        console.log(`weekly data received, parsing`)
+
         const weeklyPlayerArray = [];
 
         for (let i = 0; i < search.data.gamelogs.length; i++) {
-            const position = search.data.gamelogs[i].player.position;
+            const position = search.data.gamelogs[i].player.position || search.data.gamelogs[i].player.primaryPosition;
             let player = {};
 
             if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
@@ -311,35 +313,7 @@ module.exports = {
         return response;
     },
     availablePlayers: async () => {
-        //This returns an array of objects from mySports
-        const mySportsResponse = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
-            auth: {
-                username: mySportsFeedsAPI,
-                password: `MYSPORTSFEEDS`
-            },
-            params: {
-                season: `2019-2020-regular`,
-                team: `CHI`,
-                rosterstatus: `assigned-to-roster`
-            }
-        });
-
-        //Returns an array of objects from the DB
-        const dbResponse = await db.FantasyStats.find({ 'team.abbreviation': 'CHI' });
-        // dbResponse;
-
-        //Iterate through the array of players and mark the ones that are neither in the DB or the API call
-        const playerNoLongerActive = await dbResponse.filter(player => {
-            for (let i = 0; i < mySportsResponse.data.players.length; i++) {
-                //TODO Need to test this mysportsresponse thing not sure
-                if (mySportsResponse.data.players[i].player.id === player.mySportsId) {
-                    return false;
-                } else {
-                    return true;
-                }
-            };
-        });
-
+        //TODO Iterate through all the available players in the database and shove them into the new Avaliable players Schema
         return playerNoLongerActive
     }// Next method goes here
 };

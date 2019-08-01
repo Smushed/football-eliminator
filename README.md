@@ -5,12 +5,17 @@ This app will be a mix of a daily and season long NFL fantasy game. The goal of 
 - The scores from each week are kept, and the highest total at the end of the season wins.
 - Should also feature some sort of head to head mechanics.
 
-### TODO 
-API http://nflgame.derekadair.com/
-- Figure out how to use this thing, if I even can do this.
-If this doesn't work then I don't really see how I can do this. The Stats for individual players are not easy to find. This seems like something they keep under lock and key with good reason.
-- Pull their data, organize it into a SQL database. From there use it to implement a fantasy football game
+## MVP
+The MVP for this project is to have users sign in and add players to their roster. There are notable differences between the MVP and the usual expected features in other fantasy apps.
+- Users can log in and pick a roster
+- The weeks and seasons change based on time
+- The rosters lock before the Thursday game
+- Users can see each others rosters for the current week
+- There is a leaderboard to compare scores
+- The scoring system will be locked down
+- D/ST is not an option
 
-Installing nflgame from above (nflgame-redux), postgres
-
-For right now, I need to get this project on track through learning more about python & get the POSTgres database up and running. There is an nfldb which I am aparently able to use, however I'm wandering lost trying to figure it out.
+## Future ideas
+- The app will display the players stats for the last week / season
+- Players can join groups and have set the points for their group
+- Users can add players to future weeks. They are not locked into only picking one week at a time

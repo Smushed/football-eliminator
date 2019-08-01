@@ -8,7 +8,6 @@ import axios from 'axios';
 import SignUpPage from './componenets/SignUp';
 import SignInPage from './componenets/SignIn';
 import NavBar from './componenets/NavBar';
-// import Example from './componenets/SideNav'
 import Home from './componenets/Home';
 import PasswordReset from './componenets/PasswordReset';
 import PasswordChange from './componenets/PasswordChange';
@@ -17,7 +16,6 @@ import CreateGroup from './componenets/CreateGroup';
 import GroupPage from './componenets/GroupPage';
 import GetWeeklyData from './componenets/GetWeeklyData';
 import DisplayPlayers from './componenets/DisplayPlayers';
-import GetMassData from './componenets/GetMassData';
 import Roster from './componenets/Roster';
 import CurrentTesting from './componenets/CurrentTesting';
 
@@ -136,12 +134,6 @@ class App extends Component {
             path={`/currenttesting`}
             render={() =>
               <CurrentTesting />
-            }
-          />
-          <Route
-            path={`/getmassdata`}
-            render={() =>
-              <GetMassData />
             }
           />
           <Route
