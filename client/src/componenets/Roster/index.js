@@ -104,6 +104,27 @@ class Roster extends Component {
         };
     };
 
+    sortUserRoster = () => {
+        const userRoster = this.state.columns.userRoster.playerIds;
+        const rosterHolder = {
+            QB: { something: `big` },
+            RB1: {},
+            RB2: {},
+            WR1: {},
+            WR2: {},
+            Flex: {},
+            K: {}
+        };
+        console.log(userRoster)
+        userRoster.map(player => {
+            if (rosterHolder[this.state.userRoster[player].position]) {
+                console.log(`true`, rosterHolder[this.state.userRoster[player].position])
+            } else {
+                console.log(`false`, rosterHolder[this.state.userRoster[player].position])
+            }
+        })
+    };
+
     //TODO Update arrays. The Arrays are what keep track of everything. How does this work???
     onDragEnd = result => {
         const { destination, source, draggableId } = result;
@@ -116,7 +137,6 @@ class Roster extends Component {
         if (destination.droppableId === source.droppableId && destination.index === source.index) {
             return;
         };
-
         //This is how to re order the array after a drag ends
 
         //Get the column out of the state so we don't mutate the state
@@ -152,12 +172,11 @@ class Roster extends Component {
                 },
             };
             //Now push the changes to the state
+            this.sortUserRoster();
             this.setState(newState);
+
             return;
         };
-
-        //TODO Start here. Maybe check which column it was dropped in and then add or delete accordingly?
-        //TODO I need one large object of all the players and only
 
         // Moving from one column to another
         const startNewPlayerIds = Array.from(start.playerIds);
@@ -177,7 +196,6 @@ class Roster extends Component {
             ...finish,
             playerIds: finishPlayerIds
         };
-        //TODO The issue is coming from saving the object into the userRoster or Available object. The array of ids is working as intended
 
         const newState = {
             ...this.state,
@@ -190,6 +208,7 @@ class Roster extends Component {
                 [newFinish.id]: newFinish
             }
         };
+        this.sortUserRoster();
         this.setState(newState);
     };
 

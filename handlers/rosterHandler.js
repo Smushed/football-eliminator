@@ -77,7 +77,7 @@ module.exports = {
             responseRoster[player].stats[season] = response.stats[season];
             responseRoster[player].full_name = response.full_name;
             responseRoster[player].mySportsId = response.mySportsId;
-            responseRoster[player].position = response.team.position;
+            responseRoster[player].position = response.position;
         };
 
         //We also return the array so the drag & drop component can populate this without having to pull it again
