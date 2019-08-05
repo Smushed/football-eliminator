@@ -89,7 +89,7 @@ class Roster extends Component {
                     this.getAvailablePlayers(columns.userRoster.playerIds);
 
                 }).catch(err => {
-                    console.log(err.response.data); //TODO better error handling
+                    console.log(`roster data error`, err.response.data); //TODO better error handling
                 });
         } else {
             //TODO update the styling on this page to then center the Roster as they are looking at another player
@@ -105,24 +105,67 @@ class Roster extends Component {
     };
 
     sortUserRoster = () => {
+        //First we sort the roster to verify that the player has the correct amount of players on their roster
         const userRoster = this.state.columns.userRoster.playerIds;
         const rosterHolder = {
-            QB: { something: `big` },
-            RB1: {},
-            RB2: {},
-            WR1: {},
-            WR2: {},
-            Flex: {},
-            K: {}
+            QB: { mySportsId: 0 },
+            RB1: { mySportsId: 0 },
+            RB2: { mySportsId: 0 },
+            WR1: { mySportsId: 0 },
+            WR2: { mySportsId: 0 },
+            Flex: { mySportsId: 0 },
+            TE: { mySportsId: 0 },
+            K: { mySportsId: 0 }
         };
-        console.log(userRoster)
+        const errorArray = [];
+
+        //We then go through the current user roster and populate it with data to sort it and get all the players
         userRoster.map(player => {
-            if (rosterHolder[this.state.userRoster[player].position]) {
-                console.log(`true`, rosterHolder[this.state.userRoster[player].position])
+            const position = this.state.userRoster[player].position;
+            //For the RB And WR positions, there are three options each they can be in
+            //RB/WR 1 & 2 as well as a flex position. All of which are undefined because we cannot have duplicate keys in an object
+            if (typeof rosterHolder[position] === `undefined`) {
+                //We use a switch statement for WR and RB and start pulling the data into the fake roster
+                switch (position) {
+                    case `RB`:
+                        if (rosterHolder.RB1.mySportsId === 0) {
+                            rosterHolder.RB1 = this.state.userRoster[player];
+                        } else if (rosterHolder.RB2.mySportsId === 0) {
+                            rosterHolder.RB2 = this.state.userRoster[player];
+                        } else if (rosterHolder.Flex.mySportsId === 0) {
+                            rosterHolder.Flex = this.state.userRoster[player];
+                        } else {
+                            errorArray.push({ position: `RB`, errMessage: `Too Many Running Backs` });
+                        };
+                        break;
+                    case `WR`:
+                        if (rosterHolder.WR1.mySportsId === 0) {
+                            rosterHolder.WR1 = this.state.userRoster[player];
+                        } else if (rosterHolder.WR2.mySportsId === 0) {
+                            rosterHolder.WR2 = this.state.userRoster[player];
+                        } else if (rosterHolder.Flex.mySportsId === 0) {
+                            rosterHolder.Flex = this.state.userRoster[player];
+                        } else {
+                            //TODO How do I handle errors?
+                            errorArray.push({ position: `WR`, errMessage: `Too Many Wide Receivers` });
+                        };
+                        break;
+                };
             } else {
-                console.log(`false`, rosterHolder[this.state.userRoster[player].position])
-            }
-        })
+                //TODO Start here; Why does it only iterate over the QB, K & TE positions one time even though there are more QBs in the array?
+
+                //This is going to handle the QB, TE and K positions since that part is more simple to put into the object and check
+                //Check if there is dummy data in the object. If so then we put the current player in there
+                if (rosterHolder[position].mySportsId === 0) {
+                    rosterHolder[position] = this.state.userRoster[player];
+                } else {
+                    //TODO Figure out how to do error stuff. The player has too many players on the roster
+                    errorArray.push({ position, errMessage: `Too Many ${position}` });
+                }
+            };
+        });
+        console.log(errorArray);
+        return rosterHolder;
     };
 
     //TODO Update arrays. The Arrays are what keep track of everything. How does this work???
@@ -171,8 +214,8 @@ class Roster extends Component {
                     [newColumn.id]: newColumn
                 },
             };
+
             //Now push the changes to the state
-            this.sortUserRoster();
             this.setState(newState);
 
             return;
@@ -208,8 +251,20 @@ class Roster extends Component {
                 [newFinish.id]: newFinish
             }
         };
-        this.sortUserRoster();
+
+        //Then we check if the added player can fit in the roster and if we need to drop a current player
+        const sortedRoster = this.sortUserRoster();
+        if (sortedRoster.errMessage) {
+            //TODO Test the error handling
+            //Error Handling (Drop a player???)
+        } else {
+            console.log(sortedRoster);
+            //Now I need to check what position they are trying to add and make sure they want to drop the player they currently have on the roster
+        };
+
+
         this.setState(newState);
+        //TODO Then push changes to the database
     };
 
     render() {
