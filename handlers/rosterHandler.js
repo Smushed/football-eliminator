@@ -114,7 +114,7 @@ module.exports = {
             responseAvailablePlayers[player.mySportsId].stats[season] = player.stats[season];
             responseAvailablePlayers[player.mySportsId].full_name = player.full_name;
             responseAvailablePlayers[player.mySportsId].mySportsId = player.mySportsId;
-            responseAvailablePlayers[player.mySportsId].position = player.team.position;
+            responseAvailablePlayers[player.mySportsId].position = player.position;
         };
 
         return responseAvailablePlayers;
