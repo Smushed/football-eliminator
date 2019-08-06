@@ -138,6 +138,8 @@ class Roster extends Component {
         };
 
         //Checks if any positions have too many on the roster then feed the data into the function to handle this
+        //Probably a bettwe way to do this, but unsure of how.
+        //Also need to feed in the originalRoster in case the player cancels out and we are to reload the original state
         if (QBCount > 1) {
             this.tooManyPlayers(originalRoster, userRoster, `QB`, QBCount)
         } else if (RBCount + WRCount > 5) {
@@ -155,34 +157,38 @@ class Roster extends Component {
         };
     };
 
-    tooManyPlayers = (originalRoster, roster, position, count) => {
+    tooManyPlayers = async (originalRoster, roster, position, count) => {
         //Pull out all the players for the position that has too many in it right now
         const filteredRoster = roster.filter(player => this.state.userRoster[player].position === position);
         //Iterate over the filtered array and get the full data for the players to give the user a choice
-        //TODO Make this so the fullPlayers gives something swal2 can use
-        //Do a select swal2
-        const fullPlayers = filteredRoster.map(player => this.state.userRoster[player]);
+        const fullPlayers = {}
 
-        //TODO This isn't firing at all
-        const chosenPlayer = Alert.fire({
+        for (let i = 0; i < filteredRoster.length; i++) {
+            //First we have to initialize the object because of the bracket notation
+            fullPlayers[filteredRoster[i]] = {};
+            //THen we populate the full name from the state to give the player the chance to pick between the one they just added and the player on their roster
+            fullPlayers[filteredRoster[i]] = this.state.userRoster[filteredRoster[i]].full_name;
+        };
+
+        const { value: chosenPlayer } = await Alert.fire({
             title: `Too many ${position}s`,
             input: `select`,
             inputPlaceholder: `Which Player?`,
-            inputOptions: { one: `one`, two: `two`, three: `three` },
-            showCancelButton: true, //TODO Make it so this reverts to the old state
-            inputValidator: value => {
-                return new Promise(resolve => {
-                    if (value === `Which Player?`) {
-                        resolve(`You need to pick a player!`)
-                    } else {
-                        resolve()
-                    }
-                })
-            }
-        })
+            inputOptions: fullPlayers,
+            showCancelButton: true,
+        });
+
+        console.log(chosenPlayer)
 
         if (chosenPlayer) {
-            Alert.fire(`You picked: ` + chosenPlayer)
+            await Alert.fire(`You picked: ` + chosenPlayer);
+        } else if (chosenPlayer === undefined) {
+            //This is if the player has chosen to cancel out of the box above. We reload the old state to remove the player they just added
+            this.setState({ columns: originalRoster });
+        } else {
+            //This is if the player doesn't select one of the players and just presses accept
+            await Alert.fire(`You must pick one or cancel`)
+            this.tooManyPlayers(originalRoster, roster, position, count);
         }
 
         console.log(fullPlayers)
@@ -274,7 +280,7 @@ class Roster extends Component {
         };
 
         //Saving a copy of the old state to revert it if the player wants to disregard the player they just added
-        const originalRoster = this.state.columns.playerId;
+        const originalRoster = this.state.columns;
 
         //We first wait until the state has been pushed to ensure we are capturing the players the user wants to add.
         await this.setState(newState);
