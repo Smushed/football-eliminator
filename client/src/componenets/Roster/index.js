@@ -21,13 +21,12 @@ class Roster extends Component {
         //Must set state hard here to ensure that it is loaded properly when the component unmounts and remounts±
         this.state = {
             userRoster: {
-                1: { full_name: 'Loading', mySportsId: 1, position: 'QB', team: 'NE' },
             },
             columns: {
                 'userRoster': {
                     id: 'userRoster',
                     title: 'On Roster',
-                    playerIds: [1] //These have the be the same as the keys above & the same as the mySportsId
+                    playerIds: [] //These have the be the same as the keys above & the same as the mySportsId
                 },
                 'available': {
                     id: 'available',
@@ -109,8 +108,8 @@ class Roster extends Component {
         };
     };
 
-    sortUserRoster = (originalRoster) => {
-        //First we sort the roster to verify that the player has the correct amount of players on their roster
+    //This is to check if the player has too many of a certain position on their roster
+    countRoster = (originalRoster) => {
         const userRoster = this.state.columns.userRoster.playerIds;
         let QBCount = 0;
         let RBCount = 0;
@@ -179,7 +178,8 @@ class Roster extends Component {
         });
 
         console.log(chosenPlayer)
-
+        //TODO Start here. I now have the player they chose as well as the one(s) they didn't. I probably should switch and tweak the available players to be able to pull RB & WR.
+        //How else am I going to test them?
         if (chosenPlayer) {
             await Alert.fire(`You picked: ` + chosenPlayer);
         } else if (chosenPlayer === undefined) {
@@ -287,7 +287,7 @@ class Roster extends Component {
 
         //Then we check if the added player can fit in the roster and if we need to drop a current player
         //Pass through the original roster if the player decides they want to cancel out
-        this.sortUserRoster(originalRoster);
+        this.countRoster(originalRoster);
         //TODO Then save to the database
     };
 
