@@ -1,24 +1,22 @@
 import React, { Component } from 'react';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
+import { Label, Input, Container, Form, FormGroup, Button, Row, Col } from 'reactstrap';
 
 import { DragDropContext } from 'react-beautiful-dnd';
 import Column from './Column';
-import styled from 'styled-components';
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import './rosterStyle.css';
 
 //Using Swal to display messages when add book button is hit
 const Alert = withReactContent(Swal);
-
-const Container = styled.div`
-    display: flex;
-`;
 
 class Roster extends Component {
     constructor(props) {
         super(props);
         //Must set state hard here to ensure that it is loaded properly when the component unmounts and remounts±
+        this.toggle = this.toggle.bind(this);
         this.state = {
             userRoster: {
             },
@@ -36,7 +34,8 @@ class Roster extends Component {
             },
             //Able to order the columns
             columnOrder: ['userRoster', 'available'],
-        }
+            dropdownOpen: false,
+        };
     };
 
     componentDidMount() {
@@ -53,10 +52,10 @@ class Roster extends Component {
         }
     };
 
-    getAvailablePlayers = usedPlayers => {
-
+    getAvailablePlayers = (position) => {
+        const userId = this.props.userId;
         axios.get(`/api/availableplayers`,
-            { params: usedPlayers })
+            { params: { userId, position } })
             .then(res => {
                 //What comes back is an array of objects for all the available players
                 //We need to first change the array of objects into just an array to put into the playerIds state
@@ -90,7 +89,6 @@ class Roster extends Component {
                     //Save what we got from the database into state
                     this.setState({ userRoster: res.data, columns });
 
-                    this.getAvailablePlayers(columns.userRoster.playerIds);
 
                 }).catch(err => {
                     console.log(`roster data error`, err.response.data); //TODO better error handling
@@ -291,23 +289,63 @@ class Roster extends Component {
         //TODO Then save to the database
     };
 
+    //This is the toggle for the Dropdown and if to open it up or not
+    toggle() {
+        this.setState(prevState => ({
+            dropdownOpen: !prevState.dropdownOpen
+        }));
+    };
+
+    positionSearch() {
+        console.log()
+    }
+
     render() {
         return (
-            <DragDropContext
-                // These are callbacks for updating the drag when someone picks something up or drops it
-                // Others are onDragStart and onDragUpdate. They can be used when people pick up the draggable or if they move it around
-                onDragEnd={this.onDragEnd}
-            >
-                <Container>
-                    {/* Iterate through all the columns to then display as many columns as needed */}
-                    {this.state.columnOrder.map((columnId) => {
-                        const column = this.state.columns[columnId];
-                        //Iterate through all the players in the array of the column and then create an array of them all to show in a column
-                        const roster = column.playerIds.map(playerId => this.state.userRoster[playerId]);
-                        return <Column key={column.id} column={column} roster={roster} />;
-                    })}
-                </Container>
-            </DragDropContext>
+            <Container fluid={true}>
+                <Row>
+                    <Col xs='4'></Col>
+                    <Col xs='4'>
+                        <div className='positionSelectContainer'>
+                            <Form onSubmit={this.positionSearch}>
+                                <FormGroup>
+                                    <Label for='positionSelect'>Positional Search</Label>
+                                    //TODO Start here.. How do I get the values from an input
+                                    <Input type='select' name='positionSelect' className='searchDropdown'>
+                                        <option value={`QB`}>QB</option>
+                                        <option>RB</option>
+                                        <option>WR</option>
+                                        <option>TE</option>
+                                        <option>K</option>
+                                    </Input>
+                                </FormGroup>
+                            </Form>
+                            <Button color="primary" size="lg"
+                                type='submit'>Search</Button>
+                        </div>
+                    </Col>
+                    <Col xs='4'></Col>
+                </Row>
+                <Row>
+                    <DragDropContext
+                        // These are callbacks for updating the drag when someone picks something up or drops it
+                        // Others are onDragStart and onDragUpdate. They can be used when people pick up the draggable or if they move it around
+                        onDragEnd={this.onDragEnd}
+                    >
+                        {/* Iterate through all the columns to then display as many columns as needed */}
+                        {this.state.columnOrder.map((columnId) => {
+                            const column = this.state.columns[columnId];
+                            //Iterate through all the players in the array of the column and then create an array of them all to show in a column
+                            const roster = column.playerIds.map(playerId => this.state.userRoster[playerId]);
+                            return (
+                                <Col xs='6' key={columnId}>
+                                    <Column key={column.id} column={column} roster={roster} className='playerColumn' />
+                                </Col>
+                            );
+                        })}
+                    </DragDropContext>
+                </Row>
+            </Container>
         )
     }
 }

@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Draggable } from 'react-beautiful-dnd';
 
+//TODO Get rid of this so I can get rid of styled-components.
+//I can just use normal styles and react conditional styling to achieve this
 const Container = styled.div`
     border: 1px solid lightgrey;
     border-radius: 2px;
