@@ -161,6 +161,8 @@ class Roster extends Component {
         if (QBCount > 1) {
             this.tooManyPlayers(originalRoster, userRoster, `QB`, QBCount)
         } else if (RBCount + WRCount > 5) {
+            //Here we want the WR or RB to be over three. If they already have 3 on their roster, it means that one is already in their flex
+            //If they only have two then they can sub one of the other positions and put it in their flex
             if (WRCount > 3) {
                 this.tooManyPlayers(originalRoster, userRoster, `WR`, WRCount);
             } else if (RBCount > 3) {
@@ -177,8 +179,16 @@ class Roster extends Component {
 
     tooManyPlayers = async (originalRoster, roster, position, count) => {
         //Pull out all the players for the position that has too many in it right now
-        const filteredRoster = roster.filter(player => this.state.userRoster[player].position === position);
+        let filteredRoster = [];
+        if (position === `Flex`) {
+            //If the position is flex, that means there are two of the current position and they can either swap it for RB or console.warn();
+            filteredRoster = roster.filter(player => this.state.userRoster[player].position === `RB` || this.state.userRoster[player].position === `WR`);
+        } else {
+            filteredRoster = roster.filter(player => this.state.userRoster[player].position === position);
+        }
+
         //Iterate over the filtered array and get the full data for the players to give the user a choice
+        //We need it in this format so swal will properly list the options
         const fullPlayers = {}
 
         for (let i = 0; i < filteredRoster.length; i++) {
@@ -191,16 +201,22 @@ class Roster extends Component {
         const { value: chosenPlayer } = await Alert.fire({
             title: `Too many ${position}s`,
             input: `select`,
-            inputPlaceholder: `Which Player?`,
+            inputPlaceholder: `Which player do you to drop?`,
             inputOptions: fullPlayers,
             showCancelButton: true,
         });
 
-        console.log(chosenPlayer)
-        //TODO Start here. I now have the player they chose as well as the one(s) they didn't. I probably should switch and tweak the available players to be able to pull RB & WR.
-        //How else am I going to test them?
+        //If the player responded with the player they would like to drop then we will take them out of their current array and then set the new state
         if (chosenPlayer) {
-            await Alert.fire(`You picked: ` + chosenPlayer);
+            //We need to make a copy of the columns object and update it
+            //React doesn't like us updating nested state otherwise
+            const columns = this.state.columns;
+            //Remove the player they chose from the array and then save it down into state
+            const playerIndex = columns.userRoster.playerIds.indexOf(parseInt(chosenPlayer));
+            columns.userRoster.playerIds.splice(playerIndex, 1)
+
+            this.setState({ columns });
+
         } else if (chosenPlayer === undefined) {
             //This is if the player has chosen to cancel out of the box above. We reload the old state to remove the player they just added
             this.setState({ columns: originalRoster });
@@ -208,10 +224,8 @@ class Roster extends Component {
             //This is if the player doesn't select one of the players and just presses accept
             await Alert.fire(`You must pick one or cancel`)
             this.tooManyPlayers(originalRoster, roster, position, count);
-        }
-
-        console.log(fullPlayers)
-    }
+        };
+    };
 
     onDragEnd = async result => {
         const { destination, source, draggableId } = result;
