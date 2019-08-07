@@ -70,7 +70,7 @@ class Roster extends Component {
     }
 
     getAvailablePlayers = (searchedPosition) => {
-
+        this.loading();
         const userId = this.props.userId;
         axios.get(`/api/availableplayers`,
             { params: { userId, searchedPosition } })
@@ -85,10 +85,13 @@ class Roster extends Component {
                 const currentRoster = { ...this.state.userRoster, ...res.data }
 
                 this.setState({ userRoster: currentRoster, columns: columns });
+                this.doneLoading();
             })
     };
 
     getRosterData = userIdFromURL => {
+
+        this.loading();
         //We want to go and grab the roster no matter what
         //This is in case another user comes to the profile and wants to view their picks
         //We pass in a params along with the API call stating if this is the current user or not
@@ -106,7 +109,7 @@ class Roster extends Component {
 
                     //Save what we got from the database into state
                     this.setState({ userRoster: res.data, columns });
-
+                    this.doneLoading();
 
                 }).catch(err => {
                     console.log(`roster data error`, err.response.data); //TODO better error handling
