@@ -69,26 +69,6 @@ class Roster extends Component {
         Alert.close()
     }
 
-    getAvailablePlayers = (searchedPosition) => {
-        this.loading();
-        const userId = this.props.userId;
-        axios.get(`/api/availableplayers`,
-            { params: { userId, searchedPosition } })
-            .then(res => {
-                //What comes back is an array of objects for all the available players
-                //We need to first change the array of objects into just an array to put into the playerIds state
-                let columns = { ...this.state.columns };
-
-                columns.available.playerIds = res.data.idArray;
-                delete res.data.idArray;
-
-                const currentRoster = { ...this.state.userRoster, ...res.data }
-
-                this.setState({ userRoster: currentRoster, columns: columns });
-                this.doneLoading();
-            })
-    };
-
     getRosterData = userIdFromURL => {
 
         this.loading();
@@ -198,6 +178,7 @@ class Roster extends Component {
             fullPlayers[filteredRoster[i]] = this.state.userRoster[filteredRoster[i]].full_name;
         };
 
+        //chosenPlayer === the player the user would like to be dropped
         const { value: chosenPlayer } = await Alert.fire({
             title: `Too many ${position}s`,
             input: `select`,
@@ -215,6 +196,12 @@ class Roster extends Component {
             const playerIndex = columns.userRoster.playerIds.indexOf(parseInt(chosenPlayer));
             columns.userRoster.playerIds.splice(playerIndex, 1)
 
+            const sortedRoster = await this.sortRoster(columns.userRoster.playerIds);
+
+            //Here we feed the new sorted array along with the player to be deleted from the old array
+            //We need to new array to get the new player added and the old player so we can pull them out of the usedPlayersArray in the DB
+            this.saveRosterToDb(sortedRoster, chosenPlayer);
+
             this.setState({ columns });
 
         } else if (chosenPlayer === undefined) {
@@ -226,6 +213,17 @@ class Roster extends Component {
             this.tooManyPlayers(originalRoster, roster, position, count);
         };
     };
+
+    sortRoster = (roster) => {
+        console.log(roster)
+
+        //Until testing is complete, just send back the same roster
+        return roster;
+    };
+
+    saveRosterToDb = (newRoster, droppedPlayer) => {
+        //This will not always have a chosenPlayer because if the user is reorganizing the players currently on their roster it will not have a player to be dropped
+    }
 
     onDragEnd = async result => {
         const { destination, source, draggableId } = result;
@@ -328,8 +326,23 @@ class Roster extends Component {
     positionSearch = (e) => {
         e.preventDefault();
 
-        //Now that the 
-        this.getAvailablePlayers(this.state.positionSelect)
+        this.loading();
+        const userId = this.props.userId;
+        axios.get(`/api/availableplayers`,
+            { params: { userId, searchedPosition: this.state.positionSelect } })
+            .then(res => {
+                //What comes back is an array of objects for all the available players
+                //We need to first change the array of objects into just an array to put into the playerIds state
+                let columns = { ...this.state.columns };
+
+                columns.available.playerIds = res.data.idArray;
+                delete res.data.idArray;
+
+                const currentRoster = { ...this.state.userRoster, ...res.data }
+
+                this.setState({ userRoster: currentRoster, columns: columns });
+                this.doneLoading();
+            });
 
     };
 
