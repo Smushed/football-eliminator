@@ -161,6 +161,8 @@ class Roster extends Component {
         if (QBCount > 1) {
             this.tooManyPlayers(originalRoster, userRoster, `QB`, QBCount)
         } else if (RBCount + WRCount > 5) {
+            //Here we want the WR or RB to be over three. If they already have 3 on their roster, it means that one is already in their flex
+            //If they only have two then they can sub one of the other positions and put it in their flex
             if (WRCount > 3) {
                 this.tooManyPlayers(originalRoster, userRoster, `WR`, WRCount);
             } else if (RBCount > 3) {
@@ -177,7 +179,13 @@ class Roster extends Component {
 
     tooManyPlayers = async (originalRoster, roster, position, count) => {
         //Pull out all the players for the position that has too many in it right now
-        const filteredRoster = roster.filter(player => this.state.userRoster[player].position === position);
+        let filteredRoster = [];
+        if (position === `Flex`) {
+            //If the position is flex, that means there are two of the current position and they can either swap it for RB or console.warn();
+            filteredRoster = roster.filter(player => this.state.userRoster[player].position === `RB` || this.state.userRoster[player].position === `WR`);
+        } else {
+            filteredRoster = roster.filter(player => this.state.userRoster[player].position === position);
+        }
 
         //Iterate over the filtered array and get the full data for the players to give the user a choice
         //We need it in this format so swal will properly list the options
