@@ -1,28 +1,30 @@
 import React, { Component } from 'react';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
+import { Label, Input, Container, Form, FormGroup, Button, Row, Col } from 'reactstrap';
 
 import { DragDropContext } from 'react-beautiful-dnd';
 import Column from './Column';
-import styled from 'styled-components';
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import './rosterStyle.css';
 
-const Container = styled.div`
-    display: flex;
-`;
+//Using Swal to display messages when add book button is hit
+const Alert = withReactContent(Swal);
 
 class Roster extends Component {
     constructor(props) {
         super(props);
         //Must set state hard here to ensure that it is loaded properly when the component unmounts and remounts±
+        this.handleChange = this.handleChange.bind(this);
         this.state = {
             userRoster: {
-                1: { full_name: 'Loading', mySportsId: 1, position: 'QB', team: 'NE' },
             },
             columns: {
                 'userRoster': {
                     id: 'userRoster',
                     title: 'On Roster',
-                    playerIds: [1] //These have the be the same as the keys above & the same as the mySportsId
+                    playerIds: [] //These have the be the same as the keys above & the same as the mySportsId
                 },
                 'available': {
                     id: 'available',
@@ -32,7 +34,8 @@ class Roster extends Component {
             },
             //Able to order the columns
             columnOrder: ['userRoster', 'available'],
-        }
+            positionSelect: `QB`, //This is the default value for the position search
+        };
     };
 
     componentDidMount() {
@@ -49,10 +52,28 @@ class Roster extends Component {
         }
     };
 
-    getAvailablePlayers = usedPlayers => {
+    //We define loading and done loading here to have swal pop ups whenever we are pulling in data so the user can't mess with data while it's in a loading state
+    loading() {
+        Alert.fire({
+            title: 'Loading',
+            text: 'Loading available players',
+            imageUrl: 'https://media.giphy.com/media/3o7aDczpCChShEG27S/giphy.gif',
+            imageWidth: 200,
+            imageHeight: 200,
+            imageAlt: 'Loading Football',
+            showConfirmButton: false,
+            showCancelButton: false
+        });
+    };
+    doneLoading() {
+        Alert.close()
+    }
 
+    getAvailablePlayers = (searchedPosition) => {
+
+        const userId = this.props.userId;
         axios.get(`/api/availableplayers`,
-            { params: usedPlayers })
+            { params: { userId, searchedPosition } })
             .then(res => {
                 //What comes back is an array of objects for all the available players
                 //We need to first change the array of objects into just an array to put into the playerIds state
@@ -86,10 +107,9 @@ class Roster extends Component {
                     //Save what we got from the database into state
                     this.setState({ userRoster: res.data, columns });
 
-                    this.getAvailablePlayers(columns.userRoster.playerIds);
 
                 }).catch(err => {
-                    console.log(err.response.data); //TODO better error handling
+                    console.log(`roster data error`, err.response.data); //TODO better error handling
                 });
         } else {
             //TODO update the styling on this page to then center the Roster as they are looking at another player
@@ -104,8 +124,93 @@ class Roster extends Component {
         };
     };
 
-    //TODO Update arrays. The Arrays are what keep track of everything. How does this work???
-    onDragEnd = result => {
+    //This is to check if the player has too many of a certain position on their roster
+    countRoster = (originalRoster) => {
+        const userRoster = this.state.columns.userRoster.playerIds;
+        let QBCount = 0;
+        let RBCount = 0;
+        let WRCount = 0;
+        let TECount = 0;
+        let KCount = 0;
+
+        //We then go through the current user roster and populate it with data to sort it and get all the players
+        for (let i = 0; i < userRoster.length; i++) {
+            const position = this.state.userRoster[userRoster[i]].position;
+            //For the RB And WR positions, there are three options each they can be in
+            //RB/WR 1 & 2 as well as a flex position. All of which are undefined because we cannot have duplicate keys in an object
+            //We use a switch statement for WR and RB and start pulling the data into the fake roster
+            if (position === `RB`) {
+                RBCount++;
+            } else if (position === `WR`) {
+                WRCount++;
+            } else if (position === `QB`) {
+                QBCount++;
+            } else if (position === `TE`) {
+                TECount++;
+            } else if (position === `K`) {
+                KCount++;
+            };
+        };
+
+        //Checks if any positions have too many on the roster then feed the data into the function to handle this
+        //Probably a bettwe way to do this, but unsure of how.
+        //Also need to feed in the originalRoster in case the player cancels out and we are to reload the original state
+        if (QBCount > 1) {
+            this.tooManyPlayers(originalRoster, userRoster, `QB`, QBCount)
+        } else if (RBCount + WRCount > 5) {
+            if (WRCount > 3) {
+                this.tooManyPlayers(originalRoster, userRoster, `WR`, WRCount);
+            } else if (RBCount > 3) {
+                this.tooManyPlayers(originalRoster, userRoster, `RB`, RBCount);
+            } else {
+                this.tooManyPlayers(originalRoster, userRoster, `Flex`)
+            };
+        } else if (TECount > 1) {
+            this.tooManyPlayers(originalRoster, userRoster, `TE`, TECount);
+        } else if (KCount > 1) {
+            this.tooManyPlayers(originalRoster, userRoster, `K`, KCount);
+        };
+    };
+
+    tooManyPlayers = async (originalRoster, roster, position, count) => {
+        //Pull out all the players for the position that has too many in it right now
+        const filteredRoster = roster.filter(player => this.state.userRoster[player].position === position);
+        //Iterate over the filtered array and get the full data for the players to give the user a choice
+        const fullPlayers = {}
+
+        for (let i = 0; i < filteredRoster.length; i++) {
+            //First we have to initialize the object because of the bracket notation
+            fullPlayers[filteredRoster[i]] = {};
+            //THen we populate the full name from the state to give the player the chance to pick between the one they just added and the player on their roster
+            fullPlayers[filteredRoster[i]] = this.state.userRoster[filteredRoster[i]].full_name;
+        };
+
+        const { value: chosenPlayer } = await Alert.fire({
+            title: `Too many ${position}s`,
+            input: `select`,
+            inputPlaceholder: `Which Player?`,
+            inputOptions: fullPlayers,
+            showCancelButton: true,
+        });
+
+        console.log(chosenPlayer)
+        //TODO Start here. I now have the player they chose as well as the one(s) they didn't. I probably should switch and tweak the available players to be able to pull RB & WR.
+        //How else am I going to test them?
+        if (chosenPlayer) {
+            await Alert.fire(`You picked: ` + chosenPlayer);
+        } else if (chosenPlayer === undefined) {
+            //This is if the player has chosen to cancel out of the box above. We reload the old state to remove the player they just added
+            this.setState({ columns: originalRoster });
+        } else {
+            //This is if the player doesn't select one of the players and just presses accept
+            await Alert.fire(`You must pick one or cancel`)
+            this.tooManyPlayers(originalRoster, roster, position, count);
+        }
+
+        console.log(fullPlayers)
+    }
+
+    onDragEnd = async result => {
         const { destination, source, draggableId } = result;
         //If the drag was cancelled then back out of this
         if (!destination) {
@@ -116,7 +221,6 @@ class Roster extends Component {
         if (destination.droppableId === source.droppableId && destination.index === source.index) {
             return;
         };
-
         //This is how to re order the array after a drag ends
 
         //Get the column out of the state so we don't mutate the state
@@ -126,6 +230,8 @@ class Roster extends Component {
         const finish = this.state.columns[destination.droppableId];
 
         if (start === finish) {
+            //TODO Figure out how to reorganize the players in the roster while still holding the order
+            //TODO IE Allow players to change between RB 1 & 2 and swap a flex with someone in the true positions            
             // If we are not changing columns, only reordering within the columns then we can reorganize the list in the order the user wants
 
             //Make an array with the same contents as the old array
@@ -151,13 +257,12 @@ class Roster extends Component {
                     [newColumn.id]: newColumn
                 },
             };
+
             //Now push the changes to the state
             this.setState(newState);
+
             return;
         };
-
-        //TODO Start here. Maybe check which column it was dropped in and then add or delete accordingly?
-        //TODO I need one large object of all the players and only
 
         // Moving from one column to another
         const startNewPlayerIds = Array.from(start.playerIds);
@@ -177,7 +282,6 @@ class Roster extends Component {
             ...finish,
             playerIds: finishPlayerIds
         };
-        //TODO The issue is coming from saving the object into the userRoster or Available object. The array of ids is working as intended
 
         const newState = {
             ...this.state,
@@ -190,26 +294,80 @@ class Roster extends Component {
                 [newFinish.id]: newFinish
             }
         };
-        this.setState(newState);
+
+        //Saving a copy of the old state to revert it if the player wants to disregard the player they just added
+        const originalRoster = this.state.columns;
+
+        //We first wait until the state has been pushed to ensure we are capturing the players the user wants to add.
+        await this.setState(newState);
+
+        //Then we check if the added player can fit in the roster and if we need to drop a current player
+        //Pass through the original roster if the player decides they want to cancel out
+        this.countRoster(originalRoster);
+        //TODO Then save to the database
     };
+
+    //This triggers off the Form on the roster below that allows the user to search for the position they would like to add to their roster
+    positionSearch = (e) => {
+        e.preventDefault();
+
+        //Now that the 
+        this.getAvailablePlayers(this.state.positionSelect)
+
+    };
+
+    //This is to handle the change for the Input Type in the position search below
+    handleChange(e) {
+        this.setState({
+            [e.target.name]: e.target.value
+        });
+    }
 
     render() {
         return (
-            <DragDropContext
-                // These are callbacks for updating the drag when someone picks something up or drops it
-                // Others are onDragStart and onDragUpdate. They can be used when people pick up the draggable or if they move it around
-                onDragEnd={this.onDragEnd}
-            >
-                <Container>
-                    {/* Iterate through all the columns to then display as many columns as needed */}
-                    {this.state.columnOrder.map((columnId) => {
-                        const column = this.state.columns[columnId];
-                        //Iterate through all the players in the array of the column and then create an array of them all to show in a column
-                        const roster = column.playerIds.map(playerId => this.state.userRoster[playerId]);
-                        return <Column key={column.id} column={column} roster={roster} />;
-                    })}
-                </Container>
-            </DragDropContext>
+            <Container fluid={true}>
+                <Row className='positionSearchRow'>
+                    <Col xs='0' md='4'></Col>
+                    <Col xs='12' md='4'>
+                        <div className='positionSelectContainer'>
+                            <Form onSubmit={this.positionSearch}>
+                                <FormGroup>
+                                    <Label for='positionSelect'>Positional Search</Label>
+                                    <Input type='select' name='positionSelect' id='positionSelect' className='searchDropdown' onChange={this.handleChange}>
+                                        <option>QB</option>
+                                        <option>RB</option>
+                                        <option>WR</option>
+                                        <option>TE</option>
+                                        <option>K</option>
+                                    </Input>
+                                </FormGroup>
+                                <Button color='primary' type='submit' className='submitButton'>Search</Button>
+                            </Form>
+                        </div>
+                    </Col>
+                    <Col xs='0' md='4'></Col>
+                </Row>
+                <Row>
+                    <DragDropContext
+                        // These are callbacks for updating the drag when someone picks something up or drops it
+                        // Others are onDragStart and onDragUpdate. They can be used when people pick up the draggable or if they move it around
+                        onDragEnd={this.onDragEnd}
+                    >
+                        {/* Iterate through all the columns to then display as many columns as needed */}
+                        {this.state.columnOrder.map((columnId) => {
+                            const column = this.state.columns[columnId];
+                            //Iterate through all the players in the array of the column and then create an array of them all to show in a column
+                            const roster = column.playerIds.map(playerId => this.state.userRoster[playerId]);
+                            return (
+                                // this only has to be xs of 6 because there will only ever be two columns
+                                <Col xs='6' key={columnId}>
+                                    <Column key={column.id} column={column} roster={roster} className='playerColumn' />
+                                </Col>
+                            );
+                        })}
+                    </DragDropContext>
+                </Row>
+            </Container>
         )
     }
 }

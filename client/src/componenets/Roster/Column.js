@@ -1,26 +1,10 @@
 import React, { Component } from 'react';
-import styled from 'styled-components';
 import Player from './Player';
-import { Droppable } from 'react-beautiful-dnd'
+import { Droppable } from 'react-beautiful-dnd';
+import './rosterStyle.css';
 
-
-const Container = styled.div`
-    margin: 8px;
-    border: 1px solid lightgrey;
-    border-radius: 2px;
-    width: 50%;
-    min-height: 250px;
-
-    display: flex;
-    flex-direction: column;
-`;
 // The contiainer for the column should be display flex with a flex-direction or some other sort of growing box
 // This is to allow the column to grow with the drag and dropping
-
-const Title = styled.h3`
-    padding: 8px;
-`;
-
 
 class PlayerList extends Component {
     render() {
@@ -47,10 +31,10 @@ class PlayerList extends Component {
 export default class Column extends Component {
     render() {
         return (
-            <Container>
-                <Title>
+            <div className='columnStyle'>
+                <h3 className='title'>
                     {this.props.column.title}
-                </Title>
+                </h3>
                 <Droppable droppableId={this.props.column.id}>
                     {/* Snapshot is what you get when interacting with a DroppableThis has keys, including isDragging and draggingOver & draggingOverWith */}
                     {/* TODO: Possibly use draggingOverWith to key in when people try and drag over player they aren't suppossed to */}
@@ -67,7 +51,7 @@ export default class Column extends Component {
                         </PlayerList>
                     )}
                 </Droppable>
-            </Container>
+            </div>
         );
     }
 }

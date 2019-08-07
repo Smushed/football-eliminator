@@ -77,16 +77,20 @@ module.exports = {
             responseRoster[player].stats[season] = response.stats[season];
             responseRoster[player].full_name = response.full_name;
             responseRoster[player].mySportsId = response.mySportsId;
-            responseRoster[player].position = response.team.position;
+            responseRoster[player].position = response.position;
         };
 
         //We also return the array so the drag & drop component can populate this without having to pull it again
         responseRoster.playerArray = rosterArray;
         return responseRoster;
     },
-    availablePlayers: async (usedPlayers, searchedPosition) => {
+    availablePlayers: async (userId, searchedPosition) => {
         //TODO dynamically do season and week
         const season = '2019-2020-regular';
+
+        const currentPlayer = await db.UserRoster.findOne({ userId: userId });
+
+        const usedPlayers = currentPlayer.roster[season].usedPlayers;
 
         //usedPlayers is the array from the database of all players that the user has used
         //We need to grab ALL the playerIds that are currently active in the database and pull out any that are in the usedPlayers array
@@ -114,7 +118,7 @@ module.exports = {
             responseAvailablePlayers[player.mySportsId].stats[season] = player.stats[season];
             responseAvailablePlayers[player.mySportsId].full_name = player.full_name;
             responseAvailablePlayers[player.mySportsId].mySportsId = player.mySportsId;
-            responseAvailablePlayers[player.mySportsId].position = player.team.position;
+            responseAvailablePlayers[player.mySportsId].position = player.position;
         };
 
         return responseAvailablePlayers;

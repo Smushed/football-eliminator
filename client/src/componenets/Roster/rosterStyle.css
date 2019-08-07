@@ -1,0 +1,38 @@
+.positionSelectContainer{
+    text-align: center;
+    margin: 0 auto;
+    width: 250px;
+}
+
+.searchDropdown {
+    display: inline-block;
+    width: 250px;
+    text-align: center;
+    margin-bottom: 0;
+}
+
+.positionSearchRow {
+    height: 125px;
+}
+
+.submitButton {
+    margin-bottom: 25px;
+}
+
+.playerColumn {
+    width: 100%;
+}
+
+.columnStyle {
+    margin: 8px;
+    border: 1px solid lightgrey;
+    border-radius: 2px;
+    min-height: 250px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.title {
+    padding: 8px;
+}
