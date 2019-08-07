@@ -16,7 +16,7 @@ class Roster extends Component {
     constructor(props) {
         super(props);
         //Must set state hard here to ensure that it is loaded properly when the component unmounts and remounts±
-        this.toggle = this.toggle.bind(this);
+        this.handleChange = this.handleChange.bind(this);
         this.state = {
             userRoster: {
             },
@@ -34,7 +34,7 @@ class Roster extends Component {
             },
             //Able to order the columns
             columnOrder: ['userRoster', 'available'],
-            dropdownOpen: false,
+            positionSelect: `QB`, //This is the default value for the position search
         };
     };
 
@@ -52,10 +52,28 @@ class Roster extends Component {
         }
     };
 
-    getAvailablePlayers = (position) => {
+    //We define loading and done loading here to have swal pop ups whenever we are pulling in data so the user can't mess with data while it's in a loading state
+    loading() {
+        Alert.fire({
+            title: 'Loading',
+            text: 'Loading available players',
+            imageUrl: 'https://media.giphy.com/media/3o7aDczpCChShEG27S/giphy.gif',
+            imageWidth: 200,
+            imageHeight: 200,
+            imageAlt: 'Loading Football',
+            showConfirmButton: false,
+            showCancelButton: false
+        });
+    };
+    doneLoading() {
+        Alert.close()
+    }
+
+    getAvailablePlayers = (searchedPosition) => {
+
         const userId = this.props.userId;
         axios.get(`/api/availableplayers`,
-            { params: { userId, position } })
+            { params: { userId, searchedPosition } })
             .then(res => {
                 //What comes back is an array of objects for all the available players
                 //We need to first change the array of objects into just an array to put into the playerIds state
@@ -289,42 +307,45 @@ class Roster extends Component {
         //TODO Then save to the database
     };
 
-    //This is the toggle for the Dropdown and if to open it up or not
-    toggle() {
-        this.setState(prevState => ({
-            dropdownOpen: !prevState.dropdownOpen
-        }));
+    //This triggers off the Form on the roster below that allows the user to search for the position they would like to add to their roster
+    positionSearch = (e) => {
+        e.preventDefault();
+
+        //Now that the 
+        this.getAvailablePlayers(this.state.positionSelect)
+
     };
 
-    positionSearch() {
-        console.log()
+    //This is to handle the change for the Input Type in the position search below
+    handleChange(e) {
+        this.setState({
+            [e.target.name]: e.target.value
+        });
     }
 
     render() {
         return (
             <Container fluid={true}>
-                <Row>
-                    <Col xs='4'></Col>
-                    <Col xs='4'>
+                <Row className='positionSearchRow'>
+                    <Col xs='0' md='4'></Col>
+                    <Col xs='12' md='4'>
                         <div className='positionSelectContainer'>
                             <Form onSubmit={this.positionSearch}>
                                 <FormGroup>
                                     <Label for='positionSelect'>Positional Search</Label>
-                                    //TODO Start here.. How do I get the values from an input
-                                    <Input type='select' name='positionSelect' className='searchDropdown'>
-                                        <option value={`QB`}>QB</option>
+                                    <Input type='select' name='positionSelect' id='positionSelect' className='searchDropdown' onChange={this.handleChange}>
+                                        <option>QB</option>
                                         <option>RB</option>
                                         <option>WR</option>
                                         <option>TE</option>
                                         <option>K</option>
                                     </Input>
                                 </FormGroup>
+                                <Button color='primary' type='submit' className='submitButton'>Search</Button>
                             </Form>
-                            <Button color="primary" size="lg"
-                                type='submit'>Search</Button>
                         </div>
                     </Col>
-                    <Col xs='4'></Col>
+                    <Col xs='0' md='4'></Col>
                 </Row>
                 <Row>
                     <DragDropContext
@@ -338,6 +359,7 @@ class Roster extends Component {
                             //Iterate through all the players in the array of the column and then create an array of them all to show in a column
                             const roster = column.playerIds.map(playerId => this.state.userRoster[playerId]);
                             return (
+                                // this only has to be xs of 6 because there will only ever be two columns
                                 <Col xs='6' key={columnId}>
                                     <Column key={column.id} column={column} roster={roster} className='playerColumn' />
                                 </Col>
