@@ -199,16 +199,31 @@ class Roster extends Component {
             //Add the player they dropped back to the available list of players
             if (this.state.userRoster[chosenPlayer].potion === this.state.positionSelect) {
                 columns.available.playerIds.unshift(chosenPlayer);
+            };
+
+            //Now we make one final check before moving things along. If everything is done right above this should be simple.
+            const checkRoster = await this.checkRoster(columns.userRoster.playerIds);
+
+            //If the check failed, then we will have an issue and are going to revert the state back to the previous point
+            if (!checkRoster) {
+                Alert.fire({
+                    type: 'warning',
+                    title: 'Roster Save Error!',
+                    text: 'Something went wrong with saving your roster! Please refresh and try again',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'Take me back'
+                });
+                this.setState({ columns: originalRoster });
+
+            } else {
+                const sortedRoster = await this.sortRoster(columns.userRoster.playerIds);
+
+                //Here we feed the new sorted array along with the player to be deleted from the old array
+                //We need to new array to get the new player added and the old player so we can pull them out of the usedPlayersArray in the DB
+                this.saveRosterToDb(sortedRoster, chosenPlayer);
+
+                this.setState({ columns });
             }
-
-            const sortedRoster = await this.sortRoster(columns.userRoster.playerIds);
-
-            //Here we feed the new sorted array along with the player to be deleted from the old array
-            //We need to new array to get the new player added and the old player so we can pull them out of the usedPlayersArray in the DB
-            this.saveRosterToDb(sortedRoster, chosenPlayer);
-
-            this.setState({ columns });
-
         } else if (chosenPlayer === undefined) {
             //This is if the player has chosen to cancel out of the box above. We reload the old state to remove the player they just added
             this.setState({ columns: originalRoster });
@@ -219,8 +234,48 @@ class Roster extends Component {
         };
     };
 
+    checkRoster = (roster) => {
+        //This is a true false check to verify the roster data before saving it to the database
+        let response = true;
+        let QBCount = 0;
+        let RBCount = 0;
+        let WRCount = 0;
+        let TECount = 0;
+        let KCount = 0;
+
+        //We then go through the current user roster and populate it with data to sort it and get all the players
+        for (let i = 0; i < roster.length; i++) {
+            const position = this.state.userRoster[roster[i]].position;
+            //For the RB And WR positions, there are three options each they can be in
+            //RB/WR 1 & 2 as well as a flex position. All of which are undefined because we cannot have duplicate keys in an object
+            //We use a switch statement for WR and RB and start pulling the data into the fake roster
+            if (position === `RB`) {
+                RBCount++;
+            } else if (position === `WR`) {
+                WRCount++;
+            } else if (position === `QB`) {
+                QBCount++;
+            } else if (position === `TE`) {
+                TECount++;
+            } else if (position === `K`) {
+                KCount++;
+            };
+        };
+
+        if (QBCount > 1 || (RBCount + WRCount) > 5 || RBCount > 3 || WRCount > 3 || TECount > 1 || KCount > 1) {
+            response = false;
+        };
+
+        return response;
+    }
+
     sortRoster = (roster) => {
-        console.log(roster)
+        //Takes the array of players and iterates over them, creating a new sorted array
+        const sortedRoster = [];
+
+        for (const playerId of roster) {
+            console.log(playerId)
+        };
 
         //Until testing is complete, just send back the same roster
         return roster;
