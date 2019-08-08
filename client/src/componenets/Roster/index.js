@@ -197,7 +197,7 @@ class Roster extends Component {
             const playerIndex = columns.userRoster.playerIds.indexOf(parseInt(chosenPlayer));
             columns.userRoster.playerIds.splice(playerIndex, 1);
             //Add the player they dropped back to the available list of players
-            if (this.state.userRoster[chosenPlayer].potion === this.state.positionSelect) {
+            if (this.state.userRoster[chosenPlayer].position === this.state.positionSelect) {
                 columns.available.playerIds.unshift(chosenPlayer);
             };
 
@@ -205,7 +205,16 @@ class Roster extends Component {
             const checkRoster = await this.checkRoster(columns.userRoster.playerIds);
 
             //If the check failed, then we will have an issue and are going to revert the state back to the previous point
-            if (!checkRoster) {
+            if (checkRoster) {
+                //We take the array of player IDs that are on the user roster and sort them
+                columns.userRoster.playerIds = await this.sortRoster(columns.userRoster.playerIds);
+
+                //Here we feed the new sorted array along with the player to be deleted from the old array
+                //We need to new array to get the new player added and the old player so we can pull them out of the usedPlayersArray in the DB
+                this.saveRosterToDb(columns.userRoster.playerIds, chosenPlayer);
+
+                this.setState({ columns });
+            } else {
                 Alert.fire({
                     type: 'warning',
                     title: 'Roster Save Error!',
@@ -214,16 +223,7 @@ class Roster extends Component {
                     confirmButtonText: 'Take me back'
                 });
                 this.setState({ columns: originalRoster });
-
-            } else {
-                const sortedRoster = await this.sortRoster(columns.userRoster.playerIds);
-
-                //Here we feed the new sorted array along with the player to be deleted from the old array
-                //We need to new array to get the new player added and the old player so we can pull them out of the usedPlayersArray in the DB
-                this.saveRosterToDb(sortedRoster, chosenPlayer);
-
-                this.setState({ columns });
-            }
+            };
         } else if (chosenPlayer === undefined) {
             //This is if the player has chosen to cancel out of the box above. We reload the old state to remove the player they just added
             this.setState({ columns: originalRoster });
@@ -262,28 +262,57 @@ class Roster extends Component {
             };
         };
 
-        if (QBCount > 1 || (RBCount + WRCount) > 5 || RBCount > 3 || WRCount > 3 || TECount > 1 || KCount > 1) {
+        //This checks if the player has too many of any one position or if their overall roster is over 8
+        if (QBCount > 1 || (RBCount + WRCount) > 5 || RBCount > 3 || WRCount > 3 || TECount > 1 || KCount > 1 || roster.length > 8) {
             response = false;
         };
 
         return response;
-    }
+    };
 
     sortRoster = (roster) => {
+        //We want to organize the roster here to be as follows: QB, RB1, RB2, WR1, WR2, Flex, TE, K
         //Takes the array of players and iterates over them, creating a new sorted array
-        const sortedRoster = [];
+        const sortedRoster = [0, 0, 0, 0, 0, 0, 0, 0];
 
-        for (const playerId of roster) {
-            console.log(playerId)
+        //Here we iterate through the roster of the player and put them into an object for the order we want
+        for (const player of roster) {
+            const position = this.state.userRoster[player].position
+            //If the position is QB, TE, or K then we can just put them directly in
+            if (position === `QB`) {
+                sortedRoster[0] = player;
+                //If it's RB or WR then we need to assign it manually to the 1, 2 and flex spots
+                //First we need to check the RB/WR 1 & 2 spots then assign it into the flex spot
+            } else if (position === `RB`) {
+                if (sortedRoster[1] === 0) {
+                    sortedRoster[1] = player;
+                } else if (sortedRoster[2] === 0) {
+                    sortedRoster[2] = player;
+                } else if (sortedRoster[5] === 0) {
+                    sortedRoster[5] = player;
+                }
+            } else if (position === `WR`) {
+                if (sortedRoster[3] === 0) {
+                    sortedRoster[3] = player;
+                } else if (sortedRoster[4] === 0) {
+                    sortedRoster[4] = player;
+                } else if (sortedRoster[5] === 0) {
+                    sortedRoster[5] = player;
+                };
+            } else if (position === `TE`) {
+                sortedRoster[6] = player;
+            } else if (position === `K`) {
+                sortedRoster[7] = player;
+            };
         };
 
         //Until testing is complete, just send back the same roster
-        return roster;
+        return sortedRoster;
     };
 
     saveRosterToDb = (newRoster, droppedPlayer) => {
         //This will not always have a chosenPlayer because if the user is reorganizing the players currently on their roster it will not have a player to be dropped
-    }
+    };
 
     onDragEnd = async result => {
         const { destination, source, draggableId } = result;
