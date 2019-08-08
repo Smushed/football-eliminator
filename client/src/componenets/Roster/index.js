@@ -189,12 +189,15 @@ class Roster extends Component {
 
         //If the player responded with the player they would like to drop then we will take them out of their current array and then set the new state
         if (chosenPlayer) {
+
             //We need to make a copy of the columns object and update it
             //React doesn't like us updating nested state otherwise
             const columns = this.state.columns;
             //Remove the player they chose from the array and then save it down into state
             const playerIndex = columns.userRoster.playerIds.indexOf(parseInt(chosenPlayer));
-            columns.userRoster.playerIds.splice(playerIndex, 1)
+            columns.userRoster.playerIds.splice(playerIndex, 1);
+            //Add the player they dropped back to the available list of players
+            columns.available.playerIds.unshift(chosenPlayer);
 
             const sortedRoster = await this.sortRoster(columns.userRoster.playerIds);
 
