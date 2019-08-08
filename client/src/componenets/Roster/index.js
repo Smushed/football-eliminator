@@ -339,12 +339,14 @@ class Roster extends Component {
             // If we are not changing columns, only reordering within the columns then we can reorganize the list in the order the user wants
 
             //Make an array with the same contents as the old array
-            const newPlayerIds = Array.from(start.playerIds);
+            let newPlayerIds = Array.from(start.playerIds);
             //Now move the player ID from its old index to its new index
             newPlayerIds.splice(source.index, 1);
             //Start at the destination index, remove nothing and insert the draggableId in that spot
             newPlayerIds.splice(destination.index, 0, draggableId);
 
+            //We sort the roster to make sure it stays in the order we want it in (QB, RB, WR, Flex, TE, K)
+            newPlayerIds = await this.sortRoster(newPlayerIds)
             //Create a new column which has the same properites as the old column but with the newPlayerIds array
             const newColumn = {
                 ...start,
@@ -361,6 +363,7 @@ class Roster extends Component {
                     [newColumn.id]: newColumn
                 },
             };
+
 
             //Now push the changes to the state
             this.setState(newState);
