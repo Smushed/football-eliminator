@@ -197,7 +197,9 @@ class Roster extends Component {
             const playerIndex = columns.userRoster.playerIds.indexOf(parseInt(chosenPlayer));
             columns.userRoster.playerIds.splice(playerIndex, 1);
             //Add the player they dropped back to the available list of players
-            columns.available.playerIds.unshift(chosenPlayer);
+            if (this.state.userRoster[chosenPlayer].potion === this.state.positionSelect) {
+                columns.available.playerIds.unshift(chosenPlayer);
+            }
 
             const sortedRoster = await this.sortRoster(columns.userRoster.playerIds);
 
