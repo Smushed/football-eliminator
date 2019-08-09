@@ -124,9 +124,7 @@ module.exports = {
         return responseAvailablePlayers;
     },
     updateUserRoster: async (userId, newRoster, droppedPlayer) => {
-        const today = new Date();
-        const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-        console.log(date)
+
 
         // return new Promise((res, rej) => {
         //     db.UserRoster.findOne({ userId }, (err, currentRoster) => {
