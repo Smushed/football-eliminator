@@ -122,5 +122,27 @@ module.exports = {
         };
 
         return responseAvailablePlayers;
-    }//Next method goes here
+    },
+    updateUserRoster: async (userId, newRoster, droppedPlayer) => {
+        const today = new Date();
+        const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+        console.log(date)
+
+        // return new Promise((res, rej) => {
+        //     db.UserRoster.findOne({ userId }, (err, currentRoster) => {
+        //         currentRoster.roster[season][week] = dummyRoster;
+        //         currentRoster.roster[season].usedPlayers = usedPlayers;
+
+        //         currentRoster.save((err, result) => {
+        //             if (err) {
+        //                 //TODO Better error handling
+        //                 console.log(err);
+        //             } else {
+        //                 res(result);
+        //             };
+        //         });
+        //     });
+        // });
+        return `working`
+    }
 };

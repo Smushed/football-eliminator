@@ -312,8 +312,4 @@ module.exports = {
         console.log(`get weekly data done week ${week} season ${season}`)
         return response;
     },
-    availablePlayers: async () => {
-        //TODO Iterate through all the available players in the database and shove them into the new Avaliable players Schema
-        return playerNoLongerActive
-    }// Next method goes here
 };

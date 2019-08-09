@@ -59,6 +59,10 @@ class Home extends Component {
         });
     };
 
+    baldwin = () => {
+        axios.get(`/api/baldwin`).then(res => console.log(res))
+    }
+
     render() {
         return (
             <Fragment>
@@ -104,6 +108,12 @@ class Home extends Component {
                 <br />
                 <Button color='primary' onClick={() => this.getMassData()}>
                     Mass Update All Players
+                </Button>
+                <br />
+                <br />
+                <br />
+                <Button color='primary' onClick={() => this.baldwin()}>
+                    Find DOug
                 </Button>
             </Fragment>
         );

@@ -182,7 +182,7 @@ class Roster extends Component {
         const { value: chosenPlayer } = await Alert.fire({
             title: `Too many ${position}s`,
             input: `select`,
-            inputPlaceholder: `Which player do you to drop?`,
+            inputPlaceholder: `Which player do you want to drop?`,
             inputOptions: fullPlayers,
             showCancelButton: true,
         });
@@ -310,8 +310,15 @@ class Roster extends Component {
         return sortedRoster;
     };
 
-    saveRosterToDb = (newRoster, droppedPlayer) => {
+    saveRosterToDb = async (newRoster, droppedPlayer) => {
         //This will not always have a chosenPlayer because if the user is reorganizing the players currently on their roster it will not have a player to be dropped
+        axios.put(`/api/updateUserRoster`,
+            { userId: this.props.userId, newRoster, droppedPlayer })
+            .then(res => {
+                console.log(`working`)
+            }).catch(err => {
+                console.log(err)//TODO Better error handling
+            });
     };
 
     onDragEnd = async result => {
@@ -333,10 +340,8 @@ class Roster extends Component {
         const start = this.state.columns[source.droppableId];
         const finish = this.state.columns[destination.droppableId];
 
+        // If we are not changing columns, only reordering within the columns then we can reorganize the list in the order the user wants
         if (start === finish) {
-            //TODO Figure out how to reorganize the players in the roster while still holding the order
-            //TODO IE Allow players to change between RB 1 & 2 and swap a flex with someone in the true positions            
-            // If we are not changing columns, only reordering within the columns then we can reorganize the list in the order the user wants
 
             //Make an array with the same contents as the old array
             let newPlayerIds = Array.from(start.playerIds);
@@ -345,8 +350,11 @@ class Roster extends Component {
             //Start at the destination index, remove nothing and insert the draggableId in that spot
             newPlayerIds.splice(destination.index, 0, draggableId);
 
-            //We sort the roster to make sure it stays in the order we want it in (QB, RB, WR, Flex, TE, K)
-            newPlayerIds = await this.sortRoster(newPlayerIds)
+            if (source.droppableId === `userRoster`) { //Really you can use either source or destination here
+                //If user is changing their roster, sort it to make sure it stays in the order we want it in (QB, RB, WR, Flex, TE, K)
+                newPlayerIds = await this.sortRoster(newPlayerIds)
+                await this.saveRosterToDb(newPlayerIds, 0);
+            };
             //Create a new column which has the same properites as the old column but with the newPlayerIds array
             const newColumn = {
                 ...start,
@@ -363,7 +371,6 @@ class Roster extends Component {
                     [newColumn.id]: newColumn
                 },
             };
-
 
             //Now push the changes to the state
             this.setState(newState);
@@ -435,7 +442,6 @@ class Roster extends Component {
                 this.setState({ userRoster: currentRoster, columns: columns });
                 this.doneLoading();
             });
-
     };
 
     //This is to handle the change for the Input Type in the position search below
