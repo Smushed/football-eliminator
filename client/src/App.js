@@ -55,12 +55,12 @@ class App extends Component {
       grouplist: dbResponse.data.grouplist
     }
     this.setState({ currentUser });
-    this.getCurrentData();
+    this.getSeasonAndWeek();
   };
 
-  getCurrentData = async () => {
-    const currentWeek = await axios.get(`/api/currentWeekData`);
-    this.setState({ currentWeek })
+  getSeasonAndWeek = async () => {
+    const seasonAndWeek = await axios.get(`/api/currentSeasonAndWeek`);
+    this.setState({ currentSeason: seasonAndWeek.data.season, currentWeek: seasonAndWeek.data.week })
   };
 
   render() {

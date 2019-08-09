@@ -41,8 +41,4 @@ module.exports = app => {
         const working = await mySportsHandler.availablePlayers();
         res.status(200).send(working);
     });
-
-    app.get(`/api/baldwin`, async (req, res) => {
-        await mySportsHandler.baldwin();
-    })
 }

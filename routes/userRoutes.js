@@ -43,11 +43,11 @@ module.exports = app => {
         res.status(200).send(foundUser);
     });
 
-    app.get(`/api/currentWeekData`, async (req, res) => {
-        const today = new Date();
-        const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-        const otherDate = new Date(`August 9, 2019 00:00:01`)
-        console.log(today > otherDate)
-        return (`fuckme`)
+    app.get(`/api/currentSeasonAndWeek`, async (req, res) => {
+        const seasonAndWeek = await userHandler.getSeasonAndWeek()
+
+        console.log(seasonAndWeek)
+
+        res.status(200).send(seasonAndWeek);
     });
 }

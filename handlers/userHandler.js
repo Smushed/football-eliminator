@@ -1,4 +1,5 @@
 const db = require(`../models`);
+const weekDates = require(`../constants/weekDates`);
 
 //This is for updating the user profile once created
 //The user only has access to the local profile
@@ -95,5 +96,40 @@ module.exports = {
     getUserByID: async (userID) => {
         const foundUser = await db.User.findById([userID]);
         return foundUser;
+    },
+    getSeasonAndWeek: async () => {
+        const today = new Date();
+        // const year = parseInt(today.getFullYear());
+        // const month = today.getMonth() + 1; //JS starts January at 0
+        // const day = today.getUTCDate();
+
+        const year = 2019;
+        const month = 11;
+        const day = 6;
+
+        let season = ``;
+        let week = 1;
+
+        //First we check if the user is trying to access the game outside of the normal date range
+        if (typeof weekDates[year] === `undefined` || typeof weekDates[year][month] === `undefined` || typeof weekDates[year][month][day] === `undefined`) {
+            //If we are late in 2019 or early in 2020 then we want it to be the last week of the season
+            if ((year === 2019 && month === 12) || (year === 2020 && month < 5)) {
+                season = `2019-2020-regular`;
+                week = 17;
+            } else if (year === 2019) { //If it is not late in the year (month 12) we want it to default to week 1 of 2019-2020 season
+                season = `2019-2020-regular`;
+                week = 1;
+            } else if (year === 2020) {
+                return { season: `2020-2021-regular`, week: 1 }
+            } else if ((year === 2020 && month === 12) || (year === 2021 && month < 5)) {
+                season = `2020-2021-regular`;
+                week = 17;
+            }
+        } else {
+            season = weekDates[year].season;
+            week = weekDates[year][month][day];
+        }
+
+        return { season, week }
     }
 };

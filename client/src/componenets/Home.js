@@ -109,12 +109,6 @@ class Home extends Component {
                 <Button color='primary' onClick={() => this.getMassData()}>
                     Mass Update All Players
                 </Button>
-                <br />
-                <br />
-                <br />
-                <Button color='primary' onClick={() => this.baldwin()}>
-                    Find DOug
-                </Button>
             </Fragment>
         );
     };
