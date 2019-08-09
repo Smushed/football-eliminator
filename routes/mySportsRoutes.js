@@ -40,5 +40,5 @@ module.exports = app => {
     app.get(`/api/avaliableplayers`, async (req, res) => {
         const working = await mySportsHandler.availablePlayers();
         res.status(200).send(working);
-    })
+    });
 }

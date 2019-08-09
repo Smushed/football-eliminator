@@ -1,6 +1,4 @@
 const userHandler = require(`../handlers/userHandler`);
-const rosterHandler = require(`../handlers/rosterHandler`);
-
 
 module.exports = app => {
     app.put(`/api/updateuser`, async (req, res) => {
@@ -25,7 +23,7 @@ module.exports = app => {
     });
 
     //This is email specific for pulling users who are logged in
-    app.get(`/api/getuser/:email`, async (req, res) => {
+    app.get(`/api/getUser/:email`, async (req, res) => {
         const email = req.params.email;
         const foundUser = await userHandler.getUserByEmail(email);
         res.status(200).send(foundUser);
@@ -43,5 +41,13 @@ module.exports = app => {
         const userId = req.params.userid;
         const foundUser = await userHandler.getUserByID(userId);
         res.status(200).send(foundUser);
+    });
+
+    app.get(`/api/currentSeasonAndWeek`, async (req, res) => {
+        const seasonAndWeek = await userHandler.getSeasonAndWeek()
+
+        console.log(seasonAndWeek)
+
+        res.status(200).send(seasonAndWeek);
     });
 }

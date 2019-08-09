@@ -26,7 +26,8 @@ class App extends Component {
     this.state = {
       authUser: null,
       currentUser: {},
-      currentWeek: 0
+      currentWeek: 0,
+      currentSeason: ``
     }
 
   };
@@ -47,21 +48,20 @@ class App extends Component {
   };
 
   isSignedIn = async (email) => {
-    const dbResponse = await axios.get(`/api/getuser/${email}`);
+    const dbResponse = await axios.get(`/api/getUser/${email}`);
     const currentUser = {
       username: dbResponse.data.local.username,
       userId: dbResponse.data._id,
       grouplist: dbResponse.data.grouplist
     }
-    this.setState({ currentUser })
+    this.setState({ currentUser });
+    this.getSeasonAndWeek();
   };
 
-  //TODO WHY DID I DO THIS?
-  //TODO Maybe just delete it?
-  // getCurrentData = async () => {
-  //   const currentWeek = await axios.get(`/api/currentWeekData`);
-  //   this.setState({ currentWeek })
-  // };
+  getSeasonAndWeek = async () => {
+    const seasonAndWeek = await axios.get(`/api/currentSeasonAndWeek`);
+    this.setState({ currentSeason: seasonAndWeek.data.season, currentWeek: seasonAndWeek.data.week })
+  };
 
   render() {
 

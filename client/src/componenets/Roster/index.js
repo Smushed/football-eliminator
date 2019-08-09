@@ -69,26 +69,6 @@ class Roster extends Component {
         Alert.close()
     }
 
-    getAvailablePlayers = (searchedPosition) => {
-        this.loading();
-        const userId = this.props.userId;
-        axios.get(`/api/availableplayers`,
-            { params: { userId, searchedPosition } })
-            .then(res => {
-                //What comes back is an array of objects for all the available players
-                //We need to first change the array of objects into just an array to put into the playerIds state
-                let columns = { ...this.state.columns };
-
-                columns.available.playerIds = res.data.idArray;
-                delete res.data.idArray;
-
-                const currentRoster = { ...this.state.userRoster, ...res.data }
-
-                this.setState({ userRoster: currentRoster, columns: columns });
-                this.doneLoading();
-            })
-    };
-
     getRosterData = userIdFromURL => {
 
         this.loading();
@@ -198,25 +178,52 @@ class Roster extends Component {
             fullPlayers[filteredRoster[i]] = this.state.userRoster[filteredRoster[i]].full_name;
         };
 
+        //chosenPlayer === the player the user would like to be dropped
         const { value: chosenPlayer } = await Alert.fire({
             title: `Too many ${position}s`,
             input: `select`,
-            inputPlaceholder: `Which player do you to drop?`,
+            inputPlaceholder: `Which player do you want to drop?`,
             inputOptions: fullPlayers,
             showCancelButton: true,
         });
 
         //If the player responded with the player they would like to drop then we will take them out of their current array and then set the new state
         if (chosenPlayer) {
+
             //We need to make a copy of the columns object and update it
             //React doesn't like us updating nested state otherwise
             const columns = this.state.columns;
             //Remove the player they chose from the array and then save it down into state
             const playerIndex = columns.userRoster.playerIds.indexOf(parseInt(chosenPlayer));
-            columns.userRoster.playerIds.splice(playerIndex, 1)
+            columns.userRoster.playerIds.splice(playerIndex, 1);
+            //Add the player they dropped back to the available list of players
+            if (this.state.userRoster[chosenPlayer].position === this.state.positionSelect) {
+                columns.available.playerIds.unshift(chosenPlayer);
+            };
 
-            this.setState({ columns });
+            //Now we make one final check before moving things along. If everything is done right above this should be simple.
+            const checkRoster = await this.checkRoster(columns.userRoster.playerIds);
 
+            //If the check failed, then we will have an issue and are going to revert the state back to the previous point
+            if (checkRoster) {
+                //We take the array of player IDs that are on the user roster and sort them
+                columns.userRoster.playerIds = await this.sortRoster(columns.userRoster.playerIds);
+
+                //Here we feed the new sorted array along with the player to be deleted from the old array
+                //We need to new array to get the new player added and the old player so we can pull them out of the usedPlayersArray in the DB
+                this.saveRosterToDb(columns.userRoster.playerIds, chosenPlayer);
+
+                this.setState({ columns });
+            } else {
+                Alert.fire({
+                    type: 'warning',
+                    title: 'Roster Save Error!',
+                    text: 'Something went wrong with saving your roster! Please refresh and try again',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'Take me back'
+                });
+                this.setState({ columns: originalRoster });
+            };
         } else if (chosenPlayer === undefined) {
             //This is if the player has chosen to cancel out of the box above. We reload the old state to remove the player they just added
             this.setState({ columns: originalRoster });
@@ -225,6 +232,93 @@ class Roster extends Component {
             await Alert.fire(`You must pick one or cancel`)
             this.tooManyPlayers(originalRoster, roster, position, count);
         };
+    };
+
+    checkRoster = (roster) => {
+        //This is a true false check to verify the roster data before saving it to the database
+        let response = true;
+        let QBCount = 0;
+        let RBCount = 0;
+        let WRCount = 0;
+        let TECount = 0;
+        let KCount = 0;
+
+        //We then go through the current user roster and populate it with data to sort it and get all the players
+        for (let i = 0; i < roster.length; i++) {
+            const position = this.state.userRoster[roster[i]].position;
+            //For the RB And WR positions, there are three options each they can be in
+            //RB/WR 1 & 2 as well as a flex position. All of which are undefined because we cannot have duplicate keys in an object
+            //We use a switch statement for WR and RB and start pulling the data into the fake roster
+            if (position === `RB`) {
+                RBCount++;
+            } else if (position === `WR`) {
+                WRCount++;
+            } else if (position === `QB`) {
+                QBCount++;
+            } else if (position === `TE`) {
+                TECount++;
+            } else if (position === `K`) {
+                KCount++;
+            };
+        };
+
+        //This checks if the player has too many of any one position or if their overall roster is over 8
+        if (QBCount > 1 || (RBCount + WRCount) > 5 || RBCount > 3 || WRCount > 3 || TECount > 1 || KCount > 1 || roster.length > 8) {
+            response = false;
+        };
+
+        return response;
+    };
+
+    sortRoster = (roster) => {
+        //We want to organize the roster here to be as follows: QB, RB1, RB2, WR1, WR2, Flex, TE, K
+        //Takes the array of players and iterates over them, creating a new sorted array
+        const sortedRoster = [0, 0, 0, 0, 0, 0, 0, 0];
+
+        //Here we iterate through the roster of the player and put them into an object for the order we want
+        for (const player of roster) {
+            const position = this.state.userRoster[player].position
+            //If the position is QB, TE, or K then we can just put them directly in
+            if (position === `QB`) {
+                sortedRoster[0] = player;
+                //If it's RB or WR then we need to assign it manually to the 1, 2 and flex spots
+                //First we need to check the RB/WR 1 & 2 spots then assign it into the flex spot
+            } else if (position === `RB`) {
+                if (sortedRoster[1] === 0) {
+                    sortedRoster[1] = player;
+                } else if (sortedRoster[2] === 0) {
+                    sortedRoster[2] = player;
+                } else if (sortedRoster[5] === 0) {
+                    sortedRoster[5] = player;
+                }
+            } else if (position === `WR`) {
+                if (sortedRoster[3] === 0) {
+                    sortedRoster[3] = player;
+                } else if (sortedRoster[4] === 0) {
+                    sortedRoster[4] = player;
+                } else if (sortedRoster[5] === 0) {
+                    sortedRoster[5] = player;
+                };
+            } else if (position === `TE`) {
+                sortedRoster[6] = player;
+            } else if (position === `K`) {
+                sortedRoster[7] = player;
+            };
+        };
+
+        //Until testing is complete, just send back the same roster
+        return sortedRoster;
+    };
+
+    saveRosterToDb = async (newRoster, droppedPlayer) => {
+        //This will not always have a chosenPlayer because if the user is reorganizing the players currently on their roster it will not have a player to be dropped
+        axios.put(`/api/updateUserRoster`,
+            { userId: this.props.userId, newRoster, droppedPlayer })
+            .then(res => {
+                console.log(`working`)
+            }).catch(err => {
+                console.log(err)//TODO Better error handling
+            });
     };
 
     onDragEnd = async result => {
@@ -246,18 +340,21 @@ class Roster extends Component {
         const start = this.state.columns[source.droppableId];
         const finish = this.state.columns[destination.droppableId];
 
+        // If we are not changing columns, only reordering within the columns then we can reorganize the list in the order the user wants
         if (start === finish) {
-            //TODO Figure out how to reorganize the players in the roster while still holding the order
-            //TODO IE Allow players to change between RB 1 & 2 and swap a flex with someone in the true positions            
-            // If we are not changing columns, only reordering within the columns then we can reorganize the list in the order the user wants
 
             //Make an array with the same contents as the old array
-            const newPlayerIds = Array.from(start.playerIds);
+            let newPlayerIds = Array.from(start.playerIds);
             //Now move the player ID from its old index to its new index
             newPlayerIds.splice(source.index, 1);
             //Start at the destination index, remove nothing and insert the draggableId in that spot
             newPlayerIds.splice(destination.index, 0, draggableId);
 
+            if (source.droppableId === `userRoster`) { //Really you can use either source or destination here
+                //If user is changing their roster, sort it to make sure it stays in the order we want it in (QB, RB, WR, Flex, TE, K)
+                newPlayerIds = await this.sortRoster(newPlayerIds)
+                await this.saveRosterToDb(newPlayerIds, 0);
+            };
             //Create a new column which has the same properites as the old column but with the newPlayerIds array
             const newColumn = {
                 ...start,
@@ -328,9 +425,23 @@ class Roster extends Component {
     positionSearch = (e) => {
         e.preventDefault();
 
-        //Now that the 
-        this.getAvailablePlayers(this.state.positionSelect)
+        this.loading();
+        const userId = this.props.userId;
+        axios.get(`/api/availableplayers`,
+            { params: { userId, searchedPosition: this.state.positionSelect } })
+            .then(res => {
+                //What comes back is an array of objects for all the available players
+                //We need to first change the array of objects into just an array to put into the playerIds state
+                let columns = { ...this.state.columns };
 
+                columns.available.playerIds = res.data.idArray;
+                delete res.data.idArray;
+
+                const currentRoster = { ...this.state.userRoster, ...res.data }
+
+                this.setState({ userRoster: currentRoster, columns: columns });
+                this.doneLoading();
+            });
     };
 
     //This is to handle the change for the Input Type in the position search below

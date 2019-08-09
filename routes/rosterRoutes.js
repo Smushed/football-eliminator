@@ -33,4 +33,12 @@ module.exports = app => {
         const userId = req.params.userid;
         rosterHandler.dummyRoster(userId).then(newRoster => res.status(200).send(newRoster));
     });
+
+    app.put(`/api/updateUserRoster/`, async (req, res) => {
+        const { userId, newRoster, droppedPlayer } = req.body;
+
+        const dbResponse = await rosterHandler.updateUserRoster(userId, newRoster, droppedPlayer);
+
+        res.status(200).send(dbResponse);
+    });
 };

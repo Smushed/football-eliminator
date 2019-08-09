@@ -59,6 +59,10 @@ class Home extends Component {
         });
     };
 
+    baldwin = () => {
+        axios.get(`/api/baldwin`).then(res => console.log(res))
+    }
+
     render() {
         return (
             <Fragment>
