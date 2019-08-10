@@ -35,21 +35,25 @@ class Roster extends Component {
             //Able to order the columns
             columnOrder: ['userRoster', 'available'],
             positionSelect: `QB`, //This is the default value for the position search
+            weekSelect: 0,
+            weekSelect: 0,
         };
     };
 
     componentDidMount() {
+        //TODO DO something with this - Update it so they cannot save to the database or something
         const userIdFromURL = this.props.match.params.userId;
-        if (typeof userIdFromURL !== 'undefined' && typeof this.props.userId !== 'undefined') {
-            this.getRosterData(userIdFromURL);
-        }
+        if (this.props.week !== 0 && this.props.season !== '') {
+            this.setState({ weekSelect: this.props.week, seasonSelect: this.props.season });
+            this.getRosterData(this.props.week, this.props.season);
+        };
     };
 
     componentDidUpdate(prevProps) {
-        if (this.props.userId !== prevProps.userId) {
-            const userIdFromURL = this.props.match.params.userId;
-            this.getRosterData(userIdFromURL);
-        }
+        if (this.props.season !== prevProps.season) { // season here because it's the last prop we pass in. Probably not the best way
+            this.setState({ weekSelect: this.props.week, seasonSelect: this.props.season });
+            this.getRosterData(this.props.week, this.props.season);
+        };
     };
 
     //We define loading and done loading here to have swal pop ups whenever we are pulling in data so the user can't mess with data while it's in a loading state
@@ -69,17 +73,20 @@ class Roster extends Component {
         Alert.close()
     }
 
-    getRosterData = userIdFromURL => {
+    getRosterData = (week, season) => {
+
+        console.log(week, season)
 
         this.loading();
         //We want to go and grab the roster no matter what
         //This is in case another user comes to the profile and wants to view their picks
         //We pass in a params along with the API call stating if this is the current user or not
-        if (userIdFromURL === this.props.userId) {
+        if (this.props.week !== 0 && this.props.season !== ``) {
             //Inside here after the current roster is hit, then go in and pull the other data
             //Make the pull avaliable players easily hit from other places as well, since I want a dropdown that defaults to this week
             //But can be changed in case people want to update more than just this week at once.
-            axios.get(`/api/userroster/${this.props.userId}`)
+            axios.get(`/api/userroster/${this.props.userId}`,
+                { params: { week, season } })
                 .then(res => {
                     let columns = { ...this.state.columns };
                     //We need to make a copy of the columns object and update it
@@ -93,16 +100,6 @@ class Roster extends Component {
 
                 }).catch(err => {
                     console.log(`roster data error`, err.response.data); //TODO better error handling
-                });
-        } else {
-            //TODO update the styling on this page to then center the Roster as they are looking at another player
-            //Maybe redirect these people to another page? Where they are instead viewing a snapshot of players they've used as well as current roster
-            axios.get(`/api/userroster/${this.props.userId}`,
-                { params: { currentUser: false } })
-                .then(res => {
-                    console.log(res);
-                }).catch(err => {
-                    console.log(err.response.data); //TODO Make this more robust
                 });
         };
     };
@@ -444,6 +441,12 @@ class Roster extends Component {
             });
     };
 
+    customSeasonWeekSearch = (e) => {
+        e.preventDefault();
+
+        this.getRosterData(this.state.weekSelect, this.state.seasonSelect);
+    }
+
     //This is to handle the change for the Input Type in the position search below
     handleChange(e) {
         this.setState({
@@ -454,13 +457,55 @@ class Roster extends Component {
     render() {
         return (
             <Container fluid={true}>
-                <Row className='positionSearchRow'>
-                    <Col xs='0' md='4'></Col>
-                    <Col xs='12' md='4'>
-                        <div className='positionSelectContainer'>
+                {/* Both of these in the top row need access to state */}
+                <Row className='topRow'>
+                    <Col xs='3'>
+                        <div className='selectContainer'>
+                            <Form onSubmit={this.customSeasonWeekSearch}>
+                                <FormGroup>
+                                    <Label for='seasonSelect'>Select Season</Label>
+                                    <Input type='select' name='seasonSelect' id='seasonSelect' className='searchDropdown' onChange={this.handleChange}>
+                                        <option>2019-2020-regular</option>
+                                    </Input>
+                                </FormGroup>
+                                <Button color='primary' type='submit' className='submitButton'>Search</Button>
+                            </Form>
+                        </div>
+                    </Col>
+                    <Col xs='3'>
+                        <div className='selectContainer'>
+                            <Form onSubmit={this.customSeasonWeekSearch}>
+                                <FormGroup>
+                                    <Label for='weekSelect'>Select Week</Label>
+                                    <Input type='select' name='weekSelect' id='weekSelect' className='searchDropdown' onChange={this.handleChange}>
+                                        <option>1</option>
+                                        <option>2</option>
+                                        <option>3</option>
+                                        <option>4</option>
+                                        <option>5</option>
+                                        <option>6</option>
+                                        <option>7</option>
+                                        <option>8</option>
+                                        <option>9</option>
+                                        <option>10</option>
+                                        <option>11</option>
+                                        <option>12</option>
+                                        <option>13</option>
+                                        <option>14</option>
+                                        <option>15</option>
+                                        <option>16</option>
+                                        <option>17</option>
+                                    </Input>
+                                </FormGroup>
+                                <Button color='primary' type='submit' className='submitButton'>Search</Button>
+                            </Form>
+                        </div>
+                    </Col>
+                    <Col xs='3'>
+                        <div className='selectContainer'>
                             <Form onSubmit={this.positionSearch}>
                                 <FormGroup>
-                                    <Label for='positionSelect'>Positional Search</Label>
+                                    <Label for='positionSelect'>Search Available Players</Label>
                                     <Input type='select' name='positionSelect' id='positionSelect' className='searchDropdown' onChange={this.handleChange}>
                                         <option>QB</option>
                                         <option>RB</option>
@@ -473,7 +518,7 @@ class Roster extends Component {
                             </Form>
                         </div>
                     </Col>
-                    <Col xs='0' md='4'></Col>
+                    <Col xs='3'></Col>
                 </Row>
                 <Row>
                     <DragDropContext

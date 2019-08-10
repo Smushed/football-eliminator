@@ -65,8 +65,6 @@ class App extends Component {
 
   render() {
 
-    const { grouplist } = this.state.currentUser;
-
     return (
 
       <BrowserRouter>
@@ -139,7 +137,7 @@ class App extends Component {
           <Route
             path={Routes.roster}
             render={props =>
-              <Roster {...props} userId={this.state.currentUser.userId} />
+              <Roster {...props} userId={this.state.currentUser.userId} week={this.state.currentWeek} season={this.state.currentSeason} />
             }
           />
         </div>
