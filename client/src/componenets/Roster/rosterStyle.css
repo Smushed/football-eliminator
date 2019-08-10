@@ -1,27 +1,35 @@
+.lineHeight {
+    line-height: 1.25;
+}
+
 .topRow {
     width: 100%;
     text-align: center;
 }
 
 .searchDropdown {
-    display: inline-block;
-    width: 250px;
     text-align: center;
     margin-bottom: 0;
+    float: left;
 }
 
-.positionSearchRow {
-    height: 125px;
-    text-align: center;
-    width: 250px;
+.shiftInputAndSubmit {
+    margin-left: 25px;
+}
+
+.inputContainer {
+    width: 225px;
 }
 
 .submitButton {
     margin-bottom: 25px;
+    margin-left: 10px;
+    float: left;
 }
 
 .selectContainer {
-    width: 250px;
+    width: 100%;
+    text-align: center;
 }
 
 .playerColumn {

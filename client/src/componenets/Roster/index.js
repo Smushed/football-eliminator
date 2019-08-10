@@ -37,6 +37,16 @@ class Roster extends Component {
             positionSelect: `QB`, //This is the default value for the position search
             weekSelect: 0,
             weekSelect: 0,
+            dbReadyRoster: { //We populate this when we go to sort the user's roster. This is the way it's saved into the database
+                QB: 0,
+                RB1: 0,
+                RB2: 0,
+                WR1: 0,
+                WR2: 0,
+                Flex: 0,
+                TE: 0,
+                K: 0
+            }
         };
     };
 
@@ -74,8 +84,6 @@ class Roster extends Component {
     }
 
     getRosterData = (week, season) => {
-
-        console.log(week, season)
 
         this.loading();
         //We want to go and grab the roster no matter what
@@ -136,22 +144,29 @@ class Roster extends Component {
         //Probably a bettwe way to do this, but unsure of how.
         //Also need to feed in the originalRoster in case the player cancels out and we are to reload the original state
         if (QBCount > 1) {
-            this.tooManyPlayers(originalRoster, userRoster, `QB`, QBCount)
+            this.tooManyPlayers(originalRoster, userRoster, `QB`, QBCount);
+            return false; //Return false here because we are splitting and handling this with the tooManyPlayers and no longer need to save it in the onDragEnd
         } else if (RBCount + WRCount > 5) {
             //Here we want the WR or RB to be over three. If they already have 3 on their roster, it means that one is already in their flex
             //If they only have two then they can sub one of the other positions and put it in their flex
             if (WRCount > 3) {
                 this.tooManyPlayers(originalRoster, userRoster, `WR`, WRCount);
+                return false;
             } else if (RBCount > 3) {
                 this.tooManyPlayers(originalRoster, userRoster, `RB`, RBCount);
+                return false;
             } else {
-                this.tooManyPlayers(originalRoster, userRoster, `Flex`)
+                this.tooManyPlayers(originalRoster, userRoster, `Flex`);
+                return false;
             };
         } else if (TECount > 1) {
             this.tooManyPlayers(originalRoster, userRoster, `TE`, TECount);
+            return false;
         } else if (KCount > 1) {
             this.tooManyPlayers(originalRoster, userRoster, `K`, KCount);
+            return false;
         };
+        return true;
     };
 
     tooManyPlayers = async (originalRoster, roster, position, count) => {
@@ -206,9 +221,9 @@ class Roster extends Component {
                 //We take the array of player IDs that are on the user roster and sort them
                 columns.userRoster.playerIds = await this.sortRoster(columns.userRoster.playerIds);
 
-                //Here we feed the new sorted array along with the player to be deleted from the old array
+                //Here we feed the new sorted array along with the player to be deleted from the old array. The state is updated in the sortRoster function
                 //We need to new array to get the new player added and the old player so we can pull them out of the usedPlayersArray in the DB
-                this.saveRosterToDb(columns.userRoster.playerIds, chosenPlayer);
+                this.saveRosterToDb(this.state.dbReadyRoster, chosenPlayer);
 
                 this.setState({ columns });
             } else {
@@ -272,47 +287,71 @@ class Roster extends Component {
         //Takes the array of players and iterates over them, creating a new sorted array
         const sortedRoster = [0, 0, 0, 0, 0, 0, 0, 0];
 
+        //While we are sorting the roster we are also getting the object ready to be stored in the database
+        //This sortRoster will be run before we ever go to save anything into the DB so it should populate the state correctly when we go to put it in
+        const dbReadyRoster = { //This is the format it's saved inside the database to keep track of positions
+            QB: 0,
+            RB1: 0,
+            RB2: 0,
+            WR1: 0,
+            WR2: 0,
+            Flex: 0,
+            TE: 0,
+            K: 0
+        };
+
         //Here we iterate through the roster of the player and put them into an object for the order we want
         for (const player of roster) {
             const position = this.state.userRoster[player].position
             //If the position is QB, TE, or K then we can just put them directly in
             if (position === `QB`) {
                 sortedRoster[0] = player;
+                dbReadyRoster.QB = player;
                 //If it's RB or WR then we need to assign it manually to the 1, 2 and flex spots
                 //First we need to check the RB/WR 1 & 2 spots then assign it into the flex spot
             } else if (position === `RB`) {
                 if (sortedRoster[1] === 0) {
                     sortedRoster[1] = player;
+                    dbReadyRoster.RB1 = player;
                 } else if (sortedRoster[2] === 0) {
                     sortedRoster[2] = player;
+                    dbReadyRoster.RB2 = player;
                 } else if (sortedRoster[5] === 0) {
                     sortedRoster[5] = player;
+                    dbReadyRoster.Flex = player;
                 }
             } else if (position === `WR`) {
                 if (sortedRoster[3] === 0) {
                     sortedRoster[3] = player;
+                    dbReadyRoster.WR1 = player;
                 } else if (sortedRoster[4] === 0) {
                     sortedRoster[4] = player;
+                    dbReadyRoster.WR2 = player;
                 } else if (sortedRoster[5] === 0) {
                     sortedRoster[5] = player;
+                    dbReadyRoster.Flex = player;
                 };
             } else if (position === `TE`) {
                 sortedRoster[6] = player;
+                dbReadyRoster.TE = player;
             } else if (position === `K`) {
                 sortedRoster[7] = player;
+                dbReadyRoster.K = player;
             };
         };
+
+        this.setState({ dbReadyRoster });
 
         //Until testing is complete, just send back the same roster
         return sortedRoster;
     };
 
-    saveRosterToDb = async (newRoster, droppedPlayer) => {
+    saveRosterToDb = async (dbReadyRoster, droppedPlayer) => {
         //This will not always have a chosenPlayer because if the user is reorganizing the players currently on their roster it will not have a player to be dropped
         axios.put(`/api/updateUserRoster`,
-            { userId: this.props.userId, newRoster, droppedPlayer })
+            { userId: this.props.userId, dbReadyRoster, droppedPlayer, week: this.state.weekSelect, season: this.state.seasonSelect })
             .then(res => {
-                console.log(`working`)
+                console.log(res.data)
             }).catch(err => {
                 console.log(err)//TODO Better error handling
             });
@@ -350,7 +389,7 @@ class Roster extends Component {
             if (source.droppableId === `userRoster`) { //Really you can use either source or destination here
                 //If user is changing their roster, sort it to make sure it stays in the order we want it in (QB, RB, WR, Flex, TE, K)
                 newPlayerIds = await this.sortRoster(newPlayerIds)
-                await this.saveRosterToDb(newPlayerIds, 0);
+                await this.saveRosterToDb(this.state.dbReadyRoster, 0);
             };
             //Create a new column which has the same properites as the old column but with the newPlayerIds array
             const newColumn = {
@@ -414,8 +453,14 @@ class Roster extends Component {
 
         //Then we check if the added player can fit in the roster and if we need to drop a current player
         //Pass through the original roster if the player decides they want to cancel out
-        this.countRoster(originalRoster);
-        //TODO Then save to the database
+        const needToSave = this.countRoster(originalRoster);
+
+        const correctRoster = this.checkRoster(originalRoster);
+
+        //If the roster is correct, and we need to save it down because it won't be saved through the countRoster (ie less than 8 players) then we push it through
+        if (correctRoster && needToSave) {
+            this.saveRosterToDb(originalRoster, 0); //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
+        };
     };
 
     //This triggers off the Form on the roster below that allows the user to search for the position they would like to add to their roster
@@ -456,26 +501,27 @@ class Roster extends Component {
 
     render() {
         return (
-            <Container fluid={true}>
+            <Container fluid={true} className='lineHeight'>
                 {/* Both of these in the top row need access to state */}
                 <Row className='topRow'>
-                    <Col xs='3'>
-                        <div className='selectContainer'>
-                            <Form onSubmit={this.customSeasonWeekSearch}>
-                                <FormGroup>
+                    {/* TODO I want this to be a column next to the drag and drop until it is small screen, then pop up top */}
+                    <Col xs='6'>
+                        <Form onSubmit={this.customSeasonWeekSearch}>
+                            <FormGroup>
+                                <div className='inputContainer'>
                                     <Label for='seasonSelect'>Select Season</Label>
                                     <Input type='select' name='seasonSelect' id='seasonSelect' className='searchDropdown' onChange={this.handleChange}>
                                         <option>2019-2020-regular</option>
                                     </Input>
-                                </FormGroup>
+                                </div>
                                 <Button color='primary' type='submit' className='submitButton'>Search</Button>
-                            </Form>
-                        </div>
+                            </FormGroup>
+                        </Form>
                     </Col>
-                    <Col xs='3'>
-                        <div className='selectContainer'>
-                            <Form onSubmit={this.customSeasonWeekSearch}>
-                                <FormGroup>
+                    <Col xs='6'>
+                        <Form onSubmit={this.customSeasonWeekSearch}>
+                            <FormGroup>
+                                <div className='inputContainer'>
                                     <Label for='weekSelect'>Select Week</Label>
                                     <Input type='select' name='weekSelect' id='weekSelect' className='searchDropdown' onChange={this.handleChange}>
                                         <option>1</option>
@@ -496,29 +542,36 @@ class Roster extends Component {
                                         <option>16</option>
                                         <option>17</option>
                                     </Input>
-                                </FormGroup>
+                                </div>
                                 <Button color='primary' type='submit' className='submitButton'>Search</Button>
-                            </Form>
-                        </div>
+                            </FormGroup>
+                        </Form>
                     </Col>
-                    <Col xs='3'>
+                </Row>
+                <Row>
+                    <Col xs='4'></Col>
+                    <Col xs='4'>
                         <div className='selectContainer'>
                             <Form onSubmit={this.positionSearch}>
                                 <FormGroup>
                                     <Label for='positionSelect'>Search Available Players</Label>
-                                    <Input type='select' name='positionSelect' id='positionSelect' className='searchDropdown' onChange={this.handleChange}>
-                                        <option>QB</option>
-                                        <option>RB</option>
-                                        <option>WR</option>
-                                        <option>TE</option>
-                                        <option>K</option>
-                                    </Input>
+                                    <div className='shiftInputAndSubmit'>
+                                        <div className='inputContainer'>
+                                            <Input type='select' name='positionSelect' id='positionSelect' className='searchDropdown' onChange={this.handleChange}>
+                                                <option>QB</option>
+                                                <option>RB</option>
+                                                <option>WR</option>
+                                                <option>TE</option>
+                                                <option>K</option>
+                                            </Input>
+                                        </div>
+                                        <Button color='primary' type='submit' className='submitButton'>Search</Button>
+                                    </div>
                                 </FormGroup>
-                                <Button color='primary' type='submit' className='submitButton'>Search</Button>
                             </Form>
                         </div>
                     </Col>
-                    <Col xs='3'></Col>
+                    <Col xs='4'></Col>
                 </Row>
                 <Row>
                     <DragDropContext

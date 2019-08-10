@@ -7,13 +7,11 @@ module.exports = {
         return players
     },
     userRoster: async function (userId, week, season) {
-        console.log(week, season)
         //This goes and grabs the user's roster that the page is currently on
         const currentRoster = await db.UserRoster.findOne({ userId: userId });
 
         //Parse the data we pulled out of the database and send it back in a useable format
         const parsedRoster = await this.getRosterPlayers(currentRoster, season, week)
-
 
         return parsedRoster;
     },
@@ -120,24 +118,34 @@ module.exports = {
 
         return responseAvailablePlayers;
     },
-    updateUserRoster: async (userId, newRoster, droppedPlayer) => {
+    updateUserRoster: async (userId, dbReadyRoster, droppedPlayer, week, season) => {
 
+        return new Promise((res, rej) => {
+            db.UserRoster.findOne({ userId }, (err, currentRoster) => {
+                //If the player is adding someone from the available player pool we remove the player they dropped and add the new player
+                if (parseInt(droppedPlayer) !== 0) {
+                    //Pulling the player they dropped out of the usedArray
+                    const playerIndex = currentRoster.roster[season].usedPlayers.indexOf(parseInt(droppedPlayer));
+                    currentRoster.roster[season].usedPlayers.splice(playerIndex, 1);
 
-        // return new Promise((res, rej) => {
-        //     db.UserRoster.findOne({ userId }, (err, currentRoster) => {
-        //         currentRoster.roster[season][week] = dummyRoster;
-        //         currentRoster.roster[season].usedPlayers = usedPlayers;
+                    //Figuring out the player they just added to the array
+                    const newRoster = Object.values(dbReadyRoster);
+                    const dbSet = new Set(currentRoster.roster[season].usedPlayers)
+                    const addedPlayer = newRoster.filter((playerId) => !dbSet.has(playerId));
+                    currentRoster.roster[season].usedPlayers.push(addedPlayer[0])
+                };
 
-        //         currentRoster.save((err, result) => {
-        //             if (err) {
-        //                 //TODO Better error handling
-        //                 console.log(err);
-        //             } else {
-        //                 res(result);
-        //             };
-        //         });
-        //     });
-        // });
-        return `working`
+                currentRoster.roster[season][week] = dbReadyRoster;
+
+                currentRoster.save((err, result) => {
+                    if (err) {
+                        //TODO Better error handling
+                        res(err);
+                    } else {
+                        res(result);
+                    };
+                });
+            });
+        });
     }
 };
