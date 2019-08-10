@@ -351,7 +351,7 @@ class Roster extends Component {
         axios.put(`/api/updateUserRoster`,
             { userId: this.props.userId, dbReadyRoster, droppedPlayer, week: this.state.weekSelect, season: this.state.seasonSelect })
             .then(res => {
-                console.log(res.data)
+                return
             }).catch(err => {
                 console.log(err)//TODO Better error handling
             });
