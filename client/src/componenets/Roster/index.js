@@ -96,6 +96,7 @@ class Roster extends Component {
             axios.get(`/api/userroster/${this.props.userId}`,
                 { params: { week, season } })
                 .then(res => {
+                    console.log(res.data)
                     let columns = { ...this.state.columns };
                     //We need to make a copy of the columns object and update it
                     //React doesn't like us updating nested state otherwise
