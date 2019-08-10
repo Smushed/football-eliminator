@@ -19,7 +19,6 @@ module.exports = app => {
     app.get(`/api/userroster/:userid`, async (req, res) => {
         const userId = req.params.userid;
         const { week, season } = req.query;
-        console.log(`week`, week, `season`, season)
         if (userId !== 'undefined' && week !== 0 && season !== ``) { //Checks if this route received the userId before it was ready in react
             //The check already comes in as the string undefined, rather than undefined itself. It comes in as truthly
             const userRoster = await rosterHandler.userRoster(userId, week, season);
@@ -36,9 +35,9 @@ module.exports = app => {
     });
 
     app.put(`/api/updateUserRoster/`, async (req, res) => {
-        const { userId, newRoster, droppedPlayer } = req.body;
+        const { userId, dbReadyRoster, droppedPlayer, week, season } = req.body;
 
-        const dbResponse = await rosterHandler.updateUserRoster(userId, newRoster, droppedPlayer);
+        const dbResponse = await rosterHandler.updateUserRoster(userId, dbReadyRoster, droppedPlayer, week, season);
 
         res.status(200).send(dbResponse);
     });

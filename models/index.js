@@ -4,5 +4,4 @@ module.exports = {
     FantasyStats: require(`./FantasyStats`),
     Post: require(`./Post`),
     UserRoster: require(`./UserRoster`),
-    AvaliablePlayers: require(`./AvaliablePlayers`)
 };
