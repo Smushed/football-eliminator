@@ -6,11 +6,8 @@ module.exports = {
 
         return players
     },
-    userRoster: async function (userId) {
-        //TODO dynamically do season and week
-        const season = '2019-2020-regular';
-        const week = 1;
-
+    userRoster: async function (userId, week, season) {
+        console.log(week, season)
         //This goes and grabs the user's roster that the page is currently on
         const currentRoster = await db.UserRoster.findOne({ userId: userId });
 

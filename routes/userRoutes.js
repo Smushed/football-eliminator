@@ -46,8 +46,6 @@ module.exports = app => {
     app.get(`/api/currentSeasonAndWeek`, async (req, res) => {
         const seasonAndWeek = await userHandler.getSeasonAndWeek()
 
-        console.log(seasonAndWeek)
-
         res.status(200).send(seasonAndWeek);
     });
 }

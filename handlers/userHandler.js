@@ -99,13 +99,9 @@ module.exports = {
     },
     getSeasonAndWeek: async () => {
         const today = new Date();
-        // const year = parseInt(today.getFullYear());
-        // const month = today.getMonth() + 1; //JS starts January at 0
-        // const day = today.getUTCDate();
-
-        const year = 2019;
-        const month = 11;
-        const day = 6;
+        const year = parseInt(today.getFullYear());
+        const month = today.getMonth() + 1; //JS starts January at 0
+        const day = today.getUTCDate();
 
         let season = ``;
         let week = 1;
@@ -125,11 +121,11 @@ module.exports = {
                 season = `2020-2021-regular`;
                 week = 17;
             }
-        } else {
+        } else { //This is if this is inside the season. There's an object in weekDates that I put the calendar in
             season = weekDates[year].season;
             week = weekDates[year][month][day];
-        }
+        };
 
-        return { season, week }
+        return { season, week };
     }
 };

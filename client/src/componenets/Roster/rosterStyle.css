@@ -1,7 +1,6 @@
-.positionSelectContainer{
+.topRow {
+    width: 100%;
     text-align: center;
-    margin: 0 auto;
-    width: 250px;
 }
 
 .searchDropdown {
@@ -13,10 +12,16 @@
 
 .positionSearchRow {
     height: 125px;
+    text-align: center;
+    width: 250px;
 }
 
 .submitButton {
     margin-bottom: 25px;
+}
+
+.selectContainer {
+    width: 250px;
 }
 
 .playerColumn {
