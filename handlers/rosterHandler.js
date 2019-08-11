@@ -56,27 +56,32 @@ module.exports = {
         //Goes through the roster of players and pulls in their full data to then display
         currentRoster = currentRoster.roster[season][week].toJSON(); //Must be toJSON otherwise there will be mongo built in keys and methods
         rosterArray = Object.values(currentRoster);
+        const rosterWithoutDummyData = [];
 
         const responseRoster = {};
         for (const player of rosterArray) {
-            //Go through the object that was given to us
-            const response = await db.FantasyStats.findOne({ mySportsId: player })
+            if (player !== 0) {
+                //Go through the object that was given to us
+                const response = await db.FantasyStats.findOne({ mySportsId: player })
 
-            //Declaring what needs to be declared for the nested objects
-            responseRoster[player] = {};
-            responseRoster[player].stats = {};
-            responseRoster[player].stats[season] = {};
+                //Declaring what needs to be declared for the nested objects
+                responseRoster[player] = {};
+                responseRoster[player].stats = {};
+                responseRoster[player].stats[season] = {};
 
-            //Parsing the roster and pulling in all the data we need
-            responseRoster[player].team = response.team.abbreviation;
-            responseRoster[player].stats[season] = response.stats[season];
-            responseRoster[player].full_name = response.full_name;
-            responseRoster[player].mySportsId = response.mySportsId;
-            responseRoster[player].position = response.position;
+                //Parsing the roster and pulling in all the data we need
+                responseRoster[player].team = response.team.abbreviation;
+                responseRoster[player].stats[season] = response.stats[season];
+                responseRoster[player].full_name = response.full_name;
+                responseRoster[player].mySportsId = response.mySportsId;
+                responseRoster[player].position = response.position;
+
+                rosterWithoutDummyData.push(player);
+            }
         };
 
         //We also return the array so the drag & drop component can populate this without having to pull it again
-        responseRoster.playerArray = rosterArray;
+        responseRoster.playerArray = rosterWithoutDummyData;
         return responseRoster;
     },
     availablePlayers: async (userId, searchedPosition) => {
@@ -118,7 +123,7 @@ module.exports = {
 
         return responseAvailablePlayers;
     },
-    updateUserRoster: async (userId, dbReadyRoster, droppedPlayer, week, season) => {
+    updateUserRoster: async (userId, dbReadyRoster, droppedPlayer, week, season, saveWithNoDrop) => {
 
         return new Promise((res, rej) => {
             db.UserRoster.findOne({ userId }, (err, currentRoster) => {
@@ -135,7 +140,17 @@ module.exports = {
                     currentRoster.roster[season].usedPlayers.push(addedPlayer[0])
                 };
 
-                currentRoster.roster[season][week] = dbReadyRoster;
+                if (saveWithNoDrop) {
+                    const newRoster = Object.values(dbReadyRoster);
+                    const dbSet = new Set(currentRoster.roster[season].usedPlayers)
+                    const addedPlayer = newRoster.filter((playerId) => !dbSet.has(playerId));
+                    currentRoster.roster[season].usedPlayers.push(addedPlayer[0])
+                };
+
+                //This iterates through the positions on the dbReadyRoster provided from the client and puts the players they want in the correct positions without overwriting the 0s
+                Object.keys(dbReadyRoster).forEach(position => {
+                    currentRoster.roster[season][week][position] = dbReadyRoster[position]
+                })
 
                 currentRoster.save((err, result) => {
                     if (err) {

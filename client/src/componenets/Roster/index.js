@@ -83,6 +83,17 @@ class Roster extends Component {
         Alert.close()
     }
 
+    clearPlayers = () => {
+        //Gets rid of all the players that are sitting in state when the user goes to another week
+        const { userRoster, columns } = this.state;
+
+        columns.userRoster.playerIds = [];
+        columns.available.playerIds = [];
+        userRoster = {}
+
+        this.setState({ userRoster, columns })
+    }
+
     getRosterData = (week, season) => {
 
         this.loading();
@@ -146,19 +157,17 @@ class Roster extends Component {
         if (QBCount > 1) {
             this.tooManyPlayers(originalRoster, userRoster, `QB`, QBCount);
             return false; //Return false here because we are splitting and handling this with the tooManyPlayers and no longer need to save it in the onDragEnd
+        } else if (WRCount > 3) {
+            this.tooManyPlayers(originalRoster, userRoster, `WR`, WRCount);
+            return false;
+        } else if (RBCount > 3) {
+            this.tooManyPlayers(originalRoster, userRoster, `RB`, RBCount);
+            return false;
         } else if (RBCount + WRCount > 5) {
             //Here we want the WR or RB to be over three. If they already have 3 on their roster, it means that one is already in their flex
             //If they only have two then they can sub one of the other positions and put it in their flex
-            if (WRCount > 3) {
-                this.tooManyPlayers(originalRoster, userRoster, `WR`, WRCount);
-                return false;
-            } else if (RBCount > 3) {
-                this.tooManyPlayers(originalRoster, userRoster, `RB`, RBCount);
-                return false;
-            } else {
-                this.tooManyPlayers(originalRoster, userRoster, `Flex`);
-                return false;
-            };
+            this.tooManyPlayers(originalRoster, userRoster, `Flex`);
+            return false;
         } else if (TECount > 1) {
             this.tooManyPlayers(originalRoster, userRoster, `TE`, TECount);
             return false;
@@ -223,7 +232,7 @@ class Roster extends Component {
 
                 //Here we feed the new sorted array along with the player to be deleted from the old array. The state is updated in the sortRoster function
                 //We need to new array to get the new player added and the old player so we can pull them out of the usedPlayersArray in the DB
-                this.saveRosterToDb(this.state.dbReadyRoster, chosenPlayer);
+                this.saveRosterToDb(this.state.dbReadyRoster, chosenPlayer, false);
 
                 this.setState({ columns });
             } else {
@@ -275,7 +284,7 @@ class Roster extends Component {
         };
 
         //This checks if the player has too many of any one position or if their overall roster is over 8
-        if (QBCount > 1 || (RBCount + WRCount) > 5 || RBCount > 3 || WRCount > 3 || TECount > 1 || KCount > 1 || roster.length > 8) {
+        if (QBCount > 1 || RBCount > 3 || WRCount > 3 || (RBCount + WRCount) > 5 || TECount > 1 || KCount > 1 || roster.length > 8) {
             response = false;
         };
 
@@ -289,16 +298,7 @@ class Roster extends Component {
 
         //While we are sorting the roster we are also getting the object ready to be stored in the database
         //This sortRoster will be run before we ever go to save anything into the DB so it should populate the state correctly when we go to put it in
-        const dbReadyRoster = { //This is the format it's saved inside the database to keep track of positions
-            QB: 0,
-            RB1: 0,
-            RB2: 0,
-            WR1: 0,
-            WR2: 0,
-            Flex: 0,
-            TE: 0,
-            K: 0
-        };
+        const dbReadyRoster = {}; //It's saved as an object in the database
 
         //Here we iterate through the roster of the player and put them into an object for the order we want
         for (const player of roster) {
@@ -340,16 +340,19 @@ class Roster extends Component {
             };
         };
 
+        const sortedNoDummyData = sortedRoster.filter(id => id !== 0);
+
         this.setState({ dbReadyRoster });
 
         //Until testing is complete, just send back the same roster
-        return sortedRoster;
+        return sortedNoDummyData;
     };
 
-    saveRosterToDb = async (dbReadyRoster, droppedPlayer) => {
+    saveRosterToDb = async (dbReadyRoster, droppedPlayer, saveWithNoDrop) => {
         //This will not always have a chosenPlayer because if the user is reorganizing the players currently on their roster it will not have a player to be dropped
+        //The saveWithNoDrop var is if the user has a blank week roster, it ensures we save it to the usedPlayerArray because we will be feeding droppedPlayer of 0
         axios.put(`/api/updateUserRoster`,
-            { userId: this.props.userId, dbReadyRoster, droppedPlayer, week: this.state.weekSelect, season: this.state.seasonSelect })
+            { userId: this.props.userId, dbReadyRoster, droppedPlayer, week: this.state.weekSelect, season: this.state.seasonSelect, saveWithNoDrop })
             .then(res => {
                 return
             }).catch(err => {
@@ -388,8 +391,8 @@ class Roster extends Component {
 
             if (source.droppableId === `userRoster`) { //Really you can use either source or destination here
                 //If user is changing their roster, sort it to make sure it stays in the order we want it in (QB, RB, WR, Flex, TE, K)
-                newPlayerIds = await this.sortRoster(newPlayerIds)
-                await this.saveRosterToDb(this.state.dbReadyRoster, 0);
+                newPlayerIds = await this.sortRoster(newPlayerIds);
+                await this.saveRosterToDb(this.state.dbReadyRoster, 0, false);
             };
             //Create a new column which has the same properites as the old column but with the newPlayerIds array
             const newColumn = {
@@ -455,11 +458,20 @@ class Roster extends Component {
         //Pass through the original roster if the player decides they want to cancel out
         const needToSave = this.countRoster(originalRoster);
 
-        const correctRoster = this.checkRoster(originalRoster);
+        const correctRoster = this.checkRoster(this.state.columns.userRoster.playerIds);
 
         //If the roster is correct, and we need to save it down because it won't be saved through the countRoster (ie less than 8 players) then we push it through
         if (correctRoster && needToSave) {
-            this.saveRosterToDb(originalRoster, 0); //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
+            const sortedRoster = await this.sortRoster(this.state.columns.userRoster.playerIds);
+
+            //Save the new sorted roster down to the state to ensure it's sorted
+            const columns = this.state.columns;
+            columns.userRoster.playerIds = sortedRoster;
+            this.setState({ columns });
+
+            //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
+            //The true is to indicate we need to save a player down without dropping one in the usedPlayer array in the DB
+            this.saveRosterToDb(this.state.dbReadyRoster, 0, true);
         };
     };
 
@@ -488,6 +500,12 @@ class Roster extends Component {
 
     customSeasonWeekSearch = (e) => {
         e.preventDefault();
+
+        //Need to clear the playerIds when switching weeks. If not the program makes the array an array of undefined
+        const columns = this.state.columns;
+        columns.userRoster.playerIds = [];
+        columns.available.playerIds = [];
+        this.setState({ columns })
 
         this.getRosterData(this.state.weekSelect, this.state.seasonSelect);
     }
@@ -587,6 +605,8 @@ class Roster extends Component {
                             return (
                                 // this only has to be xs of 6 because there will only ever be two columns
                                 <Col xs='6' key={columnId}>
+                                    {console.log(`roster`, roster)}
+                                    {console.log(`state`, this.state)}
                                     <Column key={column.id} column={column} roster={roster} className='playerColumn' />
                                 </Col>
                             );
