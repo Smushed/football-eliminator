@@ -96,7 +96,6 @@ class Roster extends Component {
             axios.get(`/api/userroster/${this.props.userId}`,
                 { params: { week, season } })
                 .then(res => {
-                    console.log(res.data)
                     let columns = { ...this.state.columns };
                     //We need to make a copy of the columns object and update it
                     //React doesn't like us updating nested state otherwise
@@ -290,16 +289,7 @@ class Roster extends Component {
 
         //While we are sorting the roster we are also getting the object ready to be stored in the database
         //This sortRoster will be run before we ever go to save anything into the DB so it should populate the state correctly when we go to put it in
-        const dbReadyRoster = { //This is the format it's saved inside the database to keep track of positions
-            QB: 0,
-            RB1: 0,
-            RB2: 0,
-            WR1: 0,
-            WR2: 0,
-            Flex: 0,
-            TE: 0,
-            K: 0
-        };
+        const dbReadyRoster = {}; //It's saved as an object in the database
 
         //Here we iterate through the roster of the player and put them into an object for the order we want
         for (const player of roster) {
@@ -389,7 +379,7 @@ class Roster extends Component {
 
             if (source.droppableId === `userRoster`) { //Really you can use either source or destination here
                 //If user is changing their roster, sort it to make sure it stays in the order we want it in (QB, RB, WR, Flex, TE, K)
-                newPlayerIds = await this.sortRoster(newPlayerIds)
+                newPlayerIds = await this.sortRoster(newPlayerIds);
                 await this.saveRosterToDb(this.state.dbReadyRoster, 0);
             };
             //Create a new column which has the same properites as the old column but with the newPlayerIds array
@@ -456,11 +446,12 @@ class Roster extends Component {
         //Pass through the original roster if the player decides they want to cancel out
         const needToSave = this.countRoster(originalRoster);
 
-        const correctRoster = this.checkRoster(originalRoster);
+        const correctRoster = this.checkRoster(this.state.columns.userRoster.playerIds);
 
         //If the roster is correct, and we need to save it down because it won't be saved through the countRoster (ie less than 8 players) then we push it through
         if (correctRoster && needToSave) {
-            this.saveRosterToDb(originalRoster, 0); //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
+            await this.sortRoster(this.state.columns.userRoster.playerIds)
+            this.saveRosterToDb(this.state.dbReadyRoster, 0); //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
         };
     };
 

@@ -80,8 +80,6 @@ module.exports = {
             }
         };
 
-        console.log(`rosterArray`, rosterWithoutDummyData)
-
         //We also return the array so the drag & drop component can populate this without having to pull it again
         responseRoster.playerArray = rosterWithoutDummyData;
         return responseRoster;
@@ -142,7 +140,10 @@ module.exports = {
                     currentRoster.roster[season].usedPlayers.push(addedPlayer[0])
                 };
 
-                currentRoster.roster[season][week] = dbReadyRoster;
+                //This iterates through the positions on the dbReadyRoster provided from the client and puts the players they want in the correct positions without overwriting the 0s
+                Object.keys(dbReadyRoster).forEach(position => {
+                    currentRoster.roster[season][week][position] = dbReadyRoster[position]
+                })
 
                 currentRoster.save((err, result) => {
                     if (err) {
