@@ -340,10 +340,12 @@ class Roster extends Component {
             };
         };
 
+        const sortedNoDummyData = sortedRoster.filter(id => id !== 0);
+
         this.setState({ dbReadyRoster });
 
         //Until testing is complete, just send back the same roster
-        return sortedRoster;
+        return sortedNoDummyData;
     };
 
     saveRosterToDb = async (dbReadyRoster, droppedPlayer, saveWithNoDrop) => {
@@ -460,7 +462,13 @@ class Roster extends Component {
 
         //If the roster is correct, and we need to save it down because it won't be saved through the countRoster (ie less than 8 players) then we push it through
         if (correctRoster && needToSave) {
-            await this.sortRoster(this.state.columns.userRoster.playerIds)
+            const sortedRoster = await this.sortRoster(this.state.columns.userRoster.playerIds);
+
+            //Save the new sorted roster down to the state to ensure it's sorted
+            const columns = this.state.columns;
+            columns.userRoster.playerIds = sortedRoster;
+            this.setState({ columns });
+
             //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
             //The true is to indicate we need to save a player down without dropping one in the usedPlayer array in the DB
             this.saveRosterToDb(this.state.dbReadyRoster, 0, true);
@@ -597,6 +605,8 @@ class Roster extends Component {
                             return (
                                 // this only has to be xs of 6 because there will only ever be two columns
                                 <Col xs='6' key={columnId}>
+                                    {console.log(`roster`, roster)}
+                                    {console.log(`state`, this.state)}
                                     <Column key={column.id} column={column} roster={roster} className='playerColumn' />
                                 </Col>
                             );
