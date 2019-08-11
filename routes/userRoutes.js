@@ -9,6 +9,14 @@ module.exports = app => {
         res.status(200).send(updatedUser)
     });
 
+    app.put(`/api/updateUserToAdmin/:userId`, async (req, res) => {
+        const { userId } = req.params;
+
+        const response = await userHandler.updateToAdmin(userId);
+        console.log(response)
+        res.status(200).send(response);
+    });
+
     app.post(`/api/newuser`, async (req, res) => {
         //Called after the user signs up with Firebase
         const newUser = {}
@@ -18,6 +26,7 @@ module.exports = app => {
             firstname: req.body.firstname,
             lastname: req.body.lastname,
         };
+        newUser.isAdmin = false;
         const newUserInDB = await userHandler.saveNewUser(newUser)
         res.json(newUserInDB)
     });

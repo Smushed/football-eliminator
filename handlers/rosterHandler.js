@@ -16,7 +16,7 @@ module.exports = {
         return parsedRoster;
     },
     dummyRoster: async (userId) => {
-        //TODO Error handling if userId is undefined
+        //This is a placeholder if I need to brute force update a user's roster
         const season = '2019-2020-regular';
         const week = 1;
 
@@ -35,7 +35,6 @@ module.exports = {
         //usedPlayers in the database is an array of mySportsIds. This will overwrite all the used players if there are any in the database
         const usedPlayers = [7549, 8469, 5940, 5946, 6477, 9910, 7485, 8003]
 
-        //TODO Can I do a findOneAndUpdate instead of getting it, processing and then rewriting it?
         return new Promise((res, rej) => {
             db.UserRoster.findOne({ userId: userId }, (err, currentRoster) => {
                 currentRoster.roster[season][week] = dummyRoster;

@@ -39,7 +39,8 @@ const UserSchema = new Schema({
             seen: Boolean
         }
     ], //Stores notifications to the user profile
-    blockedUser: [String] // Array of user ids
+    blockedUser: [String], // Array of user ids
+    isAdmin: Boolean
 });
 
 

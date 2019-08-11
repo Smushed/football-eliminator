@@ -8,7 +8,7 @@ module.exports = {
         const userlist = await db.User.find({});
         return userlist;
     },
-    updateProfile: (userID, updatedValue, request) => {
+    updateProfile: (userId, updatedValue, request) => {
         //Switch statement here to decide on what the user is updating
         //They can only update one part of their profile at a time
         let updatedField = ``;
@@ -27,19 +27,30 @@ module.exports = {
                 updatedField = `local.lastname`;
                 break;
             case `email`:
-                //TODO Add something to display if the username was already taken
+                //TODO Add something to display if the email was already taken
                 //Sweet Alert 2 handles email validation
                 updatedField = `local.email`;
                 break;
         };
         //TODO Check for duplicates
-        db.User.updateOne({ _id: userID }, { $set: { [updatedField]: updatedValue } }, (err, data) => {
+        db.User.updateOne({ _id: userId }, { $set: { [updatedField]: updatedValue } }, (err, data) => {
             if (err) {
                 return err;
             } else {
                 return "Updated Successfully"
             }
         });
+    },
+    updateToAdmin: async (userId) => {
+        let dbResponse = ``;
+        await db.User.updateOne({ _id: userId }, { $set: { isAdmin: true } }, (err, data) => {
+            if (err) {
+                dbResponse = err;
+            } else {
+                dbResponse = `${userId} is now an admin!`
+            }
+        });
+        return dbResponse;
     },
     isLoggedIn: (req, res, next) => {
         // if user is authenticated in the session, carry on 

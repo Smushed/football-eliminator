@@ -9,7 +9,6 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import './rosterStyle.css';
 
-//Using Swal to display messages when add book button is hit
 const Alert = withReactContent(Swal);
 
 class Roster extends Component {
@@ -605,8 +604,6 @@ class Roster extends Component {
                             return (
                                 // this only has to be xs of 6 because there will only ever be two columns
                                 <Col xs='6' key={columnId}>
-                                    {console.log(`roster`, roster)}
-                                    {console.log(`state`, this.state)}
                                     <Column key={column.id} column={column} roster={roster} className='playerColumn' />
                                 </Col>
                             );

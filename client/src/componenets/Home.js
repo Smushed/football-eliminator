@@ -15,28 +15,23 @@ const Alert = withReactContent(Swal);
 //Stateful component to allow the grouplist to properly populate
 class Home extends Component {
 
-    loadDummyRoster = async () => {
-        const loaded = await axios.put(`/api/dummyroster/${this.props.userId}`)
-        console.log(loaded)
-    };
-
     updateNFLRoster = async () => {
         try {
-            const dbResponse = await axios.get(`/api/updateteams`);
+            const dbResponse = await axios.get(`/api/updateTeams`);
             console.log(dbResponse.data);
         } catch (err) {
             console.log(err)
         }
     };
 
-    availablePlayer = async () => {
-        try {
-            const dbResponse = await axios.get(`/api/avaliableplayers`);
-            console.log(dbResponse.data);
-        } catch (err) {
-            console.log(err)
-        }
-    };
+    updateToAdmin = async () => {
+        const serverResponse = await axios.put(`/api/updateUserToAdmin/${this.props.userId}`);
+
+        Alert.fire({
+            type: 'success',
+            text: serverResponse.data
+        })
+    }
 
     getMassData = () => {
         //Send alert to user that they should add the chapters
@@ -59,13 +54,18 @@ class Home extends Component {
         });
     };
 
-    baldwin = () => {
-        axios.get(`/api/baldwin`).then(res => console.log(res))
-    }
-
     render() {
+        const { isAdmin } = this.props;
         return (
             <Fragment>
+                {isAdmin &&
+                    <Fragment>
+                        <Link to={`/adminPanel`}>
+                            Go To Admin Panel
+                        </Link>
+                        <br />
+                    </Fragment>
+                }
                 <Link to={Routes.createGroup}>
                     Create a Group
                 </Link>
@@ -88,26 +88,20 @@ class Home extends Component {
                 <br />
                 <br />
                 <br />
-                <Button color='success' onClick={this.loadDummyRoster}>
-                    Load Dummy Roster
-                </Button>
-                <br />
-                <br />
-                <br />
                 <Button color='primary' onClick={this.updateNFLRoster}>
                     Update NFL Roster
                 </Button>
                 <br />
                 <br />
                 <br />
-                <Button color='secondary' onClick={this.availablePlayer}>
-                    TEST Available Players
+                <Button color='primary' onClick={() => this.getMassData()}>
+                    Mass Update All Players
                 </Button>
                 <br />
                 <br />
                 <br />
-                <Button color='primary' onClick={() => this.getMassData()}>
-                    Mass Update All Players
+                <Button color='secondary' onClick={() => this.updateToAdmin()}>
+                    Update to Admin
                 </Button>
             </Fragment>
         );
