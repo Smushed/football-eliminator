@@ -35,11 +35,9 @@ module.exports = app => {
     });
 
     app.put(`/api/updateUserRoster/`, async (req, res) => {
-        const { userId, dbReadyRoster, droppedPlayer, week, season } = req.body;
+        const { userId, dbReadyRoster, droppedPlayer, week, season, saveWithNoDrop } = req.body;
 
-        console.log(userId, dbReadyRoster, droppedPlayer)
-
-        const dbResponse = await rosterHandler.updateUserRoster(userId, dbReadyRoster, droppedPlayer, week, season);
+        const dbResponse = await rosterHandler.updateUserRoster(userId, dbReadyRoster, droppedPlayer, week, season, saveWithNoDrop);
 
         res.status(200).send(dbResponse);
     });

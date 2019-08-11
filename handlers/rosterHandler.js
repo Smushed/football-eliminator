@@ -123,7 +123,7 @@ module.exports = {
 
         return responseAvailablePlayers;
     },
-    updateUserRoster: async (userId, dbReadyRoster, droppedPlayer, week, season) => {
+    updateUserRoster: async (userId, dbReadyRoster, droppedPlayer, week, season, saveWithNoDrop) => {
 
         return new Promise((res, rej) => {
             db.UserRoster.findOne({ userId }, (err, currentRoster) => {
@@ -134,6 +134,13 @@ module.exports = {
                     currentRoster.roster[season].usedPlayers.splice(playerIndex, 1);
 
                     //Figuring out the player they just added to the array
+                    const newRoster = Object.values(dbReadyRoster);
+                    const dbSet = new Set(currentRoster.roster[season].usedPlayers)
+                    const addedPlayer = newRoster.filter((playerId) => !dbSet.has(playerId));
+                    currentRoster.roster[season].usedPlayers.push(addedPlayer[0])
+                };
+
+                if (saveWithNoDrop) {
                     const newRoster = Object.values(dbReadyRoster);
                     const dbSet = new Set(currentRoster.roster[season].usedPlayers)
                     const addedPlayer = newRoster.filter((playerId) => !dbSet.has(playerId));

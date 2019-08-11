@@ -83,6 +83,17 @@ class Roster extends Component {
         Alert.close()
     }
 
+    clearPlayers = () => {
+        //Gets rid of all the players that are sitting in state when the user goes to another week
+        const { userRoster, columns } = this.state;
+
+        columns.userRoster.playerIds = [];
+        columns.available.playerIds = [];
+        userRoster = {}
+
+        this.setState({ userRoster, columns })
+    }
+
     getRosterData = (week, season) => {
 
         this.loading();
@@ -146,19 +157,17 @@ class Roster extends Component {
         if (QBCount > 1) {
             this.tooManyPlayers(originalRoster, userRoster, `QB`, QBCount);
             return false; //Return false here because we are splitting and handling this with the tooManyPlayers and no longer need to save it in the onDragEnd
+        } else if (WRCount > 3) {
+            this.tooManyPlayers(originalRoster, userRoster, `WR`, WRCount);
+            return false;
+        } else if (RBCount > 3) {
+            this.tooManyPlayers(originalRoster, userRoster, `RB`, RBCount);
+            return false;
         } else if (RBCount + WRCount > 5) {
             //Here we want the WR or RB to be over three. If they already have 3 on their roster, it means that one is already in their flex
             //If they only have two then they can sub one of the other positions and put it in their flex
-            if (WRCount > 3) {
-                this.tooManyPlayers(originalRoster, userRoster, `WR`, WRCount);
-                return false;
-            } else if (RBCount > 3) {
-                this.tooManyPlayers(originalRoster, userRoster, `RB`, RBCount);
-                return false;
-            } else {
-                this.tooManyPlayers(originalRoster, userRoster, `Flex`);
-                return false;
-            };
+            this.tooManyPlayers(originalRoster, userRoster, `Flex`);
+            return false;
         } else if (TECount > 1) {
             this.tooManyPlayers(originalRoster, userRoster, `TE`, TECount);
             return false;
@@ -223,7 +232,7 @@ class Roster extends Component {
 
                 //Here we feed the new sorted array along with the player to be deleted from the old array. The state is updated in the sortRoster function
                 //We need to new array to get the new player added and the old player so we can pull them out of the usedPlayersArray in the DB
-                this.saveRosterToDb(this.state.dbReadyRoster, chosenPlayer);
+                this.saveRosterToDb(this.state.dbReadyRoster, chosenPlayer, false);
 
                 this.setState({ columns });
             } else {
@@ -275,7 +284,7 @@ class Roster extends Component {
         };
 
         //This checks if the player has too many of any one position or if their overall roster is over 8
-        if (QBCount > 1 || (RBCount + WRCount) > 5 || RBCount > 3 || WRCount > 3 || TECount > 1 || KCount > 1 || roster.length > 8) {
+        if (QBCount > 1 || RBCount > 3 || WRCount > 3 || (RBCount + WRCount) > 5 || TECount > 1 || KCount > 1 || roster.length > 8) {
             response = false;
         };
 
@@ -337,10 +346,11 @@ class Roster extends Component {
         return sortedRoster;
     };
 
-    saveRosterToDb = async (dbReadyRoster, droppedPlayer) => {
+    saveRosterToDb = async (dbReadyRoster, droppedPlayer, saveWithNoDrop) => {
         //This will not always have a chosenPlayer because if the user is reorganizing the players currently on their roster it will not have a player to be dropped
+        //The saveWithNoDrop var is if the user has a blank week roster, it ensures we save it to the usedPlayerArray because we will be feeding droppedPlayer of 0
         axios.put(`/api/updateUserRoster`,
-            { userId: this.props.userId, dbReadyRoster, droppedPlayer, week: this.state.weekSelect, season: this.state.seasonSelect })
+            { userId: this.props.userId, dbReadyRoster, droppedPlayer, week: this.state.weekSelect, season: this.state.seasonSelect, saveWithNoDrop })
             .then(res => {
                 return
             }).catch(err => {
@@ -380,7 +390,7 @@ class Roster extends Component {
             if (source.droppableId === `userRoster`) { //Really you can use either source or destination here
                 //If user is changing their roster, sort it to make sure it stays in the order we want it in (QB, RB, WR, Flex, TE, K)
                 newPlayerIds = await this.sortRoster(newPlayerIds);
-                await this.saveRosterToDb(this.state.dbReadyRoster, 0);
+                await this.saveRosterToDb(this.state.dbReadyRoster, 0, false);
             };
             //Create a new column which has the same properites as the old column but with the newPlayerIds array
             const newColumn = {
@@ -451,7 +461,9 @@ class Roster extends Component {
         //If the roster is correct, and we need to save it down because it won't be saved through the countRoster (ie less than 8 players) then we push it through
         if (correctRoster && needToSave) {
             await this.sortRoster(this.state.columns.userRoster.playerIds)
-            this.saveRosterToDb(this.state.dbReadyRoster, 0); //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
+            //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
+            //The true is to indicate we need to save a player down without dropping one in the usedPlayer array in the DB
+            this.saveRosterToDb(this.state.dbReadyRoster, 0, true);
         };
     };
 
@@ -480,6 +492,12 @@ class Roster extends Component {
 
     customSeasonWeekSearch = (e) => {
         e.preventDefault();
+
+        //Need to clear the playerIds when switching weeks. If not the program makes the array an array of undefined
+        const columns = this.state.columns;
+        columns.userRoster.playerIds = [];
+        columns.available.playerIds = [];
+        this.setState({ columns })
 
         this.getRosterData(this.state.weekSelect, this.state.seasonSelect);
     }
