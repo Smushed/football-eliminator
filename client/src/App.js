@@ -79,7 +79,7 @@ class App extends Component {
           <Route
             path={Routes.adminPanel}
             render={() =>
-              <AdminPanel />}
+              <AdminPanel week={this.state.currentWeek} season={this.state.currentSeason} />}
           />
           <Route
             path={Routes.signin}

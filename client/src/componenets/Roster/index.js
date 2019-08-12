@@ -35,7 +35,7 @@ class Roster extends Component {
             columnOrder: ['userRoster', 'available'],
             positionSelect: `QB`, //This is the default value for the position search
             weekSelect: 0,
-            weekSelect: 0,
+            seasonSelect: 0,
             dbReadyRoster: { //We populate this when we go to sort the user's roster. This is the way it's saved into the database
                 QB: 0,
                 RB1: 0,
@@ -80,18 +80,18 @@ class Roster extends Component {
     };
     doneLoading() {
         Alert.close()
-    }
+    };
 
     clearPlayers = () => {
         //Gets rid of all the players that are sitting in state when the user goes to another week
-        const { userRoster, columns } = this.state;
+        let { userRoster, columns } = this.state;
 
         columns.userRoster.playerIds = [];
         columns.available.playerIds = [];
-        userRoster = {}
+        userRoster = {};
 
-        this.setState({ userRoster, columns })
-    }
+        this.setState({ userRoster, columns });
+    };
 
     getRosterData = (week, season) => {
 
@@ -507,14 +507,14 @@ class Roster extends Component {
         this.setState({ columns })
 
         this.getRosterData(this.state.weekSelect, this.state.seasonSelect);
-    }
+    };
 
     //This is to handle the change for the Input Type in the position search below
     handleChange(e) {
         this.setState({
             [e.target.name]: e.target.value
         });
-    }
+    };
 
     render() {
         return (
@@ -527,7 +527,7 @@ class Roster extends Component {
                             <FormGroup>
                                 <div className='inputContainer'>
                                     <Label for='seasonSelect'>Select Season</Label>
-                                    <Input type='select' name='seasonSelect' id='seasonSelect' className='searchDropdown' onChange={this.handleChange}>
+                                    <Input value={this.state.seasonSelect} type='select' name='seasonSelect' id='seasonSelect' className='searchDropdown' onChange={this.handleChange}>
                                         <option>2019-2020-regular</option>
                                     </Input>
                                 </div>
@@ -540,7 +540,7 @@ class Roster extends Component {
                             <FormGroup>
                                 <div className='inputContainer'>
                                     <Label for='weekSelect'>Select Week</Label>
-                                    <Input type='select' name='weekSelect' id='weekSelect' className='searchDropdown' onChange={this.handleChange}>
+                                    <Input value={this.state.weekSelect} type='select' name='weekSelect' id='weekSelect' className='searchDropdown' onChange={this.handleChange}>
                                         <option>1</option>
                                         <option>2</option>
                                         <option>3</option>

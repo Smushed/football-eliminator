@@ -5,6 +5,7 @@ module.exports = app => {
 
     app.get(`/api/updatePlayers/:season/:week`, async (req, res) => {
         const { season, week } = req.params;
+
         //getWeeklyData returns all player data for that week in an array
         //It is updating the  players in the DB but it is not sending the data back
         //Currently if this runs while there is no new players to add the front end will break

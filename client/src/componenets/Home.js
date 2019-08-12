@@ -1,9 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import { withAuthorization } from './Session';
 import { Link } from 'react-router-dom';
-import * as Routes from '../constants/routes';
 import { Button } from 'reactstrap';
 import axios from 'axios';
+import * as Routes from '../constants/routes';
+
 
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -15,15 +16,6 @@ const Alert = withReactContent(Swal);
 //Stateful component to allow the grouplist to properly populate
 class Home extends Component {
 
-    updateNFLRoster = async () => {
-        try {
-            const dbResponse = await axios.get(`/api/updateTeams`);
-            console.log(dbResponse.data);
-        } catch (err) {
-            console.log(err)
-        }
-    };
-
     updateToAdmin = async () => {
         const serverResponse = await axios.put(`/api/updateUserToAdmin/${this.props.userId}`);
 
@@ -33,34 +25,13 @@ class Home extends Component {
         })
     }
 
-    getMassData = () => {
-        //Send alert to user that they should add the chapters
-        Alert.fire({
-            type: `warning`,
-            title: `Are you sure?`,
-            text: `It will take a LONG time`,
-            showCancelButton: true,
-        }).then(result => {
-            if (result.value) {
-                Alert.fire(`Success`, `This will be a while. Go play some games?`, `success`);
-                axios.get(`/api/massplayerupdate`)
-                    .then(response => {
-                        console.log(response.data)
-                    })
-                    .catch(err => {
-                        console.log(err)
-                    });
-            };
-        });
-    };
-
     render() {
         const { isAdmin } = this.props;
         return (
             <Fragment>
                 {isAdmin &&
                     <Fragment>
-                        <Link to={`/adminPanel`}>
+                        <Link to={Routes.adminPanel}>
                             Go To Admin Panel
                         </Link>
                         <br />
@@ -85,20 +56,6 @@ class Home extends Component {
                 <Link to={`/displayplayers`}>
                     Display Player Data
                 </Link>
-                <br />
-                <br />
-                <br />
-                <Button color='primary' onClick={this.updateNFLRoster}>
-                    Update NFL Roster
-                </Button>
-                <br />
-                <br />
-                <br />
-                <Button color='primary' onClick={() => this.getMassData()}>
-                    Mass Update All Players
-                </Button>
-                <br />
-                <br />
                 <br />
                 <Button color='secondary' onClick={() => this.updateToAdmin()}>
                     Update to Admin
