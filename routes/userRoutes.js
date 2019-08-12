@@ -9,6 +9,14 @@ module.exports = app => {
         res.status(200).send(updatedUser)
     });
 
+    app.put(`/api/updateUserToAdmin/:userId`, async (req, res) => {
+        const { userId } = req.params;
+
+        const response = await userHandler.updateToAdmin(userId);
+
+        res.status(200).send(response);
+    });
+
     app.post(`/api/newuser`, async (req, res) => {
         //Called after the user signs up with Firebase
         const newUser = {}
@@ -18,6 +26,7 @@ module.exports = app => {
             firstname: req.body.firstname,
             lastname: req.body.lastname,
         };
+        newUser.isAdmin = false;
         const newUserInDB = await userHandler.saveNewUser(newUser)
         res.json(newUserInDB)
     });
@@ -27,6 +36,12 @@ module.exports = app => {
         const email = req.params.email;
         const foundUser = await userHandler.getUserByEmail(email);
         res.status(200).send(foundUser);
+    });
+
+    app.get(`/api/getAllUsers`, async (req, res) => {
+        const dbResponse = await userHandler.getUserList();
+
+        res.status(200).send(dbResponse)
     });
 
     //This is the route for the user search
@@ -44,6 +59,8 @@ module.exports = app => {
     });
 
     app.get(`/api/currentSeasonAndWeek`, async (req, res) => {
+        //Finds the current season and week for today's date according to the server.
+        //This should only drive the starting values for the selects
         const seasonAndWeek = await userHandler.getSeasonAndWeek()
 
         res.status(200).send(seasonAndWeek);

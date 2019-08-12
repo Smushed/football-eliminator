@@ -29,9 +29,11 @@ module.exports = app => {
         };
     });
 
-    app.put(`/api/dummyroster/:userid`, (req, res) => {
-        const userId = req.params.userid;
-        rosterHandler.dummyRoster(userId).then(newRoster => res.status(200).send(newRoster));
+    app.put(`/api/dummyRoster/`, async (req, res) => {
+        const { userId, week, season, dummyRoster } = req.body;
+        const dbResponse = await rosterHandler.dummyRoster(userId, week, season, dummyRoster)
+
+        res.status(200).send(dbResponse);
     });
 
     app.put(`/api/updateUserRoster/`, async (req, res) => {

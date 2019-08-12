@@ -7,3 +7,4 @@ export const passwordChange = '/passwordchange';
 export const createGroup = '/creategroup';
 export const discussion = '/discussion';
 export const roster = '/roster/:userId';
+export const adminPanel = '/adminPanel/';

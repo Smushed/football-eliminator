@@ -14,10 +14,9 @@ import PasswordChange from './componenets/PasswordChange';
 import UserProfile from './componenets/UserProfile';
 import CreateGroup from './componenets/CreateGroup';
 import GroupPage from './componenets/GroupPage';
-import GetWeeklyData from './componenets/GetWeeklyData';
 import DisplayPlayers from './componenets/DisplayPlayers';
 import Roster from './componenets/Roster';
-import CurrentTesting from './componenets/CurrentTesting';
+import AdminPanel from './componenets/AdminPanel';
 
 class App extends Component {
   constructor(props) {
@@ -52,7 +51,7 @@ class App extends Component {
     const currentUser = {
       username: dbResponse.data.local.username,
       userId: dbResponse.data._id,
-      grouplist: dbResponse.data.grouplist
+      isAdmin: dbResponse.data.isAdmin
     }
     this.setState({ currentUser });
     this.getSeasonAndWeek();
@@ -70,13 +69,17 @@ class App extends Component {
       <BrowserRouter>
 
         <div>
-
           <NavBar authUser={this.state.authUser} />
           {/* Routes to different components */}
           <Route
             exact path={Routes.home}
             render={() =>
-              <Home userId={this.state.currentUser.userId} />} />
+              <Home userId={this.state.currentUser.userId} isAdmin={this.state.currentUser.isAdmin} />} />
+          <Route
+            path={Routes.adminPanel}
+            render={() =>
+              <AdminPanel week={this.state.currentWeek} season={this.state.currentSeason} />}
+          />
           <Route
             path={Routes.signin}
             render={() =>
@@ -113,25 +116,9 @@ class App extends Component {
               <GroupPage userID={this.state.currentUser.userID} />}
           />
           <Route
-            path={`/user/:userID`}
-            render={() =>
-              <UserProfile userID={this.state.currentUser.userID} />}
-          />
-          <Route
-            path={`/getWeeklyData/`}
-            render={props =>
-              <GetWeeklyData {...props} />}
-          />
-          <Route
             path={`/displayplayers`}
             render={() =>
               <DisplayPlayers />
-            }
-          />
-          <Route
-            path={`/currenttesting`}
-            render={() =>
-              <CurrentTesting />
             }
           />
           <Route

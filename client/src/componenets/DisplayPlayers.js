@@ -14,8 +14,6 @@ class DisplayPlayers extends Component {
         this.state = {
             playersArray: [],
             loading: true,
-            // START HERE If they click a row of a player in the react table then a pop up box will display with the player's stats and everything
-            //Might be worth it to go here https://eddyerburgh.me/toggle-visibility-with-react
             currentPlayer: {}
         };
     };

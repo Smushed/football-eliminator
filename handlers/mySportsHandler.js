@@ -288,7 +288,6 @@ module.exports = {
                 //If they are in the database then the findPlayerInDB function convers it. Since we are already accessing the database with this, there is no reason to try and pass it back and then go out again
                 const playerInDB = await findPlayerInDB(search.data.gamelogs[i].player.id);
 
-                //False is first because false is directly returned in querying the database
                 if (!playerInDB) {
                     //They are not in the database. Init the object and then add them to an array which whill then be written to the database
                     player = await getNewPlayerStats(search.data.gamelogs[i].player, search.data.gamelogs[i].stats, search.data.gamelogs[i].team, season, week);
