@@ -52,8 +52,6 @@ class UserEditor extends Component {
     };
 
     dummyRoster = async () => {
-        console.log(`yes`)
-
         const dummyRoster = {
             QB: this.state.QB,
             RB1: this.state.RB1,
@@ -65,9 +63,9 @@ class UserEditor extends Component {
             K: this.state.K
         };
 
-        const loaded = await axios.put(`/api/dummyRoster/`,
+        await axios.put(`/api/dummyRoster/`,
             { userId: this.state.selectedUser, season: this.props.season, week: this.props.week, dummyRoster })
-        console.log(loaded)
+        this.setState({ QB: 0, RB1: 0, RB2: 0, WR1: 0, WR2: 0, Flex: 0, TE: 0, K: 0 })
     };
 
 
