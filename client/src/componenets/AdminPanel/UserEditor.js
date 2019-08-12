@@ -1,7 +1,7 @@
-import React, { Component, Fragement } from 'react';
+import React, { Component } from 'react';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
-import { Label, Input, Form, FormGroup, Button, Row, Col } from 'reactstrap';
+import { Input, Form, FormGroup, Button, Row, Col } from 'reactstrap';
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import ReactTable from 'react-table';

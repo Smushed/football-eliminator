@@ -74,11 +74,17 @@ class App extends Component {
           <Route
             exact path={Routes.home}
             render={() =>
-              <Home userId={this.state.currentUser.userId} isAdmin={this.state.currentUser.isAdmin} />} />
+              <Home
+                userId={this.state.currentUser.userId}
+                isAdmin={this.state.currentUser.isAdmin}
+                week={this.state.currentWeek}
+                season={this.state.currentSeason} />} />
           <Route
             path={Routes.adminPanel}
             render={() =>
-              <AdminPanel week={this.state.currentWeek} season={this.state.currentSeason} />}
+              <AdminPanel
+                week={this.state.currentWeek}
+                season={this.state.currentSeason} />}
           />
           <Route
             path={Routes.signin}
@@ -108,12 +114,14 @@ class App extends Component {
           <Route
             path={Routes.createGroup}
             render={() =>
-              <CreateGroup userID={this.state.currentUser.userID} />}
+              <CreateGroup
+                userID={this.state.currentUser.userID} />}
           />
           <Route
             path={`/group/:groupID`}
             render={() =>
-              <GroupPage userID={this.state.currentUser.userID} />}
+              <GroupPage
+                userID={this.state.currentUser.userID} />}
           />
           <Route
             path={`/displayplayers`}
@@ -124,7 +132,11 @@ class App extends Component {
           <Route
             path={Routes.roster}
             render={props =>
-              <Roster {...props} userId={this.state.currentUser.userId} week={this.state.currentWeek} season={this.state.currentSeason} />
+              <Roster
+                {...props}
+                userId={this.state.currentUser.userId}
+                week={this.state.currentWeek}
+                season={this.state.currentSeason} />
             }
           />
         </div>

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { withAuthorization } from '../Session';
-import axios from 'axios';
-import { Label, Input, Container, Form, FormGroup, Button, Row, Col } from 'reactstrap';
+import { Label, Input, Container, Button, Row, Col } from 'reactstrap';
 
 import PlayerEditor from './PlayerEditor';
 import UserEditor from './UserEditor';
@@ -99,6 +98,8 @@ class AdminPanel extends Component {
         )
     }
 }
+
+// TODO Add a check here to make sure that the user is an admin
 
 const condition = authUser => !!authUser;
 
