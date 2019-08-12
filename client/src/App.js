@@ -14,7 +14,6 @@ import PasswordChange from './componenets/PasswordChange';
 import UserProfile from './componenets/UserProfile';
 import CreateGroup from './componenets/CreateGroup';
 import GroupPage from './componenets/GroupPage';
-import GetWeeklyData from './componenets/GetWeeklyData';
 import DisplayPlayers from './componenets/DisplayPlayers';
 import Roster from './componenets/Roster';
 import AdminPanel from './componenets/AdminPanel';
@@ -115,16 +114,6 @@ class App extends Component {
             path={`/group/:groupID`}
             render={() =>
               <GroupPage userID={this.state.currentUser.userID} />}
-          />
-          <Route
-            path={`/user/:userID`}
-            render={() =>
-              <UserProfile userID={this.state.currentUser.userID} />}
-          />
-          <Route
-            path={`/getWeeklyData/`}
-            render={props =>
-              <GetWeeklyData {...props} />}
           />
           <Route
             path={`/displayplayers`}

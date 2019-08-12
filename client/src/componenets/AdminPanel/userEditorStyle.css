@@ -1,0 +1,23 @@
+.positionColumn {
+    text-align: right;
+}
+
+.playerIdInput {
+    margin-left: 50px;
+    width: 300px;
+}
+
+.selectedUser {
+    width: 250px;
+    margin: 0 auto;
+}
+
+.dummyRosterButton {
+    margin-top: 100px;
+}
+
+@media screen and (max-width: 770px) {
+    .dummyRosterButton {
+        margin-top: 0;
+    }
+}

@@ -13,7 +13,7 @@ module.exports = app => {
         const { userId } = req.params;
 
         const response = await userHandler.updateToAdmin(userId);
-        console.log(response)
+
         res.status(200).send(response);
     });
 
@@ -38,6 +38,12 @@ module.exports = app => {
         res.status(200).send(foundUser);
     });
 
+    app.get(`/api/getAllUsers`, async (req, res) => {
+        const dbResponse = await userHandler.getUserList();
+
+        res.status(200).send(dbResponse)
+    });
+
     //This is the route for the user search
     app.get(`/api/usersearch/:query/:searchParam`, async (req, res) => {
         const { query, searchParam } = req.params;
@@ -53,6 +59,8 @@ module.exports = app => {
     });
 
     app.get(`/api/currentSeasonAndWeek`, async (req, res) => {
+        //Finds the current season and week for today's date according to the server.
+        //This should only drive the starting values for the selects
         const seasonAndWeek = await userHandler.getSeasonAndWeek()
 
         res.status(200).send(seasonAndWeek);

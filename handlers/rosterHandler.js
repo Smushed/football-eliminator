@@ -15,32 +15,36 @@ module.exports = {
 
         return parsedRoster;
     },
-    dummyRoster: async (userId) => {
-        //This is a placeholder if I need to brute force update a user's roster
-        const season = '2019-2020-regular';
-        const week = 1;
-
-        //The userRoster can ONLY be numbers. We will then pull from the sheet at another time
-        const dummyRoster = {
-            QB: 7549,
-            RB1: 8469,
-            RB2: 5940,
-            WR1: 5946,
-            WR2: 6477,
-            Flex: 9910,
-            TE: 7485,
-            K: 8003
-        };
-
-        //usedPlayers in the database is an array of mySportsIds. This will overwrite all the used players if there are any in the database
-        const usedPlayers = [7549, 8469, 5940, 5946, 6477, 9910, 7485, 8003]
+    dummyRoster: async (userId, week, season, dummyRoster) => { //Brute force updating a user's roster
+        //First I need to get the roster for the current week and the usedPlayerArray
+        //I need to then go into the usedPlayerArray and pull out the players that are on that week's roster
+        //Then I need to update the usedPlayerArray with all the players in the dummyRoster
+        //Finally I need to save down the dummy roster
 
         return new Promise((res, rej) => {
-            db.UserRoster.findOne({ userId: userId }, (err, currentRoster) => {
-                currentRoster.roster[season][week] = dummyRoster;
-                currentRoster.roster[season].usedPlayers = usedPlayers;
+            db.UserRoster.findOne({ userId: userId }, (err, userRoster) => {
+                const currentRoster = userRoster.roster[season][week].toJSON(); //Need to toJSON to chop off all the Mongo bits
+                const currentUsedPlayerArray = userRoster.roster[season].usedPlayers;
+                const currentRosterArray = Object.values(currentRoster);
 
-                currentRoster.save((err, result) => {
+                //Need to filter out all the 0s before we try and save it down into usedPlayers
+                const filteredRosterArray = currentRosterArray.filter(playerId => playerId !== 0);
+                const currentRosterSet = new Set(filteredRosterArray);
+                //Filter out all the players that we removed from the roster that was in there
+                const usedPlayers = currentUsedPlayerArray.filter((playerId) => !currentRosterSet.has(playerId));
+
+                //TODO Some kind of flag or throw an error if the dummy player is already in there
+                const dummyRosterArray = Object.values(dummyRoster);
+                for (const player of dummyRosterArray) {
+                    if (parseInt(player) !== 0) {
+                        usedPlayers.push(player);
+                    };
+                };
+
+                userRoster.roster[season][week] = dummyRoster;
+                userRoster.roster[season].usedPlayers = usedPlayers;
+
+                userRoster.save((err, result) => {
                     if (err) {
                         //TODO Better error handling
                         console.log(err);
@@ -133,6 +137,7 @@ module.exports = {
                     currentRoster.roster[season].usedPlayers.splice(playerIndex, 1);
 
                     //Figuring out the player they just added to the array
+                    //TODO Refactor this out. We use this exact thing below and for dummyRoster
                     const newRoster = Object.values(dbReadyRoster);
                     const dbSet = new Set(currentRoster.roster[season].usedPlayers)
                     const addedPlayer = newRoster.filter((playerId) => !dbSet.has(playerId));

@@ -6,7 +6,9 @@ const weekDates = require(`../constants/weekDates`);
 module.exports = {
     getUserList: async () => {
         const userlist = await db.User.find({});
-        return userlist;
+        const filteredList = userlist.map(user => { return { username: user.local.username, email: user.local.email, _id: user._id } });
+
+        return filteredList;
     },
     updateProfile: (userId, updatedValue, request) => {
         //Switch statement here to decide on what the user is updating

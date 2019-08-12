@@ -49,15 +49,11 @@ class Home extends Component {
                     Current Testing
                 </Link>
                 <br />
-                <Link to={`/getweeklydata`}>
-                    Update Weekly Player Data
-                </Link>
-                <br />
                 <Link to={`/displayplayers`}>
                     Display Player Data
                 </Link>
                 <br />
-                <Button color='secondary' onClick={() => this.updateToAdmin()}>
+                <Button color='secondary' onClick={this.updateToAdmin}>
                     Update to Admin
                 </Button>
             </Fragment>
