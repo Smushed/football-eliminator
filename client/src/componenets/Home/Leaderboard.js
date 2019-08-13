@@ -19,14 +19,21 @@ class Leaderboard extends Component {
     //Must break out these requests into individual functions so axios can do them async
     getAllUsers() {
         return axios.get(`/api/getAllUsers`);
-    }
+    };
+
+    getAllRosters(season) {
+        return axios.get(`/api/getAllRosters/${season}`);
+    };
 
     getDataForLeaderboard(week, season) {
+        //TODO When done testing set the season back to the input
+        const dummySeason = `2018-2019-regular`
         let userList = [];
         // TODO Start here and add a userRoster Grabber
-        axios.all([this.getAllUsers()])
-            .then(axios.spread((allUsers) => {
+        axios.all([this.getAllUsers(), this.getAllRosters(dummySeason)])
+            .then(axios.spread((allUsers, rosterData) => {
                 userList = allUsers.data;
+                console.log(rosterData)
             }));
     }
 

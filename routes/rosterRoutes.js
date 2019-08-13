@@ -7,6 +7,12 @@ module.exports = app => {
         res.status(200).send(response);
     });
 
+    app.get(`/api/getAllRosters/:season`, async (req, res) => {
+        const { season } = req.params;
+        const dbResponse = await rosterHandler.getAllRosters(season);
+        res.status(200).send(dbResponse);
+    });
+
     app.get(`/api/availableplayers`, async (req, res) => {
         //req.query passes the array as an object. We turn this back to an array
         const { userId, searchedPosition } = req.query

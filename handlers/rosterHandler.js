@@ -166,5 +166,10 @@ module.exports = {
                 });
             });
         });
+    },
+    getAllRosters: async (season) => {
+        const rosterList = db.UserRoster.find();
+        const filteredRoster = await rosterList.map(roster => { console.log(roster); return { userId: roster[0].userId, roster: roster[0].roster[season] } });
+        return rosterList;
     }
 };
