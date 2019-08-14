@@ -46,7 +46,7 @@ module.exports = app => {
     app.get(`/api/weeklyRosterScore`, async (req, res) => {
         const { userRoster, week } = req.query
 
-        const dbResponse = await mySportsHandler.weeklyScore(userRoster, week);
+        const dbResponse = await mySportsHandler.weeklyScore(JSON.parse(userRoster), week);
         res.status(200).send(dbResponse);
     })
 }

@@ -5,6 +5,14 @@ require(`dotenv`).config();
 
 const mySportsFeedsAPI = process.env.MY_SPORTS_FEEDS_API
 
+const getPlayerWeeklyScore = (playerId, position) => {
+    console.log(playerId, position)
+    if (playerId === 0) {
+        return 0
+    };
+    //TODO Start here
+};
+
 const placeholderStats = (stats) => {
     //This goes through the returned stats and adds a blank object to any field where the player doesn't have any information
     //This is done for the getStats function. It needs to have an object to read & assign new values to
@@ -312,7 +320,16 @@ module.exports = {
         return response;
     },
     weeklyScore: async (userRoster, week) => {
-        console.log(userRoster);
-        console.log(week)
+        //Starting at 1 because we always start with week one
+        for (let i = 1; i <= week; i++) {
+            //Now I need to parse through this roster and every player that isn't marked with a 0 I need to query the DB
+            let weekScore = 0;
+            for (let ii = 1; ii <= 8; ii++) { //8 because that is the amount of players in the roster
+                //TODO Change this when I have groups of players allowed to change their rules
+                if (ii === 1) {
+                    weekScore += getPlayerWeeklyScore(userRoster[i].QB, `QB`)
+                }
+            }
+        };
     }
 };
