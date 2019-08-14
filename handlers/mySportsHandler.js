@@ -311,4 +311,8 @@ module.exports = {
         console.log(`get weekly data done week ${week} season ${season}`)
         return response;
     },
+    weeklyScore: async (userRoster, week) => {
+        console.log(userRoster);
+        console.log(week)
+    }
 };

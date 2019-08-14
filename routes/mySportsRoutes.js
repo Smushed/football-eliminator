@@ -42,4 +42,11 @@ module.exports = app => {
         const working = await mySportsHandler.availablePlayers();
         res.status(200).send(working);
     });
+
+    app.get(`/api/weeklyRosterScore`, async (req, res) => {
+        const { userRoster, week } = req.query
+
+        const dbResponse = await mySportsHandler.weeklyScore(userRoster, week);
+        res.status(200).send(dbResponse);
+    })
 }

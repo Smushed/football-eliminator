@@ -480,7 +480,7 @@ class Roster extends Component {
 
         this.loading();
         const userId = this.props.userId;
-        axios.get(`/api/availableplayers`,
+        axios.get(`/api/availablePlayers`,
             { params: { userId, searchedPosition: this.state.positionSelect } })
             .then(res => {
                 //What comes back is an array of objects for all the available players

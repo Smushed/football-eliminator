@@ -13,7 +13,7 @@ module.exports = app => {
         res.status(200).send(dbResponse);
     });
 
-    app.get(`/api/availableplayers`, async (req, res) => {
+    app.get(`/api/availablePlayers`, async (req, res) => {
         //req.query passes the array as an object. We turn this back to an array
         const { userId, searchedPosition } = req.query
         //Then iterate over the array and turn the strings into numbers to compare it to the DB

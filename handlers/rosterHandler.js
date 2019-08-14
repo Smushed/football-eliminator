@@ -168,8 +168,11 @@ module.exports = {
         });
     },
     getAllRosters: async (season) => {
-        const rosterList = db.UserRoster.find();
-        const filteredRoster = await rosterList.map(roster => { console.log(roster); return { userId: roster[0].userId, roster: roster[0].roster[season] } });
+        const rosterList = {};
+        //TODO Error handling
+        await db.UserRoster.find({}, (err, rosters) => {
+            rosters.forEach(roster => rosterList[roster.userId] = { roster: roster.roster[season] })
+        });
         return rosterList;
     }
 };
