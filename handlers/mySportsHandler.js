@@ -6,16 +6,24 @@ require(`dotenv`).config();
 const mySportsFeedsAPI = process.env.MY_SPORTS_FEEDS_API
 
 const getPlayerWeeklyScore = async (playerId, position, season, week) => {
-    console.log(playerId, position)
     if (playerId === 0) {
-        return 0
+        return 0;
     };
     try {
-        const player = await db.FantasyStats.findOne({ mySportsId: playerId, position: position }, 'stats').exec();
-        const stat = player[season][week]
+        let player = await db.FantasyStats.findOne({ mySportsId: playerId }, 'stats');
+        if (player === null) {
+            return 0;
+        };
+        player = player.toObject()
+        const stats = player.stats[season][week];
+        const categories = Object.keys(stats)
+        for (category of categories) {
+            console.log(category)
+        }
     } catch (err) {
         console.log(err, `Id:`, playerId)
     }
+
 };
 
 const placeholderStats = (stats) => {
@@ -332,21 +340,21 @@ module.exports = {
             for (let ii = 1; ii <= 8; ii++) { //8 because that is the amount of players in the roster
                 //TODO Change this when I have groups of players allowed to change their rules
                 if (ii === 1) {
-                    weekScore += getPlayerWeeklyScore(userRoster[i].QB, `QB`, season, week);
+                    weekScore += getPlayerWeeklyScore(userRoster[i].QB, `QB`, season, i); //Here i is the current week number
                 } else if (ii === 2) {
-                    weekScore += getPlayerWeeklyScore(userRoster[i].RB1, `RB`, season, week);
+                    weekScore += getPlayerWeeklyScore(userRoster[i].RB1, `RB`, season, i);
                 } else if (ii === 3) {
-                    weekScore += getPlayerWeeklyScore(userRoster[i].RB2, `RB`, season, week);
+                    weekScore += getPlayerWeeklyScore(userRoster[i].RB2, `RB`, season, i);
                 } else if (ii === 4) {
-                    weekScore += getPlayerWeeklyScore(userRoster[i].WR1, `WR`, season, week);
+                    weekScore += getPlayerWeeklyScore(userRoster[i].WR1, `WR`, season, i);
                 } else if (ii === 5) {
-                    weekScore += getPlayerWeeklyScore(userRoster[i].WR2, `WR`, season, week);
+                    weekScore += getPlayerWeeklyScore(userRoster[i].WR2, `WR`, season, i);
                 } else if (ii === 6) {
-                    weekScore += getPlayerWeeklyScore(userRoster[i].Flex, `Flex`, season, week);
+                    weekScore += getPlayerWeeklyScore(userRoster[i].Flex, `Flex`, season, i);
                 } else if (ii === 7) {
-                    weekScore += getPlayerWeeklyScore(userRoster[i].TE, `TE`, season, week);
+                    weekScore += getPlayerWeeklyScore(userRoster[i].TE, `TE`, season, i);
                 } else if (ii === 8) {
-                    weekScore += getPlayerWeeklyScore(userRoster[i].K, `K`, season, week);
+                    weekScore += getPlayerWeeklyScore(userRoster[i].K, `K`, season, i);
                 }
             }
         };
