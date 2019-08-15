@@ -5,12 +5,17 @@ require(`dotenv`).config();
 
 const mySportsFeedsAPI = process.env.MY_SPORTS_FEEDS_API
 
-const getPlayerWeeklyScore = (playerId, position) => {
+const getPlayerWeeklyScore = async (playerId, position, season, week) => {
     console.log(playerId, position)
     if (playerId === 0) {
         return 0
     };
-    //TODO Start here
+    try {
+        const player = await db.FantasyStats.findOne({ mySportsId: playerId, position: position }, 'stats').exec();
+        const stat = player[season][week]
+    } catch (err) {
+        console.log(err, `Id:`, playerId)
+    }
 };
 
 const placeholderStats = (stats) => {
@@ -319,7 +324,7 @@ module.exports = {
         console.log(`get weekly data done week ${week} season ${season}`)
         return response;
     },
-    weeklyScore: async (userRoster, week) => {
+    weeklyScore: async (userRoster, season, week) => {
         //Starting at 1 because we always start with week one
         for (let i = 1; i <= week; i++) {
             //Now I need to parse through this roster and every player that isn't marked with a 0 I need to query the DB
@@ -327,7 +332,21 @@ module.exports = {
             for (let ii = 1; ii <= 8; ii++) { //8 because that is the amount of players in the roster
                 //TODO Change this when I have groups of players allowed to change their rules
                 if (ii === 1) {
-                    weekScore += getPlayerWeeklyScore(userRoster[i].QB, `QB`)
+                    weekScore += getPlayerWeeklyScore(userRoster[i].QB, `QB`, season, week);
+                } else if (ii === 2) {
+                    weekScore += getPlayerWeeklyScore(userRoster[i].RB1, `RB`, season, week);
+                } else if (ii === 3) {
+                    weekScore += getPlayerWeeklyScore(userRoster[i].RB2, `RB`, season, week);
+                } else if (ii === 4) {
+                    weekScore += getPlayerWeeklyScore(userRoster[i].WR1, `WR`, season, week);
+                } else if (ii === 5) {
+                    weekScore += getPlayerWeeklyScore(userRoster[i].WR2, `WR`, season, week);
+                } else if (ii === 6) {
+                    weekScore += getPlayerWeeklyScore(userRoster[i].Flex, `Flex`, season, week);
+                } else if (ii === 7) {
+                    weekScore += getPlayerWeeklyScore(userRoster[i].TE, `TE`, season, week);
+                } else if (ii === 8) {
+                    weekScore += getPlayerWeeklyScore(userRoster[i].K, `K`, season, week);
                 }
             }
         };

@@ -49,7 +49,7 @@ class Leaderboard extends Component {
                         previousWeekPlayers[ii] = rosterData.data[allUsers.data[i]._id].roster[ii]
                     }
                     const weekScore = await axios.get(`/api/weeklyRosterScore`,
-                        { params: { userRoster: previousWeekPlayers, week: dummyWeek } });
+                        { params: { userRoster: previousWeekPlayers, week: dummyWeek, season: dummySeason } });
                     console.log(weekScore)
                 }
                 //Now that I have all the data I can go throught the rosterData and parse it for player's stats.
