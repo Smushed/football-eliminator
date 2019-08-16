@@ -9,6 +9,7 @@ const getPlayerWeeklyScore = async (playerId, position, season, week) => {
     if (playerId === 0) {
         return 0;
     };
+    let weeklyScore = 0
     try {
         let player = await db.FantasyStats.findOne({ mySportsId: playerId }, 'stats');
         if (player === null) {
@@ -18,13 +19,20 @@ const getPlayerWeeklyScore = async (playerId, position, season, week) => {
         const stats = player.stats[season][week];
         const categories = Object.keys(stats)
         for (category of categories) {
-            console.log(category)
-        }
+            const scoringFields = Object.keys(stats[category]);
+            for (field of scoringFields) {
+                weeklyScore += calculateScore(field, stats[category][field]);
+            };
+        };
     } catch (err) {
-        console.log(err, `Id:`, playerId)
-    }
+        console.log(err, `Id:`, playerId);
+    };
 
 };
+
+const calculateScore = (fieldToScore, result) => {
+    console.log(fieldToScore, result)
+}
 
 const placeholderStats = (stats) => {
     //This goes through the returned stats and adds a blank object to any field where the player doesn't have any information
