@@ -17,14 +17,6 @@ const Alert = withReactContent(Swal);
 //Stateful component to allow the grouplist to properly populate
 class Home extends Component {
 
-    updateToAdmin = async () => {
-        const serverResponse = await axios.put(`/api/updateUserToAdmin/${this.props.userId}`);
-        Alert.fire({
-            type: 'success',
-            text: serverResponse.data
-        })
-    }
-
     render() {
         const { isAdmin } = this.props;
         return (

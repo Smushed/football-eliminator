@@ -12,11 +12,22 @@ class Leaderboard extends Component {
         };
     };
 
+    componentDidMount() {
+        if (typeof this.props.season !== `undefined`) { // season here because it's the last prop we pass in. Probably not the best way
+            this.getDataForLeaderboard(this.props.week, this.props.season);
+        };
+    };
+
     componentDidUpdate(prevProps) {
         if (this.props.season !== prevProps.season) { // season here because it's the last prop we pass in. Probably not the best way
             this.getDataForLeaderboard(this.props.week, this.props.season);
         };
     };
+
+    componentWillUnmount() {
+        //TODO Fix this when the user gets off the homepage before it loads, there is a memory leak because the leaderboard data still comes in
+        //https://codepen.io/dashtinejad/pen/Lxejpq
+    }
 
     //Must break out these requests into individual functions so axios can do them async
     getAllUsers() {

@@ -76,22 +76,15 @@ class UserEditor extends Component {
         });
     };
 
+    selectUser = (id) => {
+        this.setState({ selectedUser: id })
+    };
+
+
     render() {
-        const columns = [
-            { Header: 'Username', accessor: 'username', show: true },
-            { Header: 'email', accessor: 'email', show: true },
-            { Header: 'Id', accessor: '_id', show: true }];
-
-
         return (
             <div>
-                <Row>
-                    <Col xs='12'>
-                        <div className='selectedUser'>
-                            Selected User: <Input value={this.state.selectedUser} type='text' disabled />
-                        </div>
-                    </Col>
-                </Row>
+                <SelectedUser selectedUser={this.state.selectedUser} />
                 <Row>
                     <Col>
                         <Form onSubmit={this.dummyRoster}>
@@ -176,34 +169,56 @@ class UserEditor extends Component {
                         </Form>
                     </Col>
                 </Row>
-                <Row>
-                    <Col xs='12'>
-                        <ReactTable
-                            data={this.state.userArray}
-                            columns={columns}
-                            loading={this.state.loading}
-                            filterable
-                            defaultPageSize={20}
-                            className="-highlight"
-                            getTdProps={(state, rowInfo) => {
-                                return {
-                                    onClick: () => {
-                                        console.log(rowInfo.original)
-                                        this.setState({ selectedUser: rowInfo.original._id })
-                                    }
-                                }
-                            }}
-                        />
-                    </Col>
-                </Row>
+                <UserTable userArray={this.state.userArray} loading={this.state.loading} selectUser={this.selectUser} />
             </div>
         )
     }
+};
 
+const SelectedUser = (props) => {
+    return (
+        <Row>
+            <Col xs='12'>
+                <div className='selectedUser'>
+                    Selected User: <Input value={props.selectedUser} type='text' disabled />
+                </div>
+            </Col>
+        </Row>
+    )
+}
 
+const UserTable = (props) => {
+    return (
+        <Row>
+            <Col xs='12'>
+                <ReactTable
+                    data={props.userArray}
+                    columns={[
+                        { Header: 'Username', accessor: 'username', show: true },
+                        { Header: 'email', accessor: 'email', show: true },
+                        { Header: 'Id', accessor: '_id', show: true }
+                    ]}
+                    loading={props.loading}
+                    filterable
+                    defaultPageSize={20}
+                    className="-highlight"
+                    getTdProps={(state, rowInfo) => {
+                        return {
+                            onClick: () => {
+                                props.selectUser(rowInfo.original._id);
+                            }
+                        }
+                    }}
+                />
+            </Col>
+        </Row>
+    )
 };
 
 
 const condition = authUser => !!authUser;
 
 export default withAuthorization(condition)(UserEditor);
+
+//These should really be taken together since they're used together
+export { UserTable, SelectedUser };
