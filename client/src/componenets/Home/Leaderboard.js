@@ -72,11 +72,14 @@ class Leaderboard extends Component {
             { Header: `email`, accessor: `email`, show: true },
             { Header: `Last Week's Score`, accessor: `weekScores[${this.props.week}]`, show: true },
             { Header: `Total Score`, accessor: `totalScore`, show: true }];
+
+        const defaultSorted = [{ id: 'totalScore', desc: true }]
         return (
             <div>
                 <ReactTable
                     data={this.state.userList}
                     columns={columns}
+                    defaultSorted={defaultSorted}
                     loading={this.state.loading}
                     filterable
                     defaultPageSize={20}
