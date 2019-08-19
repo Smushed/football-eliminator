@@ -7,7 +7,8 @@ class Leaderboard extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            userList: []
+            userList: [],
+            loading: false,
         };
     };
 
@@ -27,6 +28,7 @@ class Leaderboard extends Component {
     };
 
     getDataForLeaderboard = (week, season) => {
+        this.setState({ loading: true });
         //TODO When done testing set the season back to the input
         //TODO All below there are dummySeason and dummyWeeks. Be sure to change this
         const dummySeason = `2018-2019-regular`;
@@ -34,38 +36,62 @@ class Leaderboard extends Component {
         let userList = [];
         axios.all([this.getAllUsers(), this.getAllRosters(dummySeason)])
             .then(axios.spread(async (allUsers, rosterData) => {
-                const userList = []; //userList is going to be saved to state and iterated upon
                 //Now that we have the userList and all the user's rosters
                 for (let i = 0; i < allUsers.data.length; i++) {
                     //userDetail is going to be each element in the array
-                    const userDetail = { userId: allUsers.data[i]._id, username: allUsers.data[i].username, email: allUsers.data[i].email }
-                    console.log(userDetail)
-                    console.log(rosterData.data[allUsers.data[i]._id])
+                    const userDetail = { userId: allUsers.data[i]._id, username: allUsers.data[i].username, email: allUsers.data[i].email };
                     // Here we count down from the week we are currently on to grab all the players that the user has used
                     const previousWeekPlayers = {};
                     for (let ii = dummyWeek; ii > 0; ii--) {
                         //For this we drill into the object of roster data that was returned from the DB.
                         //We look up this user's roster through their id which is a key
-                        previousWeekPlayers[ii] = rosterData.data[allUsers.data[i]._id].roster[ii]
-                    }
-                    const weekScore = await axios.get(`/api/weeklyRosterScore`,
+                        previousWeekPlayers[ii] = rosterData.data[allUsers.data[i]._id].roster[ii];
+                    };
+
+                    //We then take the roster that we populated above and send it to the DB
+                    const weekScores = await axios.get(`/api/weeklyRosterScore`,
                         { params: { userRoster: previousWeekPlayers, week: dummyWeek, season: dummySeason } });
-                    console.log(weekScore)
-                }
-                //Now that I have all the data I can go throught the rosterData and parse it for player's stats.
-                //I need to feed in the week that it is currently in and iterate over all the previous weeks and pull down their stats.
-                //I can probably do something on the client side to end up with an object as detailed below
-                //data: {
-                //1:[#,#,#,#,#,#,#,#],
-                //2:[#,#,#,#,#] Where each week is an array of numbers. The player roster that I can then iterate over
-                //}
-                //To get this I should iterate over rosterData and compile all the players in all the previous weeks and crunch them down
+
+                    let totalScore = 0;
+                    for (let iii = dummyWeek; iii > 0; iii--) {
+                        //Now iterate over the weeks and pull out the total score
+                        totalScore += parseFloat(weekScores.data[iii]); //Must be Float because there are decimals in the scores
+                    };
+                    userDetail.weekScores = weekScores.data;
+                    userDetail.totalScore = totalScore;
+
+                    userList.push(userDetail);
+                };
+                this.setState({ userList, loading: false });
             }));
-    }
+    };
 
     render() {
+        const columns = [
+            { Header: `Username`, accessor: `username`, show: true },
+            { Header: `email`, accessor: `email`, show: true },
+            { Header: `Last Week's Score`, accessor: `weekScores[${this.props.week}]`, show: true },
+            { Header: `Total Score`, accessor: `totalScore`, show: true }];
         return (
-            <div>{this.props.week} {this.props.season}</div>
+            <div>
+                <ReactTable
+                    data={this.state.userList}
+                    columns={columns}
+                    loading={this.state.loading}
+                    filterable
+                    defaultPageSize={20}
+                    className="-highlight"
+
+                //TODO Enable an on click to have a pop up to view their weekly stats
+                // getTdProps={(state, rowInfo) => {
+                //     return {
+                //         onClick: () => {
+                //             console.log(rowInfo.original)
+                //             this.setState({ selectedUser: rowInfo.original._id })
+                //         }
+                //     }
+                // }}
+                /></div>
         )
     };
 };
