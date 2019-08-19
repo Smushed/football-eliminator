@@ -1,17 +1,43 @@
 const db = require(`../models`);
 const axios = require(`axios`);
-const nflTeams = require(`../constants/nflTeams`)
+const nflTeams = require(`../constants/nflTeams`);
+const scoringSystem = require(`../constants/scoring`);
 require(`dotenv`).config();
 
 const mySportsFeedsAPI = process.env.MY_SPORTS_FEEDS_API
 
-const getPlayerWeeklyScore = (playerId, position) => {
-    console.log(playerId, position)
+const getPlayerWeeklyScore = async (playerId, position, season, week) => {
     if (playerId === 0) {
-        return 0
+        return 0;
     };
-    //TODO Start here
+    let weeklyScore = 0
+    try {
+        let player = await db.FantasyStats.findOne({ mySportsId: playerId }, 'stats');
+        if (player === null) {
+            return 0;
+        };
+        player = player.toObject()
+        const stats = player.stats[season][week];
+        const categories = Object.keys(stats)
+        for (category of categories) {
+            const scoringFields = Object.keys(stats[category]);
+            for (field of scoringFields) {
+                weeklyScore += calculateScore(field, stats[category][field]);
+            };
+        };
+    } catch (err) {
+        console.log(err, `Id:`, playerId);
+    };
+    return weeklyScore;
 };
+
+const calculateScore = (fieldToScore, result) => {
+    //This is only currently in there to help debug
+    if (typeof scoringSystem[fieldToScore] === `undefined`) {
+        return 0;
+    };
+    return result * scoringSystem[fieldToScore];
+}
 
 const placeholderStats = (stats) => {
     //This goes through the returned stats and adds a blank object to any field where the player doesn't have any information
@@ -84,7 +110,7 @@ const completeStats = (player, stats, season, week) => {
         fieldGoals: {
             fgMade1_19: fullStats.fieldGoals.fgMade1_19 || 0,
             fgMade20_29: fullStats.fieldGoals.fgMade20_29 || 0,
-            fgmade30_39: fullStats.fieldGoals.fgmade30_39 || 0,
+            fgMade30_39: fullStats.fieldGoals.fgMade30_39 || 0,
             fgMade40_49: fullStats.fieldGoals.fgMade40_49 || 0,
             fgMade50Plus: fullStats.fieldGoals.fgMade50Plus || 0
         }
@@ -319,17 +345,34 @@ module.exports = {
         console.log(`get weekly data done week ${week} season ${season}`)
         return response;
     },
-    weeklyScore: async (userRoster, week) => {
+    weeklyScore: async (userRoster, season, week) => {
         //Starting at 1 because we always start with week one
+        const response = {}
         for (let i = 1; i <= week; i++) {
             //Now I need to parse through this roster and every player that isn't marked with a 0 I need to query the DB
             let weekScore = 0;
             for (let ii = 1; ii <= 8; ii++) { //8 because that is the amount of players in the roster
                 //TODO Change this when I have groups of players allowed to change their rules
                 if (ii === 1) {
-                    weekScore += getPlayerWeeklyScore(userRoster[i].QB, `QB`)
+                    weekScore += await getPlayerWeeklyScore(userRoster[i].QB, `QB`, season, i); //Here i is the current week number
+                } else if (ii === 2) {
+                    weekScore += await getPlayerWeeklyScore(userRoster[i].RB1, `RB`, season, i);
+                } else if (ii === 3) {
+                    weekScore += await getPlayerWeeklyScore(userRoster[i].RB2, `RB`, season, i);
+                } else if (ii === 4) {
+                    weekScore += await getPlayerWeeklyScore(userRoster[i].WR1, `WR`, season, i);
+                } else if (ii === 5) {
+                    weekScore += await getPlayerWeeklyScore(userRoster[i].WR2, `WR`, season, i);
+                } else if (ii === 6) {
+                    weekScore += await getPlayerWeeklyScore(userRoster[i].Flex, `Flex`, season, i);
+                } else if (ii === 7) {
+                    weekScore += await getPlayerWeeklyScore(userRoster[i].TE, `TE`, season, i);
+                } else if (ii === 8) {
+                    weekScore += await getPlayerWeeklyScore(userRoster[i].K, `K`, season, i);
                 }
             }
+            response[i] = weekScore.toFixed(2);
         };
+        return response;
     }
 };

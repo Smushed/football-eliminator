@@ -117,10 +117,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -131,7 +127,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -233,10 +229,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -247,7 +239,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -349,10 +341,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -363,7 +351,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -465,10 +453,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -479,7 +463,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -581,10 +565,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -595,7 +575,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -697,10 +677,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -711,7 +687,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -813,10 +789,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -827,7 +799,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -929,10 +901,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -943,7 +911,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -1045,10 +1013,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -1059,7 +1023,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -1161,10 +1125,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -1175,7 +1135,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -1277,10 +1237,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -1291,7 +1247,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -1393,10 +1349,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -1407,7 +1359,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -1509,10 +1461,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -1523,7 +1471,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -1625,10 +1573,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -1639,7 +1583,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -1741,10 +1685,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -1755,7 +1695,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -1857,10 +1797,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -1871,7 +1807,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -1973,10 +1909,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -1987,7 +1919,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -2091,10 +2023,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -2105,7 +2033,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -2207,10 +2135,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -2221,7 +2145,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -2323,10 +2247,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -2337,7 +2257,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -2439,10 +2359,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -2453,7 +2369,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -2555,10 +2471,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -2569,7 +2481,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -2671,10 +2583,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -2685,7 +2593,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -2787,10 +2695,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -2801,7 +2705,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -2903,10 +2807,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -2917,7 +2817,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -3019,10 +2919,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -3033,7 +2929,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -3135,10 +3031,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -3149,7 +3041,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -3251,10 +3143,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -3265,7 +3153,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -3367,10 +3255,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -3381,7 +3265,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -3483,10 +3367,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -3497,7 +3377,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -3599,10 +3479,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -3613,7 +3489,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -3715,10 +3591,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -3729,7 +3601,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -3831,10 +3703,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -3845,7 +3713,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
@@ -3947,10 +3815,6 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fumbles: {
-                        type: Number,
-                        default: 0
-                    },
                 },
                 fieldGoals: {
                     fgMade1_19: {
@@ -3961,7 +3825,7 @@ const FantasyStatsSchema = new Schema({
                         type: Number,
                         default: 0
                     },
-                    fgmade30_39: {
+                    fgMade30_39: {
                         type: Number,
                         default: 0
                     },
