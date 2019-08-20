@@ -17,7 +17,7 @@ import GroupPage from './componenets/GroupPage';
 import DisplayPlayers from './componenets/DisplayPlayers';
 import Roster from './componenets/Roster';
 import AdminPanel from './componenets/AdminPanel';
-import UpgradeToAdmin from './componenets/AdminPanel/upgradeToAdmin'
+import UpgradeToAdmin from './componenets/AdminPanel/UpgradeToAdmin'
 
 class App extends Component {
   constructor(props) {

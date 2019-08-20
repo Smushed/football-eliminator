@@ -185,11 +185,11 @@ class Roster extends Component {
             filteredRoster = roster.filter(player => this.state.userRoster[player].position === `RB` || this.state.userRoster[player].position === `WR`);
         } else {
             filteredRoster = roster.filter(player => this.state.userRoster[player].position === position);
-        }
+        };
 
         //Iterate over the filtered array and get the full data for the players to give the user a choice
         //We need it in this format so swal will properly list the options
-        const fullPlayers = {}
+        const fullPlayers = {};
 
         for (let i = 0; i < filteredRoster.length; i++) {
             //First we have to initialize the object because of the bracket notation
@@ -523,46 +523,60 @@ class Roster extends Component {
                 <Row className='topRow'>
                     {/* TODO I want this to be a column next to the drag and drop until it is small screen, then pop up top */}
                     <Col xs='6'>
-                        <Form onSubmit={this.customSeasonWeekSearch}>
-                            <FormGroup>
-                                <div className='inputContainer'>
-                                    <Label for='seasonSelect'>Select Season</Label>
-                                    <Input value={this.state.seasonSelect} type='select' name='seasonSelect' id='seasonSelect' className='searchDropdown' onChange={this.handleChange}>
-                                        <option>2019-2020-regular</option>
-                                    </Input>
+                        <Row>
+                            <Col xs='0' md='3' />
+                            <Col xs='12' md='6'>
+                                <div className='centerInput'>
+                                    <Form onSubmit={this.customSeasonWeekSearch}>
+                                        <FormGroup>
+                                            <div className='inputContainer'>
+                                                <Label for='seasonSelect'>Select Season</Label>
+                                                <Input value={this.state.seasonSelect} type='select' name='seasonSelect' id='seasonSelect' className='searchDropdown' onChange={this.handleChange}>
+                                                    <option>2019-2020-regular</option>
+                                                </Input>
+                                            </div>
+                                            <Button color='primary' type='submit' className='submitButton'>Search</Button>
+                                        </FormGroup>
+                                    </Form>
                                 </div>
-                                <Button color='primary' type='submit' className='submitButton'>Search</Button>
-                            </FormGroup>
-                        </Form>
+                            </Col>
+                            <Col xs='0' md='3' />
+                        </Row>
                     </Col>
                     <Col xs='6'>
-                        <Form onSubmit={this.customSeasonWeekSearch}>
-                            <FormGroup>
-                                <div className='inputContainer'>
-                                    <Label for='weekSelect'>Select Week</Label>
-                                    <Input value={this.state.weekSelect} type='select' name='weekSelect' id='weekSelect' className='searchDropdown' onChange={this.handleChange}>
-                                        <option>1</option>
-                                        <option>2</option>
-                                        <option>3</option>
-                                        <option>4</option>
-                                        <option>5</option>
-                                        <option>6</option>
-                                        <option>7</option>
-                                        <option>8</option>
-                                        <option>9</option>
-                                        <option>10</option>
-                                        <option>11</option>
-                                        <option>12</option>
-                                        <option>13</option>
-                                        <option>14</option>
-                                        <option>15</option>
-                                        <option>16</option>
-                                        <option>17</option>
-                                    </Input>
-                                </div>
-                                <Button color='primary' type='submit' className='submitButton'>Search</Button>
-                            </FormGroup>
-                        </Form>
+                        <Row>
+                            <Col xs='0' md='3' />
+                            <Col xs='12' md='6'>
+                                <Form onSubmit={this.customSeasonWeekSearch}>
+                                    <FormGroup>
+                                        <div className='inputContainer'>
+                                            <Label for='weekSelect'>Select Week</Label>
+                                            <Input value={this.state.weekSelect} type='select' name='weekSelect' id='weekSelect' className='searchDropdown' onChange={this.handleChange}>
+                                                <option>1</option>
+                                                <option>2</option>
+                                                <option>3</option>
+                                                <option>4</option>
+                                                <option>5</option>
+                                                <option>6</option>
+                                                <option>7</option>
+                                                <option>8</option>
+                                                <option>9</option>
+                                                <option>10</option>
+                                                <option>11</option>
+                                                <option>12</option>
+                                                <option>13</option>
+                                                <option>14</option>
+                                                <option>15</option>
+                                                <option>16</option>
+                                                <option>17</option>
+                                            </Input>
+                                        </div>
+                                        <Button color='primary' type='submit' className='submitButton'>Search</Button>
+                                    </FormGroup>
+                                </Form>
+                            </Col>
+                            <Col xs='0' md='3' />
+                        </Row>
                     </Col>
                 </Row>
                 <Row>
