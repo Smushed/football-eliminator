@@ -2,7 +2,7 @@ const rosterHandler = require(`../handlers/rosterHandler`);
 
 module.exports = app => {
     app.get(`/api/displayplayers`, async (req, res) => {
-        const response = await rosterHandler.byRoster()
+        const response = await rosterHandler.byRoster();
 
         res.status(200).send(response);
     });
@@ -15,11 +15,11 @@ module.exports = app => {
 
     app.get(`/api/availablePlayers`, async (req, res) => {
         //req.query passes the array as an object. We turn this back to an array
-        const { userId, searchedPosition } = req.query
+        const { userId, searchedPosition } = req.query;
         //Then iterate over the array and turn the strings into numbers to compare it to the DB
         const availablePlayers = await rosterHandler.availablePlayers(userId, searchedPosition);
 
-        res.status(200).send(availablePlayers)
+        res.status(200).send(availablePlayers);
     });
 
     app.get(`/api/userroster/:userid`, async (req, res) => {
@@ -37,7 +37,7 @@ module.exports = app => {
 
     app.put(`/api/dummyRoster/`, async (req, res) => {
         const { userId, week, season, dummyRoster } = req.body;
-        const dbResponse = await rosterHandler.dummyRoster(userId, week, season, dummyRoster)
+        const dbResponse = await rosterHandler.dummyRoster(userId, week, season, dummyRoster);
 
         res.status(200).send(dbResponse);
     });

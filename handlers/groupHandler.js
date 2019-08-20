@@ -65,7 +65,7 @@ module.exports = {
         const addedGroup = await db.Group.create(newGroup);
 
         //Add the new group to the user who created it
-        await db.User.findByIdAndUpdate([userID], { $push: { grouplist: addedGroup._id } }) //Also saved the group that the user just added to their profile
+        await db.User.findByIdAndUpdate([userID], { $push: { grouplist: addedGroup._id } }); //Also saved the group that the user just added to their profile
 
         return addedGroup;
     },
@@ -82,8 +82,8 @@ module.exports = {
         };
         //get the user ID, add them to the array userlist within the group
         const updatedGroup = await db.Group.findByIdAndUpdate([groupID], { $push: { userlist: newUser } },
-            { new: true }) //Must be an object as we store if they their permissions
-        await db.User.findByIdAndUpdate([addedUserID], { $push: { grouplist: groupID } }) //Also saved the group that the user just added to their profile
+            { new: true }); //Must be an object as we store if they their permissions
+        await db.User.findByIdAndUpdate([addedUserID], { $push: { grouplist: groupID } }); //Also saved the group that the user just added to their profile
 
         return updatedGroup;
     },
@@ -100,7 +100,7 @@ module.exports = {
         //This is hit after they check if the current user trying to make these changes is a mod
         //Also, should only be hit one time unless they go into the settings and change it
         const updatedGroup = await db.Group.findByIdAndUpdate([groupID], { $set: { totalBenchmark: totalCount } },
-            { new: true })
+            { new: true });
         return updatedGroup;
     },
     updateBenchmark: async (groupID, nextBenchmark) => {

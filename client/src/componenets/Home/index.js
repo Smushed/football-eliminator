@@ -58,4 +58,4 @@ const HomeLink = (props) => (
 const condition = authUser => !!authUser;
 
 export default withAuthorization(condition)(Home);
-export { HomeLink }
+export { HomeLink };

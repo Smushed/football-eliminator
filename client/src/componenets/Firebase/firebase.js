@@ -19,11 +19,11 @@ class Firebase {
     }
 
     doCreateUserWithEmailAndPassword = (email, password) => {
-        return this.auth.createUserWithEmailAndPassword(email, password)
+        return this.auth.createUserWithEmailAndPassword(email, password);
     };
 
     doSignInWithEmailAndPassword = (email, password) => {
-        return this.auth.signInWithEmailAndPassword(email, password)
+        return this.auth.signInWithEmailAndPassword(email, password);
     };
 
     doSignOut = () => this.auth.signOut();
@@ -34,6 +34,6 @@ class Firebase {
         const user = app.auth().currentUser;
         return user.updatePassword(password);
     };
-}
+};
 
 export default Firebase;

@@ -15,7 +15,7 @@ const withAuthorization = condition => Component => {
                     }
                 }
             );
-        }
+        };
 
         componentWillUnmount() {
             this.listener();
@@ -25,8 +25,8 @@ const withAuthorization = condition => Component => {
             return (
                 <Component {...this.props} />
             );
-        }
-    }
+        };
+    };
 
     return compose(withRouter, withFirebase)(WithAuthorization);
 };

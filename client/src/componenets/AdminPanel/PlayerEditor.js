@@ -56,15 +56,14 @@ class PlayerEditor extends Component {
     };
 
     getWeeklyData = async () => {
-        this.loading()
+        this.loading();
         try {
-            const dbResponse = await axios.get(`/api/updatePlayers/${this.props.season}/${this.props.week}`)
-            console.log(dbResponse)
+            await axios.get(`/api/updatePlayers/${this.props.season}/${this.props.week}`);
+
             this.doneLoading();
         } catch (err) {
             console.log(err)
-        }
-
+        };
     };
 
     render() {
@@ -86,8 +85,8 @@ class PlayerEditor extends Component {
                     </Button>
                 </Col>
             </Row>
-        )
-    }
+        );
+    };
 
 
 };

@@ -40,8 +40,6 @@ class Leaderboard extends Component {
 
     getDataForLeaderboard = (week, season) => {
         this.setState({ loading: true });
-        //TODO When done testing set the season back to the input
-        //TODO All below there are dummySeason and dummyWeeks. Be sure to change this
         let userList = [];
         axios.all([this.getAllUsers(), this.getAllRosters(season)])
             .then(axios.spread(async (allUsers, rosterData) => {
@@ -82,7 +80,7 @@ class Leaderboard extends Component {
             { Header: `Last Week's Score`, accessor: `weekScores[${this.props.week}]`, show: true },
             { Header: `Total Score`, accessor: `totalScore`, show: true }];
 
-        const defaultSorted = [{ id: 'totalScore', desc: true }]
+        const defaultSorted = [{ id: 'totalScore', desc: true }];
         return (
             <div>
                 <ReactTable
