@@ -171,8 +171,8 @@ class UserEditor extends Component {
                 </Row>
                 <UserTable userArray={this.state.userArray} loading={this.state.loading} selectUser={this.selectUser} />
             </div>
-        )
-    }
+        );
+    };
 };
 
 const SelectedUser = (props) => {
@@ -184,8 +184,8 @@ const SelectedUser = (props) => {
                 </div>
             </Col>
         </Row>
-    )
-}
+    );
+};
 
 const UserTable = (props) => {
     return (
@@ -207,12 +207,12 @@ const UserTable = (props) => {
                             onClick: () => {
                                 props.selectUser(rowInfo.original._id);
                             }
-                        }
+                        };
                     }}
                 />
             </Col>
         </Row>
-    )
+    );
 };
 
 

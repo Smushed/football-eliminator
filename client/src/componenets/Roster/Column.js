@@ -24,8 +24,8 @@ class PlayerList extends Component {
                 }}>
                 {children}
             </div>
-        )
-    }
+        );
+    };
 };
 
 export default class Column extends Component {
@@ -53,5 +53,5 @@ export default class Column extends Component {
                 </Droppable>
             </div>
         );
-    }
-}
+    };
+};

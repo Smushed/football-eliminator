@@ -39,8 +39,8 @@ module.exports = {
             if (err) {
                 return err;
             } else {
-                return "Updated Successfully"
-            }
+                return "Updated Successfully";
+            };
         });
     },
     updateToAdmin: async (userId) => {
@@ -49,8 +49,8 @@ module.exports = {
             if (err) {
                 dbResponse = err;
             } else {
-                dbResponse = `${userId} is now an admin!`
-            }
+                dbResponse = `${userId} is now an admin!`;
+            };
         });
         return dbResponse;
     },
@@ -69,13 +69,11 @@ module.exports = {
     saveNewUser: async (newUser) => {
         const newUserInDB = await db.User.create(newUser);
 
-        console.log(newUserInDB)
-
         //This then creates a new roster for the user that just signed up
         const newUserRoster = {
             userId: newUserInDB._id
         }
-        await db.UserRoster.create(newUserRoster)
+        await db.UserRoster.create(newUserRoster);
         return newUserInDB;
     },
     getUserByEmail: async (email) => {
@@ -92,7 +90,7 @@ module.exports = {
             case `email`:
                 userArray = await db.User.find({ 'local.email': query });
                 break;
-        }
+        };
 
         const userArrayToShow = userArray.map(user => {
             const dataToShow = {
@@ -101,9 +99,9 @@ module.exports = {
                 username: user.local.username,
                 firstname: user.local.firstname,
                 lastname: user.local.lastname,
-            }
-            return dataToShow
-        })
+            };
+            return dataToShow;
+        });
         return userArrayToShow;
     },
     getUserByID: async (userID) => {
@@ -133,7 +131,7 @@ module.exports = {
             } else if ((year === 2020 && month === 12) || (year === 2021 && month < 5)) {
                 season = `2020-2021-regular`;
                 week = 17;
-            }
+            };
         } else { //This is if this is inside the season. There's an object in weekDates that I put the calendar in
             season = weekDates[year].season;
             week = weekDates[year][month][day];

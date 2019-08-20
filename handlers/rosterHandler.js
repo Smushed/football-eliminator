@@ -16,11 +16,6 @@ module.exports = {
         return parsedRoster;
     },
     dummyRoster: async (userId, week, season, dummyRoster) => { //Brute force updating a user's roster
-        //First I need to get the roster for the current week and the usedPlayerArray
-        //I need to then go into the usedPlayerArray and pull out the players that are on that week's roster
-        //Then I need to update the usedPlayerArray with all the players in the dummyRoster
-        //Finally I need to save down the dummy roster
-
         return new Promise((res, rej) => {
             db.UserRoster.findOne({ userId: userId }, (err, userRoster) => {
                 const currentRoster = userRoster.roster[season][week].toJSON(); //Need to toJSON to chop off all the Mongo bits
@@ -80,7 +75,7 @@ module.exports = {
                 responseRoster[player].position = response.position;
 
                 rosterWithoutDummyData.push(player);
-            }
+            };
         };
 
         //We also return the array so the drag & drop component can populate this without having to pull it again
@@ -139,7 +134,7 @@ module.exports = {
                     //Figuring out the player they just added to the array
                     //TODO Refactor this out. We use this exact thing below and for dummyRoster
                     const newRoster = Object.values(dbReadyRoster);
-                    const dbSet = new Set(currentRoster.roster[season].usedPlayers)
+                    const dbSet = new Set(currentRoster.roster[season].usedPlayers);
                     const addedPlayer = newRoster.filter((playerId) => !dbSet.has(playerId));
                     currentRoster.roster[season].usedPlayers.push(addedPlayer[0])
                 };
@@ -153,8 +148,8 @@ module.exports = {
 
                 //This iterates through the positions on the dbReadyRoster provided from the client and puts the players they want in the correct positions without overwriting the 0s
                 Object.keys(dbReadyRoster).forEach(position => {
-                    currentRoster.roster[season][week][position] = dbReadyRoster[position]
-                })
+                    currentRoster.roster[season][week][position] = dbReadyRoster[position];
+                });
 
                 currentRoster.save((err, result) => {
                     if (err) {
@@ -171,7 +166,7 @@ module.exports = {
         const rosterList = {};
         //TODO Error handling
         await db.UserRoster.find({}, (err, rosters) => {
-            rosters.forEach(roster => rosterList[roster.userId] = { roster: roster.roster[season] })
+            rosters.forEach(roster => rosterList[roster.userId] = { roster: roster.roster[season] });
         });
         return rosterList;
     }

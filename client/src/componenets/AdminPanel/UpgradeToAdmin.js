@@ -52,7 +52,7 @@ class UpgradeToAdmin extends Component {
                     </Col>
                 </Row>
             </Container>
-        )
+        );
     };
 };
 

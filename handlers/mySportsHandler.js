@@ -59,7 +59,7 @@ const addPlayerToDB = (playerArray) => {
             console.log(err);
         } else {
             return playerArray;
-        }
+        };
     });
 };
 
@@ -73,8 +73,8 @@ const completeStats = (player, stats, season, week) => {
             [season]: {
                 [week]: {}
             }
-        }
-    }
+        };
+    };
 
     player.stats[season][week] = {
         //Needs the 0s here in case the object is blank from placeholderStats
@@ -115,7 +115,7 @@ const completeStats = (player, stats, season, week) => {
             fgMade50Plus: fullStats.fieldGoals.fgMade50Plus || 0
         }
     };
-    return player
+    return player;
 };
 
 
@@ -135,11 +135,8 @@ const findPlayerInDB = async (playerID) => {
         const playerInDB = await db.FantasyStats.findOne({ 'mySportsId': playerID });
         //First check if the player is currently in the database
         if (playerInDB === null) {
-            //Send the player data back, they are not currently in the DB and can be added as is
             return false;
         } else {
-            //The player is currently in the DB, send the current player in the DB and the mySports Player to a function
-            // const mergedPlayer = mergeMySportsWithDB(playerInDB);
             return playerInDB;
         }
     } catch (err) {
