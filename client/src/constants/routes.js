@@ -8,3 +8,7 @@ export const createGroup = '/creategroup';
 export const discussion = '/discussion';
 export const roster = '/roster/:userId';
 export const adminPanel = '/adminPanel/';
+
+
+//These are hidden routes. Ones that have no link but anyone can go to them if they'd like
+export const upgradeToAdmin = '/upgradeToAdmin/';

@@ -17,6 +17,7 @@ import GroupPage from './componenets/GroupPage';
 import DisplayPlayers from './componenets/DisplayPlayers';
 import Roster from './componenets/Roster';
 import AdminPanel from './componenets/AdminPanel';
+import UpgradeToAdmin from './componenets/AdminPanel/UpgradeToAdmin'
 
 class App extends Component {
   constructor(props) {
@@ -138,6 +139,11 @@ class App extends Component {
                 week={this.state.currentWeek}
                 season={this.state.currentSeason} />
             }
+          />
+          <Route
+            path={Routes.upgradeToAdmin}
+            render={() =>
+              <UpgradeToAdmin />}
           />
         </div>
       </BrowserRouter>

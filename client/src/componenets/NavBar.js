@@ -4,7 +4,6 @@ import '../App.css';
 import * as Routes from '../constants/routes';
 import SignOutButton from './SignOutButton';
 import { HomeLink } from './Home';
-import { CreateGroupLink } from './CreateGroup';
 
 import { Nav, Navbar, NavItem, NavLink } from 'reactstrap';
 import { Row, Col } from 'reactstrap';
@@ -25,7 +24,13 @@ const navLinkStyle = {
     fontSize: '25px',
     color: 'white',
     textDecoration: 'none',
-}
+};
+
+const textStyle = {
+    fontSize: '25px',
+    color: 'white',
+    textDecoration: 'none',
+};
 
 const NavBar = (props) => {
     return (
@@ -38,7 +43,7 @@ const NavBar = (props) => {
                                 {props.authUser ? (<section>
                                     <Nav navbar>
                                         <NavItem >
-                                            <HomeLink />
+                                            <HomeLink testStyle={textStyle} />
                                         </NavItem>
                                         <NavItem >
                                         </NavItem>
