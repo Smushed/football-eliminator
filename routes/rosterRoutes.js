@@ -10,7 +10,6 @@ module.exports = app => {
     app.get(`/api/getAllRosters/:season`, async (req, res) => {
         const { season } = req.params;
         const dbResponse = await rosterHandler.getAllRosters(season);
-        console.log(`dbRes`, dbResponse)
         res.status(200).send(dbResponse);
     });
 
