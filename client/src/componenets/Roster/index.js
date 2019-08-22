@@ -27,7 +27,7 @@ class Roster extends Component {
                 },
                 'available': {
                     id: 'available',
-                    title: 'Avaliable',
+                    title: 'Available',
                     playerIds: []
                 },
             },
@@ -101,7 +101,7 @@ class Roster extends Component {
         //We pass in a params along with the API call stating if this is the current user or not
         if (this.props.week !== 0 && this.props.season !== ``) {
             //Inside here after the current roster is hit, then go in and pull the other data
-            //Make the pull avaliable players easily hit from other places as well, since I want a dropdown that defaults to this week
+            //Make the pull available players easily hit from other places as well, since I want a dropdown that defaults to this week
             //But can be changed in case people want to update more than just this week at once.
             axios.get(`/api/userroster/${this.props.userId}`,
                 { params: { week, season } })

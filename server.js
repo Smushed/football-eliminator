@@ -10,18 +10,23 @@ const Cors = require(`cors`);
 
 //Setting up mongoose
 const mongoose = require(`mongoose`);
-const MONGODB_URI = process.env.MONGODB_URI || `mongodb://localhost/fantasyEliminator`;
-mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
 app.use(Cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
+let MONGODB_URI = ``;
+
 // Serve up static assets (usually on heroku)
 if (process.env.NODE_ENV === `production`) {
   app.use(express.static(`client/build`));
+  MONGODB_URI = process.env.MONGODB_URI
+} else {
+  MONGODB_URI = `mongodb://localhost/fantasyEliminator`;
 };
+
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
 require(`./routes/rosterRoutes`)(app);
 require(`./routes/mySportsRoutes`)(app);
