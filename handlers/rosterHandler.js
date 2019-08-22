@@ -163,11 +163,14 @@ module.exports = {
         });
     },
     getAllRosters: async (season) => {
-        const rosterList = {};
         //TODO Error handling
-        await db.UserRoster.find({}, (err, rosters) => {
+        return new Promise(async (res, rej) => {
+            const rosterList = {};
+
+            //Use the Exec for full promises in Mongoose
+            const rosters = await db.UserRoster.find({}).exec();
             rosters.forEach(roster => rosterList[roster.userId] = { roster: roster.roster[season] });
+            res(rosterList);
         });
-        return rosterList;
     }
 };
