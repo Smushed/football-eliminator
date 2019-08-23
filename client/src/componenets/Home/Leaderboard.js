@@ -13,14 +13,13 @@ class Leaderboard extends Component {
     };
 
     componentDidMount() {
-        if (typeof this.props.season !== `undefined` && this.props.season == true) { // season here because it's the last prop we pass in. Probably not the best way
+        if (typeof this.props.season !== `undefined` && this.props.season !== false) { // season here because it's the last prop we pass in. Probably not the best way
             this.getDataForLeaderboard(this.props.week, this.props.season);
         };
     };
 
     componentDidUpdate(prevProps) {
         if (this.props.season !== prevProps.season) { // season here because it's the last prop we pass in. Probably not the best way
-            console.log(`didupdate`, this.props.season)
             this.getDataForLeaderboard(this.props.week, this.props.season);
         };
     };
@@ -50,7 +49,6 @@ class Leaderboard extends Component {
                     const userDetail = { userId: allUsers.data[i]._id, username: allUsers.data[i].username, email: allUsers.data[i].email };
                     // Here we count down from the week we are currently on to grab all the players that the user has used
                     const previousWeekPlayers = {};
-                    console.log(rosterData.data)
                     for (let ii = week; ii > 0; ii--) {
                         //For this we drill into the object of roster data that was returned from the DB.
                         //We look up this user's roster through their id which is a key
