@@ -32,11 +32,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fantasyelim/fantasyelim.git"
+    "url": "git+https://github.com/football-eliminator/football-eliminator.git"
   },
   "keywords": [],
   "bugs": {
-    "url": "https://github.com/fantasyelim/fantasyelim/issues"
+    "url": "https://github.com/football-eliminator/football-eliminator/issues"
   },
-  "homepage": "https://github.com/fantasyelim/fantasyelim#readme"
+  "homepage": "https://github.com/football-eliminator/football-eliminator#readme"
 }
