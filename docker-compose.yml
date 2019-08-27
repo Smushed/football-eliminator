@@ -1,10 +1,20 @@
-version: "2"
+version: '2'
 
 services:
-  client:
-      image: webapp-client
-      restart: always
-      ports:
-        - "3000:3000"
-      volumes:
-        - ./client:/client            - /client/node_modules        links:            - api        networks:            webappnetwork
+  backend:
+    build: ./server/
+    environment:
+        - HOST=0.0.0.0
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./server:/usr/src/app
+    network_mode: "host"
+  frontend:
+    build: ./client/
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/usr/src/app
+    depends_on:
+      - backend

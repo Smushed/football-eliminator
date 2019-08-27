@@ -35,6 +35,9 @@ class Leaderboard extends Component {
     };
 
     getAllRosters(season) {
+        if (season === ``) {
+            return
+        }
         return axios.get(`/api/getAllRosters/${season}`);
     };
 

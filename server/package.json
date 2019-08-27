@@ -7,18 +7,12 @@
     "node": "8.11.3"
   },
   "scripts": {
-    "start": "if-env NODE_ENV=production && npm run start:prod || npm run start:dev",
-    "start:prod": "node server.js",
-    "start:dev": "concurrently \"nodemon --ignore client/\" \"npm run client\"",
-    "client": "cd ../client && npm run start",
-    "install": "cd ../client && npm install",
-    "build": "cd ../client && npm run build",
-    "heroku-postbuild": "npm run build"
+    "start": "node server.js"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "concurrently": "^4.1.1",
+    "concurrently": "^4.1.2",
     "nodemon": "^1.19.1"
   },
   "dependencies": {
@@ -29,12 +23,8 @@
     "cors": "^2.8.5",
     "dotenv": "^6.2.0",
     "express": "^4.17.1",
-    "express-session": "^1.16.2",
-    "if-env": "^1.0.4",
-    "moment": "^2.24.0",
-    "mongoose": "^5.6.9",
-    "styled-components": "^4.3.2",
-    "uuid": "^3.3.2"
+    "mongoose": "^5.6.11",
+    "uuid": "^3.3.3"
   },
   "repository": {
     "type": "git",
