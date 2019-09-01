@@ -1,0 +1,18 @@
+{
+  "scripts": {
+    "start": "node ./server/server.js",
+    "start:dev": "concurrently \"nodemon --ignore client/\" \"npm run client\"",
+    "client": "cd ./client && npm run start",
+    "install": "cd ./client && npm install",
+    "build": "cd ./client && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/football-eliminator/football-eliminator.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/football-eliminator/football-eliminator/issues"
+  },
+  "homepage": "https://github.com/football-eliminator/football-eliminator#readme"
+}
