@@ -10,10 +10,12 @@ resources:
   disk_size_gb: 10
 
 handlers:
-  - url: /*
+  - url: /
     static_files: client/build/index.html
     upload: client/build/index.html
-  - url: .*
-    script: auto
-  - url: /*
-    static_dir: client/build
+  - url: /static/js/(.*)
+    static_files: client/build/static/js/\1
+    upload: client/build/static/js/.*
+  - url: /static/css/(.*)
+    static_files: client/build/static/css/\1
+    upload: client/build/static/css/.*
