@@ -1,5 +1,6 @@
 const db = require(`../models`);
 const weekDates = require(`../constants/weekDates`);
+var { DateTime } = require('luxon');
 
 //This is for updating the user profile once created
 //The user only has access to the local profile
@@ -109,10 +110,15 @@ module.exports = {
         return foundUser;
     },
     getSeasonAndWeek: async () => {
-        const today = new Date();
-        const year = parseInt(today.getFullYear());
-        const month = today.getMonth() + 1; //JS starts January at 0
-        const day = today.getUTCDate();
+        const today = DateTime.local().setZone(`America/Chicago`);
+        const year = parseInt(today.c.year);
+        const month = today.c.month;
+        const day = today.c.day;
+
+        //Every Thursday at 7PM CST I want to lock all the rosters and not allow anyone to make changes
+        //I need to figure out how to get the hour and make another statement below to check if it is indeed a Thursday at 7PM CST
+        const hour = today.c.hour;
+        console.log(hour)
 
         let season = ``;
         let week = 1;
