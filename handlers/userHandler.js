@@ -109,19 +109,19 @@ module.exports = {
         const foundUser = await db.User.findById([userID]);
         return foundUser;
     },
-    getSeasonAndWeek: async () => {
-        const today = DateTime.local().setZone(`America/Chicago`);
-        const year = parseInt(today.c.year);
-        const month = today.c.month;
-        const day = today.c.day;
+    getSeasonAndWeek: async function () {
+        const currentTime = DateTime.local().setZone(`America/Chicago`);
+        const year = parseInt(currentTime.c.year);
+        const month = parseInt(currentTime.c.month);
+        const day = parseInt(currentTime.c.day);
 
-        //Every Thursday at 7PM CST I want to lock all the rosters and not allow anyone to make changes
-        //I need to figure out how to get the hour and make another statement below to check if it is indeed a Thursday at 7PM CST
-        const hour = today.c.hour;
-        console.log(hour)
+        const thursday = DateTime.fromISO('2019-09-05T19:00');
+
+        const compare = currentTime < thursday;
 
         let season = ``;
         let week = 1;
+        let lockWeek = 0; //This is what is the last week that is locked. As in if this is a 2, weeks 1 & 2 should be locked
 
         //First we check if the user is trying to access the game outside of the normal date range
         if (typeof weekDates[year] === `undefined` || typeof weekDates[year][month] === `undefined` || typeof weekDates[year][month][day] === `undefined`) {
@@ -129,9 +129,11 @@ module.exports = {
             if ((year === 2019 && month === 12) || (year === 2020 && month < 5)) {
                 season = `2019-2020-regular`;
                 week = 17;
+                lockWeek = 17;
             } else if (year === 2019) { //If it is not late in the year (month 12) we want it to default to week 1 of 2019-2020 season
                 season = `2019-2020-regular`;
                 week = 1;
+                //No lockWeek for this one. This is pre-season and we don't want anything locked.
             } else if (year === 2020) {
                 return { season: `2020-2021-regular`, week: 1 }
             } else if ((year === 2020 && month === 12) || (year === 2021 && month < 5)) {
@@ -141,8 +143,21 @@ module.exports = {
         } else { //This is if this is inside the season. There's an object in weekDates that I put the calendar in
             season = weekDates[year].season;
             week = weekDates[year][month][day];
+
+            //TODO FIGURE OUT HOW TO HANDLE WEEK 0
+            lockWeek = this.checkLockPeroid(year, currentTime);
         };
 
+
         return { season, week };
+    },
+    checkLockPeroid: (year, currentTime) => {
+        //Breaking this out to it's own function to ensure that people aren't saving their rosters past the lock peroid
+        //If this wasn't it's own function and relied on the client to define the lock
+        for (let i = 0; i < weekDates[year].lockDates.length; i++) {
+            if (currentTime < DateTime.fromISO(weekDates[year].lockDates[i].lockTime)) {
+                return weekDates[year].lockDates[i].lockWeek;
+            };
+        };
     }
 };
