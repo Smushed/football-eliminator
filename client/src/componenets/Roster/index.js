@@ -36,6 +36,8 @@ class Roster extends Component {
             positionSelect: `QB`, //This is the default value for the position search
             weekSelect: 0,
             seasonSelect: 0,
+            weekOnPage: 0, //The week and season are here when the player searches for their roster. This updates ONLY when the player actually refreshes their roster
+            seasonOnPage: ``,
             dbReadyRoster: { //We populate this when we go to sort the user's roster. This is the way it's saved into the database
                 QB: 0,
                 RB1: 0,
@@ -96,6 +98,7 @@ class Roster extends Component {
     getRosterData = (week, season) => {
 
         this.loading();
+        this.setState({ weekOnPage: week, seasonOnPage: season })
         //We want to go and grab the roster no matter what
         //This is in case another user comes to the profile and wants to view their picks
         //We pass in a params along with the API call stating if this is the current user or not
@@ -359,6 +362,16 @@ class Roster extends Component {
             });
     };
 
+    checkLockPeroid = async () => {
+        const response = await axios.get(`/api/checkLockWeek`);
+
+        if (this.state.weekOnPage <= response.data.lockWeek) {
+            return false;
+        } else {
+            return true;
+        };
+    };
+
     onDragEnd = async result => {
         const { destination, source, draggableId } = result;
         //If the drag was cancelled then back out of this
@@ -370,7 +383,17 @@ class Roster extends Component {
         if (destination.droppableId === source.droppableId && destination.index === source.index) {
             return;
         };
-        //This is how to re order the array after a drag ends
+
+        //Check if the peroid the user is trying to change is locked
+        const isLocked = await this.checkLockPeroid();
+        if (!isLocked) {
+            //TODO Add the season lock to this as well
+            Alert.fire({
+                title: `Peroid is locked!`,
+                text: `Week ${this.state.weekOnPage} is locked. Please search a different week`,
+            });
+            return;
+        }
 
         //Get the column out of the state so we don't mutate the state
         //Must be the start and finish since there is a chance that we are moving between two columns

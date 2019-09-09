@@ -1,4 +1,6 @@
 const db = require(`../models`);
+const weekDates = require(`../constants/weekDates`);
+const { DateTime } = require('luxon');
 
 module.exports = {
     byRoster: async () => {
@@ -172,5 +174,21 @@ module.exports = {
             rosters.forEach(roster => rosterList[roster.userId] = { roster: roster.roster[season] });
             res(rosterList);
         });
+    },
+    checkLockPeroid: () => {
+        const currentTime = DateTime.local().setZone(`America/Chicago`);
+        const year = parseInt(currentTime.c.year);
+
+        //Check if it's week 0
+        if (currentTime < DateTime.fromISO(weekDates[year].lockDates[0].lockTime)) {
+            return 0;
+        };
+        //Breaking this out to it's own function to ensure that people aren't saving their rosters past the lock peroid
+        //If this wasn't it's own function and relied on the client to define the lock
+        for (let i = 0; i < weekDates[year].lockDates.length; i++) {
+            if (currentTime > DateTime.fromISO(weekDates[year].lockDates[i].lockTime)) {
+                return { lockWeek: weekDates[year].lockDates[i].lockWeek };
+            };
+        };
     }
 };

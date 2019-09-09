@@ -49,4 +49,10 @@ module.exports = app => {
 
         res.status(200).send(dbResponse);
     });
+
+    app.get(`/api/checkLockWeek`, async (req, res) => {
+        const lockWeek = await rosterHandler.checkLockPeroid();
+        console.log(lockWeek);
+        res.status(200).send(lockWeek);
+    });
 };
