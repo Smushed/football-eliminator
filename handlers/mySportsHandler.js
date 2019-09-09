@@ -97,7 +97,7 @@ const completeStats = (player, stats, season, week) => {
         receiving: {
             targets: fullStats.receiving.targets || 0,
             receptions: fullStats.receiving.receptions || 0,
-            recYards: fullStats.receiving.receptions || 0,
+            recYards: fullStats.receiving.recYards || 0,
             recTD: fullStats.receiving.recTD || 0,
             rec20Plus: fullStats.receiving.rec20Plus || 0,
             rec40Plus: fullStats.receiving.rec40Plus || 0,
