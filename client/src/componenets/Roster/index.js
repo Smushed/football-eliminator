@@ -362,13 +362,17 @@ class Roster extends Component {
             });
     };
 
-    checkLockPeroid = async () => {
-        const response = await axios.get(`/api/checkLockWeek`);
+    checkLockPeriod = async () => {
+        const response = await axios.get(`/api/checkLockPeriod`);
 
+        //If this week is already passed the lock date then return bad request
         if (this.state.weekOnPage <= response.data.lockWeek) {
             return false;
-        } else {
-            return true;
+        };
+
+        //TODO Maybe make this a loop to iterate over many years or back out last year
+        if (this.state.seasonOnPage === response.data.lockYear) {
+            return false;
         };
     };
 
@@ -385,11 +389,12 @@ class Roster extends Component {
         };
 
         //Check if the peroid the user is trying to change is locked
-        const isLocked = await this.checkLockPeroid();
+        const isLocked = await this.checkLockPeriod();
         if (!isLocked) {
             //TODO Add the season lock to this as well
             Alert.fire({
                 title: `Peroid is locked!`,
+                type: `warning`,
                 text: `Week ${this.state.weekOnPage} is locked. Please search a different week`,
             });
             return;
