@@ -126,5 +126,75 @@ module.exports = {
             26: 17,
             27: 17,
         },
+        lockDates: [
+            {
+                lockWeek: 1,
+                lockTime: `2019-09-05T19:20`
+            },
+            {
+                lockWeek: 2,
+                lockTime: `2019-09-12T19:20`
+            },
+            {
+                lockWeek: 3,
+                lockTime: `2019-09-19T19:20`
+            },
+            {
+                lockWeek: 4,
+                lockTime: `2019-09-26T19:20`
+            },
+            {
+                lockWeek: 5,
+                lockTime: `2019-10-03T19:20`
+            },
+            {
+                lockWeek: 6,
+                lockTime: `2019-10-10T19:20`
+            },
+            {
+                lockWeek: 7,
+                lockTime: `2019-10-17T19:20`
+            },
+            {
+                lockWeek: 8,
+                lockTime: `2019-10-24T19:20`
+            },
+            {
+                lockWeek: 9,
+                lockTime: `2019-10-31T19:20`
+            },
+            {
+                lockWeek: 10,
+                lockTime: `2019-11-07T19:20`
+            },
+            {
+                lockWeek: 11,
+                lockTime: `2019-11-14T19:20`
+            },
+            {
+                lockWeek: 12,
+                lockTime: `2019-11-21T19:20`
+            },
+            {
+                lockWeek: 13,
+                lockTime: `2019-11-28T11:30`
+            },
+            {
+                lockWeek: 14,
+                lockTime: `2019-12-05T19:20`
+            },
+            {
+                lockWeek: 15,
+                lockTime: `2019-12-12T19:20`
+            },
+            {
+                lockWeek: 16,
+                lockTime: `2019-12-22T12:00`
+            },
+            {
+                lockWeek: 17,
+                lockTime: `2019-12-29T12:00`
+            },
+        ],
     },
 }
