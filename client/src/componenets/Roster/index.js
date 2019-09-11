@@ -374,6 +374,9 @@ class Roster extends Component {
         if (this.state.seasonOnPage === response.data.lockYear) {
             return false;
         };
+
+        //If the week and the season are not locked then we can return true, that the week they are trying to edit is not locked
+        return true;
     };
 
     onDragEnd = async result => {
