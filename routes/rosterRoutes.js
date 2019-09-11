@@ -52,7 +52,7 @@ module.exports = app => {
 
     app.get(`/api/checkLockPeriod`, async (req, res) => {
         const lockPeriod = await rosterHandler.checkLockPeriod();
-        console.log(lockPeriod)
+
         res.status(200).send(lockPeriod);
     });
 };
