@@ -2,6 +2,11 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import { Redirect } from 'react-router-dom';
+
+const Alert = withReactContent(Swal);
 
 class Leaderboard extends Component {
     constructor(props) {
@@ -76,6 +81,14 @@ class Leaderboard extends Component {
             }));
     };
 
+    redirect = (userId) => {
+        const redirectValue = '/roster/' + userId;
+
+        return <Redirect to={redirectValue} />
+        //TODO START HERE AND LOOK AT HOW THEY HAVE THE SET REDIRECT
+        //https://medium.com/@anneeb/redirecting-in-react-4de5e517354a
+    }
+
     render() {
         const columns = [
             { Header: `Username`, accessor: `username`, show: true },
@@ -91,19 +104,32 @@ class Leaderboard extends Component {
                     columns={columns}
                     defaultSorted={defaultSorted}
                     loading={this.state.loading}
-                    filterable
                     defaultPageSize={20}
                     className="-highlight"
 
-                //TODO Enable an on click to have a pop up to view their weekly stats
-                // getTdProps={(state, rowInfo) => {
-                //     return {
-                //         onClick: () => {
-                //             console.log(rowInfo.original)
-                //             this.setState({ selectedUser: rowInfo.original._id })
-                //         }
-                //     }
-                // }}
+                    //TODO Enable an on click to have a pop up to view their weekly stats
+                    getTdProps={(state, rowInfo) => {
+                        return {
+                            onClick: () => {
+                                console.log(rowInfo.original)
+                                Alert.fire({
+                                    title: 'testin',
+                                    text: 'Loading available players',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#228B22',
+                                    cancelButtonColor: '#A9A9A9',
+                                    confirmButtonText: 'Go to their page'
+                                }).then(result => {
+                                    if (result.value) {
+                                        this.redirect(rowInfo.original.userId)
+                                        // const redirectValue = '/roster/' + rowInfo.original.userId;
+                                        // console.log(redirectValue)
+                                        // return <Redirect to={redirectValue} />
+                                    };
+                                });
+                            }
+                        };
+                    }}
                 /></div>
         )
     };
