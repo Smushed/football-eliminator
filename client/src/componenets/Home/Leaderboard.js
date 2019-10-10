@@ -4,7 +4,7 @@ import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import { Redirect } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 
 const Alert = withReactContent(Swal);
 
@@ -84,9 +84,7 @@ class Leaderboard extends Component {
     redirect = (userId) => {
         const redirectValue = '/roster/' + userId;
 
-        return <Redirect to={redirectValue} />
-        //TODO START HERE AND LOOK AT HOW THEY HAVE THE SET REDIRECT
-        //https://medium.com/@anneeb/redirecting-in-react-4de5e517354a
+        this.props.history.push(redirectValue);
     }
 
     render() {
@@ -111,10 +109,8 @@ class Leaderboard extends Component {
                     getTdProps={(state, rowInfo) => {
                         return {
                             onClick: () => {
-                                console.log(rowInfo.original)
                                 Alert.fire({
-                                    title: 'testin',
-                                    text: 'Loading available players',
+                                    title: rowInfo.original.username,
                                     showCancelButton: true,
                                     confirmButtonColor: '#228B22',
                                     cancelButtonColor: '#A9A9A9',
@@ -135,4 +131,4 @@ class Leaderboard extends Component {
     };
 };
 
-export default (Leaderboard);
+export default withRouter(Leaderboard);

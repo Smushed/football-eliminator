@@ -53,17 +53,10 @@ class Roster extends Component {
     };
 
     componentDidMount() {
-        //TODO DO something with this - Update it so they cannot save to the database or something
-        if (this.props.userId === this.props.match.params.userId) {
-            this.setState({ currentUser: true });
-        } else {
-            this.setState({ currentUser: false });
-        };
-
-
         if (this.props.week !== 0 && this.props.season !== '') {
             this.setState({ weekSelect: this.props.week, seasonSelect: this.props.season });
             this.getRosterData(this.props.week, this.props.season);
+            this.checkCurrentUser();
         };
     };
 
@@ -71,6 +64,15 @@ class Roster extends Component {
         if (this.props.season !== prevProps.season) { // season here because it's the last prop we pass in. Probably not the best way
             this.setState({ weekSelect: this.props.week, seasonSelect: this.props.season });
             this.getRosterData(this.props.week, this.props.season);
+            this.checkCurrentUser();
+        };
+    };
+
+    checkCurrentUser() {
+        if (this.props.userId === this.props.match.params.userId) {
+            this.setState({ currentUser: true });
+        } else {
+            this.setState({ currentUser: false });
         };
     };
 
@@ -400,11 +402,18 @@ class Roster extends Component {
         //Check if the peroid the user is trying to change is locked
         const isLocked = await this.checkLockPeriod();
         if (!isLocked) {
-            //TODO Add the season lock to this as well
             Alert.fire({
                 title: `Peroid is locked!`,
                 type: `warning`,
                 text: `Week ${this.state.weekOnPage} is locked. Please search a different week`,
+            });
+            return;
+        }
+
+        if (!this.state.currentUser) {
+            Alert.fire({
+                title: `Not your roster!`,
+                type: `warning`,
             });
             return;
         }
