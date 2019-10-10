@@ -73,7 +73,7 @@ class Leaderboard extends Component {
                         totalScore += parseFloat(weekScores.data[iii]); //Must be Float because there are decimals in the scores
                     };
                     userDetail.weekScores = weekScores.data;
-                    userDetail.totalScore = totalScore;
+                    userDetail.totalScore = totalScore.toFixed(2);
 
                     userList.push(userDetail);
                 };

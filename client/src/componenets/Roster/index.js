@@ -38,6 +38,7 @@ class Roster extends Component {
             seasonSelect: 0,
             weekOnPage: 0, //The week and season are here when the player searches for their roster. This updates ONLY when the player actually refreshes their roster
             seasonOnPage: ``,
+            currentUser: false,
             dbReadyRoster: { //We populate this when we go to sort the user's roster. This is the way it's saved into the database
                 QB: 0,
                 RB1: 0,
@@ -53,7 +54,13 @@ class Roster extends Component {
 
     componentDidMount() {
         //TODO DO something with this - Update it so they cannot save to the database or something
-        const userIdFromURL = this.props.match.params.userId;
+        if (this.props.userId === this.props.match.params.userId) {
+            this.setState({ currentUser: true });
+        } else {
+            this.setState({ currentUser: false });
+        };
+
+
         if (this.props.week !== 0 && this.props.season !== '') {
             this.setState({ weekSelect: this.props.week, seasonSelect: this.props.season });
             this.getRosterData(this.props.week, this.props.season);
