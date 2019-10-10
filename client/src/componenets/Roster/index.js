@@ -106,7 +106,7 @@ class Roster extends Component {
             //Inside here after the current roster is hit, then go in and pull the other data
             //Make the pull available players easily hit from other places as well, since I want a dropdown that defaults to this week
             //But can be changed in case people want to update more than just this week at once.
-            axios.get(`/api/userroster/${this.props.userId}`,
+            axios.get(`/api/userroster/${this.props.match.params.userId}`,
                 { params: { week, season } })
                 .then(res => {
                     let columns = { ...this.state.columns };
@@ -364,7 +364,6 @@ class Roster extends Component {
 
     checkLockPeriod = async () => {
         const response = await axios.get(`/api/checkLockPeriod`);
-
         //If this week is already passed the lock date then return bad request
         if (this.state.weekOnPage <= response.data.lockWeek) {
             return false;
