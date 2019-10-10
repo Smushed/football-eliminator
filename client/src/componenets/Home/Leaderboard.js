@@ -2,6 +2,11 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import { withRouter } from 'react-router-dom';
+
+const Alert = withReactContent(Swal);
 
 class Leaderboard extends Component {
     constructor(props) {
@@ -68,13 +73,19 @@ class Leaderboard extends Component {
                         totalScore += parseFloat(weekScores.data[iii]); //Must be Float because there are decimals in the scores
                     };
                     userDetail.weekScores = weekScores.data;
-                    userDetail.totalScore = totalScore;
+                    userDetail.totalScore = totalScore.toFixed(2);
 
                     userList.push(userDetail);
                 };
                 this.setState({ userList, loading: false });
             }));
     };
+
+    redirect = (userId) => {
+        const redirectValue = '/roster/' + userId;
+
+        this.props.history.push(redirectValue);
+    }
 
     render() {
         const columns = [
@@ -91,22 +102,33 @@ class Leaderboard extends Component {
                     columns={columns}
                     defaultSorted={defaultSorted}
                     loading={this.state.loading}
-                    filterable
                     defaultPageSize={20}
                     className="-highlight"
 
-                //TODO Enable an on click to have a pop up to view their weekly stats
-                // getTdProps={(state, rowInfo) => {
-                //     return {
-                //         onClick: () => {
-                //             console.log(rowInfo.original)
-                //             this.setState({ selectedUser: rowInfo.original._id })
-                //         }
-                //     }
-                // }}
+                    //TODO Enable an on click to have a pop up to view their weekly stats
+                    getTdProps={(state, rowInfo) => {
+                        return {
+                            onClick: () => {
+                                Alert.fire({
+                                    title: rowInfo.original.username,
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#228B22',
+                                    cancelButtonColor: '#A9A9A9',
+                                    confirmButtonText: 'Go to their page'
+                                }).then(result => {
+                                    if (result.value) {
+                                        this.redirect(rowInfo.original.userId)
+                                        // const redirectValue = '/roster/' + rowInfo.original.userId;
+                                        // console.log(redirectValue)
+                                        // return <Redirect to={redirectValue} />
+                                    };
+                                });
+                            }
+                        };
+                    }}
                 /></div>
         )
     };
 };
 
-export default (Leaderboard);
+export default withRouter(Leaderboard);

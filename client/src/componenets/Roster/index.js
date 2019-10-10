@@ -38,6 +38,7 @@ class Roster extends Component {
             seasonSelect: 0,
             weekOnPage: 0, //The week and season are here when the player searches for their roster. This updates ONLY when the player actually refreshes their roster
             seasonOnPage: ``,
+            currentUser: false,
             dbReadyRoster: { //We populate this when we go to sort the user's roster. This is the way it's saved into the database
                 QB: 0,
                 RB1: 0,
@@ -52,11 +53,10 @@ class Roster extends Component {
     };
 
     componentDidMount() {
-        //TODO DO something with this - Update it so they cannot save to the database or something
-        const userIdFromURL = this.props.match.params.userId;
         if (this.props.week !== 0 && this.props.season !== '') {
             this.setState({ weekSelect: this.props.week, seasonSelect: this.props.season });
             this.getRosterData(this.props.week, this.props.season);
+            this.checkCurrentUser();
         };
     };
 
@@ -64,6 +64,15 @@ class Roster extends Component {
         if (this.props.season !== prevProps.season) { // season here because it's the last prop we pass in. Probably not the best way
             this.setState({ weekSelect: this.props.week, seasonSelect: this.props.season });
             this.getRosterData(this.props.week, this.props.season);
+            this.checkCurrentUser();
+        };
+    };
+
+    checkCurrentUser() {
+        if (this.props.userId === this.props.match.params.userId) {
+            this.setState({ currentUser: true });
+        } else {
+            this.setState({ currentUser: false });
         };
     };
 
@@ -106,7 +115,7 @@ class Roster extends Component {
             //Inside here after the current roster is hit, then go in and pull the other data
             //Make the pull available players easily hit from other places as well, since I want a dropdown that defaults to this week
             //But can be changed in case people want to update more than just this week at once.
-            axios.get(`/api/userroster/${this.props.userId}`,
+            axios.get(`/api/userroster/${this.props.match.params.userId}`,
                 { params: { week, season } })
                 .then(res => {
                     let columns = { ...this.state.columns };
@@ -364,7 +373,6 @@ class Roster extends Component {
 
     checkLockPeriod = async () => {
         const response = await axios.get(`/api/checkLockPeriod`);
-
         //If this week is already passed the lock date then return bad request
         if (this.state.weekOnPage <= response.data.lockWeek) {
             return false;
@@ -394,11 +402,18 @@ class Roster extends Component {
         //Check if the peroid the user is trying to change is locked
         const isLocked = await this.checkLockPeriod();
         if (!isLocked) {
-            //TODO Add the season lock to this as well
             Alert.fire({
                 title: `Peroid is locked!`,
                 type: `warning`,
                 text: `Week ${this.state.weekOnPage} is locked. Please search a different week`,
+            });
+            return;
+        }
+
+        if (!this.state.currentUser) {
+            Alert.fire({
+                title: `Not your roster!`,
+                type: `warning`,
             });
             return;
         }
