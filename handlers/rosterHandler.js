@@ -125,6 +125,10 @@ module.exports = {
     },
     updateUserRoster: async (userId, dbReadyRoster, droppedPlayer, week, season, saveWithNoDrop) => {
 
+        //TODO This is coming in correctly, I'm doing something wrong below that doesn't pull it out
+        console.log(droppedPlayer)
+
+
         return new Promise((res, rej) => {
             db.UserRoster.findOne({ userId }, (err, currentRoster) => {
                 //If the player is adding someone from the available player pool we remove the player they dropped and add the new player
