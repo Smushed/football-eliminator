@@ -213,7 +213,7 @@ module.exports = {
         };
         //Breaking this out to it's own function to ensure that people aren't saving their rosters past the lock period
         //If this wasn't it's own function and relied on the client to define the lock
-        for (let i = 0; i < weekDates[year].lockDates.length; i++) {
+        for (let i = 16; i >= 0; i--) { //Going down to check for the latest locked week
             if (currentTime > DateTime.fromISO(weekDates[year].lockDates[i].lockTime)) {
                 return { lockWeek: weekDates[year].lockDates[i].lockWeek, lockYear };
             };
