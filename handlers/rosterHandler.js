@@ -126,12 +126,11 @@ module.exports = {
     updateUserRoster: async (userId, dbReadyRoster, droppedPlayer, week, season, saveWithNoDrop) => {
 
         //TODO This is coming in correctly, I'm doing something wrong below that doesn't pull it out
-        console.log(droppedPlayer)
-
 
         return new Promise((res, rej) => {
             db.UserRoster.findOne({ userId }, (err, currentRoster) => {
                 //If the player is adding someone from the available player pool we remove the player they dropped and add the new player
+
                 if (parseInt(droppedPlayer) !== 0) {
                     //Pulling the player they dropped out of the usedArray
                     const playerIndex = currentRoster.roster[season].usedPlayers.indexOf(parseInt(droppedPlayer));
@@ -142,20 +141,32 @@ module.exports = {
                     const newRoster = Object.values(dbReadyRoster);
                     const dbSet = new Set(currentRoster.roster[season].usedPlayers);
                     const addedPlayer = newRoster.filter((playerId) => !dbSet.has(playerId));
-                    currentRoster.roster[season].usedPlayers.push(addedPlayer[0])
+                    if (addedPlayer.length !== 0) { //This checks if they dropped the only player for the current week
+                        currentRoster.roster[season].usedPlayers.push(addedPlayer[0]);
+                    };
                 };
 
                 if (saveWithNoDrop) {
                     const newRoster = Object.values(dbReadyRoster);
-                    const dbSet = new Set(currentRoster.roster[season].usedPlayers)
+                    const dbSet = new Set(currentRoster.roster[season].usedPlayers);
                     const addedPlayer = newRoster.filter((playerId) => !dbSet.has(playerId));
-                    currentRoster.roster[season].usedPlayers.push(addedPlayer[0])
+                    currentRoster.roster[season].usedPlayers.push(addedPlayer[0]);
                 };
+
+                //The issue is that in the Object.keys it doesn't go over and take out anything that was in there.
+                //Basically, it writes down all the players that were updated and updates them in the DB but it doesn't change the ones that were updated to 0
+                //Maybe fin the Dropped Player in the currentRoster.roster[season][week][position] and pull it out?
+
+                //PS Don't fotget to change the .env back to production
+                console.log(`dbReady`, dbReadyRoster);
+                console.log(`true test`, Object.entries(dbReadyRoster).length === 0 && dbReadyRoster.constructor === Object)
+                //Check if the user has dropped positions and not replaced them
 
                 //This iterates through the positions on the dbReadyRoster provided from the client and puts the players they want in the correct positions without overwriting the 0s
                 Object.keys(dbReadyRoster).forEach(position => {
                     currentRoster.roster[season][week][position] = dbReadyRoster[position];
                 });
+                console.log(currentRoster);
 
                 currentRoster.save((err, result) => {
                     if (err) {

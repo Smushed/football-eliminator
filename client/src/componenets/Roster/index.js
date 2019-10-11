@@ -518,7 +518,7 @@ class Roster extends Component {
             //Checks if we are moving a player from the On Roster Column to the Available column
             if (destination.droppableId === `available`) {
                 //TODO WHERE DOES THIS TRY AND SAVE
-                this.saveRosterToDb(this.state.dbReadyRoster, draggableId, true);
+                this.saveRosterToDb(this.state.dbReadyRoster, draggableId, false);
             } else {
                 //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
                 //The true is to indicate we need to save a player down without dropping one in the usedPlayer array in the DB
