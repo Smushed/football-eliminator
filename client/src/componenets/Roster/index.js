@@ -439,6 +439,7 @@ class Roster extends Component {
                 newPlayerIds = await this.sortRoster(newPlayerIds);
                 await this.saveRosterToDb(this.state.dbReadyRoster, 0, false);
             };
+
             //Create a new column which has the same properites as the old column but with the newPlayerIds array
             const newColumn = {
                 ...start,
@@ -497,7 +498,7 @@ class Roster extends Component {
         const originalRoster = this.state.columns;
 
         //We first wait until the state has been pushed to ensure we are capturing the players the user wants to add.
-        await this.setState(newState);
+        this.setState(newState);
 
         //Then we check if the added player can fit in the roster and if we need to drop a current player
         //Pass through the original roster if the player decides they want to cancel out
@@ -507,16 +508,22 @@ class Roster extends Component {
 
         //If the roster is correct, and we need to save it down because it won't be saved through the countRoster (ie less than 8 players) then we push it through
         if (correctRoster && needToSave) {
-            const sortedRoster = await this.sortRoster(this.state.columns.userRoster.playerIds);
+            const sortedRoster = this.sortRoster(this.state.columns.userRoster.playerIds);
 
             //Save the new sorted roster down to the state to ensure it's sorted
             const columns = this.state.columns;
             columns.userRoster.playerIds = sortedRoster;
             this.setState({ columns });
 
-            //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
-            //The true is to indicate we need to save a player down without dropping one in the usedPlayer array in the DB
-            this.saveRosterToDb(this.state.dbReadyRoster, 0, true);
+            //Checks if we are moving a player from the On Roster Column to the Available column
+            if (destination.droppableId === `available`) {
+                //TODO WHERE DOES THIS TRY AND SAVE
+                this.saveRosterToDb(this.state.dbReadyRoster, draggableId, false);
+            } else {
+                //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
+                //The true is to indicate we need to save a player down without dropping one in the usedPlayer array in the DB
+                this.saveRosterToDb(this.state.dbReadyRoster, 0, true);
+            }
         };
     };
 
