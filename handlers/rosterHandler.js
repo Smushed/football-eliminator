@@ -2,6 +2,20 @@ const db = require(`../models`);
 const weekDates = require(`../constants/weekDates`);
 const { DateTime } = require('luxon');
 
+//This is here for when a user adds or drops a player. It fills out the object of the current week with 0s
+fillOutRoster = (dbReadyRoster) => {
+    const positions = [`QB`, `RB1`, `RB2`, `WR1`, `WR2`, `Flex`, `TE`, `K`];
+    let filledRoster = {};
+
+    //Iterate through the positions and ensure that it is full
+    //This is done in case a user drops a player without adding a new one
+    positions.forEach(position => {
+        filledRoster[position] = dbReadyRoster[position] || 0;
+    });
+
+    return filledRoster;
+};
+
 module.exports = {
     byRoster: async () => {
         const players = await db.FantasyStats.find({ 'team.abbreviation': 'CHI' })
@@ -125,8 +139,6 @@ module.exports = {
     },
     updateUserRoster: async (userId, dbReadyRoster, droppedPlayer, week, season, saveWithNoDrop) => {
 
-        //TODO This is coming in correctly, I'm doing something wrong below that doesn't pull it out
-
         return new Promise((res, rej) => {
             db.UserRoster.findOne({ userId }, (err, currentRoster) => {
                 //If the player is adding someone from the available player pool we remove the player they dropped and add the new player
@@ -153,20 +165,14 @@ module.exports = {
                     currentRoster.roster[season].usedPlayers.push(addedPlayer[0]);
                 };
 
-                //The issue is that in the Object.keys it doesn't go over and take out anything that was in there.
-                //Basically, it writes down all the players that were updated and updates them in the DB but it doesn't change the ones that were updated to 0
-                //Maybe fin the Dropped Player in the currentRoster.roster[season][week][position] and pull it out?
-
-                //PS Don't fotget to change the .env back to production
-                console.log(`dbReady`, dbReadyRoster);
-                console.log(`true test`, Object.entries(dbReadyRoster).length === 0 && dbReadyRoster.constructor === Object)
-                //Check if the user has dropped positions and not replaced them
+                //Fills out the roster with 0s. This is in case a user drops a player without adding a new one
+                const filledOutRoster = fillOutRoster(dbReadyRoster);
 
                 //This iterates through the positions on the dbReadyRoster provided from the client and puts the players they want in the correct positions without overwriting the 0s
-                Object.keys(dbReadyRoster).forEach(position => {
-                    currentRoster.roster[season][week][position] = dbReadyRoster[position];
+                Object.keys(filledOutRoster).forEach(position => {
+                    currentRoster.roster[season][week][position] = filledOutRoster[position];
                 });
-                console.log(currentRoster);
+
 
                 currentRoster.save((err, result) => {
                     if (err) {
