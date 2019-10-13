@@ -98,13 +98,11 @@ module.exports = {
         responseRoster.playerArray = rosterWithoutDummyData;
         return responseRoster;
     },
-    availablePlayers: async (userId, searchedPosition) => {
-        //TODO dynamically do season and week
-        const season = '2019-2020-regular';
+    availablePlayers: async (userId, searchedPosition, season) => {
 
-        const currentPlayer = await db.UserRoster.findOne({ userId: userId });
+        const currentUser = await db.UserRoster.findOne({ userId: userId });
 
-        const usedPlayers = currentPlayer.roster[season].usedPlayers;
+        const usedPlayers = currentUser.roster[season].usedPlayers;
 
         //usedPlayers is the array from the database of all players that the user has used
         //We need to grab ALL the playerIds that are currently active in the database and pull out any that are in the usedPlayers array
@@ -218,5 +216,20 @@ module.exports = {
                 return { lockWeek: weekDates[year].lockDates[i].lockWeek, lockYear };
             };
         };
+    },
+    getUsedPlayers: async (userId, season) => {
+        const usedPlayersForTable = { 'QB': [], 'RB': [], 'WR': [], 'TE': [], 'K': [] };
+        let usedPlayerArray = [];
+        await db.UserRoster.findOne({ userId }, (err, currentRoster) => {
+            usedPlayerArray = currentRoster.roster[season].usedPlayers;
+        });
+
+
+        for (let i = 0; i < usedPlayerArray.length; i++) {
+            let player = await db.FantasyStats.findOne({ mySportsId: usedPlayerArray[i] }, 'position full_name');
+            usedPlayersForTable[player.position].push(player.full_name);
+        }
+
+        return usedPlayersForTable;
     }
 };

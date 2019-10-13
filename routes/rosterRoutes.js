@@ -15,15 +15,15 @@ module.exports = app => {
 
     app.get(`/api/availablePlayers`, async (req, res) => {
         //req.query passes the array as an object. We turn this back to an array
-        const { userId, searchedPosition } = req.query;
+        const { userId, searchedPosition, season } = req.query;
         //Then iterate over the array and turn the strings into numbers to compare it to the DB
-        const availablePlayers = await rosterHandler.availablePlayers(userId, searchedPosition);
+        const availablePlayers = await rosterHandler.availablePlayers(userId, searchedPosition, season);
 
         res.status(200).send(availablePlayers);
     });
 
-    app.get(`/api/userroster/:userid`, async (req, res) => {
-        const userId = req.params.userid;
+    app.get(`/api/userRoster/:userId`, async (req, res) => {
+        const userId = req.params.userId;
         const { week, season } = req.query;
         if (userId !== 'undefined' && week !== 0 && season !== ``) { //Checks if this route received the userId before it was ready in react
             //The check already comes in as the string undefined, rather than undefined itself. It comes in as truthly
@@ -52,9 +52,17 @@ module.exports = app => {
         res.status(200).send(dbResponse);
     });
 
-    app.get(`/api/checkLockPeriod`, async (req, res) => {
-        const lockPeriod = await rosterHandler.checkLockPeriod();
+    app.get(`/api/checkLockPeriod`, (req, res) => {
+        const lockPeriod = rosterHandler.checkLockPeriod();
 
         res.status(200).send(lockPeriod);
+    });
+
+    app.get(`/api/getUsedPlayers/:userId/:season`, async (req, res) => {
+        const { userId, season } = req.params;
+
+        const usedPlayers = await rosterHandler.getUsedPlayers(userId, season);
+
+        res.status(200).send(usedPlayers);
     });
 };
