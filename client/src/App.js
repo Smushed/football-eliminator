@@ -17,7 +17,8 @@ import GroupPage from './componenets/GroupPage';
 import DisplayPlayers from './componenets/DisplayPlayers';
 import Roster from './componenets/Roster';
 import AdminPanel from './componenets/AdminPanel';
-import UpgradeToAdmin from './componenets/AdminPanel/UpgradeToAdmin'
+import UpgradeToAdmin from './componenets/AdminPanel/UpgradeToAdmin';
+import UsedPlayers from './componenets/UsedPlayers';
 
 class App extends Component {
   constructor(props) {
@@ -144,6 +145,15 @@ class App extends Component {
             path={Routes.upgradeToAdmin}
             render={() =>
               <UpgradeToAdmin />}
+          />
+          <Route
+            path={Routes.usedPlayers}
+            render={props =>
+              <UsedPlayers
+                {...props}  //Need to pass down the props spread to have access to the URL
+                season={this.state.currentSeason}
+                week={this.state.currentWeek} />
+            }
           />
         </div>
       </BrowserRouter>

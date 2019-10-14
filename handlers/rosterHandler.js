@@ -16,6 +16,36 @@ fillOutRoster = (dbReadyRoster) => {
     return filledRoster;
 };
 
+usedPlayersInReactTableFormat = (sortedPlayers) => {
+    let checkLongest = 0;
+    let arrayForTable = [];
+    if (sortedPlayers.RB.length > sortedPlayers.WR.length) {
+        checkLongest = sortedPlayers.RB.length;
+    } else {
+        checkLongest = sortedPlayers.WR.length;
+    };
+
+    for (let i = 0; i < checkLongest; i++) {
+        arrayForTable[i] = {};
+        if (typeof sortedPlayers.QB[i] !== `undefined`) {
+            arrayForTable[i].QB = sortedPlayers.QB[i];
+        };
+        if (typeof sortedPlayers.RB[i] !== `undefined`) {
+            arrayForTable[i].RB = sortedPlayers.RB[i];
+        };
+        if (typeof sortedPlayers.WR[i] !== `undefined`) {
+            arrayForTable[i].WR = sortedPlayers.WR[i];
+        };
+        if (typeof sortedPlayers.TE[i] !== `undefined`) {
+            arrayForTable[i].TE = sortedPlayers.TE[i];
+        };
+        if (typeof sortedPlayers.K[i] !== `undefined`) {
+            arrayForTable[i].K = sortedPlayers.K[i];
+        };
+    };
+    return arrayForTable;
+};
+
 module.exports = {
     byRoster: async () => {
         const players = await db.FantasyStats.find({ 'team.abbreviation': 'CHI' })
@@ -98,13 +128,11 @@ module.exports = {
         responseRoster.playerArray = rosterWithoutDummyData;
         return responseRoster;
     },
-    availablePlayers: async (userId, searchedPosition) => {
-        //TODO dynamically do season and week
-        const season = '2019-2020-regular';
+    availablePlayers: async (userId, searchedPosition, season) => {
 
-        const currentPlayer = await db.UserRoster.findOne({ userId: userId });
+        const currentUser = await db.UserRoster.findOne({ userId: userId });
 
-        const usedPlayers = currentPlayer.roster[season].usedPlayers;
+        const usedPlayers = currentUser.roster[season].usedPlayers;
 
         //usedPlayers is the array from the database of all players that the user has used
         //We need to grab ALL the playerIds that are currently active in the database and pull out any that are in the usedPlayers array
@@ -218,5 +246,22 @@ module.exports = {
                 return { lockWeek: weekDates[year].lockDates[i].lockWeek, lockYear };
             };
         };
+    },
+    getUsedPlayers: async (userId, season) => {
+        const sortedPlayers = { 'QB': [], 'RB': [], 'WR': [], 'TE': [], 'K': [] };
+        let usedPlayerArray = [];
+        let arrayForTable = [];
+
+        const currentRoster = await db.UserRoster.findOne({ userId }).exec();
+        usedPlayerArray = currentRoster.roster[season].usedPlayers;
+
+        for (let i = 0; i < usedPlayerArray.length; i++) {
+            let player = await db.FantasyStats.findOne({ mySportsId: usedPlayerArray[i] }, 'position full_name');
+            sortedPlayers[player.position].push(player.full_name);
+        };
+
+        arrayForTable = usedPlayersInReactTableFormat(sortedPlayers);
+
+        return arrayForTable;
     }
 };

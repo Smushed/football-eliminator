@@ -52,7 +52,7 @@ module.exports = app => {
         res.status(200).send(foundUser);
     });
 
-    app.get(`/api/getuserbyid/:userid`, async (req, res) => {
+    app.get(`/api/getUserById/:userid`, async (req, res) => {
         const userId = req.params.userid;
         const foundUser = await userHandler.getUserByID(userId);
         res.status(200).send(foundUser);

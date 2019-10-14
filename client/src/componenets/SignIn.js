@@ -55,13 +55,13 @@ class SignInFormBase extends Component {
     constructor(props) {
         super(props)
         this.state = { ...initialState };
-    }
+    };
 
     handleChange = event => {
         this.setState({
             [event.target.name]: event.target.value
         })
-    }
+    };
 
     handleSubmit = event => {
         event.preventDefault()
@@ -77,7 +77,7 @@ class SignInFormBase extends Component {
             .catch(error => {
                 this.setState({ error });
             });
-    }
+    };
 
     render() {
         const { email, password, error } = this.state;

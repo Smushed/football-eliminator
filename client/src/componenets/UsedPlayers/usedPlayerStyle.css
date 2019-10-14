@@ -1,0 +1,14 @@
+.titleMargin {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    margin-right: 50px;
+}
+
+.headerFont {
+    font-size: 26px;
+    font-weight: 500;
+}
+
+.rosterButton {
+    margin-bottom: 10px;
+}

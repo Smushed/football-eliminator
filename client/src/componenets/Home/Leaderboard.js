@@ -85,13 +85,13 @@ class Leaderboard extends Component {
         const redirectValue = '/roster/' + userId;
 
         this.props.history.push(redirectValue);
-    }
+    };
 
     render() {
         const columns = [
             { Header: `Username`, accessor: `username`, show: true },
             { Header: `email`, accessor: `email`, show: true },
-            { Header: `Last Week's Score`, accessor: `weekScores[${this.props.week}]`, show: true },
+            { Header: `Last Week's Score`, accessor: `weekScores[${this.props.week - 1}]`, show: true },
             { Header: `Total Score`, accessor: `totalScore`, show: true }];
 
         const defaultSorted = [{ id: 'totalScore', desc: true }];

@@ -31,6 +31,11 @@ class Home extends Component {
                                 </Button>
                             </Link>
                             <br />
+                            <Link to={`/usedPlayers/${this.props.userId}`}>
+                                <Button color='secondary' className='topMargin'>
+                                    Used Players
+                                </Button>
+                            </Link>
                             {/*  
                         <Link to={`/displayplayers`}>
                         Display Player Data

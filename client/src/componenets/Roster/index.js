@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
-import { Label, Input, Container, Form, FormGroup, Button, Row, Col } from 'reactstrap';
+import { Label, Input, Container, Button, Row, Col } from 'reactstrap';
 
 import { DragDropContext } from 'react-beautiful-dnd';
 import Column from './Column';
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import './rosterStyle.css';
+
+import UsedPlayerButton from '../UsedPlayers/UsedPlayerButton';
+
 
 const Alert = withReactContent(Swal);
 
@@ -39,6 +42,7 @@ class Roster extends Component {
             weekOnPage: 0, //The week and season are here when the player searches for their roster. This updates ONLY when the player actually refreshes their roster
             seasonOnPage: ``,
             currentUser: false,
+            usernameOfPage: '',
             dbReadyRoster: { //We populate this when we go to sort the user's roster. This is the way it's saved into the database
                 QB: 0,
                 RB1: 0,
@@ -57,6 +61,7 @@ class Roster extends Component {
             this.setState({ weekSelect: this.props.week, seasonSelect: this.props.season });
             this.getRosterData(this.props.week, this.props.season);
             this.checkCurrentUser();
+            this.getCurrentUsername();
         };
     };
 
@@ -65,7 +70,17 @@ class Roster extends Component {
             this.setState({ weekSelect: this.props.week, seasonSelect: this.props.season });
             this.getRosterData(this.props.week, this.props.season);
             this.checkCurrentUser();
+            this.getCurrentUsername();
         };
+    };
+
+    getCurrentUsername() {
+        axios.get(`/api/getUserById/${this.props.match.params.userId}`)
+            .then(res => {
+                this.setState({ usernameOfPage: res.data.local.username })
+            }).catch(err => {
+                console.log(err); //TODO better error handling
+            });
     };
 
     checkCurrentUser() {
@@ -115,7 +130,7 @@ class Roster extends Component {
             //Inside here after the current roster is hit, then go in and pull the other data
             //Make the pull available players easily hit from other places as well, since I want a dropdown that defaults to this week
             //But can be changed in case people want to update more than just this week at once.
-            axios.get(`/api/userroster/${this.props.match.params.userId}`,
+            axios.get(`/api/userRoster/${this.props.match.params.userId}`,
                 { params: { week, season } })
                 .then(res => {
                     let columns = { ...this.state.columns };
@@ -374,7 +389,6 @@ class Roster extends Component {
     checkLockPeriod = async () => {
         const response = await axios.get(`/api/checkLockPeriod`);
 
-        console.log(response.data.lockWeek);
         //If this week is already passed the lock date then return bad request
         if (this.state.weekOnPage <= response.data.lockWeek) {
             return false;
@@ -536,7 +550,7 @@ class Roster extends Component {
         this.loading();
         const userId = this.props.userId;
         axios.get(`/api/availablePlayers`,
-            { params: { userId, searchedPosition: this.state.positionSelect } })
+            { params: { userId, searchedPosition: this.state.positionSelect, season: this.state.seasonSelect } })
             .then(res => {
                 //What comes back is an array of objects for all the available players
                 //We need to first change the array of objects into just an array to put into the playerIds state
@@ -574,74 +588,28 @@ class Roster extends Component {
     render() {
         return (
             <Container fluid={true} className='lineHeight'>
-                {/* Both of these in the top row need access to state */}
                 <Row className='topRow'>
-                    {/* TODO I want this to be a column next to the drag and drop until it is small screen, then pop up top */}
-                    <Col xs='6'>
-                        <Row>
-                            <Col xs='0' md='3' />
-                            <Col xs='12' md='6'>
-                                <div className='centerInput'>
-                                    <Form onSubmit={this.customSeasonWeekSearch}>
-                                        <FormGroup>
-                                            <div className='inputContainer'>
-                                                <Label for='seasonSelect'>Select Season</Label>
-                                                <Input value={this.state.seasonSelect} type='select' name='seasonSelect' id='seasonSelect' className='searchDropdown' onChange={this.handleChange}>
-                                                    <option>2019-2020-regular</option>
-                                                </Input>
-                                            </div>
-                                            <Button color='primary' type='submit' className='submitButton'>Search</Button>
-                                        </FormGroup>
-                                    </Form>
-                                </div>
-                            </Col>
-                            <Col xs='0' md='3' />
-                        </Row>
+                    <Col xs='4' />
+                    <Col xs='4'>
+                        <div className='centerText titleMargin headerFont'>
+                            {this.state.usernameOfPage}'s Roster
+                        </div>
                     </Col>
-                    <Col xs='6'>
-                        <Row>
-                            <Col xs='0' md='3' />
-                            <Col xs='12' md='6'>
-                                <Form onSubmit={this.customSeasonWeekSearch}>
-                                    <FormGroup>
-                                        <div className='inputContainer'>
-                                            <Label for='weekSelect'>Select Week</Label>
-                                            <Input value={this.state.weekSelect} type='select' name='weekSelect' id='weekSelect' className='searchDropdown' onChange={this.handleChange}>
-                                                <option>1</option>
-                                                <option>2</option>
-                                                <option>3</option>
-                                                <option>4</option>
-                                                <option>5</option>
-                                                <option>6</option>
-                                                <option>7</option>
-                                                <option>8</option>
-                                                <option>9</option>
-                                                <option>10</option>
-                                                <option>11</option>
-                                                <option>12</option>
-                                                <option>13</option>
-                                                <option>14</option>
-                                                <option>15</option>
-                                                <option>16</option>
-                                                <option>17</option>
-                                            </Input>
-                                        </div>
-                                        <Button color='primary' type='submit' className='submitButton'>Search</Button>
-                                    </FormGroup>
-                                </Form>
-                            </Col>
-                            <Col xs='0' md='3' />
-                        </Row>
+                    <Col xs='4'>
+                        <UsedPlayerButton
+                            userId={this.props.match.params.userId}
+                            username={this.state.usernameOfPage} />
                     </Col>
                 </Row>
-                <Row>
-                    <Col xs='4'></Col>
+
+                <Row className='selectRow'>
+                    {/* TODO I want this to be a column next to the drag and drop until it is small screen, then pop up top */}
                     <Col xs='4'>
-                        <div className='selectContainer'>
-                            <Form onSubmit={this.positionSearch}>
-                                <FormGroup>
+                        <Row>
+                            <Col xs='12'>
+                                <div className='selectContainer'>
                                     <Label for='positionSelect'>Search Available Players</Label>
-                                    <div className='shiftInputAndSubmit'>
+                                    <div className='shiftInputAndSubmit centerText'>
                                         <div className='inputContainer'>
                                             <Input type='select' name='positionSelect' id='positionSelect' className='searchDropdown' onChange={this.handleChange}>
                                                 <option>QB</option>
@@ -651,14 +619,61 @@ class Roster extends Component {
                                                 <option>K</option>
                                             </Input>
                                         </div>
-                                        <Button color='primary' type='submit' className='submitButton'>Search</Button>
+                                        <Button color='primary' onClick={this.positionSearch} className='submitButton'>Search</Button>
                                     </div>
-                                </FormGroup>
-                            </Form>
-                        </div>
+                                </div>
+                            </Col>
+                        </Row>
                     </Col>
-                    <Col xs='4'></Col>
+
+                    <Col xs='4'>
+                        <Row>
+                            <Col xs='12'>
+                                <div className='inputContainer centerText'>
+                                    <Label for='weekSelect'>Select Week</Label>
+                                    <Input value={this.state.weekSelect} type='select' name='weekSelect' id='weekSelect' className='searchDropdown' onChange={this.handleChange}>
+                                        <option>1</option>
+                                        <option>2</option>
+                                        <option>3</option>
+                                        <option>4</option>
+                                        <option>5</option>
+                                        <option>6</option>
+                                        <option>7</option>
+                                        <option>8</option>
+                                        <option>9</option>
+                                        <option>10</option>
+                                        <option>11</option>
+                                        <option>12</option>
+                                        <option>13</option>
+                                        <option>14</option>
+                                        <option>15</option>
+                                        <option>16</option>
+                                        <option>17</option>
+                                    </Input>
+                                </div>
+                                <Button color='primary' onClick={this.customSeasonWeekSearch} className='submitButton'>Search</Button>
+                            </Col>
+                        </Row>
+                    </Col>
+
+                    <Col xs='4'>
+                        <Row>
+                            <Col xs='12'>
+                                <div className='centerInput'>
+                                    <div className='inputContainer'>
+                                        <Label for='seasonSelect'>Select Season</Label>
+                                        <Input value={this.state.seasonSelect} type='select' name='seasonSelect' id='seasonSelect' className='searchDropdown' onChange={this.handleChange}>
+                                            <option>2019-2020-regular</option>
+                                        </Input>
+                                    </div>
+                                    <Button color='primary' onClick={this.customSeasonWeekSearch} className='submitButton'>Search</Button>
+                                </div>
+                            </Col>
+                        </Row>
+                    </Col>
+
                 </Row>
+
                 <Row>
                     <DragDropContext
                         // These are callbacks for updating the drag when someone picks something up or drops it
