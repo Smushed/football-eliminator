@@ -2,9 +2,14 @@
     line-height: 1.25;
 }
 
-.topRow {
+.selectRow {
     width: 100%;
     text-align: center;
+    margin-top: 20px;
+}
+
+.topRow {
+    margin-top: 10px;
 }
 
 .centerInput {

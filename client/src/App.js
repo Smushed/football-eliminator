@@ -138,7 +138,8 @@ class App extends Component {
                 {...props}
                 userId={this.state.currentUser.userId}
                 week={this.state.currentWeek}
-                season={this.state.currentSeason} />
+                season={this.state.currentSeason}
+                username={this.state.currentUser.username} />
             }
           />
           <Route

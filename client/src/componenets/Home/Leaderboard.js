@@ -85,7 +85,7 @@ class Leaderboard extends Component {
         const redirectValue = '/roster/' + userId;
 
         this.props.history.push(redirectValue);
-    }
+    };
 
     render() {
         const columns = [

@@ -9,6 +9,9 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import './rosterStyle.css';
 
+import UsedPlayerButton from '../UsedPlayers/UsedPlayerButton';
+
+
 const Alert = withReactContent(Swal);
 
 class Roster extends Component {
@@ -573,34 +576,41 @@ class Roster extends Component {
     render() {
         return (
             <Container fluid={true} className='lineHeight'>
-                {/* Both of these in the top row need access to state */}
-                <Row className='topRow'>
+                <UsedPlayerButton
+                    username={this.props.username}
+                    userId={this.props.userId} />
+
+                <Row className='selectRow'>
                     {/* TODO I want this to be a column next to the drag and drop until it is small screen, then pop up top */}
-                    <Col xs='6'>
+                    <Col xs='4'>
                         <Row>
-                            <Col xs='0' md='3' />
-                            <Col xs='12' md='6'>
-                                <div className='centerInput'>
-                                    <Form onSubmit={this.customSeasonWeekSearch}>
+                            <Col xs='12'>
+                                <div className='selectContainer'>
+                                    <Form onSubmit={this.positionSearch}>
                                         <FormGroup>
-                                            <div className='inputContainer'>
-                                                <Label for='seasonSelect'>Select Season</Label>
-                                                <Input value={this.state.seasonSelect} type='select' name='seasonSelect' id='seasonSelect' className='searchDropdown' onChange={this.handleChange}>
-                                                    <option>2019-2020-regular</option>
-                                                </Input>
+                                            <Label for='positionSelect'>Search Available Players</Label>
+                                            <div className='shiftInputAndSubmit'>
+                                                <div className='inputContainer'>
+                                                    <Input type='select' name='positionSelect' id='positionSelect' className='searchDropdown' onChange={this.handleChange}>
+                                                        <option>QB</option>
+                                                        <option>RB</option>
+                                                        <option>WR</option>
+                                                        <option>TE</option>
+                                                        <option>K</option>
+                                                    </Input>
+                                                </div>
+                                                <Button color='primary' type='submit' className='submitButton'>Search</Button>
                                             </div>
-                                            <Button color='primary' type='submit' className='submitButton'>Search</Button>
                                         </FormGroup>
                                     </Form>
                                 </div>
                             </Col>
-                            <Col xs='0' md='3' />
                         </Row>
                     </Col>
-                    <Col xs='6'>
+
+                    <Col xs='4'>
                         <Row>
-                            <Col xs='0' md='3' />
-                            <Col xs='12' md='6'>
+                            <Col xs='12'>
                                 <Form onSubmit={this.customSeasonWeekSearch}>
                                     <FormGroup>
                                         <div className='inputContainer'>
@@ -629,35 +639,31 @@ class Roster extends Component {
                                     </FormGroup>
                                 </Form>
                             </Col>
-                            <Col xs='0' md='3' />
                         </Row>
                     </Col>
-                </Row>
-                <Row>
-                    <Col xs='4'></Col>
+
                     <Col xs='4'>
-                        <div className='selectContainer'>
-                            <Form onSubmit={this.positionSearch}>
-                                <FormGroup>
-                                    <Label for='positionSelect'>Search Available Players</Label>
-                                    <div className='shiftInputAndSubmit'>
-                                        <div className='inputContainer'>
-                                            <Input type='select' name='positionSelect' id='positionSelect' className='searchDropdown' onChange={this.handleChange}>
-                                                <option>QB</option>
-                                                <option>RB</option>
-                                                <option>WR</option>
-                                                <option>TE</option>
-                                                <option>K</option>
-                                            </Input>
-                                        </div>
-                                        <Button color='primary' type='submit' className='submitButton'>Search</Button>
-                                    </div>
-                                </FormGroup>
-                            </Form>
-                        </div>
+                        <Row>
+                            <Col xs='12'>
+                                <div className='centerInput'>
+                                    <Form onSubmit={this.customSeasonWeekSearch}>
+                                        <FormGroup>
+                                            <div className='inputContainer'>
+                                                <Label for='seasonSelect'>Select Season</Label>
+                                                <Input value={this.state.seasonSelect} type='select' name='seasonSelect' id='seasonSelect' className='searchDropdown' onChange={this.handleChange}>
+                                                    <option>2019-2020-regular</option>
+                                                </Input>
+                                            </div>
+                                            <Button color='primary' type='submit' className='submitButton'>Search</Button>
+                                        </FormGroup>
+                                    </Form>
+                                </div>
+                            </Col>
+                        </Row>
                     </Col>
-                    <Col xs='4'></Col>
+
                 </Row>
+
                 <Row>
                     <DragDropContext
                         // These are callbacks for updating the drag when someone picks something up or drops it
