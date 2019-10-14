@@ -5,6 +5,7 @@ import 'react-table/react-table.css';
 import { Container, Col, Row } from 'reactstrap';
 
 import './usedPlayerStyle.css';
+import RosterButton from '../Roster/RosterButton';
 
 class UsedPlayers extends Component {
     constructor(props) {
@@ -49,10 +50,17 @@ class UsedPlayers extends Component {
         return (
             <Container fluid={true}>
                 <Row>
-                    <Col sm='12'>
-                        <div className='centerText topAndBottomMargin headerFont'>
-                            {this.props.username}'s Used Players
-                        </div>
+                    <Col xs='12'>
+                        <Row>
+                            <Col xs='12'>
+                                <div className='centerText titleMargin headerFont'>
+                                    {this.props.username}'s Used Players
+                                </div>
+                                <RosterButton
+                                    username={this.props.username}
+                                    userId={this.props.userId} />
+                            </Col>
+                        </Row>
                         <ReactTable
                             data={this.state.usedPlayers}
                             columns={columns}

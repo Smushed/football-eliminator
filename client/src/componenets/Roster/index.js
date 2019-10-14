@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
-import { Label, Input, Container, Form, FormGroup, Button, Row, Col } from 'reactstrap';
+import { Label, Input, Container, Button, Row, Col } from 'reactstrap';
 
 import { DragDropContext } from 'react-beautiful-dnd';
 import Column from './Column';
@@ -576,9 +576,19 @@ class Roster extends Component {
     render() {
         return (
             <Container fluid={true} className='lineHeight'>
-                <UsedPlayerButton
-                    username={this.props.username}
-                    userId={this.props.userId} />
+                <Row className='topRow'>
+                    <Col xs='4' />
+                    <Col xs='4'>
+                        <div className='centerText titleMargin headerFont'>
+                            {this.props.username}'s Roster
+                        </div>
+                    </Col>
+                    <Col xs='4'>
+                        <UsedPlayerButton
+                            username={this.props.username}
+                            userId={this.props.userId} />
+                    </Col>
+                </Row>
 
                 <Row className='selectRow'>
                     {/* TODO I want this to be a column next to the drag and drop until it is small screen, then pop up top */}
@@ -586,23 +596,19 @@ class Roster extends Component {
                         <Row>
                             <Col xs='12'>
                                 <div className='selectContainer'>
-                                    <Form onSubmit={this.positionSearch}>
-                                        <FormGroup>
-                                            <Label for='positionSelect'>Search Available Players</Label>
-                                            <div className='shiftInputAndSubmit'>
-                                                <div className='inputContainer'>
-                                                    <Input type='select' name='positionSelect' id='positionSelect' className='searchDropdown' onChange={this.handleChange}>
-                                                        <option>QB</option>
-                                                        <option>RB</option>
-                                                        <option>WR</option>
-                                                        <option>TE</option>
-                                                        <option>K</option>
-                                                    </Input>
-                                                </div>
-                                                <Button color='primary' type='submit' className='submitButton'>Search</Button>
-                                            </div>
-                                        </FormGroup>
-                                    </Form>
+                                    <Label for='positionSelect'>Search Available Players</Label>
+                                    <div className='shiftInputAndSubmit centerText'>
+                                        <div className='inputContainer'>
+                                            <Input type='select' name='positionSelect' id='positionSelect' className='searchDropdown' onChange={this.handleChange}>
+                                                <option>QB</option>
+                                                <option>RB</option>
+                                                <option>WR</option>
+                                                <option>TE</option>
+                                                <option>K</option>
+                                            </Input>
+                                        </div>
+                                        <Button color='primary' onClick={this.positionSearch} className='submitButton'>Search</Button>
+                                    </div>
                                 </div>
                             </Col>
                         </Row>
@@ -611,33 +617,29 @@ class Roster extends Component {
                     <Col xs='4'>
                         <Row>
                             <Col xs='12'>
-                                <Form onSubmit={this.customSeasonWeekSearch}>
-                                    <FormGroup>
-                                        <div className='inputContainer'>
-                                            <Label for='weekSelect'>Select Week</Label>
-                                            <Input value={this.state.weekSelect} type='select' name='weekSelect' id='weekSelect' className='searchDropdown' onChange={this.handleChange}>
-                                                <option>1</option>
-                                                <option>2</option>
-                                                <option>3</option>
-                                                <option>4</option>
-                                                <option>5</option>
-                                                <option>6</option>
-                                                <option>7</option>
-                                                <option>8</option>
-                                                <option>9</option>
-                                                <option>10</option>
-                                                <option>11</option>
-                                                <option>12</option>
-                                                <option>13</option>
-                                                <option>14</option>
-                                                <option>15</option>
-                                                <option>16</option>
-                                                <option>17</option>
-                                            </Input>
-                                        </div>
-                                        <Button color='primary' type='submit' className='submitButton'>Search</Button>
-                                    </FormGroup>
-                                </Form>
+                                <div className='inputContainer centerText'>
+                                    <Label for='weekSelect'>Select Week</Label>
+                                    <Input value={this.state.weekSelect} type='select' name='weekSelect' id='weekSelect' className='searchDropdown' onChange={this.handleChange}>
+                                        <option>1</option>
+                                        <option>2</option>
+                                        <option>3</option>
+                                        <option>4</option>
+                                        <option>5</option>
+                                        <option>6</option>
+                                        <option>7</option>
+                                        <option>8</option>
+                                        <option>9</option>
+                                        <option>10</option>
+                                        <option>11</option>
+                                        <option>12</option>
+                                        <option>13</option>
+                                        <option>14</option>
+                                        <option>15</option>
+                                        <option>16</option>
+                                        <option>17</option>
+                                    </Input>
+                                </div>
+                                <Button color='primary' onClick={this.customSeasonWeekSearch} className='submitButton'>Search</Button>
                             </Col>
                         </Row>
                     </Col>
@@ -646,17 +648,13 @@ class Roster extends Component {
                         <Row>
                             <Col xs='12'>
                                 <div className='centerInput'>
-                                    <Form onSubmit={this.customSeasonWeekSearch}>
-                                        <FormGroup>
-                                            <div className='inputContainer'>
-                                                <Label for='seasonSelect'>Select Season</Label>
-                                                <Input value={this.state.seasonSelect} type='select' name='seasonSelect' id='seasonSelect' className='searchDropdown' onChange={this.handleChange}>
-                                                    <option>2019-2020-regular</option>
-                                                </Input>
-                                            </div>
-                                            <Button color='primary' type='submit' className='submitButton'>Search</Button>
-                                        </FormGroup>
-                                    </Form>
+                                    <div className='inputContainer'>
+                                        <Label for='seasonSelect'>Select Season</Label>
+                                        <Input value={this.state.seasonSelect} type='select' name='seasonSelect' id='seasonSelect' className='searchDropdown' onChange={this.handleChange}>
+                                            <option>2019-2020-regular</option>
+                                        </Input>
+                                    </div>
+                                    <Button color='primary' onClick={this.customSeasonWeekSearch} className='submitButton'>Search</Button>
                                 </div>
                             </Col>
                         </Row>
