@@ -13,26 +13,38 @@ class UsedPlayers extends Component {
         this.state = {
             usedPlayers: [],
             loading: false,
-        }
+            usernameOfPage: '',
+        };
     };
 
     componentDidMount() {
-        if (this.props.week !== 0 && this.props.season !== '') {
+        if (this.props.season !== '') {
             this.getUsedPlayers();
+            this.getCurrentUsername();
         };
     };
 
     componentDidUpdate(prevProps) {
         if (this.props.season !== prevProps.season) {
             this.getUsedPlayers();
+            this.getCurrentUsername();
         };
     };
 
+    getCurrentUsername() {
+        axios.get(`/api/getUserById/${this.props.match.params.userId}`)
+            .then(res => {
+                this.setState({ usernameOfPage: res.data.local.username })
+            }).catch(err => {
+                console.log(err); //TODO better error handling
+            });
+    };
+
     getUsedPlayers = () => {
+        this.setState({ loading: true });
         axios.get(`/api/getUsedPlayers/${this.props.match.params.userId}/${this.props.season}`)
             .then(res => {
-                console.log(res);
-                this.setState({ usedPlayers: res.data });
+                this.setState({ usedPlayers: res.data, loading: false });
             }).catch(err => {
                 console.log(err)//TODO Better error handling
             });
@@ -54,10 +66,10 @@ class UsedPlayers extends Component {
                         <Row>
                             <Col xs='12'>
                                 <div className='centerText titleMargin headerFont'>
-                                    {this.props.username}'s Used Players
+                                    {this.state.usernameOfPage}'s Used Players
                                 </div>
                                 <RosterButton
-                                    username={this.props.username}
+                                    username={this.state.usernameOfPage}
                                     userId={this.props.userId} />
                             </Col>
                         </Row>

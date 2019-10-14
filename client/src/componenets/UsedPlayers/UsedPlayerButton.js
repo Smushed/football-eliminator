@@ -1,15 +1,17 @@
 import React, { Component } from 'react';
-import { Row, Col, Button, Form, FormGroup } from 'reactstrap';
+import { Button } from 'reactstrap';
 import { withRouter } from 'react-router-dom';
 
 
 class UsedPlayerButton extends Component {
-    redirect = () => {
 
+    redirect = () => {
         const redirectValue = '/usedPlayers/' + this.props.userId;
 
         this.props.history.push(redirectValue);
     };
+
+
     render() {
         return (
             <div>

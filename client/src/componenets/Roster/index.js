@@ -42,6 +42,7 @@ class Roster extends Component {
             weekOnPage: 0, //The week and season are here when the player searches for their roster. This updates ONLY when the player actually refreshes their roster
             seasonOnPage: ``,
             currentUser: false,
+            usernameOfPage: '',
             dbReadyRoster: { //We populate this when we go to sort the user's roster. This is the way it's saved into the database
                 QB: 0,
                 RB1: 0,
@@ -60,6 +61,7 @@ class Roster extends Component {
             this.setState({ weekSelect: this.props.week, seasonSelect: this.props.season });
             this.getRosterData(this.props.week, this.props.season);
             this.checkCurrentUser();
+            this.getCurrentUsername();
         };
     };
 
@@ -68,7 +70,17 @@ class Roster extends Component {
             this.setState({ weekSelect: this.props.week, seasonSelect: this.props.season });
             this.getRosterData(this.props.week, this.props.season);
             this.checkCurrentUser();
+            this.getCurrentUsername();
         };
+    };
+
+    getCurrentUsername() {
+        axios.get(`/api/getUserById/${this.props.match.params.userId}`)
+            .then(res => {
+                this.setState({ usernameOfPage: res.data.local.username })
+            }).catch(err => {
+                console.log(err); //TODO better error handling
+            });
     };
 
     checkCurrentUser() {
@@ -580,13 +592,13 @@ class Roster extends Component {
                     <Col xs='4' />
                     <Col xs='4'>
                         <div className='centerText titleMargin headerFont'>
-                            {this.props.username}'s Roster
+                            {this.state.usernameOfPage}'s Roster
                         </div>
                     </Col>
                     <Col xs='4'>
                         <UsedPlayerButton
-                            username={this.props.username}
-                            userId={this.props.userId} />
+                            userId={this.props.match.params.userId}
+                            username={this.state.usernameOfPage} />
                     </Col>
                 </Row>
 

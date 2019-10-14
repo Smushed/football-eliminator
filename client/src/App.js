@@ -138,8 +138,7 @@ class App extends Component {
                 {...props}
                 userId={this.state.currentUser.userId}
                 week={this.state.currentWeek}
-                season={this.state.currentSeason}
-                username={this.state.currentUser.username} />
+                season={this.state.currentSeason} />
             }
           />
           <Route
@@ -153,9 +152,7 @@ class App extends Component {
               <UsedPlayers
                 {...props}  //Need to pass down the props spread to have access to the URL
                 season={this.state.currentSeason}
-                week={this.state.currentWeek}
-                username={this.state.currentUser.username}
-                userId={this.state.currentUser.userId} />
+                week={this.state.currentWeek} />
             }
           />
         </div>

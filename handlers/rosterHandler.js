@@ -250,17 +250,17 @@ module.exports = {
     getUsedPlayers: async (userId, season) => {
         const sortedPlayers = { 'QB': [], 'RB': [], 'WR': [], 'TE': [], 'K': [] };
         let usedPlayerArray = [];
-        await db.UserRoster.findOne({ userId }, (err, currentRoster) => {
-            usedPlayerArray = currentRoster.roster[season].usedPlayers;
-        });
+        let arrayForTable = [];
 
+        const currentRoster = await db.UserRoster.findOne({ userId }).exec();
+        usedPlayerArray = currentRoster.roster[season].usedPlayers;
 
         for (let i = 0; i < usedPlayerArray.length; i++) {
             let player = await db.FantasyStats.findOne({ mySportsId: usedPlayerArray[i] }, 'position full_name');
             sortedPlayers[player.position].push(player.full_name);
         };
 
-        const arrayForTable = usedPlayersInReactTableFormat(sortedPlayers);
+        arrayForTable = usedPlayersInReactTableFormat(sortedPlayers);
 
         return arrayForTable;
     }
