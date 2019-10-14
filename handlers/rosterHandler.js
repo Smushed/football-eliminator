@@ -16,6 +16,36 @@ fillOutRoster = (dbReadyRoster) => {
     return filledRoster;
 };
 
+usedPlayersInReactTableFormat = (sortedPlayers) => {
+    let checkLongest = 0;
+    let arrayForTable = [];
+    if (sortedPlayers.RB.length > sortedPlayers.WR.length) {
+        checkLongest = sortedPlayers.RB.length;
+    } else {
+        checkLongest = sortedPlayers.WR.length;
+    };
+
+    for (let i = 0; i < checkLongest; i++) {
+        arrayForTable[i] = {};
+        if (typeof sortedPlayers.QB[i] !== `undefined`) {
+            arrayForTable[i].QB = sortedPlayers.QB[i];
+        };
+        if (typeof sortedPlayers.RB[i] !== `undefined`) {
+            arrayForTable[i].RB = sortedPlayers.RB[i];
+        };
+        if (typeof sortedPlayers.WR[i] !== `undefined`) {
+            arrayForTable[i].WR = sortedPlayers.WR[i];
+        };
+        if (typeof sortedPlayers.TE[i] !== `undefined`) {
+            arrayForTable[i].TE = sortedPlayers.TE[i];
+        };
+        if (typeof sortedPlayers.K[i] !== `undefined`) {
+            arrayForTable[i].K = sortedPlayers.K[i];
+        };
+    };
+    return arrayForTable;
+};
+
 module.exports = {
     byRoster: async () => {
         const players = await db.FantasyStats.find({ 'team.abbreviation': 'CHI' })
@@ -218,7 +248,7 @@ module.exports = {
         };
     },
     getUsedPlayers: async (userId, season) => {
-        const usedPlayersForTable = { 'QB': [], 'RB': [], 'WR': [], 'TE': [], 'K': [] };
+        const sortedPlayers = { 'QB': [], 'RB': [], 'WR': [], 'TE': [], 'K': [] };
         let usedPlayerArray = [];
         await db.UserRoster.findOne({ userId }, (err, currentRoster) => {
             usedPlayerArray = currentRoster.roster[season].usedPlayers;
@@ -227,9 +257,11 @@ module.exports = {
 
         for (let i = 0; i < usedPlayerArray.length; i++) {
             let player = await db.FantasyStats.findOne({ mySportsId: usedPlayerArray[i] }, 'position full_name');
-            usedPlayersForTable[player.position].push(player.full_name);
-        }
+            sortedPlayers[player.position].push(player.full_name);
+        };
 
-        return usedPlayersForTable;
+        const arrayForTable = usedPlayersInReactTableFormat(sortedPlayers);
+
+        return arrayForTable;
     }
 };
