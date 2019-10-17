@@ -70,7 +70,7 @@ class UsedPlayers extends Component {
                                 </div>
                                 <RosterButton
                                     username={this.state.usernameOfPage}
-                                    userId={this.props.userId} />
+                                    userId={this.props.match.params.userId} />
                             </Col>
                         </Row>
                         <ReactTable
