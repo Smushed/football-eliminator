@@ -10,7 +10,7 @@ import withReactContent from "sweetalert2-react-content";
 import './rosterStyle.css';
 
 import UsedPlayerButton from '../UsedPlayers/UsedPlayerButton';
-
+import TeamSearch from './TeamSearch';
 
 const Alert = withReactContent(Swal);
 
@@ -578,6 +578,12 @@ class Roster extends Component {
         this.getRosterData(this.state.weekSelect, this.state.seasonSelect);
     };
 
+    searchByName = (e) => {
+        e.preventDefault();
+
+        console.log('working', e);
+    }
+
     //This is to handle the change for the Input Type in the position search below
     handleChange(e) {
         this.setState({
@@ -604,27 +610,7 @@ class Roster extends Component {
 
                 <Row className='selectRow'>
                     {/* TODO I want this to be a column next to the drag and drop until it is small screen, then pop up top */}
-                    <Col xs='4'>
-                        <Row>
-                            <Col xs='12'>
-                                <div className='selectContainer'>
-                                    <Label for='positionSelect'>Search Available Players</Label>
-                                    <div className='shiftInputAndSubmit centerText'>
-                                        <div className='inputContainer'>
-                                            <Input type='select' name='positionSelect' id='positionSelect' className='searchDropdown' onChange={this.handleChange}>
-                                                <option>QB</option>
-                                                <option>RB</option>
-                                                <option>WR</option>
-                                                <option>TE</option>
-                                                <option>K</option>
-                                            </Input>
-                                        </div>
-                                        <Button color='primary' onClick={this.positionSearch} className='submitButton'>Search</Button>
-                                    </div>
-                                </div>
-                            </Col>
-                        </Row>
-                    </Col>
+
 
                     <Col xs='4'>
                         <Row>
@@ -671,9 +657,35 @@ class Roster extends Component {
                             </Col>
                         </Row>
                     </Col>
+                    <Col xs='4'>
+                        <Row>
+                            <Col xs='12'>
+                                <div className='selectContainer'>
+                                    <Label for='positionSelect'>Search Available Players By Position</Label>
+                                    <div className='shiftInputAndSubmit centerText'>
+                                        <div className='inputContainer'>
+                                            <Input type='select' name='positionSelect' id='positionSelect' className='searchDropdown' onChange={this.handleChange}>
+                                                <option>QB</option>
+                                                <option>RB</option>
+                                                <option>WR</option>
+                                                <option>TE</option>
+                                                <option>K</option>
+                                            </Input>
+                                        </div>
+                                        <Button color='primary' onClick={this.positionSearch} className='submitButton'>Search</Button>
+                                    </div>
+                                </div>
+                            </Col>
+                        </Row>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col xs='6'></Col>
+                    <Col xs='6'>
+                        <TeamSearch whenclicked={this.searchByName} />
+                    </Col>
 
                 </Row>
-
                 <Row>
                     <DragDropContext
                         // These are callbacks for updating the drag when someone picks something up or drops it
