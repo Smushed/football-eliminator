@@ -67,6 +67,8 @@ class Leaderboard extends Component {
                     const weekScores = await axios.get(`/api/weeklyRosterScore`,
                         { params: { userRoster: previousWeekPlayers, week, season } });
 
+                    console.log(weekScores)
+
                     let totalScore = 0;
                     for (let iii = week; iii > 0; iii--) {
                         //Now iterate over the weeks and pull out the total score

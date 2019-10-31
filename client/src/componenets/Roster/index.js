@@ -559,8 +559,6 @@ class Roster extends Component {
                 columns.available.playerIds = res.data.idArray;
                 delete res.data.idArray;
 
-                console.log(res.data)
-
                 const currentRoster = { ...this.state.userRoster, ...res.data }
 
                 this.setState({ userRoster: currentRoster, columns: columns });
