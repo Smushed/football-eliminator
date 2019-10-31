@@ -16,6 +16,10 @@
     text-align: center;
 }
 
+.usedPlayerButtonContainer {
+    text-align: center;
+}
+
 .searchDropdown {
     text-align: center;
     margin-bottom: 0;
@@ -28,6 +32,10 @@
 
 .inputContainer {
     width: 225px;
+}
+
+.secondRowInput {
+    margin-left: 30%;
 }
 
 .submitButton {
@@ -57,4 +65,8 @@
 
 .title {
     padding: 8px;
+}
+
+.searchRow {
+    height: 100px;
 }

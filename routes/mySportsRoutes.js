@@ -38,11 +38,6 @@ module.exports = app => {
         res.status(200).send(dbResponse);
     });
 
-    app.get(`/api/avaliableplayers`, async (req, res) => {
-        const working = await mySportsHandler.availablePlayers();
-        res.status(200).send(working);
-    });
-
     app.get(`/api/weeklyRosterScore`, async (req, res) => {
         //This takes the userRoster object which is all the previous weeks from the current week and plugs them into the DB to get the total scores for that user for the week
         const { userRoster, season, week } = req.query;
