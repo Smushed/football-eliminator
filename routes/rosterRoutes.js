@@ -23,7 +23,7 @@ module.exports = app => {
     });
 
     app.get(`/api/userRoster/:userId`, async (req, res) => {
-        const userId = req.params.userId;
+        const { userId } = req.params;
         const { week, season } = req.query;
         if (userId !== 'undefined' && week !== 0 && season !== ``) { //Checks if this route received the userId before it was ready in react
             //The check already comes in as the string undefined, rather than undefined itself. It comes in as truthly
@@ -61,8 +61,17 @@ module.exports = app => {
     app.get(`/api/getUsedPlayers/:userId/:season`, async (req, res) => {
         const { userId, season } = req.params;
 
-        const usedPlayers = await rosterHandler.getUsedPlayers(userId, season);
+        const usedPlayers = await rosterHandler.usedPlayersForTable(userId, season);
 
         res.status(200).send(usedPlayers);
+    });
+
+    app.get(`/api/getPlayersByTeam/:userId/:team/:season`, async (req, res) => {
+        const { userId, team, season } = req.params;
+        console.log(userId);
+
+        const playersByTeam = await rosterHandler.searchPlayerByTeam(userId, team, season);
+
+        res.status(200).send(playersByTeam);
     });
 };

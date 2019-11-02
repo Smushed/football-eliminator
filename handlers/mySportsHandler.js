@@ -373,7 +373,4 @@ module.exports = {
         };
         return response;
     },
-    getTeams: () => {
-        return nflTeams.teams;
-    }
 };

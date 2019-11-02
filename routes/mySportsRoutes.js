@@ -47,12 +47,5 @@ module.exports = app => {
         res.status(200).send(userScore);
     });
 
-    app.get(`/api/getTeams`, async (req, res) => {
-        //We do this whenever the client requests the teams
-        //For example when they are searching for players on a team
-        //This returns the array of teams
-        const teams = await mySportsHandler.getTeams();
 
-        res.status(200).send(teams);
-    });
 }

@@ -10,7 +10,6 @@ import withReactContent from "sweetalert2-react-content";
 import './rosterStyle.css';
 
 import UsedPlayerButton from '../UsedPlayers/UsedPlayerButton';
-import AutoComplete from '../AutoComplete';
 
 const Alert = withReactContent(Swal);
 
@@ -37,8 +36,7 @@ class Roster extends Component {
             //Able to order the columns
             columnOrder: ['userRoster', 'available'],
             positionSelect: `QB`, //This is the default value for the position search
-            teamSearch: ``,
-            teamArray: [],
+            teamSelect: `ARI`,
             weekSelect: 0,
             seasonSelect: 0,
             weekOnPage: 0, //The week and season are here when the player searches for their roster. This updates ONLY when the player actually refreshes their roster
@@ -64,7 +62,6 @@ class Roster extends Component {
             this.getRosterData(this.props.week, this.props.season);
             this.checkCurrentUser();
             this.getCurrentUsername();
-            this.getTeams();
         };
     };
 
@@ -74,7 +71,6 @@ class Roster extends Component {
             this.getRosterData(this.props.week, this.props.season);
             this.checkCurrentUser();
             this.getCurrentUsername();
-            this.getTeams();
         };
     };
 
@@ -93,13 +89,6 @@ class Roster extends Component {
         } else {
             this.setState({ currentUser: false });
         };
-    };
-
-    getTeams() {
-        axios.get(`/api/getTeams`)
-            .then(res => {
-                this.setState({ teamArray: res.data });
-            });
     };
 
     //We define loading and done loading here to have swal pop ups whenever we are pulling in data so the user can't mess with data while it's in a loading state
@@ -592,7 +581,13 @@ class Roster extends Component {
     searchByTeam = (e) => {
         e.preventDefault();
 
-        console.log(this.state.teamSearch);
+        //this.loading();
+        //this.doneLoading();
+
+        axios.get(`/api/getPlayersByTeam/${this.props.userId}/${this.state.teamSelect}/${this.props.season}`)
+            .then(res => {
+                console.log(res)
+            });
     }
 
     //This is to handle the change for the Input Type in the position search below
@@ -642,7 +637,7 @@ class Roster extends Component {
                         </div>
                         <Button color='primary' onClick={this.customSeasonWeekSearch} className='submitButton'>
                             Search
-                                </Button>
+                        </Button>
 
                     </Col>
                     <Col xs='6'>
@@ -661,22 +656,55 @@ class Roster extends Component {
                                     </div>
                                     <Button color='primary' onClick={this.positionSearch} className='submitButton'>
                                         Search
-                                </Button>
+                                    </Button>
                                 </div>
                             </Col>
 
                             <Col xs='6'>
                                 <div className='selectContainer'>
-                                    <Label for='teamOrPlayerSelect'>
+                                    <Label for='teamSelect'>
                                         Search For Players By Team
                                     </Label>
                                     <div className='centerText'>
                                         <div className='inputContainer secondRowInput'>
-                                            <AutoComplete suggestions={this.state.teamArray} />
+                                            <Input type='select' name='teamSelect' id='teamSelect' className='searchDropdown' onChange={this.handleChange}>
+                                                <option>ARI</option>
+                                                <option>ATL</option>
+                                                <option>BAL</option>
+                                                <option>BUF</option>
+                                                <option>CAR</option>
+                                                <option>CHI</option>
+                                                <option>CIN</option>
+                                                <option>CLE</option>
+                                                <option>DAL</option>
+                                                <option>DEN</option>
+                                                <option>DET</option>
+                                                <option>GB</option>
+                                                <option>HOU</option>
+                                                <option>IND</option>
+                                                <option>JAX</option>
+                                                <option>KC</option>
+                                                <option>LAC</option>
+                                                <option>LA</option>
+                                                <option>MIA</option>
+                                                <option>MIN</option>
+                                                <option>NE</option>
+                                                <option>NO</option>
+                                                <option>NYG</option>
+                                                <option>NYJ</option>
+                                                <option>OAK</option>
+                                                <option>PHI</option>
+                                                <option>PIT</option>
+                                                <option>SEA</option>
+                                                <option>SF</option>
+                                                <option>TB</option>
+                                                <option>TEN</option>
+                                                <option>WAS</option>
+                                            </Input>
                                         </div>
                                         <Button color="secondary" onClick={this.searchByTeam} className='submitButton'>
                                             Submit
-                                </Button>
+                                        </Button>
                                     </div>
                                 </div>
                             </Col>
