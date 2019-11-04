@@ -52,7 +52,7 @@ class Leaderboard extends Component {
 
         //Handling if this was called too early
         if (season === ``) { return }
-        axios.get(`/api/getLeaderboard/allUsers/${season}`)
+        axios.get(`/api/getLeaderboard/allUsers/${week}/${season}`)
             .then(res => {
                 console.log(res)
             });

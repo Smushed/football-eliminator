@@ -373,4 +373,7 @@ module.exports = {
         };
         return response;
     },
+    calculateWeeklyScore: async (userRoster, season, week) => {
+        console.log(userRoster, season, week)
+    }
 };

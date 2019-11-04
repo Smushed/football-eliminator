@@ -11,6 +11,11 @@ const UserScores = new Schema({
         required: true
     },
     weeklyScores: {
+        'groupId': {
+            type: String,
+            required: true,
+            default: `allUsers`
+        },
         '1': Number,
         '2': Number,
         '3': Number,
@@ -29,4 +34,6 @@ const UserScores = new Schema({
         '16': Number,
         '17': Number,
     }
-})
+});
+
+module.exports = mongoose.model(`UserScores`, UserScores);
