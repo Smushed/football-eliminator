@@ -228,11 +228,14 @@ module.exports = {
         //TODO Error handling
         return new Promise(async (res, rej) => {
             const rosterList = {};
+            const rosterArray = [];
 
             //Use the Exec for full promises in Mongoose
             const rosters = await db.UserRoster.find({}).exec();
-            rosters.forEach(roster => rosterList[roster.userId] = { roster: roster.roster[season] });
-            res(rosterList);
+            rosters.forEach((roster, i) => {
+                rosterArray[i] = rosterList[roster.userId] = { roster: roster.roster[season] }
+            });
+            res(rosterArray);
         });
     },
     checkLockPeriod: () => {
