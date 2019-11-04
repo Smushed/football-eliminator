@@ -1,4 +1,5 @@
 const mySportsHandler = require(`../handlers/mySportsHandler`);
+const rosterHandler = require(`../handlers/rosterHandler`); //Using this to pull in all the user rosters for the leaderboard
 
 
 module.exports = app => {
@@ -47,5 +48,18 @@ module.exports = app => {
         res.status(200).send(userScore);
     });
 
+    app.get(`/api/getLeaderboard/:groupId/:season`, async (req, res) => {
+        const { groupId, season } = req.params;
+        let userRosters;
 
+        if (groupId === `allUsers`) { // This is for the front page userboard
+            userRosters = await rosterHandler.getAllRosters(season);
+            for (let i = 0; i < userRosters.length; i++) {
+                console.log(i);
+            };
+        } else {
+            //TODO
+        };
+        res.status(200).send(userRosters);
+    });
 }
