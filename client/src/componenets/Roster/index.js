@@ -104,6 +104,7 @@ class Roster extends Component {
             showCancelButton: false
         });
     };
+
     doneLoading() {
         Alert.close()
     };
@@ -581,12 +582,20 @@ class Roster extends Component {
     searchByTeam = (e) => {
         e.preventDefault();
 
-        //this.loading();
-        //this.doneLoading();
+        this.loading();
 
         axios.get(`/api/getPlayersByTeam/${this.props.userId}/${this.state.teamSelect}/${this.props.season}`)
             .then(res => {
                 console.log(res)
+                let columns = { ...this.state.columns };
+
+                columns.available.playerIds = res.data.idArray;
+                delete res.data.idArray;
+
+                const currentRoster = { ...this.state.userRoster, ...res.data }
+
+                this.setState({ userRoster: currentRoster, columns: columns });
+                this.doneLoading();
             });
     }
 

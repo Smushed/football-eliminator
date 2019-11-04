@@ -68,7 +68,7 @@ checkForAvailablePlayers = (usedPlayers, searchedPlayers) => {
         //Parsing the roster and pulling in all the data we need
         responseAvailablePlayers[player.mySportsId].full_name = player.full_name;
         responseAvailablePlayers[player.mySportsId].mySportsId = player.mySportsId;
-        responseAvailablePlayers[player].position = player.position;
+        responseAvailablePlayers[player.mySportsId].position = player.position;
     };
 
     return responseAvailablePlayers;
@@ -279,7 +279,10 @@ module.exports = {
 
         const usedPlayers = await getUsedPlayers(userId, season);
 
-        return usedPlayers;
+        const playersByTeam = await db.FantasyStats.find({ 'team.abbreviation': team }, { mySportsId: 1, full_name: 1, position: 1 });
 
+        const availablePlayers = checkForAvailablePlayers(usedPlayers, playersByTeam);
+
+        return availablePlayers;
     }
 };
