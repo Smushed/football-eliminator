@@ -36,7 +36,7 @@ class Roster extends Component {
             //Able to order the columns
             columnOrder: ['userRoster', 'available'],
             positionSelect: `QB`, //This is the default value for the position search
-            teamOrPlayerSelect: `Team`,
+            teamSelect: `ARI`,
             weekSelect: 0,
             seasonSelect: 0,
             weekOnPage: 0, //The week and season are here when the player searches for their roster. This updates ONLY when the player actually refreshes their roster
@@ -104,6 +104,7 @@ class Roster extends Component {
             showCancelButton: false
         });
     };
+
     doneLoading() {
         Alert.close()
     };
@@ -578,10 +579,24 @@ class Roster extends Component {
         this.getRosterData(this.state.weekSelect, this.state.seasonSelect);
     };
 
-    searchByName = (e) => {
+    searchByTeam = (e) => {
         e.preventDefault();
 
-        console.log('working', e);
+        this.loading();
+
+        axios.get(`/api/getPlayersByTeam/${this.props.userId}/${this.state.teamSelect}/${this.props.season}`)
+            .then(res => {
+                console.log(res)
+                let columns = { ...this.state.columns };
+
+                columns.available.playerIds = res.data.idArray;
+                delete res.data.idArray;
+
+                const currentRoster = { ...this.state.userRoster, ...res.data }
+
+                this.setState({ userRoster: currentRoster, columns: columns });
+                this.doneLoading();
+            });
     }
 
     //This is to handle the change for the Input Type in the position search below
@@ -595,97 +610,114 @@ class Roster extends Component {
         return (
             <Container fluid={true} className='lineHeight'>
                 <Row className='topRow'>
-                    <Col xs='5'>
+                    <Col xs='12'>
                         <div className='centerText headerFont'>
                             {this.state.usernameOfPage}'s Roster
-                        </div>
-                        <div className='usedPlayerButtonContainer'>
                             <UsedPlayerButton
                                 userId={this.props.match.params.userId}
                                 username={this.state.usernameOfPage} />
                         </div>
                     </Col>
-                    <Col xs='7'>
-                        <Row>
-                            <Col xs='6'>
-                                <div className='centerInput'>
-                                    <div className='inputContainer'>
-                                        <Label for='seasonSelect'>Select Season</Label>
-                                        <Input value={this.state.seasonSelect} type='select' name='seasonSelect' id='seasonSelect' className='searchDropdown' onChange={this.handleChange}>
-                                            <option>2019-2020-regular</option>
-                                        </Input>
-                                    </div>
-                                    <Button color='primary' onClick={this.customSeasonWeekSearch} className='submitButton'>Search</Button>
-                                </div>
-                            </Col>
-                            <Col xs='6'>
-                                <div className='inputContainer centerText'>
-                                    <Label for='weekSelect'>Select Week</Label>
-                                    <Input value={this.state.weekSelect} type='select' name='weekSelect' id='weekSelect' className='searchDropdown' onChange={this.handleChange}>
-                                        <option>1</option>
-                                        <option>2</option>
-                                        <option>3</option>
-                                        <option>4</option>
-                                        <option>5</option>
-                                        <option>6</option>
-                                        <option>7</option>
-                                        <option>8</option>
-                                        <option>9</option>
-                                        <option>10</option>
-                                        <option>11</option>
-                                        <option>12</option>
-                                        <option>13</option>
-                                        <option>14</option>
-                                        <option>15</option>
-                                        <option>16</option>
-                                        <option>17</option>
-                                    </Input>
-                                </div>
-                                <Button color='primary' onClick={this.customSeasonWeekSearch} className='submitButton'>
-                                    Search
-                            </Button>
-                            </Col>
-                        </Row>
-                    </Col>
                 </Row>
 
                 <Row className='searchRow'>
                     <Col xs='6'>
-                        <div className='selectContainer'>
-                            <Label for='positionSelect'>Search Available Players By Position</Label>
-                            <div className='shiftInputAndSubmit centerText'>
-                                <div className='inputContainer secondRowInput'>
-                                    <Input type='select' name='positionSelect' id='positionSelect' className='searchDropdown' onChange={this.handleChange}>
-                                        <option>QB</option>
-                                        <option>RB</option>
-                                        <option>WR</option>
-                                        <option>TE</option>
-                                        <option>K</option>
-                                    </Input>
-                                </div>
-                                <Button color='primary' onClick={this.positionSearch} className='submitButton'>
-                                    Search
-                                </Button>
-                            </div>
+                        <div className='inputContainer centerText selectWeekMargin'>
+                            <Label for='weekSelect'>Select Week</Label>
+                            <Input value={this.state.weekSelect} type='select' name='weekSelect' id='weekSelect' className='searchDropdown' onChange={this.handleChange}>
+                                <option>1</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                                <option>5</option>
+                                <option>6</option>
+                                <option>7</option>
+                                <option>8</option>
+                                <option>9</option>
+                                <option>10</option>
+                                <option>11</option>
+                                <option>12</option>
+                                <option>13</option>
+                                <option>14</option>
+                                <option>15</option>
+                                <option>16</option>
+                                <option>17</option>
+                            </Input>
                         </div>
+                        <Button color='primary' onClick={this.customSeasonWeekSearch} className='submitButton'>
+                            Search
+                        </Button>
+
                     </Col>
                     <Col xs='6'>
-                        <div className='selectContainer'>
-                            <Label for='teamOrPlayerSelect'>
-                                Search Team Or Player By Name
-                            </Label>
-                            <div className='shiftInputAndSubmit centerText'>
-                                <div className='inputContainer secondRowInput'>
-                                    <Input type='select' name='teamOrPlayerSelect' id='teamOrPlayerSelect' className='searchDropdown' onChange={this.handleChange}>
-                                        <option>Team</option>
-                                        <option>Player</option>
-                                    </Input>
+                        <Row>
+                            <Col xs='6'>
+                                <div className='selectContainer'>
+                                    <Label for='positionSelect'>Search Available Players By Position</Label>
+                                    <div className='secondRowInput'>
+                                        <Input type='select' name='positionSelect' id='positionSelect' className='searchDropdown' onChange={this.handleChange}>
+                                            <option>QB</option>
+                                            <option>RB</option>
+                                            <option>WR</option>
+                                            <option>TE</option>
+                                            <option>K</option>
+                                        </Input>
+                                    </div>
+                                    <Button color='primary' onClick={this.positionSearch} className='submitButton'>
+                                        Search
+                                    </Button>
                                 </div>
-                                <Button color="secondary" onClick={this.props.whenclicked} className='submitButton'>
-                                    Submit
-                                </Button>
-                            </div>
-                        </div>
+                            </Col>
+
+                            <Col xs='6'>
+                                <div className='selectContainer'>
+                                    <Label for='teamSelect'>
+                                        Search For Players By Team
+                                    </Label>
+                                    <div className='centerText'>
+                                        <div className='inputContainer secondRowInput'>
+                                            <Input type='select' name='teamSelect' id='teamSelect' className='searchDropdown' onChange={this.handleChange}>
+                                                <option>ARI</option>
+                                                <option>ATL</option>
+                                                <option>BAL</option>
+                                                <option>BUF</option>
+                                                <option>CAR</option>
+                                                <option>CHI</option>
+                                                <option>CIN</option>
+                                                <option>CLE</option>
+                                                <option>DAL</option>
+                                                <option>DEN</option>
+                                                <option>DET</option>
+                                                <option>GB</option>
+                                                <option>HOU</option>
+                                                <option>IND</option>
+                                                <option>JAX</option>
+                                                <option>KC</option>
+                                                <option>LAC</option>
+                                                <option>LA</option>
+                                                <option>MIA</option>
+                                                <option>MIN</option>
+                                                <option>NE</option>
+                                                <option>NO</option>
+                                                <option>NYG</option>
+                                                <option>NYJ</option>
+                                                <option>OAK</option>
+                                                <option>PHI</option>
+                                                <option>PIT</option>
+                                                <option>SEA</option>
+                                                <option>SF</option>
+                                                <option>TB</option>
+                                                <option>TEN</option>
+                                                <option>WAS</option>
+                                            </Input>
+                                        </div>
+                                        <Button color="secondary" onClick={this.searchByTeam} className='submitButton'>
+                                            Submit
+                                        </Button>
+                                    </div>
+                                </div>
+                            </Col>
+                        </Row>
                     </Col>
                 </Row>
                 <Row>

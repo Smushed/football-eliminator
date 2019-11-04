@@ -4,7 +4,6 @@
 
 .selectRow {
     width: 100%;
-    text-align: center;
     margin-top: 20px;
 }
 
@@ -35,7 +34,11 @@
 }
 
 .secondRowInput {
-    margin-left: 30%;
+    width: 150px;
+}
+
+.selectWeekMargin {
+    margin-left: 20%;
 }
 
 .submitButton {
@@ -46,7 +49,6 @@
 
 .selectContainer {
     width: 100%;
-    text-align: center;
 }
 
 .playerColumn {
@@ -68,5 +70,6 @@
 }
 
 .searchRow {
+    margin-top: 15px;
     height: 100px;
 }

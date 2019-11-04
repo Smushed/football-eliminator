@@ -372,5 +372,5 @@ module.exports = {
             response[i] = weekScore.toFixed(2);
         };
         return response;
-    }
+    },
 };

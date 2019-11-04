@@ -17,7 +17,7 @@
     "license": "ISC",
     "devDependencies": {
         "concurrently": "^4.1.2",
-        "nodemon": "^1.19.1"
+        "nodemon": "^1.19.4"
     },
     "dependencies": {
         "axios": "^0.19.0",
@@ -27,8 +27,8 @@
         "cors": "^2.8.5",
         "dotenv": "^6.2.0",
         "express": "^4.17.1",
-        "luxon": "^1.17.2",
-        "mongoose": "^5.6.11",
+        "luxon": "^1.21.0",
+        "mongoose": "^5.7.7",
         "uuid": "^3.3.3"
     },
     "repository": {

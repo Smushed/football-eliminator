@@ -77,7 +77,7 @@ class UsedPlayers extends Component {
                             data={this.state.usedPlayers}
                             columns={columns}
                             loading={this.state.loading}
-                            defaultPageSize={20}
+                            defaultPageSize={50}
                             className="-highlight"
                         />
                     </Col>
