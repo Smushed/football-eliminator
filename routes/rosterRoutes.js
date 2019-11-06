@@ -74,11 +74,4 @@ module.exports = app => {
         res.status(200).send(playersByTeam);
     });
 
-    app.get(`/api/getLeaderboard/:groupId/:week/:season`, async (req, res) => {
-        console.log(`Calculating users scores`);
-
-        const { groupId, season, week } = req.params;
-
-        res.status(200).send(`bazinga`);
-    });
 };
