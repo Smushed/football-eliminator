@@ -228,7 +228,6 @@ module.exports = {
         //TODO Error handling
         return new Promise(async (res, rej) => {
             const rosterList = {};
-            console.log(season)
 
             //Use the Exec for full promises in Mongoose
             const rosters = await db.UserRoster.find({}).exec();

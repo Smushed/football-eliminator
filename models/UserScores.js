@@ -10,12 +10,13 @@ const UserScores = new Schema({
         unique: true,
         required: true
     },
-    weeklyScores: {
+    weeklyScore: {
         'groupId': {
             type: String,
             required: true,
             default: `allUsers`
         },
+        'totalScore': Number,
         '1': Number,
         '2': Number,
         '3': Number,

@@ -80,11 +80,25 @@ class UserEditor extends Component {
         this.setState({ selectedUser: id })
     };
 
+    calculateScores = async () => {
+        this.loading();
+        await axios.get(`/api/calculateScore/${this.props.season}/${this.props.week}/`);
+        this.doneLoading();
+    };
 
     render() {
         return (
             <div>
-                <SelectedUser selectedUser={this.state.selectedUser} />
+                <Row>
+                    <Col xs='4'>
+                        <Button onClick={this.calculateScores} color='primary' className='calculateScoreButton'>
+                            Update Scores
+                        </Button>
+                    </Col>
+                    <Col xs='8'>
+                        <SelectedUser selectedUser={this.state.selectedUser} />
+                    </Col>
+                </Row>
                 <Row>
                     <Col>
                         <Form onSubmit={this.dummyRoster}>

@@ -64,6 +64,7 @@ class PlayerEditor extends Component {
         } catch (err) {
             console.log(err)
         };
+        this.doneLoading();
     };
 
     render() {

@@ -1,5 +1,4 @@
 const rosterHandler = require(`../handlers/rosterHandler`);
-const mySportsHandler = require(`../handlers/mySportsHandler`);
 
 module.exports = app => {
     app.get(`/api/displayplayers`, async (req, res) => {
@@ -69,7 +68,6 @@ module.exports = app => {
 
     app.get(`/api/getPlayersByTeam/:userId/:team/:season`, async (req, res) => {
         const { userId, team, season } = req.params;
-        console.log(userId);
 
         const playersByTeam = await rosterHandler.searchPlayerByTeam(userId, team, season);
 
@@ -80,52 +78,7 @@ module.exports = app => {
         console.log(`Calculating users scores`);
 
         const { groupId, season, week } = req.params;
-        let userRosters = {};
-        let allUserArray = [];
 
-        if (groupId === `allUsers`) { // This is for the front page userboard
-            userRosters = await rosterHandler.getAllRosters(season);
-
-            //Manually puttting in allUsers to ensure it's data for the whole leaderboard
-            await mySportsHandler.calculateWeeklyScore(userRosters, week, season, `allUsers`);
-
-            console.log(`userarray`, allUserArray)
-            console.log(`rosters`, userRosters)
-
-            //now I need to iterate through the arrays and recalculate everyone's stats
-
-            //Now that we have the userList and all the user's rosters
-            // for (let i = 0; i < allUserArray.length; i++) {
-            //     //userDetail is going to be each element in the array
-            //     const userDetail = { userId: allUserArray[i]._id, username: allUserArray[i].username, email: allUserArray[i].email };
-            //     // Here we count down from the week we are currently on to grab all the players that the user has used
-            //     const previousWeekPlayers = {};
-            //     for (let ii = week; ii > 0; ii--) {
-            //         //For this we drill into the object of roster data that was returned from the DB.
-            //         //We look up this user's roster through their id which is a key
-            //         previousWeekPlayers[ii] = userRosters[allUserArray[i]._id].roster[ii];
-            //     };
-
-            //     //We then take the roster that we populated above and send it to the DB
-            //     // const weekScores = await axios.get(`/api/weeklyRosterScore`,
-            //     //     { params: { userRoster: previousWeekPlayers, week, season } });
-
-            //     console.log(previousWeekPlayers)
-            //     const weekScores = await mySportsHandler.weeklyScore(previousWeekPlayers, season, week);
-
-            //     let totalScore = 0;
-            //     for (let iii = week; iii > 0; iii--) {
-            //         //Now iterate over the weeks and pull out the total score
-            //         totalScore += parseFloat(weekScores.data[iii]); //Must be Float because there are decimals in the scores
-            //     };
-            //     userDetail.weekScores = weekScores.data;
-            //     userDetail.totalScore = totalScore.toFixed(2);
-
-            //     userList.push(userDetail);
-            // };
-        } else {
-            //TODO Add the support for groups
-        };
         res.status(200).send(`bazinga`);
     });
 };
