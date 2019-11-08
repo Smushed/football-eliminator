@@ -132,4 +132,12 @@ module.exports = app => {
         //TODO probable need to return the group posts instead of just the new post
         res.json(newPost);
     });
-}
+
+    app.get(`/api/getLeaderboard/:groupId`, async (req, res) => {
+        const { groupId } = req.params;
+
+        const leaderboardArray = await groupHandler.getLeaderBoard(groupId);
+
+        res.status(200).send(leaderboardArray);
+    });
+};

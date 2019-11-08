@@ -48,13 +48,12 @@ class Leaderboard extends Component {
 
     getDataForLeaderboard = (week, season) => {
         this.setState({ loading: true });
-        let userList = [];
 
         //Handling if this was called too early
         if (season === ``) { return }
-        axios.get(`/api/getLeaderboard/allUsers/${week}/${season}`)
+        axios.get(`/api/getLeaderboard/allUsers/`)
             .then(res => {
-                console.log(res)
+                this.setState({ loading: false, userList: res.data });
             });
     };
 
@@ -86,6 +85,8 @@ class Leaderboard extends Component {
                     getTdProps={(state, rowInfo) => {
                         return {
                             onClick: () => {
+                                if (!rowInfo) { return };
+                                console.log(`CLICKED`, rowInfo)
                                 Alert.fire({
                                     title: rowInfo.original.username,
                                     showCancelButton: true,

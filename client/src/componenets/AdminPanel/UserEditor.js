@@ -219,6 +219,7 @@ const UserTable = (props) => {
                     getTdProps={(state, rowInfo) => {
                         return {
                             onClick: () => {
+                                if (!rowInfo) { return };
                                 props.selectUser(rowInfo.original._id);
                             }
                         };

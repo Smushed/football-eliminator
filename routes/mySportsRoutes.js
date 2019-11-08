@@ -61,13 +61,4 @@ module.exports = app => {
 
         res.sendStatus(status);
     });
-
-    app.get(`/api/getLeaderboard/:groupId/:week/:season`, async (req, res) => {
-        const { groupId, season, week } = req.params;
-
-        //TODO Return the data in the format it was originally
-        //Look through github and find it
-
-        res.status(200).send(`bazinga`);
-    });
-}
+};
