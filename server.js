@@ -27,7 +27,7 @@ if (process.env.NODE_ENV === `production`) {
   MONGODB_URI = `mongodb://localhost/fantasyEliminator`;
 };
 
-mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 require(`./routes/rosterRoutes`)(app);
 require(`./routes/mySportsRoutes`)(app);

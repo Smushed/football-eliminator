@@ -16,6 +16,11 @@
     margin-top: 100px;
 }
 
+.calculateScoreButton {
+    margin-top: 10px;
+    margin-left: 45%;
+}
+
 @media screen and (max-width: 770px) {
     .dummyRosterButton {
         margin-top: 0;

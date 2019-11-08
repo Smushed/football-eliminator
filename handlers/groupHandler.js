@@ -129,4 +129,39 @@ module.exports = {
 
         return groupData;
     },
-}
+    getLeaderBoard: async (groupId) => {
+
+        let userList;
+        const arrayForLeaderBoard = [];
+
+        if (groupId === `allUsers`) {
+            userList = await db.User.find().exec();
+        } else {
+            //TODO Add data for other groups
+        };
+
+        const scores = await db.UserScores.find({ 'weeklyScore.groupId': groupId }).exec();
+
+        for (const user of userList) {
+            for (const score of scores) {
+                if (user._id.toString() === score.userId.toString()) {
+                    //Setting this outside to make it easier to add just the weekly scores in userRecord
+                    const totalScore = score.weeklyScore.totalScore;
+                    const weeklyScore = score.weeklyScore;
+                    delete weeklyScore.groupId;
+                    delete weeklyScore.totalScore;
+
+                    const userRecord = {
+                        email: user.local.email,
+                        userId: user._id,
+                        username: user.local.username,
+                        totalScore: totalScore,
+                        weekScores: score.weeklyScore
+                    };
+                    arrayForLeaderBoard.push(userRecord);
+                };
+            };
+        };
+        return arrayForLeaderBoard;
+    },
+};

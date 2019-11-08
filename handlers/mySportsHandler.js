@@ -118,7 +118,6 @@ const completeStats = (player, stats, season, week) => {
     return player;
 };
 
-
 const mergeMySportsWithDB = (playerInDB) => {
     //Merge the player with the current pull. Take the current stats and then send it
     db.FantasyStats.findByIdAndUpdate(playerInDB._id, playerInDB, (err) => {
@@ -217,7 +216,6 @@ const inactivatePlayers = (inactivePlayerArray) => {
     };
 };
 
-
 const updatePlayerTeam = async (player, team, season) => {
     //Check the database for the player
     const dbPlayer = await findPlayerInDB(player.id);
@@ -236,6 +234,34 @@ const updatePlayerTeam = async (player, team, season) => {
         response.player = await db.FantasyStats.findOneAndUpdate({ 'mySportsId': player.id }, { 'team': team, 'active': true }, { new: true });
     };
     return response;
+};
+
+const savePlayerScore = async (userId, allWeekScores, group) => {
+    let status = 200;
+
+    await db.UserScores.findOne({ 'userId': userId }, (err, userScore) => {
+        allWeekScores.groupId = group;
+        //First check if the userScore is not in the DB
+        if (userScore === null) {
+            var newUserScore = new db.UserScores({ userId: userId, weeklyScore: allWeekScores });
+            newUserScore.save(err => {
+                if (err) {
+                    console.log(err);
+                }
+            });
+        };
+
+        // Update it if it there is a record in the DB
+        userScore.weeklyScore = allWeekScores
+        userScore.save(err => {
+            if (err) {
+                console.log(err);
+            };
+        });
+    });
+
+    //TODO Error handling
+    return status;
 };
 
 module.exports = {
@@ -344,9 +370,9 @@ module.exports = {
     },
     weeklyScore: async (userRoster, season, week) => {
         //Starting at 1 because we always start with week one
-        const response = {}
+        const allWeekScores = {};
+        allWeekScores.totalScore = 0;
         for (let i = 1; i <= week; i++) {
-
             //Now I need to parse through this roster and every player that isn't marked with a 0 I need to query the DB
             let weekScore = 0;
             for (let ii = 1; ii <= 8; ii++) { //8 because that is the amount of players in the roster
@@ -369,8 +395,23 @@ module.exports = {
                     weekScore += await getPlayerWeeklyScore(userRoster[i].K, `K`, season, i);
                 }
             }
-            response[i] = weekScore.toFixed(2);
+            allWeekScores.totalScore += parseFloat(weekScore.toFixed(2));
+            allWeekScores[i] = weekScore.toFixed(2);
         };
-        return response;
+        return allWeekScores;
     },
+    calculateWeeklyScore: async function (userRosters, season, week, group) {
+        let status = 500;
+        // console.log(userRoster, season, week, group)
+
+        const userIdArray = Object.keys(userRosters);
+
+        for (userId of userIdArray) {
+            console.log(`Calcing `, userId)
+            const allWeekScores = await this.weeklyScore(userRosters[userId].roster, season, week);
+            status = await savePlayerScore(userId, allWeekScores, group);
+        }
+
+        return (status);
+    }
 };

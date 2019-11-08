@@ -68,10 +68,10 @@ module.exports = app => {
 
     app.get(`/api/getPlayersByTeam/:userId/:team/:season`, async (req, res) => {
         const { userId, team, season } = req.params;
-        console.log(userId);
 
         const playersByTeam = await rosterHandler.searchPlayerByTeam(userId, team, season);
 
         res.status(200).send(playersByTeam);
     });
+
 };
