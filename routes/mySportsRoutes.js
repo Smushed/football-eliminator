@@ -61,4 +61,12 @@ module.exports = app => {
 
         res.sendStatus(status);
     });
+
+    app.get(`/api/rankPlayers/:season/:week`, async (req, res) => {
+        const { season, week } = req.params;
+
+        const dbResponse = await mySportsHandler.rankPlayers(season, week);
+
+        res.sendStatus(dbResponse);
+    });
 };

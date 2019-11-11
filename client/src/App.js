@@ -37,7 +37,7 @@ class App extends Component {
     this.listener = this.props.firebase.auth.onAuthStateChanged(authUser => {
       if (authUser) {
         this.setState({ authUser });
-        this.isSignedIn(authUser.email);
+        // this.isSignedIn(authUser.email);
       } else {
         this.setState({ authUser: null, currentUser: {} });
       }

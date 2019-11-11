@@ -29,6 +29,7 @@ const FantasyStatsSchema = new Schema({
     active: Boolean,
     stats: {
         '2019-2020-regular': {
+            'rank': Number,
             '1': {
                 passing: {
                     passTD: {

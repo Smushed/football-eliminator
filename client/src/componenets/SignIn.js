@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
+import axios from 'axios';
 
 import { SignUpLink } from './SignUp';
 import { PasswordResetLink } from './PasswordReset'
@@ -38,6 +39,7 @@ const SignInPage = () => (
             <Col xs='1' />
             <Col xs='5'>
                 <WelcomeMessage />
+                <RankButton />
             </Col>
             <Col xs='5'>
                 <br />
@@ -50,6 +52,22 @@ const SignInPage = () => (
     </div>
 );
 
+
+//TODO DELETE THIS
+class RankButton extends Component {
+    onClick() {
+        axios.get(`/api/rankPlayers/2019-2020-regular/10`).then(res => console.log(res));
+    };
+
+    render() {
+        return (
+            <Button color='primary' onClick={this.onClick}>
+                Rank Players
+            </Button>
+        )
+    }
+}
+//TODO END DELETE THIS
 
 class SignInFormBase extends Component {
     constructor(props) {

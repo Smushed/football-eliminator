@@ -17,19 +17,29 @@ const getPlayerWeeklyScore = async (playerId, position, season, week) => {
             return 0;
         };
         player = player.toObject()
-        const stats = player.stats[season][week];
-        const categories = Object.keys(stats)
-        for (category of categories) {
-            const scoringFields = Object.keys(stats[category]);
-            for (field of scoringFields) {
-                weeklyScore += calculateScore(field, stats[category][field]);
-            };
-        };
+
+        weeklyScore = playerScoreHandler(player);
     } catch (err) {
         console.log(err, `Id:`, playerId);
     };
     return weeklyScore;
 };
+
+const playerScoreHandler = (player, season, week) => {
+    let weeklyScore = 0;
+
+    const stats = player.stats[season][week];
+    const categories = Object.keys(stats)
+
+    for (category of categories) {
+        const scoringFields = Object.keys(stats[category]);
+        for (field of scoringFields) {
+            weeklyScore += calculateScore(field, stats[category][field]);
+        };
+    };
+
+    return weeklyScore;
+}
 
 const calculateScore = (fieldToScore, result) => {
     //This is only currently in there to help debug
@@ -402,16 +412,47 @@ module.exports = {
     },
     calculateWeeklyScore: async function (userRosters, season, week, group) {
         let status = 500;
-        // console.log(userRoster, season, week, group)
 
         const userIdArray = Object.keys(userRosters);
 
-        for (userId of userIdArray) {
+        for (const userId of userIdArray) {
             console.log(`Calcing `, userId)
             const allWeekScores = await this.weeklyScore(userRosters[userId].roster, season, week);
             status = await savePlayerScore(userId, allWeekScores, group);
         }
 
         return (status);
-    }
+    },
+    rankPlayers: async function (season, currentWeek) {
+        let prettyBoy = await db.FantasyStats.findOne({ mySportsId: 7549, active: true }, `stats.${season}`);
+        prettyBoy = prettyBoy.toObject();
+
+        let score = 0;
+        let rank = 6;
+
+        for (let i = 1; i <= 17; i++) {
+            score += playerScoreHandler(prettyBoy, season, i);
+        };
+
+        let averageScore = score / currentWeek;
+
+        if (averageScore >= 15) {
+            rank = 1;
+        } else if (averageScore >= 12) {
+            rank = 2;
+        } else if (averageScore >= 9) {
+            rank = 3;
+        } else if (averageScore >= 6) {
+            rank = 4;
+        } else if (averageScore >= 3) {
+            rank = 5;
+        } else {
+            rank = 6;
+        };
+
+        //TODO Update a subdoc here
+        await db.FantasyStats.findOneAndUpdate({ _id: prettyBoy._id }, { stats.season.rank: week })
+
+        return 200;
+    },
 };
