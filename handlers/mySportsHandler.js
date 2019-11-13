@@ -459,7 +459,7 @@ module.exports = {
                 }
                 for (let player of currentRank) {
                     delete player.score;
-                    player.stats[season].rank = i;
+                    player.rank = i;
                     await player.save();
                 };
             };
