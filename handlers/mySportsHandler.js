@@ -2,6 +2,7 @@ const db = require(`../models`);
 const axios = require(`axios`);
 const nflTeams = require(`../constants/nflTeams`);
 const scoringSystem = require(`../constants/scoring`);
+const positions = require(`../constants/positions`);
 require(`dotenv`).config();
 
 const mySportsFeedsAPI = process.env.MY_SPORTS_FEEDS_API
@@ -17,19 +18,29 @@ const getPlayerWeeklyScore = async (playerId, position, season, week) => {
             return 0;
         };
         player = player.toObject()
-        const stats = player.stats[season][week];
-        const categories = Object.keys(stats)
-        for (category of categories) {
-            const scoringFields = Object.keys(stats[category]);
-            for (field of scoringFields) {
-                weeklyScore += calculateScore(field, stats[category][field]);
-            };
-        };
+
+        weeklyScore = playerScoreHandler(player, season, week);
     } catch (err) {
         console.log(err, `Id:`, playerId);
     };
     return weeklyScore;
 };
+
+const playerScoreHandler = (player, season, week) => {
+    let weeklyScore = 0;
+
+    const stats = player.stats[season][week];
+    const categories = Object.keys(stats)
+
+    for (category of categories) {
+        const scoringFields = Object.keys(stats[category]);
+        for (field of scoringFields) {
+            weeklyScore += calculateScore(field, stats[category][field]);
+        };
+    };
+
+    return weeklyScore;
+}
 
 const calculateScore = (fieldToScore, result) => {
     //This is only currently in there to help debug
@@ -402,16 +413,58 @@ module.exports = {
     },
     calculateWeeklyScore: async function (userRosters, season, week, group) {
         let status = 500;
-        // console.log(userRoster, season, week, group)
 
         const userIdArray = Object.keys(userRosters);
 
-        for (userId of userIdArray) {
+        for (const userId of userIdArray) {
             console.log(`Calcing `, userId)
             const allWeekScores = await this.weeklyScore(userRosters[userId].roster, season, week);
             status = await savePlayerScore(userId, allWeekScores, group);
         }
 
         return (status);
-    }
+    },
+    rankPlayers: async function (season) {
+
+        //Loop through the positions of the players to then rank them
+        //We are doing the offense here, since D will be different
+        for (const position of positions.offense) {
+            console.log(`Pulling ${position} for scoring`);
+            const playersByPosition = await db.FantasyStats.find({ 'position': position }, { mySportsId: 1, full_name: 1, position: 1, stats: 1 });
+            const rankingArray = [];
+
+            //Iterate through every player, get their total score for the season
+            for (let player of playersByPosition) {
+                player.toObject();
+                player.score = 0;
+
+                for (let i = 1; i <= 17; i++) {
+                    player.score += playerScoreHandler(player, season, i)
+                };
+
+                //Put them in an array to rank them
+                rankingArray.push(player);
+            };
+
+            //Sort the array by score so we can then divide it into the top performers
+            rankingArray.sort((a, b) => { return b.score - a.score });
+
+            //Get them into 7 different categories, each 10 big until the 7th rank, which is just all the rest
+            for (let i = 1; i <= 7; i++) {
+                let currentRank = [];
+                if (i !== 7) {
+                    currentRank = rankingArray.splice(0, 9)
+                } else {
+                    currentRank = rankingArray;
+                }
+                for (let player of currentRank) {
+                    delete player.score;
+                    player.rank = i;
+                    await player.save();
+                };
+            };
+        };
+
+        return 200;
+    },
 };

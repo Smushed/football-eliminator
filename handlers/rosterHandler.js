@@ -54,7 +54,7 @@ checkForAvailablePlayers = (usedPlayers, searchedPlayers) => {
     const usedPlayerSet = new Set(usedPlayers);
 
     //This creates an array of objects. We need to turn this into an object for all the players and an array of all player Ids
-    const availablePlayerArray = searchedPlayers.filter((player) => !usedPlayerSet.has(player.mySportsId));
+    let availablePlayerArray = searchedPlayers.filter((player) => !usedPlayerSet.has(player.mySportsId));
 
     const availablePlayerIdArray = availablePlayerArray.map(({ mySportsId }) => mySportsId);
 
@@ -72,6 +72,11 @@ checkForAvailablePlayers = (usedPlayers, searchedPlayers) => {
     };
 
     return responseAvailablePlayers;
+};
+
+sortPlayersByRank = (playerArray) => {
+    playerArray.sort((a, b) => { return a.ranking - b.ranking });
+    return playerArray;
 };
 
 getUsedPlayers = async (userId, season) => {
@@ -170,11 +175,11 @@ module.exports = {
 
         //usedPlayers is the array from the database of all players that the user has used
         //We need to grab ALL the playerIds that are currently active in the database and pull out any that are in the usedPlayers array
-        const searchedPlayers = await db.FantasyStats.find({ active: true, position: searchedPosition }, { mySportsId: 1, full_name: 1, position: 1 });
+        const searchedPlayers = await db.FantasyStats.find({ active: true, position: searchedPosition }, { mySportsId: 1, full_name: 1, position: 1, rank: 1 });
 
-        const responseAvailablePlayers = checkForAvailablePlayers(usedPlayers, searchedPlayers);
+        const availablePlayers = checkForAvailablePlayers(usedPlayers, searchedPlayers);
 
-        return responseAvailablePlayers;
+        return availablePlayers;
     },
     updateUserRoster: async (userId, dbReadyRoster, droppedPlayer, week, season, saveWithNoDrop) => {
 

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
+import axios from 'axios';
 
 import { SignUpLink } from './SignUp';
 import { PasswordResetLink } from './PasswordReset'

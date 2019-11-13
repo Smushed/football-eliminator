@@ -9,9 +9,15 @@ module.exports = app => {
         //getWeeklyData returns all player data for that week in an array
         //It is updating the  players in the DB but it is not sending the data back
         //Currently if this runs while there is no new players to add the front end will break
-        const response = await mySportsHandler.getWeeklyData(season, week);
+        await mySportsHandler.getWeeklyData(season, week);
 
-        res.status(200).send(response.text);
+        //TODO Refactor this out so it's not just a copy
+        const userRosters = await rosterHandler.getAllRosters(season);
+        const status = await mySportsHandler.calculateWeeklyScore(userRosters, season, week, `allUsers`);
+        await mySportsHandler.rankPlayers(season);
+
+
+        res.sendStatus(status);
 
     });
 
@@ -60,5 +66,13 @@ module.exports = app => {
         console.log(group, ` scores completed`);
 
         res.sendStatus(status);
+    });
+
+    app.get(`/api/rankPlayers/:season/`, async (req, res) => {
+        const { season } = req.params;
+
+        const dbResponse = await mySportsHandler.rankPlayers(season);
+
+        res.sendStatus(dbResponse);
     });
 };

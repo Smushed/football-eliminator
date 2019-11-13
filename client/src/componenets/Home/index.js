@@ -4,11 +4,18 @@ import { Link } from 'react-router-dom';
 import { Button, Container, Row, Col } from 'reactstrap';
 import * as Routes from '../../constants/routes';
 
+import axios from 'axios';
+
 import Leaderboard from './Leaderboard';
 import './homeStyle.css';
 
 //Stateful component to allow the grouplist to properly populate
 class Home extends Component {
+
+    onClick = async () => {
+        const response = await axios.get(`/api/rankPlayers/2019-2020-regular`);
+
+    };
 
     render() {
         const { isAdmin } = this.props;
@@ -36,11 +43,10 @@ class Home extends Component {
                                     Used Players
                                 </Button>
                             </Link>
-                            {/*  
-                        <Link to={`/displayplayers`}>
-                        Display Player Data
-                        </Link>
-                    <br /> */}
+                            <br />
+                            <Button color='primary' onClick={this.onClick}>
+                                Rank
+                            </Button>
                         </div>
                     </Col>
                     <Col sm='12' md='9'>
