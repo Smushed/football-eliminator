@@ -10,6 +10,7 @@ import './homeStyle.css';
 //Stateful component to allow the grouplist to properly populate
 class Home extends Component {
 
+
     render() {
         const { isAdmin } = this.props;
         return (
@@ -36,11 +37,7 @@ class Home extends Component {
                                     Used Players
                                 </Button>
                             </Link>
-                            {/*  
-                        <Link to={`/displayplayers`}>
-                        Display Player Data
-                        </Link>
-                    <br /> */}
+                            <br />
                         </div>
                     </Col>
                     <Col sm='12' md='9'>

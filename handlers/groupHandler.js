@@ -146,7 +146,7 @@ module.exports = {
             for (const score of scores) {
                 if (user._id.toString() === score.userId.toString()) {
                     //Setting this outside to make it easier to add just the weekly scores in userRecord
-                    const totalScore = score.weeklyScore.totalScore;
+                    const totalScore = score.weeklyScore.totalScore.toFixed(2);
                     const weeklyScore = score.weeklyScore;
                     delete weeklyScore.groupId;
                     delete weeklyScore.totalScore;
@@ -156,7 +156,7 @@ module.exports = {
                         userId: user._id,
                         username: user.local.username,
                         totalScore: totalScore,
-                        weekScores: score.weeklyScore
+                        weekScores: weeklyScore
                     };
                     arrayForLeaderBoard.push(userRecord);
                 };
