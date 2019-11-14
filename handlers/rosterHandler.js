@@ -137,36 +137,20 @@ module.exports = {
     },
     getRosterPlayers: async (currentRoster, season, week) => {
         //Goes through the roster of players and pulls in their full data to then display
-        currentRoster = currentRoster.roster[season][week].toJSON(); //Must be toJSON otherwise there will be mongo built in keys and methods
-        rosterArray = Object.values(currentRoster);
-        const rosterWithoutDummyData = [];
+        currentRoster = currentRoster.roster[season][week].toObject(); //Must be toJSON otherwise there will be mongo built in keys and methods
 
-        const responseRoster = {};
+        rosterArray = Object.values(currentRoster);
+
+        const responseRoster = [];
         for (const player of rosterArray) {
             if (player !== 0) {
                 //Go through the object that was given to us
                 const response = await db.FantasyStats.findOne({ mySportsId: player }, { mySportsId: 1, full_name: 1, position: 1 })
-
-                //Declaring what needs to be declared for the nested objects
-                //Parsing the roster and pulling in all the data we need
-
-                //Old - Use if needed. Drastically slows down the search to have them in here
-                // responseRoster[player].stats = {};
-                // responseRoster[player].stats[season] = {};
-                // responseRoster[player].team = response.team.abbreviation;
-                // responseRoster[player].stats[season] = response.stats[season];
-
-                responseRoster[player] = {};
-                responseRoster[player].full_name = response.full_name;
-                responseRoster[player].mySportsId = response.mySportsId;
-                responseRoster[player].position = response.position;
-
-                rosterWithoutDummyData.push(player);
+                responseRoster.push(response)
             };
         };
 
         //We also return the array so the drag & drop component can populate this without having to pull it again
-        responseRoster.playerArray = rosterWithoutDummyData;
         return responseRoster;
     },
     availablePlayers: async (userId, searchedPosition, season) => {

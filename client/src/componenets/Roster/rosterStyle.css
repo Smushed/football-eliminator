@@ -2,6 +2,10 @@
     line-height: 1.25;
 }
 
+.noMargin {
+    margin: 0;
+}
+
 .selectRow {
     width: 100%;
     margin-top: 20px;
@@ -9,10 +13,6 @@
 
 .topRow {
     margin-top: 10px;
-}
-
-.centerInput {
-    text-align: center;
 }
 
 .usedPlayerButtonContainer {
@@ -29,16 +29,8 @@
     margin-left: 25px;
 }
 
-.inputContainer {
-    width: 225px;
-}
-
 .secondRowInput {
     width: 150px;
-}
-
-.selectWeekMargin {
-    margin-left: 20%;
 }
 
 .submitButton {
@@ -49,6 +41,7 @@
 
 .selectContainer {
     width: 100%;
+    display: inline-block;
 }
 
 .playerColumn {
@@ -73,3 +66,5 @@
     margin-top: 15px;
     height: 100px;
 }
+
+
