@@ -12,11 +12,6 @@ import './homeStyle.css';
 //Stateful component to allow the grouplist to properly populate
 class Home extends Component {
 
-    onClick = async () => {
-        const response = await axios.get(`/api/rankPlayers/2019-2020-regular`);
-
-    };
-
     render() {
         const { isAdmin } = this.props;
         return (
@@ -43,10 +38,6 @@ class Home extends Component {
                                     Used Players
                                 </Button>
                             </Link>
-                            <br />
-                            <Button color='primary' onClick={this.onClick}>
-                                Rank
-                            </Button>
                         </div>
                     </Col>
                     <Col sm='12' md='9'>
