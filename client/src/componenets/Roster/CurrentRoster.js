@@ -9,7 +9,7 @@ import './currrentRosterStyle.css';
 const CurrentRoster = (props) => {
     return (
         <Fragment>
-
+            {console.log(props)}
             <Row>
                 <Col xs='12'>
                     Roster

@@ -134,12 +134,10 @@ class Roster extends Component {
             axios.get(`/api/userRoster/${this.props.match.params.userId}`,
                 { params: { week, season } })
                 .then(res => {
-                    console.log(res)
                     this.setState({ userRoster: res.data });
                     this.doneLoading();
-
                 }).catch(err => {
-                    console.log(`roster data error`, err.response.data); //TODO better error handling
+                    console.log(`roster data error`, err); //TODO better error handling
                 });
         };
     };
@@ -695,7 +693,6 @@ class Roster extends Component {
                                 </Button>
                         </div>
                     </Col>
-
 
                     <Col md='9'>
                         <Row className='topRow'>
