@@ -40,7 +40,7 @@ class DisplayPlayers extends Component {
         const columns = [
             { Header: 'Full Name', accessor: 'full_name', show: true },
             { Header: 'Position', accessor: 'position', show: true },
-            { Header: 'Team', accessor: 'team.abbreviation', show: true }];
+            { Header: 'Team', accessor: 'team', show: true }];
 
         const { loading } = this.state;
         return (

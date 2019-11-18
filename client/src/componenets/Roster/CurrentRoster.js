@@ -1,15 +1,10 @@
 import React, { Fragment } from 'react';
 import { Row, Col } from 'reactstrap';
-import './currrentRosterStyle.css';
-
-//TODO I need to start by updating the userRoster in a way that I can save it down to the DB
-//I'm thinking of having the Available players saved down as an array
-//But have the Current Roster of players saved down as "dbReadyRoster" is saved on the roster page
+import './columnRosterStyle.css';
 
 const CurrentRoster = (props) => {
     return (
         <Fragment>
-            {console.log(props)}
             <Row>
                 <Col xs='12'>
                     Roster
@@ -21,7 +16,9 @@ const CurrentRoster = (props) => {
                     QB
                 </div>
                 <div className='player'>
-                    Player Name, Team
+                    {props.userRoster.QB !== 0 ?
+                        props.userRoster.QB.full_name + `, ` + props.userRoster.QB.team : ``
+                    }
                 </div>
             </Row>
 
@@ -30,7 +27,9 @@ const CurrentRoster = (props) => {
                     RB
                 </div>
                 <div className='player'>
-                    Player Name, Team
+                    {props.userRoster.RB1 !== 0 ?
+                        props.userRoster.RB1.full_name + `, ` + props.userRoster.RB1.team : ``
+                    }
                 </div>
             </Row>
 
@@ -39,7 +38,9 @@ const CurrentRoster = (props) => {
                     RB
                 </div>
                 <div className='player'>
-                    Player Name, Team
+                    {props.userRoster.RB2 !== 0 ?
+                        props.userRoster.RB2.full_name + `, ` + props.userRoster.RB2.team : ``
+                    }
                 </div>
             </Row>
 
@@ -48,7 +49,9 @@ const CurrentRoster = (props) => {
                     WR
                 </div>
                 <div className='player'>
-                    Player Name, Team
+                    {props.userRoster.WR1 !== 0 ?
+                        props.userRoster.WR1.full_name + `, ` + props.userRoster.WR1.team : ``
+                    }
                 </div>
             </Row>
 
@@ -57,7 +60,9 @@ const CurrentRoster = (props) => {
                     WR
                 </div>
                 <div className='player'>
-                    Player Name, Team
+                    {props.userRoster.WR2 !== 0 ?
+                        props.userRoster.WR2.full_name + `, ` + props.userRoster.WR2.team : ``
+                    }
                 </div>
             </Row>
 
@@ -66,7 +71,9 @@ const CurrentRoster = (props) => {
                     Flex
                 </div>
                 <div className='player'>
-                    Player Name, Team
+                    {props.userRoster.Flex !== 0 ?
+                        props.userRoster.Flex.full_name + `, ` + props.userRoster.Flex.team : ``
+                    }
                 </div>
             </Row>
 
@@ -75,7 +82,9 @@ const CurrentRoster = (props) => {
                     TE
                 </div>
                 <div className='player'>
-                    Player Name, Team
+                    {props.userRoster.TE !== 0 ?
+                        props.userRoster.TE.full_name + `, ` + props.userRoster.TE.team : ``
+                    }
                 </div>
             </Row>
 
@@ -84,7 +93,9 @@ const CurrentRoster = (props) => {
                     K
                 </div>
                 <div className='player'>
-                    Player Name, Team
+                    {props.userRoster.K !== 0 ?
+                        props.userRoster.K.full_name + `, ` + props.userRoster.K.team : ``
+                    }
                 </div>
             </Row>
 

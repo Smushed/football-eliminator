@@ -161,7 +161,7 @@ const getNewPlayerStats = (player, stats, team, season, week) => {
     combinedStats.full_name = `${player.firstName} ${player.lastName}`;
     combinedStats.mySportsId = player.id;
     combinedStats.position = player.primaryPosition || player.position;
-    combinedStats.team = { id: team.id, abbreviation: team.abbreviation };
+    combinedStats.team = team;
     combinedStats.active = true;
 
     //This runs through the stats and fills in any objects that aren't available
@@ -195,7 +195,7 @@ const parseRoster = async (playerArray, team, season) => {
     };
 
     //Grab all the players in the database for that team so then we can check against the recent players in the API
-    const dbNFLRoster = await db.FantasyStats.find({ 'team.abbreviation': team.abbreviation });
+    const dbNFLRoster = await db.FantasyStats.find({ team: team });
     //Iterate through the players we have sitting in the database
     //Take out all the players which we just wrote to the database and update all the rest to be inactive
 
@@ -242,6 +242,7 @@ const updatePlayerTeam = async (player, team, season) => {
         response.player = getNewPlayerStats(player, {}, team, season, 17);
     } else {
         response.newPlayer = false;
+        console.log(`team ${team}`)
         response.player = await db.FantasyStats.findOneAndUpdate({ 'mySportsId': player.id }, { 'team': team, 'active': true }, { new: true });
     };
     return response;
@@ -279,7 +280,7 @@ module.exports = {
 
     updateRoster: async (season) => {
         // This loops through the array of all the teams above and gets the current rosters
-        for (const team of nflTeams.teamMapping) {
+        for (const team of nflTeams.teams) {
             await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
                 auth: {
                     username: mySportsFeedsAPI,
@@ -287,14 +288,14 @@ module.exports = {
                 },
                 params: {
                     season: season,
-                    team: team.abbreviation,
+                    team: team,
                     rosterstatus: `assigned-to-roster`
                 }
             }).then(async (response) => {
                 // Then parses through the roster and pulls out of all the offensive players and updates their data
                 //This also gets any new players and adds them to the DB but inside this function
                 //Await because I want it to iterate through the whole roster that was provided before moving onto the next one
-                console.log(team)
+                console.log(`working through ${team}`)
                 await parseRoster(response.data.players, team, season);
             }).catch(err => {
                 //TODO Error handling if the AJAX failed
@@ -307,7 +308,7 @@ module.exports = {
     },
     getMassData: async function () {
         //This loops through the the seasons and weeks and pulls through all of the data for the players
-        const seasonList = [`2018-2019-regular`]; //TODO Need to update it here every year (unless I include this in the request)
+        const seasonList = [`2019-2020-regular`]; //TODO Need to update it here every year (unless I include this in the request)
         const weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
 
         for (let i = 0; i < seasonList.length; i++) {

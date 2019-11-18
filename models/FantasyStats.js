@@ -13,14 +13,9 @@ const FantasyStatsSchema = new Schema({
         type: Number,
     },
     team: {
-        id: {
-            type: Number
-        },
-        abbreviation: {
-            type: String,
-            default: `UNK`,
-            trim: true
-        },
+        type: String,
+        default: `UNK`,
+        trim: true
     },
     position: {
         type: String,

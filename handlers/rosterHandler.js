@@ -54,28 +54,15 @@ checkForAvailablePlayers = (usedPlayers, searchedPlayers) => {
     const usedPlayerSet = new Set(usedPlayers);
 
     //This creates an array of objects. We need to turn this into an object for all the players and an array of all player Ids
-    let availablePlayerArray = searchedPlayers.filter((player) => !usedPlayerSet.has(player.mySportsId));
+    const availablePlayerArray = searchedPlayers.filter((player) => !usedPlayerSet.has(player.mySportsId));
 
-    const availablePlayerIdArray = availablePlayerArray.map(({ mySportsId }) => mySportsId);
+    const sortedPlayerArray = sortPlayersByRank(availablePlayerArray);
 
-    const responseAvailablePlayers = { idArray: availablePlayerIdArray };
-
-    for (const player of availablePlayerArray) {
-        //Go through the object that was given to us
-        //Declaring what needs to be declared for the nested objects
-        responseAvailablePlayers[player.mySportsId] = {};
-
-        //Parsing the roster and pulling in all the data we need
-        responseAvailablePlayers[player.mySportsId].full_name = player.full_name;
-        responseAvailablePlayers[player.mySportsId].mySportsId = player.mySportsId;
-        responseAvailablePlayers[player.mySportsId].position = player.position;
-    };
-
-    return responseAvailablePlayers;
+    return sortedPlayerArray;
 };
 
 sortPlayersByRank = (playerArray) => {
-    playerArray.sort((a, b) => { return a.ranking - b.ranking });
+    playerArray.sort((a, b) => { return a.rank - b.rank });
     return playerArray;
 };
 
@@ -87,7 +74,7 @@ getUsedPlayers = async (userId, season) => {
 
 module.exports = {
     byRoster: async () => {
-        const players = await db.FantasyStats.find({ 'team.abbreviation': 'CHI' })
+        const players = await db.FantasyStats.find({ 'team': 'CHI' })
 
         return players
     },
@@ -137,7 +124,7 @@ module.exports = {
     },
     getRosterPlayers: async (currentRoster, season, week) => {
         //Goes through the roster of players and pulls in their full data to then display
-        currentRoster = currentRoster.roster[season][week].toObject(); //Must be toJSON otherwise there will be mongo built in keys and methods
+        currentRoster = currentRoster.roster[season][week].toObject();
 
         rosterArray = Object.values(currentRoster);
 
@@ -145,7 +132,7 @@ module.exports = {
         for (const player of rosterArray) {
             if (player !== 0) {
                 //Go through the object that was given to us
-                const response = await db.FantasyStats.findOne({ mySportsId: player }, { mySportsId: 1, full_name: 1, position: 1 })
+                const response = await db.FantasyStats.findOne({ mySportsId: player }, { mySportsId: 1, full_name: 1, position: 1, rank: 1, team: 1 })
                 responseRoster.push(response)
             };
         };
@@ -159,7 +146,7 @@ module.exports = {
 
         //usedPlayers is the array from the database of all players that the user has used
         //We need to grab ALL the playerIds that are currently active in the database and pull out any that are in the usedPlayers array
-        const searchedPlayers = await db.FantasyStats.find({ active: true, position: searchedPosition }, { mySportsId: 1, full_name: 1, position: 1, rank: 1 });
+        const searchedPlayers = await db.FantasyStats.find({ active: true, position: searchedPosition }, { mySportsId: 1, full_name: 1, position: 1, rank: 1, team: 1 });
 
         const availablePlayers = checkForAvailablePlayers(usedPlayers, searchedPlayers);
 
@@ -268,7 +255,7 @@ module.exports = {
 
         const usedPlayers = await getUsedPlayers(userId, season);
 
-        const playersByTeam = await db.FantasyStats.find({ 'team.abbreviation': team }, { mySportsId: 1, full_name: 1, position: 1 });
+        const playersByTeam = await db.FantasyStats.find({ team: team }, { mySportsId: 1, rank: 1, full_name: 1, position: 1, team: 1 });
 
         const availablePlayers = checkForAvailablePlayers(usedPlayers, playersByTeam);
 

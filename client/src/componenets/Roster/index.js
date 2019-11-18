@@ -5,11 +5,12 @@ import { Label, Input, Container, Button, Row, Col } from 'reactstrap';
 
 import { DragDropContext } from 'react-beautiful-dnd';
 import Column from './Column';
-import CurrentRoster from './CurrentRoster';
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import './rosterStyle.css';
+import './columnRosterStyle.css';
 
+import CurrentRoster from './CurrentRoster';
 import UsedPlayerButton from '../UsedPlayers/UsedPlayerButton';
 
 const Alert = withReactContent(Swal);
@@ -21,20 +22,7 @@ class Roster extends Component {
         this.handleChange = this.handleChange.bind(this);
         this.state = {
             userRoster: [],
-            columns: {
-                'userRoster': {
-                    id: 'userRoster',
-                    title: 'On Roster',
-                    playerIds: [] //These have the be the same as the keys above & the same as the mySportsId
-                },
-                'available': {
-                    id: 'available',
-                    title: 'Available',
-                    playerIds: []
-                },
-            },
-            //Able to order the columns
-            columnOrder: ['userRoster', 'available'],
+            availablePlayers: [],
             positionSelect: `QB`, //This is the default value for the position search
             teamSelect: `ARI`,
             weekSelect: 0,
@@ -111,13 +99,11 @@ class Roster extends Component {
 
     clearPlayers = () => {
         //Gets rid of all the players that are sitting in state when the user goes to another week
-        let { userRoster, columns } = this.state;
+        let { userRoster } = this.state;
 
-        columns.userRoster.playerIds = [];
-        columns.available.playerIds = [];
-        userRoster = {};
+        userRoster = [];
 
-        this.setState({ userRoster, columns });
+        this.setState({ userRoster });
     };
 
     getRosterData = (week, season) => {
@@ -135,6 +121,7 @@ class Roster extends Component {
                 { params: { week, season } })
                 .then(res => {
                     this.setState({ userRoster: res.data });
+                    this.sortRoster(res.data);
                     this.doneLoading();
                 }).catch(err => {
                     console.log(`roster data error`, err); //TODO better error handling
@@ -153,7 +140,7 @@ class Roster extends Component {
 
         //We then go through the current user roster and populate it with data to sort it and get all the players
         for (let i = 0; i < userRoster.length; i++) {
-            const position = this.state.userRoster[userRoster[i]].position;
+            const position = this.state.userRoster[i].position;
             //For the RB And WR positions, there are three options each they can be in
             //RB/WR 1 & 2 as well as a flex position. All of which are undefined because we cannot have duplicate keys in an object
             //We use a switch statement for WR and RB and start pulling the data into the fake roster
@@ -321,7 +308,7 @@ class Roster extends Component {
 
         //Here we iterate through the roster of the player and put them into an object for the order we want
         for (const player of roster) {
-            const position = this.state.userRoster[player].position
+            const position = player.position;
             //If the position is QB, TE, or K then we can just put them directly in
             if (position === `QB`) {
                 sortedRoster[0] = player;
@@ -361,7 +348,7 @@ class Roster extends Component {
 
         const sortedNoDummyData = sortedRoster.filter(id => id !== 0);
 
-        this.setState({ dbReadyRoster });
+        this.setState({ dbReadyRoster, userRoster: sortedRoster });
 
         //Until testing is complete, just send back the same roster
         return sortedNoDummyData;
@@ -545,16 +532,9 @@ class Roster extends Component {
         axios.get(`/api/availablePlayers`,
             { params: { userId, searchedPosition: this.state.positionSelect, season: this.state.seasonSelect } })
             .then(res => {
-                //What comes back is an array of objects for all the available players
-                //We need to first change the array of objects into just an array to put into the playerIds state
-                let columns = { ...this.state.columns };
+                console.log(res.data)
 
-                columns.available.playerIds = res.data.idArray;
-                delete res.data.idArray;
-
-                const currentRoster = { ...this.state.userRoster, ...res.data }
-
-                this.setState({ userRoster: currentRoster, columns: columns });
+                this.setState({ availablePlayers: res.data });
                 this.doneLoading();
             });
     };
@@ -578,15 +558,9 @@ class Roster extends Component {
 
         axios.get(`/api/getPlayersByTeam/${this.props.userId}/${this.state.teamSelect}/${this.props.season}`)
             .then(res => {
-                console.log(res)
-                let columns = { ...this.state.columns };
+                console.log(res.data)
 
-                columns.available.playerIds = res.data.idArray;
-                delete res.data.idArray;
-
-                const currentRoster = { ...this.state.userRoster, ...res.data }
-
-                this.setState({ userRoster: currentRoster, columns: columns });
+                this.setState({ availablePlayers: res.data });
                 this.doneLoading();
             });
     }
@@ -709,54 +683,32 @@ class Roster extends Component {
                         <Row>
                             <Col md='4'>
                                 <CurrentRoster
-                                    userRoster={this.state.userRoster} />
+                                    userRoster={this.state.dbReadyRoster} />
                             </Col>
                             <Col md='8'>
-                                Available Players
+                                <Row>
+                                    <Col xs='12'>
+                                        Available Players
+                                    </Col>
+                                </Row>
+
+                                <Row>
+                                    <Col xs='12'>
+                                        {this.state.availablePlayers.map((player, i) => (
+                                            <Row className='playerRow' key={i}>
+                                                <div className='player'>
+                                                    {player.full_name + `, ` + player.team + `, ` + player.position}
+                                                </div>
+                                                {/* TODO Make this 2-3 divs with the button to move them to the roster */}
+                                            </Row>
+                                        ))
+                                        }
+                                    </Col>
+                                </Row>
                             </Col>
                         </Row>
                     </Col>
                 </Row>
-                {/* TODO DELETE THIS
-                <Row className='topRow'>
-                    <Col xs='12'>
-                        <div className='centerText headerFont'>
-                            {this.state.usernameOfPage}'s Roster
-                            <UsedPlayerButton
-                                userId={this.props.match.params.userId}
-                                username={this.state.usernameOfPage} />
-                        </div>
-                    </Col>
-                </Row>
-
-                <Row className='searchRow'>
-                    <Col xs='6'>
-                        
-
-
-                    </Col>
-                    
-                </Row>
-                <Row>
-                    <DragDropContext
-                        // These are callbacks for updating the drag when someone picks something up or drops it
-                        // Others are onDragStart and onDragUpdate. They can be used when people pick up the draggable or if they move it around
-                        onDragEnd={this.onDragEnd}
-                    >
-                        {/* Iterate through all the columns to then display as many columns as needed */}
-                {/* {this.state.columnOrder.map((columnId) => {
-                    const column = this.state.columns[columnId];
-                    //Iterate through all the players in the array of the column and then create an array of them all to show in a column
-                    const roster = column.playerIds.map(playerId => this.state.userRoster[playerId]);
-                    return (
-                        // this only has to be xs of 6 because there will only ever be two columns
-                        <Col xs='6' key={columnId}>
-                            <Column key={column.id} column={column} roster={roster} className='playerColumn' />
-                        </Col>
-                    );
-                })}
-                    </DragDropContext> */}
-                {/* </Row > */}
             </Container >
         )
     }
