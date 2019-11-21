@@ -128,7 +128,7 @@ class Roster extends Component {
     };
 
     //This is to check if the player has too many of a certain position on their roster
-    countRoster = (originalRoster, updatedRoster) => {
+    countRoster = (originalRoster, updatedRoster, originalAvailablePlayers) => {
         let QBCount = 0;
         let RBCount = 0;
         let WRCount = 0;
@@ -158,35 +158,35 @@ class Roster extends Component {
         //Probably a bettwe way to do this, but unsure of how.
         //Also need to feed in the originalRoster in case the player cancels out and we are to reload the original state
         if (QBCount > 1) {
-            this.tooManyPlayers(originalRoster, updatedRoster, `QB`, QBCount);
+            this.tooManyPlayers(originalRoster, updatedRoster, `QB`, originalAvailablePlayers);
             return false; //Return false here because we are splitting and handling this with the tooManyPlayers and no longer need to save it in the onDragEnd
         } else if (WRCount > 3) {
-            this.tooManyPlayers(originalRoster, updatedRoster, `WR`, WRCount);
+            this.tooManyPlayers(originalRoster, updatedRoster, `WR`, originalAvailablePlayers);
             return false;
         } else if (RBCount > 3) {
-            this.tooManyPlayers(originalRoster, updatedRoster, `RB`, RBCount);
+            this.tooManyPlayers(originalRoster, updatedRoster, `RB`, originalAvailablePlayers);
             return false;
         } else if (RBCount + WRCount > 5) {
             //Here we want the WR or RB to be over three. If they already have 3 on their roster, it means that one is already in their flex
             //If they only have two then they can sub one of the other positions and put it in their flex
-            this.tooManyPlayers(originalRoster, updatedRoster, `Flex`);
+            this.tooManyPlayers(originalRoster, updatedRoster, `Flex`, originalAvailablePlayers);
             return false;
         } else if (TECount > 1) {
-            this.tooManyPlayers(originalRoster, updatedRoster, `TE`, TECount);
+            this.tooManyPlayers(originalRoster, updatedRoster, `TE`, originalAvailablePlayers);
             return false;
         } else if (KCount > 1) {
-            this.tooManyPlayers(originalRoster, updatedRoster, `K`, KCount);
+            this.tooManyPlayers(originalRoster, updatedRoster, `K`, originalAvailablePlayers);
             return false;
         };
         return true;
     };
 
-    tooManyPlayers = async (originalRoster, roster, position, count) => {
+    tooManyPlayers = async (originalRoster, roster, position, originalAvailablePlayers) => {
         //Pull out all the players for the position that has too many in it right now
         let filteredRoster = [];
         if (position === `Flex`) {
             //If the position is flex, that means there are two of the current position and they can either swap it for RB or console.warn();
-            filteredRoster = roster.filter(player => player.position === `RB` || this.state.userRoster[player].position === `WR`);
+            filteredRoster = roster.filter(player => player.position === `RB` || player.position === `WR`);
         } else {
             filteredRoster = roster.filter(player => player.position === position);
         };
@@ -213,8 +213,10 @@ class Roster extends Component {
 
         //If the player responded with the player they would like to drop then we will take them out of their current array and then set the new state
         if (chosenPlayer) {
-            const availablePlayers = this.state.availablePlayers;
+            const availablePlayers = originalAvailablePlayers.slice(0);
             let droppedPlayerIndex = 0;
+            let availDroppedPlayerIndex = -1;
+
             const droppedPlayer = roster.find((player, i) => {
                 if (player.mySportsId === parseInt(chosenPlayer)) {
                     droppedPlayerIndex = i;
@@ -222,7 +224,16 @@ class Roster extends Component {
                 };
             });
 
+            availablePlayers.find((player, i) => {
+                if (player.mySportsId === parseInt(chosenPlayer)) {
+                    availDroppedPlayerIndex = i;
+                };
+            });
+
             //Remove the player they chose from the array and then save it down into state
+            if (availDroppedPlayerIndex >= 0) {
+                availablePlayers.splice(availDroppedPlayerIndex, 1);
+            };
             roster.splice(droppedPlayerIndex, 1);
             //Add the player they dropped back to the available list of players
             if (droppedPlayer.position === this.state.positionSelect) {
@@ -235,7 +246,8 @@ class Roster extends Component {
             //If the check failed, then we will have an issue and are going to revert the state back to the previous point
             if (checkRoster) {
                 //We take the array of player IDs that are on the user roster and sort them
-                roster = this.sortRoster(roster);
+                //SortRoster also saves down dbReadyRoster so we should be good to save it below
+                this.sortRoster(roster);
 
                 //Here we feed the new sorted array along with the player to be deleted from the old array. The state is updated in the sortRoster function
                 //We need to new array to get the new player added and the old player so we can pull them out of the usedPlayersArray in the DB
@@ -254,11 +266,11 @@ class Roster extends Component {
             };
         } else if (chosenPlayer === undefined) {
             //This is if the player has chosen to cancel out of the box above. We reload the old state to remove the player they just added
-            this.setState({ userRoster: originalRoster });
+            this.setState({ userRoster: originalRoster, availablePlayers: originalAvailablePlayers });
         } else {
             //This is if the player doesn't select one of the players and just presses accept
             await Alert.fire(`You must pick one or cancel`)
-            this.tooManyPlayers(originalRoster, roster, position, count);
+            this.tooManyPlayers(originalRoster, roster, position, originalAvailablePlayers);
         };
     };
 
@@ -334,7 +346,7 @@ class Roster extends Component {
             };
         };
 
-        this.setState({ dbReadyRoster });
+        this.setState({ dbReadyRoster, userRoster: roster });
 
         return;
     };
@@ -366,145 +378,6 @@ class Roster extends Component {
 
         //If the week and the season are not locked then we can return true, that the week they are trying to edit is not locked
         return true;
-    };
-
-    onDragEnd = async result => {
-        const { destination, source, draggableId } = result;
-        //If the drag was cancelled then back out of this
-        if (!destination) {
-            return;
-        };
-
-        //If the destination of the drag was the same as the start then back out of onDragEnd
-        if (destination.droppableId === source.droppableId && destination.index === source.index) {
-            return;
-        };
-
-        //Check if the peroid the user is trying to change is locked
-        const isLocked = await this.checkLockPeriod();
-        if (!isLocked) {
-            Alert.fire({
-                title: `Peroid is locked!`,
-                type: `warning`,
-                text: `Week ${this.state.weekOnPage} is locked. Please search a different week`,
-            });
-            return;
-        }
-
-        if (!this.state.currentUser) {
-            Alert.fire({
-                title: `Not your roster!`,
-                type: `warning`,
-            });
-            return;
-        }
-
-        //Get the column out of the state so we don't mutate the state
-        //Must be the start and finish since there is a chance that we are moving between two columns
-        //Start and finish is where the drag started and where it finishes
-        const start = this.state.columns[source.droppableId];
-        const finish = this.state.columns[destination.droppableId];
-
-        // If we are not changing columns, only reordering within the columns then we can reorganize the list in the order the user wants
-        if (start === finish) {
-
-            //Make an array with the same contents as the old array
-            let newPlayerIds = Array.from(start.playerIds);
-            //Now move the player ID from its old index to its new index
-            newPlayerIds.splice(source.index, 1);
-            //Start at the destination index, remove nothing and insert the draggableId in that spot
-            newPlayerIds.splice(destination.index, 0, draggableId);
-
-            if (source.droppableId === `userRoster`) { //Really you can use either source or destination here
-                //If user is changing their roster, sort it to make sure it stays in the order we want it in (QB, RB, WR, Flex, TE, K)
-                newPlayerIds = await this.sortRoster(newPlayerIds);
-                await this.saveRosterToDb(this.state.dbReadyRoster, 0, false);
-            };
-
-            //Create a new column which has the same properites as the old column but with the newPlayerIds array
-            const newColumn = {
-                ...start,
-                playerIds: newPlayerIds
-            };
-
-            //Now put this into a new picture of the state
-            //Using spread to keep the references and updating the parts we want to change
-            const newState = {
-                ...this.state,
-                columns: {
-                    ...this.state.columns,
-                    //Now insert the new column
-                    [newColumn.id]: newColumn
-                },
-            };
-
-            //Now push the changes to the state
-            this.setState(newState);
-
-            return;
-        };
-
-        // Moving from one column to another
-        const startNewPlayerIds = Array.from(start.playerIds);
-        //Remove the dragged player Id from this array
-        startNewPlayerIds.splice(source.index, 1);
-        //Create a new start column that contains the new properties as the old column but with the new start player Ids array
-        const newStart = {
-            ...start,
-            playerIds: startNewPlayerIds
-        };
-
-        //Creating a new array for the dropped column that contains the same Ids as the finished player array
-        const finishPlayerIds = Array.from(finish.playerIds);
-        //Splice in the dropped player into the array
-        finishPlayerIds.splice(destination.index, 0, draggableId);
-        const newFinish = {
-            ...finish,
-            playerIds: finishPlayerIds
-        };
-
-        const newState = {
-            ...this.state,
-            columns: {
-                //Update the columns in the state object
-                ...this.state.columns,
-                //Specifically only overwrite the start and finish column.
-                //If there are more than two on the screen we only want to overwrite what has been dragged and dropped
-                [newStart.id]: newStart,
-                [newFinish.id]: newFinish
-            }
-        };
-
-        //Saving a copy of the old state to revert it if the player wants to disregard the player they just added
-        const originalRoster = this.state.columns;
-
-        //We first wait until the state has been pushed to ensure we are capturing the players the user wants to add.
-        this.setState(newState);
-
-        //Then we check if the added player can fit in the roster and if we need to drop a current player
-        //Pass through the original roster if the player decides they want to cancel out
-        const needToSave = this.countRoster(originalRoster);
-
-        const correctRoster = this.checkRoster(this.state.columns.userRoster.playerIds);
-
-        //If the roster is correct, and we need to save it down because it won't be saved through the countRoster (ie less than 8 players) then we push it through
-        if (correctRoster && needToSave) {
-            const sortedRoster = this.sortRoster(this.state.columns.userRoster.playerIds);
-
-            //Save the new sorted roster down to the state to ensure it's sorted
-            const columns = this.state.columns;
-            columns.userRoster.playerIds = sortedRoster;
-            this.setState({ columns });
-
-            //Checks if we are moving a player from the On Roster Column to the Available column
-            if (destination.droppableId === `available`) {
-                this.saveRosterToDb(this.state.dbReadyRoster, draggableId, false);
-            } else {
-                //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
-                //The true is to indicate we need to save a player down without dropping one in the usedPlayer array in the DB
-                this.saveRosterToDb(this.state.dbReadyRoster, 0, true);
-            }
-        };
     };
 
     //This triggers off the Form on the roster below that allows the user to search for the position they would like to add to their roster
@@ -570,8 +443,8 @@ class Roster extends Component {
             return;
         };
 
-        const newAvailablePlayers = this.state.availablePlayers;
-        const newRoster = this.state.userRoster;
+        const newAvailablePlayers = this.state.availablePlayers.slice(0);
+        const newRoster = this.state.userRoster.slice(0);
 
         //First I need to copy the state as is
         //Then find the player the user wants to add or drop
@@ -590,32 +463,41 @@ class Roster extends Component {
             newRoster.push(addedPlayer);
 
             //The line above is the one that is causing issues. It can handle one add / drop but not any more
+            const needToSave = this.countRoster(this.state.userRoster, newRoster, this.state.availablePlayers);
+            const correctRoster = this.checkRoster(newRoster);
 
-            const needToSave = this.countRoster(this.state.userRoster, newRoster);
-            //TODO WORK THIS OUT
-            // const correctRoster = this.checkRoster(newRoster);
-
-            // //We use this to check if they are adding players to a less than complete roster. countRoster above will take care of saving the roster if it's full or they need to drop someone
-            // if (correctRoster && needToSave) {
-            //     const sortedRoster = this.sortRoster(newRoster);
-
-            //     //Save the new sorted roster down to the state to ensure it's sorted
-            //     this.setState({ userRoster: sortedRoster });
-
-            //     //Checks if we are moving a player from the On Roster Column to the Available column
-            //     if (destination.droppableId === `available`) {
-            //         this.saveRosterToDb(this.state.dbReadyRoster, draggableId, false);
-            //     } else {
-            //         //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
-            //         //The true is to indicate we need to save a player down without dropping one in the usedPlayer array in the DB
-            //         this.saveRosterToDb(this.state.dbReadyRoster, 0, true);
-            //     };
-            // };
-
-
+            //We use this is the player has less than a complete roster
+            if (correctRoster && needToSave) {
+                this.sortRoster(newRoster);
+                this.setState({ availablePlayers: newAvailablePlayers });
+                //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
+                //The true is to indicate we need to save a player down without dropping one in the usedPlayer array in the DB
+                this.saveRosterToDb(this.state.dbReadyRoster, 0, true);
+            };
         } else if (addOrDrop === `drop`) {
+            let droppedPlayerIndex = 0;
+            const droppedPlayer = newRoster.find((player, i) => {
+                if (player.mySportsId === mySportsId) {
+                    droppedPlayerIndex = i;
+                    return player;
+                };
+            });
 
-        }
+            newRoster.splice(droppedPlayerIndex, 1);
+            newAvailablePlayers.unshift(droppedPlayer);
+
+            const needToSave = this.countRoster(this.state.userRoster, newRoster, this.state.availablePlayers);
+            const correctRoster = this.checkRoster(newRoster);
+
+            //We use this is the player has less than a complete roster
+            if (correctRoster && needToSave) {
+                this.sortRoster(newRoster);
+                this.setState({ availablePlayers: newAvailablePlayers });
+                //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
+                //The true is to indicate we need to save a player down without dropping one in the usedPlayer array in the DB
+                this.saveRosterToDb(this.state.dbReadyRoster, mySportsId, false);
+            };
+        };
     };
 
     render() {
@@ -631,16 +513,16 @@ class Roster extends Component {
                         <PositionSearch positionSelect={this.state.positionSelect} handleChange={this.handleChange} positionSearch={this.positionSearch} />
 
                         <TeamSearch handleChange={this.handleChange} searchByTeam={this.searchByTeam} teamSelect={this.state.teamSelect} />
+
+                        <UsedPlayerButton userId={this.props.match.params.userId} username={this.state.usernameOfPage} />
+
                     </Col>
-
-
 
                     <Col md='9'>
                         <Row className='topRow'>
                             <Col xs='12'>
                                 <div className='centerText headerFont'>
                                     {this.state.usernameOfPage}'s Roster
-                                        <UsedPlayerButton userId={this.props.match.params.userId} username={this.state.usernameOfPage} />
                                 </div>
                             </Col>
                         </Row>
@@ -650,7 +532,9 @@ class Roster extends Component {
                             <Col md='5'>
                                 <Row>
                                     <Col xs='12'>
-                                        Roster
+                                        <div className='colHeader'>
+                                            Roster
+                                        </div>
                                     </Col>
                                 </Row>
                                 {rosterPlayers.map(position => (
@@ -662,7 +546,9 @@ class Roster extends Component {
                             <Col md='5'>
                                 <Row>
                                     <Col xs='12'>
-                                        Available Players
+                                        <div className='colHeader'>
+                                            Available Players
+                                        </div>
                                     </Col>
                                 </Row>
 
@@ -677,8 +563,6 @@ class Roster extends Component {
                             </Col>
                             <Col md='1' />
                         </Row>
-
-
                     </Col>
                 </Row>
             </Container >
@@ -696,12 +580,12 @@ const CurrentRosterRow = (props) => (
         <Col xs='10'>
             {props.player ?
                 <Row>
-                    <Col xs='7'>
+                    <Col xs='9'>
                         <div className='player'>
                             {props.player.full_name + `, ` + props.player.team}
                         </div>
                     </Col>
-                    <Col xs='5'>
+                    <Col xs='3'>
                         <Button className='addDropButton' color='outline-success' size='sm' onClick={() => props.addDropPlayer(props.player.mySportsId, 'drop')}>
                             Drop
                         </Button>
@@ -715,13 +599,13 @@ const CurrentRosterRow = (props) => (
 
 const AvailablePlayerRow = (props) => (
     <Row className='playerRow'>
-        <Col xs='8'>
+        <Col xs='9'>
             <div className='player'>
 
                 {props.player.full_name + `, ` + props.player.team + `, ` + props.player.position}
             </div>
         </Col>
-        <Col xs='4'>
+        <Col xs='3'>
             <Button className='addDropButton' color='outline-success' size='sm' onClick={() => props.addDropPlayer(props.player.mySportsId, 'add')}>
                 Add
             </Button>

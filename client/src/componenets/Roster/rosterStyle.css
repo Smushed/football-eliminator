@@ -58,6 +58,11 @@
     flex-direction: column;
 }
 
+.colHeader {
+    text-align: center;
+    font-size: 22px;
+}
+
 .title {
     padding: 8px;
 }
