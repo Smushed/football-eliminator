@@ -152,9 +152,13 @@ module.exports = {
 
         return availablePlayers;
     },
-    updateUserRoster: async (userId, dbReadyRoster, droppedPlayer, week, season, saveWithNoDrop) => {
-
+    updateUserRoster: async (userId, roster, droppedPlayer, week, season, saveWithNoDrop) => {
         return new Promise((res, rej) => {
+            const dbReadyRoster = {};
+            for (const position in roster) {
+                dbReadyRoster[position] = roster[position].mySportsId;
+            };
+
             db.UserRoster.findOne({ userId }, (err, currentRoster) => {
                 //If the player is adding someone from the available player pool we remove the player they dropped and add the new player
 
@@ -187,7 +191,6 @@ module.exports = {
                 Object.keys(filledOutRoster).forEach(position => {
                     currentRoster.roster[season][week][position] = filledOutRoster[position];
                 });
-
 
                 currentRoster.save((err, result) => {
                     if (err) {

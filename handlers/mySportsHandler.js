@@ -242,7 +242,6 @@ const updatePlayerTeam = async (player, team, season) => {
         response.player = getNewPlayerStats(player, {}, team, season, 17);
     } else {
         response.newPlayer = false;
-        console.log(`team ${team}`)
         response.player = await db.FantasyStats.findOneAndUpdate({ 'mySportsId': player.id }, { 'team': team, 'active': true }, { new: true });
     };
     return response;
@@ -466,6 +465,7 @@ module.exports = {
             };
         };
 
+        console.log(`Done Ranking`);
         return 200;
     },
 };

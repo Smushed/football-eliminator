@@ -67,4 +67,6 @@
     height: 100px;
 }
 
-
+.floatRight {
+    float:right;
+}
