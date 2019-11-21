@@ -1,0 +1,28 @@
+.playerRow {
+    border: 1px solid lightgrey;
+    border-radius: 2px;
+    margin-bottom: 8px;
+    margin-right: 8px;
+    margin-left: 8px;
+    background-color: white;
+    width: 100%;
+    display: inline-block;
+}
+
+.positionBox {
+    min-width: 45px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-right: 8px;
+    border-right: 1px solid lightgrey;
+    border-radius: 2px;
+}
+
+.player {
+    padding: 8px;
+    width: auto;
+}
+
+.addDropButton {
+    margin-top: 2px;
+}

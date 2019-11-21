@@ -86,7 +86,6 @@ class Leaderboard extends Component {
                         return {
                             onClick: () => {
                                 if (!rowInfo) { return };
-                                console.log(`CLICKED`, rowInfo)
                                 Alert.fire({
                                     title: rowInfo.original.username,
                                     showCancelButton: true,

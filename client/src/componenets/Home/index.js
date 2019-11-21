@@ -4,8 +4,6 @@ import { Link } from 'react-router-dom';
 import { Button, Container, Row, Col } from 'reactstrap';
 import * as Routes from '../../constants/routes';
 
-import axios from 'axios';
-
 import Leaderboard from './Leaderboard';
 import './homeStyle.css';
 
