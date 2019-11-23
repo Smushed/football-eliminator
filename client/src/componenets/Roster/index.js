@@ -529,19 +529,8 @@ class Roster extends Component {
 
                         <Row>
                             <Col md='1' />
-                            <Col md='5'>
-                                <Row>
-                                    <Col xs='12'>
-                                        <div className='colHeader'>
-                                            Roster
-                                        </div>
-                                    </Col>
-                                </Row>
-                                {rosterPlayers.map(position => (
-                                    <CurrentRosterRow key={position} position={position} player={currentRoster[position]} addDropPlayer={this.addDropPlayer} />
-                                ))}
-                            </Col>
 
+                            <RosterDisplay colWidth='5' rosterPlayers={rosterPlayers} addDropPlayer={this.addDropPlayer} currentRoster={currentRoster} />
 
                             <Col md='5'>
                                 <Row>
@@ -586,9 +575,11 @@ const CurrentRosterRow = (props) => (
                         </div>
                     </Col>
                     <Col xs='3'>
-                        <Button className='addDropButton' color='outline-success' size='sm' onClick={() => props.addDropPlayer(props.player.mySportsId, 'drop')}>
-                            Drop
-                        </Button>
+                        {props.addDropPlayer &&
+                            <Button className='addDropButton' color='outline-success' size='sm' onClick={() => props.addDropPlayer(props.player.mySportsId, 'drop')}>
+                                Drop
+                            </Button>
+                        }
                     </Col>
                 </Row>
                 : ``
@@ -613,7 +604,16 @@ const AvailablePlayerRow = (props) => (
     </Row>
 );
 
+const RosterDisplay = (props) => (
+    <Col md={props.colWidth}>
+        {props.rosterPlayers.map(position => (
+            <CurrentRosterRow key={position} position={position} player={props.currentRoster[position]} addDropPlayer={props.addDropPlayer} />
+        ))}
+    </Col>
+);
+
 
 const condition = authUser => !!authUser;
 
 export default withAuthorization(condition)(Roster);
+export { RosterDisplay };
