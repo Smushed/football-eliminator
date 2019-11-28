@@ -128,7 +128,7 @@ class Roster extends Component {
     };
 
     //This is to check if the player has too many of a certain position on their roster
-    countRoster = (originalRoster, updatedRoster, originalAvailablePlayers) => {
+    countRoster = (originalRoster, updatedRoster, originalAvailablePlayers, addedPlayer) => {
         let QBCount = 0;
         let RBCount = 0;
         let WRCount = 0;
@@ -158,30 +158,30 @@ class Roster extends Component {
         //Probably a bettwe way to do this, but unsure of how.
         //Also need to feed in the originalRoster in case the player cancels out and we are to reload the original state
         if (QBCount > 1) {
-            this.tooManyPlayers(originalRoster, updatedRoster, `QB`, originalAvailablePlayers);
+            this.tooManyPlayers(originalRoster, updatedRoster, `QB`, originalAvailablePlayers, addedPlayer);
             return false; //Return false here because we are splitting and handling this with the tooManyPlayers and no longer need to save it in the onDragEnd
         } else if (WRCount > 3) {
-            this.tooManyPlayers(originalRoster, updatedRoster, `WR`, originalAvailablePlayers);
+            this.tooManyPlayers(originalRoster, updatedRoster, `WR`, originalAvailablePlayers, addedPlayer);
             return false;
         } else if (RBCount > 3) {
-            this.tooManyPlayers(originalRoster, updatedRoster, `RB`, originalAvailablePlayers);
+            this.tooManyPlayers(originalRoster, updatedRoster, `RB`, originalAvailablePlayers, addedPlayer);
             return false;
         } else if (RBCount + WRCount > 5) {
             //Here we want the WR or RB to be over three. If they already have 3 on their roster, it means that one is already in their flex
             //If they only have two then they can sub one of the other positions and put it in their flex
-            this.tooManyPlayers(originalRoster, updatedRoster, `Flex`, originalAvailablePlayers);
+            this.tooManyPlayers(originalRoster, updatedRoster, `Flex`, originalAvailablePlayers, addedPlayer);
             return false;
         } else if (TECount > 1) {
-            this.tooManyPlayers(originalRoster, updatedRoster, `TE`, originalAvailablePlayers);
+            this.tooManyPlayers(originalRoster, updatedRoster, `TE`, originalAvailablePlayers, addedPlayer);
             return false;
         } else if (KCount > 1) {
-            this.tooManyPlayers(originalRoster, updatedRoster, `K`, originalAvailablePlayers);
+            this.tooManyPlayers(originalRoster, updatedRoster, `K`, originalAvailablePlayers, addedPlayer);
             return false;
         };
         return true;
     };
 
-    tooManyPlayers = async (originalRoster, roster, position, originalAvailablePlayers) => {
+    tooManyPlayers = async (originalRoster, roster, position, originalAvailablePlayers, addedPlayer) => {
         //Pull out all the players for the position that has too many in it right now
         let filteredRoster = [];
         if (position === `Flex`) {
@@ -213,19 +213,21 @@ class Roster extends Component {
 
         //If the player responded with the player they would like to drop then we will take them out of their current array and then set the new state
         if (chosenPlayer) {
+            const intChosenPlayer = parseInt(chosenPlayer);
+            const intAddedPlayer = parseInt(addedPlayer);
+
             const availablePlayers = originalAvailablePlayers.slice(0);
             let droppedPlayerIndex = 0;
             let availDroppedPlayerIndex = -1;
 
             const droppedPlayer = roster.find((player, i) => {
-                if (player.mySportsId === parseInt(chosenPlayer)) {
+                if (player.mySportsId === intChosenPlayer) {
                     droppedPlayerIndex = i;
                     return player;
                 };
             });
-
             availablePlayers.find((player, i) => {
-                if (player.mySportsId === parseInt(chosenPlayer)) {
+                if (player.mySportsId === intAddedPlayer) {
                     availDroppedPlayerIndex = i;
                 };
             });
@@ -234,7 +236,9 @@ class Roster extends Component {
             if (availDroppedPlayerIndex >= 0) {
                 availablePlayers.splice(availDroppedPlayerIndex, 1);
             };
+
             roster.splice(droppedPlayerIndex, 1);
+
             //Add the player they dropped back to the available list of players
             if (droppedPlayer.position === this.state.positionSelect) {
                 availablePlayers.unshift(droppedPlayer);
@@ -253,7 +257,7 @@ class Roster extends Component {
                 //We need to new array to get the new player added and the old player so we can pull them out of the usedPlayersArray in the DB
                 this.saveRosterToDb(this.state.dbReadyRoster, chosenPlayer, false);
 
-                this.setState({ availablePlayers, userRoster: roster });
+                this.setState({ availablePlayers: availablePlayers });
             } else {
                 Alert.fire({
                     type: 'warning',
@@ -364,8 +368,9 @@ class Roster extends Component {
     };
 
     checkLockPeriod = async () => {
+        return true;
         const response = await axios.get(`/api/checkLockPeriod`);
-
+        console.log(response.data)
         //If this week is already passed the lock date then return bad request
         if (this.state.weekOnPage <= response.data.lockWeek) {
             return false;
@@ -463,7 +468,7 @@ class Roster extends Component {
             newRoster.push(addedPlayer);
 
             //The line above is the one that is causing issues. It can handle one add / drop but not any more
-            const needToSave = this.countRoster(this.state.userRoster, newRoster, this.state.availablePlayers);
+            const needToSave = this.countRoster(this.state.userRoster, newRoster, this.state.availablePlayers, addedPlayer.mySportsId);
             const correctRoster = this.checkRoster(newRoster);
 
             //We use this is the player has less than a complete roster
@@ -577,7 +582,7 @@ const CurrentRosterRow = (props) => (
                 {props.position}
             </div>
         </Col>
-        <Col xs='10'>
+        <Col xs='9'>
             {props.player ?
                 <Row>
                     <Col xs='9'>
@@ -599,7 +604,7 @@ const CurrentRosterRow = (props) => (
 
 const AvailablePlayerRow = (props) => (
     <Row className='playerRow'>
-        <Col xs='9'>
+        <Col xs='8'>
             <div className='player'>
 
                 {props.player.full_name + `, ` + props.player.team + `, ` + props.player.position}
