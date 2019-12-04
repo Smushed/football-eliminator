@@ -17,7 +17,8 @@ class Home extends Component {
         this.leaderboardUserClicked = this.leaderboardUserClicked.bind(this);
         this.state = {
             userDisplayed: '',
-            userRoster: []
+            userIdDisplayed: '',
+            userRoster: {}
         };
     };
 
@@ -34,6 +35,7 @@ class Home extends Component {
     };
 
     leaderboardUserClicked(userId, username) {
+        this.setState({ userRoster: {} });
         this.getRoster(userId, this.props.week, username)
     };
 
@@ -48,7 +50,7 @@ class Home extends Component {
                     this.sortRoster(res.data);
 
                     if (username) {
-                        this.setState({ userDisplayed: username });
+                        this.setState({ userDisplayed: username, userIdDisplayed: userId });
                     } else {
                         this.getUserName(userId);
                     }
@@ -61,7 +63,7 @@ class Home extends Component {
     getUserName(userId) {
         axios.get(`/api/getUserById/${userId}`)
             .then(res => {
-                this.setState({ userDisplayed: res.data.local.username })
+                this.setState({ userDisplayed: res.data.local.username, userIdDisplayed: userId })
             }).catch(err => {
                 console.log(err); //TODO better error handling
             });
@@ -109,14 +111,14 @@ class Home extends Component {
     };
 
     render() {
-        const { isAdmin, userId } = this.props;
-        const { userRoster, userDisplayed } = this.state;
+        const { isAdmin } = this.props;
+        const { userRoster, userDisplayed, userIdDisplayed } = this.state;
         const rosterPlayers = ['QB', 'RB1', 'RB2', 'WR1', 'WR2', 'Flex', 'TE', 'K'];
 
         return (
             <Container fluid={true}>
                 <Row>
-                    <LeftPanel smCol='12' mdCol='5' rosterPlayers={rosterPlayers} addDropPlayer={null} currentRoster={userRoster} isAdmin={isAdmin} userId={userId} userDisplayed={userDisplayed} />
+                    <LeftPanel smCol='12' mdCol='5' rosterPlayers={rosterPlayers} addDropPlayer={null} currentRoster={userRoster} isAdmin={isAdmin} userId={userIdDisplayed} userDisplayed={userDisplayed} />
                     <Col sm='12' md='7'>
                         <Leaderboard week={this.props.week} season={this.props.season} userClicked={this.leaderboardUserClicked} />
                     </Col>
@@ -136,44 +138,46 @@ const HomeLink = (props) => (
 
 const LeftPanel = (props) => (
     <Col sm={props.smCol} md={props.mdCol}>
-        <Row>
-            <Col sm='9'>
-                {props.userDisplayed &&
-                    props.userDisplayed + `'s Roster`
-                }
-            </Col>
-            {props.userDisplayed &&
-                <UserLinks smCol='3' isAdmin={props.isAdmin} userId={props.userId} />
-            }
-        </Row>
-        <RosterDisplay colWidth='12' rosterPlayers={props.rosterPlayers} addDropPlayer={null} currentRoster={props.currentRoster} />
+        {props.userDisplayed &&
+            <Fragment>
+                <Row>
+                    <Col xs='12'>
+                        <Row>
+                            <Col sm='12' className='centerText usernameHeader'>
+                                {props.userDisplayed + `'s Roster`}
+                            </Col>
+                            <Col xs='12' className='centerText userLinks'>
+                                <UserLinks isAdmin={props.isAdmin} userId={props.userId} userDisplayed={props.userDisplayed} />
+                            </Col>
+                        </Row>
+                    </Col>
+                </Row>
+                <RosterDisplay colWidth='12' rosterPlayers={props.rosterPlayers} addDropPlayer={null} currentRoster={props.currentRoster} />
+            </Fragment>
+        }
     </Col>
 );
 
 const UserLinks = (props) => (
-    <Col sm={props.smCol}>
-        <div className='centerText topMargin'>
-            {props.isAdmin &&
-                <Fragment>
-                    <Link to={Routes.adminPanel}>
-                        Go To Admin Panel
-                    </Link>
-                    <br />
-                </Fragment>
-            }
-            <Link to={`/roster/${props.userId}`}>
-                <Button color='primary' className='topMargin'>
-                    My Roster
-            </Button>
+    <Fragment>
+        {props.isAdmin &&
+            <Link to={Routes.adminPanel}>
+                <Button color='info' className='userLinkButton'>
+                    Admin Panel
+                </Button>
             </Link>
-            <br />
-            <Link to={`/usedPlayers/${props.userId}`}>
-                <Button color='secondary' className='topMargin'>
-                    Used Players
+        }
+        <Link to={`/roster/${props.userId}`}>
+            <Button color='primary' className='userLinkButton'>
+                {props.userDisplayed}'s Roster
             </Button>
-            </Link>
-        </div>
-    </Col>
+        </Link>
+        <Link to={`/usedPlayers/${props.userId}`}>
+            <Button color='secondary' className='userLinkButton'>
+                {props.userDisplayed}'s Players
+            </Button>
+        </Link>
+    </Fragment>
 );
 
 const condition = authUser => !!authUser;
