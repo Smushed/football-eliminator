@@ -6,6 +6,8 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { withRouter } from 'react-router-dom';
 
+import './leaderBoardStyle.css'
+
 const Alert = withReactContent(Swal);
 
 class Leaderboard extends Component {
@@ -79,31 +81,30 @@ class Leaderboard extends Component {
                     defaultSorted={defaultSorted}
                     loading={this.state.loading}
                     defaultPageSize={20}
-                    className="-highlight"
+                    className="-highlight textCenter"
 
                     //TODO Enable an on click to have a pop up to view their weekly stats
                     getTdProps={(state, rowInfo) => {
                         return {
                             onClick: () => {
                                 if (!rowInfo) { return };
-                                Alert.fire({
-                                    title: rowInfo.original.username,
-                                    showCancelButton: true,
-                                    confirmButtonColor: '#228B22',
-                                    cancelButtonColor: '#A9A9A9',
-                                    confirmButtonText: 'Go to their page'
-                                }).then(result => {
-                                    if (result.value) {
-                                        this.redirect(rowInfo.original.userId)
-                                        // const redirectValue = '/roster/' + rowInfo.original.userId;
-                                        // console.log(redirectValue)
-                                        // return <Redirect to={redirectValue} />
-                                    };
-                                });
+                                this.props.userClicked(rowInfo.original.userId, rowInfo.original.username)
+                                // Alert.fire({
+                                //     title: rowInfo.original.username,
+                                //     showCancelButton: true,
+                                //     confirmButtonColor: '#228B22',
+                                //     cancelButtonColor: '#A9A9A9',
+                                //     confirmButtonText: 'Go to their page'
+                                // }).then(result => {
+                                //     if (result.value) {
+                                //         this.redirect(rowInfo.original.userId)
+                                //     };
+                                // });
                             }
                         };
                     }}
-                /></div>
+                />
+            </div>
         )
     };
 };

@@ -5,3 +5,18 @@
 .topMargin {
     margin-top: 25px;
 }
+
+.usernameHeader {
+    margin-top: 25px;
+    font-size: 36px;
+    font-weight: 600;
+}
+
+.userLinkButton {
+    margin-left: 15px;
+}
+
+.userLinks {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}

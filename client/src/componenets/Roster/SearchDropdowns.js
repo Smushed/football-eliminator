@@ -4,7 +4,6 @@ import { Label, Input, Button } from 'reactstrap';
 
 const WeekSearch = (props) => (
     <div className='selectContainer'>
-        <Label for='weekSelect'>Select Week</Label>
         <div className='secondRowInput'>
             <Input value={props.weekSelect} type='select' name='weekSelect' id='weekSelect' className='searchDropdown' onChange={props.handleChange}>
                 <option>1</option>

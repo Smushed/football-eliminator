@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
-import { Container, Button, Row, Col } from 'reactstrap';
+import { Container, Button, Row, Col, Label } from 'reactstrap';
 
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -513,6 +513,7 @@ class Roster extends Component {
                 <Row>
 
                     <Col md='3' className='noMargin'>
+                        <Label for='weekSelect'>Select Week</Label>
                         <WeekSearch weekSelect={this.state.weekSelect} handleChange={this.handleChange} customSeasonWeekSearch={this.customSeasonWeekSearch} />
 
                         <PositionSearch positionSelect={this.state.positionSelect} handleChange={this.handleChange} positionSearch={this.positionSearch} />
@@ -535,19 +536,8 @@ class Roster extends Component {
                         <Row>
                             <Col md='1' />
                             <Col md='5'>
-                                <Row>
-                                    <Col xs='12'>
-                                        <div className='colHeader'>
-                                            Roster
-                                        </div>
-                                    </Col>
-                                </Row>
-                                {rosterPlayers.map(position => (
-                                    <CurrentRosterRow key={position} position={position} player={currentRoster[position]} addDropPlayer={this.addDropPlayer} />
-                                ))}
+                                <RosterDisplay rosterPlayers={rosterPlayers} addDropPlayer={this.addDropPlayer} currentRoster={currentRoster} />
                             </Col>
-
-
                             <Col md='5'>
                                 <Row>
                                     <Col xs='12'>
@@ -591,9 +581,11 @@ const CurrentRosterRow = (props) => (
                         </div>
                     </Col>
                     <Col xs='3'>
-                        <Button className='addDropButton' color='outline-success' size='sm' onClick={() => props.addDropPlayer(props.player.mySportsId, 'drop')}>
-                            Drop
-                        </Button>
+                        {props.addDropPlayer &&
+                            <Button className='addDropButton' color='outline-success' size='sm' onClick={() => props.addDropPlayer(props.player.mySportsId, 'drop')}>
+                                Drop
+                            </Button>
+                        }
                     </Col>
                 </Row>
                 : ``
@@ -618,7 +610,16 @@ const AvailablePlayerRow = (props) => (
     </Row>
 );
 
+const RosterDisplay = (props) => (
+    <Fragment>
+        {props.rosterPlayers.map(position => (
+            <CurrentRosterRow key={position} position={position} player={props.currentRoster[position]} addDropPlayer={props.addDropPlayer} />
+        ))}
+    </Fragment>
+);
+
 
 const condition = authUser => !!authUser;
 
 export default withAuthorization(condition)(Roster);
+export { RosterDisplay };
