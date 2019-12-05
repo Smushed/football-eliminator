@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
-import { Container, Button, Row, Col } from 'reactstrap';
+import { Container, Button, Row, Col, Label } from 'reactstrap';
 
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -508,6 +508,7 @@ class Roster extends Component {
                 <Row>
 
                     <Col md='3' className='noMargin'>
+                        <Label for='weekSelect'>Select Week</Label>
                         <WeekSearch weekSelect={this.state.weekSelect} handleChange={this.handleChange} customSeasonWeekSearch={this.customSeasonWeekSearch} />
 
                         <PositionSearch positionSelect={this.state.positionSelect} handleChange={this.handleChange} positionSearch={this.positionSearch} />
@@ -529,9 +530,9 @@ class Roster extends Component {
 
                         <Row>
                             <Col md='1' />
-
-                            <RosterDisplay colWidth='5' rosterPlayers={rosterPlayers} addDropPlayer={this.addDropPlayer} currentRoster={currentRoster} />
-
+                            <Col md='5'>
+                                <RosterDisplay rosterPlayers={rosterPlayers} addDropPlayer={this.addDropPlayer} currentRoster={currentRoster} />
+                            </Col>
                             <Col md='5'>
                                 <Row>
                                     <Col xs='12'>
@@ -605,11 +606,11 @@ const AvailablePlayerRow = (props) => (
 );
 
 const RosterDisplay = (props) => (
-    <Col md={props.colWidth}>
+    <Fragment>
         {props.rosterPlayers.map(position => (
             <CurrentRosterRow key={position} position={position} player={props.currentRoster[position]} addDropPlayer={props.addDropPlayer} />
         ))}
-    </Col>
+    </Fragment>
 );
 
 

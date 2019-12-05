@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Button, Container, Row, Col } from 'reactstrap';
 import { RosterDisplay } from '../Roster';
 import * as Routes from '../../constants/routes';
+import { WeekSearch } from '../Roster/SearchDropdowns';
 
 import Leaderboard from './Leaderboard';
 import './homeStyle.css';
@@ -18,18 +19,21 @@ class Home extends Component {
         this.state = {
             userDisplayed: '',
             userIdDisplayed: '',
-            userRoster: {}
+            userRoster: {},
+            weekSelect: 1
         };
     };
 
     componentDidMount() {
         if (this.props.userId && this.props.week) {
+            this.setState({ weekSelect: this.props.week });
             this.getRoster(this.props.userId, this.props.week);
         };
     };
 
     componentDidUpdate(prevProps) {
         if (this.props.week !== prevProps.week) {
+            this.setState({ weekSelect: this.props.week });
             this.getRoster(this.props.userId, this.props.week);
         };
     };
@@ -43,6 +47,8 @@ class Home extends Component {
 
         if (week !== 0 && this.props.season !== ``) {
             const season = this.props.season;
+
+            this.setState({ weekSelect: week });
 
             axios.get(`/api/userRoster/${userId}`,
                 { params: { week, season } })
@@ -110,15 +116,41 @@ class Home extends Component {
         return;
     };
 
+    handleChange = (e) => {
+        this.setState({
+            [e.target.name]: e.target.value
+        });
+    };
+
+    customSeasonWeekSearch = (e) => {
+        e.preventDefault();
+
+        //Need to clear the playerIds when switching weeks. If not the program makes the array an array of undefined
+        const userRoster = {};
+
+        this.setState({ userRoster })
+
+        this.getRoster(this.state.userIdDisplayed, this.state.weekSelect, this.state.userDisplayed);
+    };
+
     render() {
         const { isAdmin } = this.props;
-        const { userRoster, userDisplayed, userIdDisplayed } = this.state;
+        const { userRoster, userDisplayed, userIdDisplayed, weekSelect } = this.state;
         const rosterPlayers = ['QB', 'RB1', 'RB2', 'WR1', 'WR2', 'Flex', 'TE', 'K'];
 
         return (
             <Container fluid={true}>
                 <Row>
-                    <LeftPanel smCol='12' mdCol='5' rosterPlayers={rosterPlayers} addDropPlayer={null} currentRoster={userRoster} isAdmin={isAdmin} userId={userIdDisplayed} userDisplayed={userDisplayed} />
+                    <LeftPanel smCol='12' mdCol='5'
+                        rosterPlayers={rosterPlayers}
+                        addDropPlayer={null}
+                        currentRoster={userRoster}
+                        isAdmin={isAdmin}
+                        userId={userIdDisplayed}
+                        userDisplayed={userDisplayed}
+                        weekSelect={weekSelect}
+                        customSeasonWeekSearch={this.customSeasonWeekSearch}
+                        handleChange={this.handleChange} />
                     <Col sm='12' md='7'>
                         <Leaderboard week={this.props.week} season={this.props.season} userClicked={this.leaderboardUserClicked} />
                     </Col>
@@ -139,22 +171,31 @@ const HomeLink = (props) => (
 const LeftPanel = (props) => (
     <Col sm={props.smCol} md={props.mdCol}>
         {props.userDisplayed &&
-            <Fragment>
-                <Row>
-                    <Col xs='12'>
-                        <Row>
-                            <Col sm='12' className='centerText usernameHeader'>
-                                {props.userDisplayed + `'s Roster`}
-                            </Col>
-                            <Col xs='12' className='centerText userLinks'>
-                                <UserLinks isAdmin={props.isAdmin} userId={props.userId} userDisplayed={props.userDisplayed} />
-                            </Col>
-                        </Row>
-                    </Col>
-                </Row>
-                <RosterDisplay colWidth='12' rosterPlayers={props.rosterPlayers} addDropPlayer={null} currentRoster={props.currentRoster} />
-            </Fragment>
+            <Row>
+                <Col xs='12'>
+                    <Row>
+                        <Col sm='12' className='centerText usernameHeader'>
+                            {props.userDisplayed}
+                        </Col>
+                    </Row>
+                </Col>
+            </Row>
         }
+        <Row>
+            <Col md='12' className='centerText'>
+                <WeekSearch weekSelect={props.weekSelect} handleChange={props.handleChange} customSeasonWeekSearch={props.customSeasonWeekSearch} />
+            </Col>
+        </Row>
+        <Row>
+            <Col md='12'>
+                <RosterDisplay rosterPlayers={props.rosterPlayers} addDropPlayer={null} currentRoster={props.currentRoster} />
+            </Col>
+        </Row>
+        <Row>
+            <Col xs='12' className='centerText userLinks'>
+                <UserLinks isAdmin={props.isAdmin} userId={props.userId} userDisplayed={props.userDisplayed} />
+            </Col>
+        </Row>
     </Col>
 );
 
@@ -169,12 +210,12 @@ const UserLinks = (props) => (
         }
         <Link to={`/roster/${props.userId}`}>
             <Button color='primary' className='userLinkButton'>
-                {props.userDisplayed}'s Roster
+                Go to Roster
             </Button>
         </Link>
         <Link to={`/usedPlayers/${props.userId}`}>
-            <Button color='secondary' className='userLinkButton'>
-                {props.userDisplayed}'s Players
+            <Button color='info' className='userLinkButton'>
+                Used Players
             </Button>
         </Link>
     </Fragment>
