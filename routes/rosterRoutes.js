@@ -50,8 +50,8 @@ module.exports = app => {
         res.status(200).send(dbResponse);
     });
 
-    app.get(`/api/checkLockPeriod`, (req, res) => {
-        const lockPeriod = rosterHandler.checkLockPeriod();
+    app.get(`/api/checkLockPeriod`, async (req, res) => {
+        const lockPeriod = await rosterHandler.checkLockPeriod();
 
         res.status(200).send(lockPeriod);
     });

@@ -5,7 +5,7 @@ const scoringSystem = require(`../constants/scoring`);
 const positions = require(`../constants/positions`);
 require(`dotenv`).config();
 
-const mySportsFeedsAPI = process.env.MY_SPORTS_FEEDS_API
+const mySportsFeedsAPI = process.env.MY_SPORTS_FEEDS_API;
 
 const getPlayerWeeklyScore = async (playerId, position, season, week) => {
     if (playerId === 0) {

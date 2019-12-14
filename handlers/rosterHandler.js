@@ -1,6 +1,10 @@
 const db = require(`../models`);
 const weekDates = require(`../constants/weekDates`);
 const { DateTime } = require('luxon');
+const axios = require(`axios`);
+require(`dotenv`).config();
+
+const timezoneAPI = process.env.TIMEZONE_DB_API_KEY;
 
 //This is here for when a user adds or drops a player. It fills out the object of the current week with 0s
 fillOutRoster = (dbReadyRoster) => {
@@ -214,10 +218,28 @@ module.exports = {
             res(rosterList);
         });
     },
-    checkLockPeriod: () => {
-        const currentTime = DateTime.local().setZone(`America/Chicago`);
-        const year = parseInt(currentTime.c.year);
+    checkLockPeriod: async () => {
+        let currentTime = ``;
+        let year = ``;
         let lockYear = ``;
+
+        await axios.get(`http://api.timezonedb.com/v2.1/get-time-zone`, {
+            params: {
+                key: timezoneAPI,
+                format: `json`,
+                by: `zone`,
+                zone: `America/Chicago`
+            }
+        }).then(res => {
+            year = parseInt(res.data.formatted.substring(0, 4));
+
+            //Making the format work for the Luxon Parser
+            currentTime = DateTime.fromISO(`${res.data.formatted.replace(/ /g, "T")}Z`);
+        }).catch(err => {
+            //If the API fails we use Luxon (which has caused issues on Google Cloud)
+            currentTime = DateTime.local().setZone(`America/Chicago`);
+            year = parseInt(currentTime.c.year);
+        });
 
         if (year === 2020) {
             lockYear = `2019-2020-regular`;
