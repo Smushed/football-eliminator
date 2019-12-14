@@ -368,9 +368,7 @@ class Roster extends Component {
     };
 
     checkLockPeriod = async () => {
-        return true;
         const response = await axios.get(`/api/checkLockPeriod`);
-        console.log(response.data)
         //If this week is already passed the lock date then return bad request
         if (this.state.weekOnPage <= response.data.lockWeek) {
             return false;
