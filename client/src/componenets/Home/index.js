@@ -133,11 +133,6 @@ class Home extends Component {
         this.getRoster(this.state.userIdDisplayed, this.state.weekSelect, this.state.userDisplayed);
     };
 
-    lockperoid = async () => {
-        const response = await axios.get(`/api/checkLockPeriod`);
-        console.log(response.data)
-    };
-
     render() {
         const { isAdmin } = this.props;
         const { userRoster, userDisplayed, userIdDisplayed, weekSelect } = this.state;
@@ -200,7 +195,6 @@ const LeftPanel = (props) => (
         <Row>
             <Col xs='12' className='centerText userLinks'>
                 <UserLinks isAdmin={props.isAdmin} userId={props.userId} userDisplayed={props.userDisplayed} />
-                <Button onClick={props.lockperoid} />
             </Col>
         </Row>
     </Col>
