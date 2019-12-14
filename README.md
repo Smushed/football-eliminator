@@ -1,21 +1,31 @@
-## What this app is
-This app will be a mix of a daily and season long NFL fantasy game. The goal of this is to get into a group and set a lineup every week with the restriction to only play each player one time.
-- Each player in the group has access to every player, and they can play the same player every week.
-- They fill out a roster of players and the after the game the stats are scored and their scores are compared to one another
-- The scores from each week are kept, and the highest total at the end of the season wins.
-- Should also feature some sort of head to head mechanics.
+## Football Eliminator
+This game is a mix of daily and season long NFL fantasy. The goal is for you and your group to compete on a week to week basis on a game that lasts the entire season long. Every week each player sets a roster with the restriction that they cannot play anyone they have not already played previously.
+<br />
+<br />
+<strong>For Example</strong>
+- The first week you decide to play all the players Patrick Mahomes. You are forced to contuinue on the rest of the season without Patrick Mahomes regardless of how he played in the first week, or if he has a better match up in the future.
 
-## MVP
-The MVP for this project is to have users sign in and add players to their roster. There are notable differences between the MVP and the usual expected features in other fantasy apps.
+The scoring of this game is total points due to the head to head matchups being more difficult. I plan on implementing head to head matchups in the future.
+<br />
+<br />
+### How this game came to be
+My dad, uncle and I are avvid fantasy football players and we played this game but ran it out of excel. Since that was cumbersome, we dropped playing but spoke about playing again if it was simpler.
+
+When I graduated from my bootcamp I decided to pick up the mantle of designing this game into a reality. In my head, this will always be a labor of love, something I never plan on monetizing. This is a game I plan on keeping local and playing with family and friends.
+
+### Current Status
+This project is currently in its MVP state. My dad and I have been playing, as this is the first season it's been in use. There are many additions I would have liked to have added, but designing a full fantasy football game proved to be as difficult as it might seem.
+
+Some key features of the MVP are listed below:
+
 - Users can log in and pick a roster
-- The weeks and seasons change based on time
+- The weeks and seasons are displayed based on the current day
 - The rosters lock before the Thursday game
-- Users can see each others rosters for the current week
+- Users can see view others rosters
 - There is a leaderboard to compare scores
-- The scoring system will be locked down
-- D/ST is not an option
 
-## Future ideas
-- The app will display the players stats for the last week / season
-- Players can join groups and have set the points for their group
-- Users can add players to future weeks. They are not locked into only picking one week at a time
+### Future Ideas & Improvements
+- Add groups so users can organize any way they see fit
+    - Add scoring for each group individually so they can customize their points & rosters
+- Add D/ST as an option to be played
+- Scores are displayed for players when a user looks back at their own roster over time
