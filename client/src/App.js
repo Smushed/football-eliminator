@@ -14,7 +14,7 @@ import PasswordChange from './componenets/PasswordChange';
 import UserProfile from './componenets/UserProfile';
 import CreateGroup from './componenets/CreateGroup';
 import GroupPage from './componenets/GroupPage';
-import DisplayPlayers from './componenets/DisplayPlayers';
+import SeasonLongScore from './componenets/SeasonLongScore';
 import Roster from './componenets/Roster';
 import AdminPanel from './componenets/AdminPanel';
 import UpgradeToAdmin from './componenets/AdminPanel/UpgradeToAdmin';
@@ -126,10 +126,11 @@ class App extends Component {
                 userID={this.state.currentUser.userID} />}
           />
           <Route
-            path={`/displayplayers`}
+            path={`/seasonLongScore/:userId`}
             render={() =>
-              <DisplayPlayers />
-            }
+              <SeasonLongScore
+                week={this.state.currentWeek}
+                season={this.state.currentSeason} />}
           />
           <Route
             path={Routes.roster}

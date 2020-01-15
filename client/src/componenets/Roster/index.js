@@ -534,7 +534,7 @@ class Roster extends Component {
                         <Row>
                             <Col md='1' />
                             <Col md='5'>
-                                <RosterDisplay rosterPlayers={rosterPlayers} addDropPlayer={this.addDropPlayer} currentRoster={currentRoster} />
+                                <RosterDisplay rosterPlayers={rosterPlayers} addDropPlayer={this.addDropPlayer} currentRoster={currentRoster} nameCol={'9'} />
                             </Col>
                             <Col md='5'>
                                 <Row>
@@ -573,18 +573,18 @@ const CurrentRosterRow = (props) => (
         <Col xs='9'>
             {props.player ?
                 <Row>
-                    <Col xs='9'>
+                    <Col xs={props.nameCol}>
                         <div className='player'>
                             {props.player.full_name + `, ` + props.player.team}
                         </div>
                     </Col>
-                    <Col xs='3'>
-                        {props.addDropPlayer &&
+                    {props.addDropPlayer &&
+                        <Col xs='3'>
                             <Button className='addDropButton' color='outline-success' size='sm' onClick={() => props.addDropPlayer(props.player.mySportsId, 'drop')}>
                                 Drop
                             </Button>
-                        }
-                    </Col>
+                        </Col>
+                    }
                 </Row>
                 : ``
             }
@@ -611,7 +611,7 @@ const AvailablePlayerRow = (props) => (
 const RosterDisplay = (props) => (
     <Fragment>
         {props.rosterPlayers.map(position => (
-            <CurrentRosterRow key={position} position={position} player={props.currentRoster[position]} addDropPlayer={props.addDropPlayer} />
+            <CurrentRosterRow key={position} position={position} player={props.currentRoster[position]} addDropPlayer={props.addDropPlayer} nameCol={props.nameCol} />
         ))}
     </Fragment>
 );
