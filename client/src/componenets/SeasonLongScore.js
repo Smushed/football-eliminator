@@ -17,8 +17,39 @@ class SeasonLongScore extends Component {
     componentDidUpdate(prevProps) {
         if (this.props.season !== prevProps.season) {
             console.log(this.props.match.params.userId)
+
+            this.seasonData(this.props.match.params.userId, this.props.season);
         };
     };
+
+    seasonData(userId, season) {
+        this.loading();
+        axios.get(`/api/seasonLongScore/${userId}/${season}`)
+            .then(res => {
+                this.doneLoading();
+                console.log(res.data)
+            }).catch(err => {
+                console.log(`roster data error`, err); //TODO better error handling
+            });
+    };
+
+    loading() {
+        Alert.fire({
+            title: 'Loading',
+            text: 'Loading available players',
+            imageUrl: 'https://media.giphy.com/media/3o7aDczpCChShEG27S/giphy.gif',
+            imageWidth: 200,
+            imageHeight: 200,
+            imageAlt: 'Loading Football',
+            showConfirmButton: false,
+            showCancelButton: false
+        });
+    };
+
+    doneLoading() {
+        Alert.close()
+    };
+
 
     render() {
         return (

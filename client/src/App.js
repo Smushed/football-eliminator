@@ -126,10 +126,9 @@ class App extends Component {
                 userID={this.state.currentUser.userID} />}
           />
           <Route
-            path={`/seasonLongScore/:userId`}
+            path={Routes.seasonLongScore}
             render={() =>
               <SeasonLongScore
-                week={this.state.currentWeek}
                 season={this.state.currentSeason} />}
           />
           <Route
