@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { withAuthorization } from './Session';
+import { withAuthorization } from '../Session';
 import axios from 'axios';
+import { Container, Row, Col } from 'reactstrap';
+import { RosterDisplay } from '../Roster';
 import 'react-table/react-table.css';
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -11,16 +13,22 @@ class SeasonLongScore extends Component {
     constructor(props) {
         super(props)
         this.state = {
+            seasonLongScore: []
         };
     };
 
     componentDidUpdate(prevProps) {
         if (this.props.season !== prevProps.season) {
-            console.log(this.props.match.params.userId)
-
             this.seasonData(this.props.match.params.userId, this.props.season);
         };
     };
+
+    componentDidMount() {
+        if (this.props.season !== `` && this.props.match.params.userId !== ``) {
+            this.seasonData(this.props.match.params.userId, this.props.season);
+
+        }
+    }
 
     seasonData(userId, season) {
         this.loading();
@@ -52,10 +60,20 @@ class SeasonLongScore extends Component {
 
 
     render() {
+        const rosterPlayers = ['QB', 'RB1', 'RB2', 'WR1', 'WR2', 'Flex', 'TE', 'K'];
+
         return (
             <div>
-                BAZINGA
-
+                <Container fluid={true}>
+                    <Row>
+                        <Col xs='12'>
+                            {this.state.seasonLongScore.map(weekRoster => (
+                                console.log(weekRoster)
+                                // <RosterDisplay rosterPlayers={rosterPlayers} addDropPlayer={null} currentRoster={weekRoster} nameCol={'12'} />
+                            ))}
+                        </Col>
+                    </Row>
+                </Container>
             </div>
         );
     };

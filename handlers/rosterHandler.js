@@ -1,6 +1,7 @@
 const db = require(`../models`);
 const weekDates = require(`../constants/weekDates`);
-const { DateTime } = require('luxon');
+const { getPlayerWeeklyScore } = require(`./mySportsHandler`);
+const { DateTime } = require(`luxon`);
 const axios = require(`axios`);
 require(`dotenv`).config();
 
@@ -76,7 +77,7 @@ getUsedPlayers = async (userId, season) => {
     return currentUser.roster[season].usedPlayers;
 };
 
-getPlayerScore = async () => {
+getPlayerScore = async (currentRoster, season, week) => {
     //Goes through the roster of players and pulls in their full data to then display
     currentRoster = currentRoster.roster[season][week].toObject();
 
@@ -93,6 +94,42 @@ getPlayerScore = async () => {
 
     //We also return the array so the drag & drop component can populate this without having to pull it again
     return responseRoster;
+};
+
+sortRoster = (roster) => {
+    const dbReadyRoster = {}; //It's saved as an object in the database
+
+    //Here we iterate through the roster of the player and put them into an object for the order we want
+    for (const player of roster) {
+        const position = player.position;
+        //If the position is QB, TE, or K then we can just put them directly in
+        if (position === `QB`) {
+            dbReadyRoster.QB = player;
+            //If it's RB or WR then we need to assign it manually to the 1, 2 and flex spots
+            //First we need to check the RB/WR 1 & 2 spots then assign it into the flex spot
+        } else if (position === `RB`) {
+            if (!dbReadyRoster.RB1) {
+                dbReadyRoster.RB1 = player;
+            } else if (!dbReadyRoster.RB2) {
+                dbReadyRoster.RB2 = player;
+            } else if (!dbReadyRoster.Flex) {
+                dbReadyRoster.Flex = player;
+            }
+        } else if (position === `WR`) {
+            if (!dbReadyRoster.WR1) {
+                dbReadyRoster.WR1 = player;
+            } else if (!dbReadyRoster.WR2) {
+                dbReadyRoster.WR2 = player;
+            } else if (!dbReadyRoster.Flex) {
+                dbReadyRoster.Flex = player;
+            };
+        } else if (position === `TE`) {
+            dbReadyRoster.TE = player;
+        } else if (position === `K`) {
+            dbReadyRoster.K = player;
+        };
+    };
+    return dbReadyRoster;
 };
 
 module.exports = {
@@ -314,13 +351,30 @@ module.exports = {
     },
     allSeasonRoster: async function (userId, season) {
         //This goes through a users data and get each week
-        console.log(userId, season);
+        const scoredAllSeason = [];
 
-        for (let i = 17; i >= 1; i--) {
-            const test = await this.userRoster(userId, i, season);
-            console.log(test)
+        //Go to 16 because the javascript needs to start at 0. Just account for it here and on the front end
+        for (let i = 16; i >= 0; i--) {
+            const weeklyUserRoster = await this.userRoster(userId, i + 1, season);
+            const parsedWeeklyRoster = [];
+
+            for (let ii = 0; ii < weeklyUserRoster.length; ii++) {
+                const newPlayer = {
+                    full_name: weeklyUserRoster[ii].full_name,
+                    team: weeklyUserRoster[ii].team,
+                    position: weeklyUserRoster[ii].position,
+                    mySportsId: weeklyUserRoster[ii].mySportsId
+                };
+
+                const playerScore = await getPlayerWeeklyScore(newPlayer.mySportsId, season, i + 1);
+
+                newPlayer.score = playerScore;
+
+                parsedWeeklyRoster.push(newPlayer);
+            };
+            scoredAllSeason[i] = sortRoster(parsedWeeklyRoster);
         };
 
-        return `HO BOY`;
+        return scoredAllSeason;
     }
 };
