@@ -96,41 +96,7 @@ getPlayerScore = async (currentRoster, season, week) => {
     return responseRoster;
 };
 
-sortRoster = (roster) => {
-    const dbReadyRoster = {}; //It's saved as an object in the database
 
-    //Here we iterate through the roster of the player and put them into an object for the order we want
-    for (const player of roster) {
-        const position = player.position;
-        //If the position is QB, TE, or K then we can just put them directly in
-        if (position === `QB`) {
-            dbReadyRoster.QB = player;
-            //If it's RB or WR then we need to assign it manually to the 1, 2 and flex spots
-            //First we need to check the RB/WR 1 & 2 spots then assign it into the flex spot
-        } else if (position === `RB`) {
-            if (!dbReadyRoster.RB1) {
-                dbReadyRoster.RB1 = player;
-            } else if (!dbReadyRoster.RB2) {
-                dbReadyRoster.RB2 = player;
-            } else if (!dbReadyRoster.Flex) {
-                dbReadyRoster.Flex = player;
-            }
-        } else if (position === `WR`) {
-            if (!dbReadyRoster.WR1) {
-                dbReadyRoster.WR1 = player;
-            } else if (!dbReadyRoster.WR2) {
-                dbReadyRoster.WR2 = player;
-            } else if (!dbReadyRoster.Flex) {
-                dbReadyRoster.Flex = player;
-            };
-        } else if (position === `TE`) {
-            dbReadyRoster.TE = player;
-        } else if (position === `K`) {
-            dbReadyRoster.K = player;
-        };
-    };
-    return dbReadyRoster;
-};
 
 module.exports = {
     byRoster: async () => {
@@ -368,11 +334,11 @@ module.exports = {
 
                 const playerScore = await getPlayerWeeklyScore(newPlayer.mySportsId, season, i + 1);
 
-                newPlayer.score = playerScore;
+                newPlayer.score = playerScore.toFixed(2);
 
                 parsedWeeklyRoster.push(newPlayer);
             };
-            scoredAllSeason[i] = sortRoster(parsedWeeklyRoster);
+            scoredAllSeason[i] = parsedWeeklyRoster;
         };
 
         return scoredAllSeason;

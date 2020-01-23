@@ -189,7 +189,7 @@ const LeftPanel = (props) => (
         </Row>
         <Row>
             <Col md='12'>
-                <RosterDisplay rosterPlayers={props.rosterPlayers} addDropPlayer={null} currentRoster={props.currentRoster} nameCol={'12'} />
+                <RosterDisplay rosterPlayers={props.rosterPlayers} addDropPlayer={null} currentRoster={props.currentRoster} nameCol={'9'} scoreCol={'3'} />
             </Col>
         </Row>
         <Row>

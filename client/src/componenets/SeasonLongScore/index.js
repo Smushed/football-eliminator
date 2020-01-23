@@ -7,13 +7,16 @@ import 'react-table/react-table.css';
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
+import './seasonLongScoreStyle.css';
+
+
 const Alert = withReactContent(Swal);
 
 class SeasonLongScore extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            seasonLongScore: []
+            displayReadyRosters: []
         };
     };
 
@@ -35,10 +38,55 @@ class SeasonLongScore extends Component {
         axios.get(`/api/seasonLongScore/${userId}/${season}`)
             .then(res => {
                 this.doneLoading();
-                console.log(res.data)
+                this.sortRoster(res.data);
             }).catch(err => {
                 console.log(`roster data error`, err); //TODO better error handling
             });
+    };
+
+    sortRoster(seasonRostersArray) {
+        const displayReadyRosters = [];
+        for (let i = 0; i < seasonRostersArray.length; i++) {
+            displayReadyRosters[i] = this.sortWeek(seasonRostersArray[i]);
+        };
+        this.setState({ displayReadyRosters });
+    };
+
+    sortWeek(weekArray) {
+        const displayReadyRoster = {}; //It's saved as an object in the database
+
+        //Here we iterate through the roster of the player and put them into an object for the order we want
+        for (const player of weekArray) {
+            const position = player.position;
+            //If the position is QB, TE, or K then we can just put them directly in
+            if (position === `QB`) {
+                displayReadyRoster.QB = player;
+                //If it's RB or WR then we need to assign it manually to the 1, 2 and flex spots
+                //First we need to check the RB/WR 1 & 2 spots then assign it into the flex spot
+            } else if (position === `RB`) {
+                if (!displayReadyRoster.RB1) {
+                    displayReadyRoster.RB1 = player;
+                } else if (!displayReadyRoster.RB2) {
+                    displayReadyRoster.RB2 = player;
+                } else if (!displayReadyRoster.Flex) {
+                    displayReadyRoster.Flex = player;
+                }
+            } else if (position === `WR`) {
+                if (!displayReadyRoster.WR1) {
+                    displayReadyRoster.WR1 = player;
+                } else if (!displayReadyRoster.WR2) {
+                    displayReadyRoster.WR2 = player;
+                } else if (!displayReadyRoster.Flex) {
+                    displayReadyRoster.Flex = player;
+                };
+            } else if (position === `TE`) {
+                displayReadyRoster.TE = player;
+            } else if (position === `K`) {
+                displayReadyRoster.K = player;
+            };
+        };
+
+        return displayReadyRoster;
     };
 
     loading() {
@@ -66,18 +114,28 @@ class SeasonLongScore extends Component {
             <div>
                 <Container fluid={true}>
                     <Row>
-                        <Col xs='12'>
-                            {this.state.seasonLongScore.map(weekRoster => (
-                                console.log(weekRoster)
-                                // <RosterDisplay rosterPlayers={rosterPlayers} addDropPlayer={null} currentRoster={weekRoster} nameCol={'12'} />
-                            ))}
-                        </Col>
+                        {this.state.displayReadyRosters.map((weekRoster, i) => (
+                            //The +1 in the week is because arrays begin at 0
+                            <WeekDisplay weekRoster={weekRoster} week={i + 1} key={i} rosterPlayers={rosterPlayers} />
+                            // <RosterDisplay rosterPlayers={rosterPlayers} addDropPlayer={null} currentRoster={weekRoster} nameCol={'12'} />
+                        ))}
                     </Row>
                 </Container>
-            </div>
+            </div >
         );
     };
 };
+
+const WeekDisplay = (props) => (
+    <Col xs='3'>
+        <Row>
+            <Col xs='12' className={'weekHeader'}>
+                Week {props.week}
+            </Col>
+        </Row>
+        <RosterDisplay rosterPlayers={props.rosterPlayers} addDropPlayer={false} currentRoster={props.weekRoster} nameCol={'9'} scoreCol={'3'} />
+    </Col>
+);
 
 const condition = authUser => !!authUser;
 

@@ -534,7 +534,7 @@ class Roster extends Component {
                         <Row>
                             <Col md='1' />
                             <Col md='5'>
-                                <RosterDisplay rosterPlayers={rosterPlayers} addDropPlayer={this.addDropPlayer} currentRoster={currentRoster} nameCol={'9'} />
+                                <RosterDisplay rosterPlayers={rosterPlayers} addDropPlayer={this.addDropPlayer} currentRoster={currentRoster} nameCol={'9'} scoreCol={'0'} />
                             </Col>
                             <Col md='5'>
                                 <Row>
@@ -578,6 +578,11 @@ const CurrentRosterRow = (props) => (
                             {props.player.full_name + `, ` + props.player.team}
                         </div>
                     </Col>
+                    <Col xs={props.scoreCol}>
+                        {props.player.score &&
+                            props.player.score
+                        }
+                    </Col>
                     {props.addDropPlayer &&
                         <Col xs='3'>
                             <Button className='addDropButton' color='outline-success' size='sm' onClick={() => props.addDropPlayer(props.player.mySportsId, 'drop')}>
@@ -611,7 +616,7 @@ const AvailablePlayerRow = (props) => (
 const RosterDisplay = (props) => (
     <Fragment>
         {props.rosterPlayers.map(position => (
-            <CurrentRosterRow key={position} position={position} player={props.currentRoster[position]} addDropPlayer={props.addDropPlayer} nameCol={props.nameCol} />
+            <CurrentRosterRow key={position} position={position} player={props.currentRoster[position]} addDropPlayer={props.addDropPlayer} nameCol={props.nameCol} scoreCol={props.scoreCol} />
         ))}
     </Fragment>
 );
