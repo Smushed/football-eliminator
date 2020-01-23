@@ -1,6 +1,7 @@
 const db = require(`../models`);
 const weekDates = require(`../constants/weekDates`);
-const { DateTime } = require('luxon');
+const { getPlayerWeeklyScore } = require(`./mySportsHandler`);
+const { DateTime } = require(`luxon`);
 const axios = require(`axios`);
 require(`dotenv`).config();
 
@@ -76,18 +77,46 @@ getUsedPlayers = async (userId, season) => {
     return currentUser.roster[season].usedPlayers;
 };
 
+getPlayerScore = async (currentRoster, season, week) => {
+    //Goes through the roster of players and pulls in their full data to then display
+    currentRoster = currentRoster.roster[season][week].toObject();
+
+    rosterArray = Object.values(currentRoster);
+
+    const responseRoster = [];
+    for (const player of rosterArray) {
+        if (player !== 0) {
+            //Go through the object that was given to us
+            const response = await db.FantasyStats.findOne({ mySportsId: player }, { mySportsId: 1, full_name: 1, position: 1, rank: 1, team: 1 })
+            responseRoster.push(response)
+        };
+    };
+
+    //We also return the array so the drag & drop component can populate this without having to pull it again
+    return responseRoster;
+};
+
+
+
 module.exports = {
     byRoster: async () => {
         const players = await db.FantasyStats.find({ 'team': 'CHI' })
 
         return players
     },
-    userRoster: async function (userId, week, season) {
+    userRoster: async function (userId, week, season, score) {
         //This goes and grabs the user's roster that the page is currently on
         const currentRoster = await db.UserRoster.findOne({ userId: userId });
 
         //Parse the data we pulled out of the database and send it back in a useable format
-        const parsedRoster = await this.getRosterPlayers(currentRoster, season, week)
+        var parsedRoster = {};
+
+        //If we score the players or not (to see the totals)
+        if (score) {
+            parsedRoster = await getPlayerScore(currentRoster, season, week)
+        } else {
+            parsedRoster = await this.getRosterPlayers(currentRoster, season, week)
+        }
 
         return parsedRoster;
     },
@@ -285,5 +314,33 @@ module.exports = {
         const availablePlayers = checkForAvailablePlayers(usedPlayers, playersByTeam);
 
         return availablePlayers;
+    },
+    allSeasonRoster: async function (userId, season) {
+        //This goes through a users data and get each week
+        const scoredAllSeason = [];
+
+        //Go to 16 because the javascript needs to start at 0. Just account for it here and on the front end
+        for (let i = 16; i >= 0; i--) {
+            const weeklyUserRoster = await this.userRoster(userId, i + 1, season);
+            const parsedWeeklyRoster = [];
+
+            for (let ii = 0; ii < weeklyUserRoster.length; ii++) {
+                const newPlayer = {
+                    full_name: weeklyUserRoster[ii].full_name,
+                    team: weeklyUserRoster[ii].team,
+                    position: weeklyUserRoster[ii].position,
+                    mySportsId: weeklyUserRoster[ii].mySportsId
+                };
+
+                const playerScore = await getPlayerWeeklyScore(newPlayer.mySportsId, season, i + 1);
+
+                newPlayer.score = playerScore.toFixed(2);
+
+                parsedWeeklyRoster.push(newPlayer);
+            };
+            scoredAllSeason[i] = parsedWeeklyRoster;
+        };
+
+        return scoredAllSeason;
     }
 };

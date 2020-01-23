@@ -27,7 +27,8 @@ module.exports = app => {
         const { week, season } = req.query;
         if (userId !== 'undefined' && week !== 0 && season !== ``) { //Checks if this route received the userId before it was ready in react
             //The check already comes in as the string undefined, rather than undefined itself. It comes in as truthly
-            const userRoster = await rosterHandler.userRoster(userId, week, season);
+            //Passing in null so it doesn't score the players
+            const userRoster = await rosterHandler.userRoster(userId, week, season, false);
             res.status(200).send(userRoster);
         } else {
             //TODO Do something with this error
@@ -70,6 +71,13 @@ module.exports = app => {
         const playersByTeam = await rosterHandler.searchPlayerByTeam(userId, team, season);
 
         res.status(200).send(playersByTeam);
+    });
+
+    app.get(`/api/seasonLongScore/:userId/:season`, async (req, res) => {
+        const { userId, season } = req.params;
+        const allPlayers = await rosterHandler.allSeasonRoster(userId, season);
+
+        res.status(200).send(allPlayers);
     });
 
 };

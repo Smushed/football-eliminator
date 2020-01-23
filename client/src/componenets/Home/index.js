@@ -189,7 +189,7 @@ const LeftPanel = (props) => (
         </Row>
         <Row>
             <Col md='12'>
-                <RosterDisplay rosterPlayers={props.rosterPlayers} addDropPlayer={null} currentRoster={props.currentRoster} />
+                <RosterDisplay rosterPlayers={props.rosterPlayers} addDropPlayer={null} currentRoster={props.currentRoster} nameCol={'9'} scoreCol={'3'} />
             </Col>
         </Row>
         <Row>
@@ -217,6 +217,11 @@ const UserLinks = (props) => (
         <Link to={`/usedPlayers/${props.userId}`}>
             <Button color='info' className='userLinkButton'>
                 Used Players
+            </Button>
+        </Link>
+        <Link to={`/seasonLongScore/${props.userId}`}>
+            <Button color='primary' className='userLinkButton'>
+                Season Long Score
             </Button>
         </Link>
     </Fragment>

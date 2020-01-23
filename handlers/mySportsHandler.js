@@ -7,25 +7,6 @@ require(`dotenv`).config();
 
 const mySportsFeedsAPI = process.env.MY_SPORTS_FEEDS_API;
 
-const getPlayerWeeklyScore = async (playerId, position, season, week) => {
-    if (playerId === 0) {
-        return 0;
-    };
-    let weeklyScore = 0
-    try {
-        let player = await db.FantasyStats.findOne({ mySportsId: playerId }, 'stats');
-        if (player === null) {
-            return 0;
-        };
-        player = player.toObject()
-
-        weeklyScore = playerScoreHandler(player, season, week);
-    } catch (err) {
-        console.log(err, `Id:`, playerId);
-    };
-    return weeklyScore;
-};
-
 const playerScoreHandler = (player, season, week) => {
     let weeklyScore = 0;
 
@@ -379,7 +360,7 @@ module.exports = {
         console.log(`get weekly data done week ${week} season ${season}`)
         return response;
     },
-    weeklyScore: async (userRoster, season, week) => {
+    weeklyScore: async function (userRoster, season, week) {
         //Starting at 1 because we always start with week one
         const allWeekScores = {};
         allWeekScores.totalScore = 0;
@@ -389,21 +370,21 @@ module.exports = {
             for (let ii = 1; ii <= 8; ii++) { //8 because that is the amount of players in the roster
                 //TODO Change this when I have groups of players allowed to change their rules
                 if (ii === 1) {
-                    weekScore += await getPlayerWeeklyScore(userRoster[i].QB, `QB`, season, i); //Here i is the current week number
+                    weekScore += await this.getPlayerWeeklyScore(userRoster[i].QB, season, i); //Here i is the current week number
                 } else if (ii === 2) {
-                    weekScore += await getPlayerWeeklyScore(userRoster[i].RB1, `RB`, season, i);
+                    weekScore += await this.getPlayerWeeklyScore(userRoster[i].RB1, season, i);
                 } else if (ii === 3) {
-                    weekScore += await getPlayerWeeklyScore(userRoster[i].RB2, `RB`, season, i);
+                    weekScore += await this.getPlayerWeeklyScore(userRoster[i].RB2, season, i);
                 } else if (ii === 4) {
-                    weekScore += await getPlayerWeeklyScore(userRoster[i].WR1, `WR`, season, i);
+                    weekScore += await this.getPlayerWeeklyScore(userRoster[i].WR1, season, i);
                 } else if (ii === 5) {
-                    weekScore += await getPlayerWeeklyScore(userRoster[i].WR2, `WR`, season, i);
+                    weekScore += await this.getPlayerWeeklyScore(userRoster[i].WR2, season, i);
                 } else if (ii === 6) {
-                    weekScore += await getPlayerWeeklyScore(userRoster[i].Flex, `Flex`, season, i);
+                    weekScore += await this.getPlayerWeeklyScore(userRoster[i].Flex, season, i);
                 } else if (ii === 7) {
-                    weekScore += await getPlayerWeeklyScore(userRoster[i].TE, `TE`, season, i);
+                    weekScore += await this.getPlayerWeeklyScore(userRoster[i].TE, season, i);
                 } else if (ii === 8) {
-                    weekScore += await getPlayerWeeklyScore(userRoster[i].K, `K`, season, i);
+                    weekScore += await this.getPlayerWeeklyScore(userRoster[i].K, season, i);
                 }
             }
             allWeekScores.totalScore += parseFloat(weekScore.toFixed(2));
@@ -423,6 +404,24 @@ module.exports = {
         }
 
         return (status);
+    },
+    getPlayerWeeklyScore: async (playerId, season, week) => {
+        if (playerId === 0) {
+            return 0;
+        };
+        let weeklyScore = 0
+        try {
+            let player = await db.FantasyStats.findOne({ mySportsId: playerId }, 'stats').exec();
+            if (player === null) {
+                return 0;
+            };
+            player = player.toObject()
+
+            weeklyScore = playerScoreHandler(player, season, week);
+        } catch (err) {
+            console.log(err, `Id:`, playerId);
+        };
+        return weeklyScore;
     },
     rankPlayers: async function (season) {
 
