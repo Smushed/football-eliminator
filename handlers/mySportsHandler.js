@@ -34,7 +34,7 @@ const calculateScore = (fieldToScore, result) => {
 const placeholderStats = (stats) => {
     //This goes through the returned stats and adds a blank object to any field where the player doesn't have any information
     //This is done for the getStats function. It needs to have an object to read & assign new values to
-    const scoringArray = [`passing`, `rushing`, `receiving`, `fumbles`, `kickoffReturns`, `puntReturns`, `twoPointAttempts`, `extraPointAttempts`, `fieldGoals`];
+    const scoringArray = [`P`, `RU`, `RE`, `F`, `FG`];
 
     for (let i = 0; i < scoringArray.length; i++) {
         if (typeof (stats[scoringArray[i]]) == `undefined`) {
@@ -70,41 +70,41 @@ const completeStats = (player, stats, season, week) => {
 
     player.stats[season][week] = {
         //Needs the 0s here in case the object is blank from placeholderStats
-        passing: {
-            passTD: fullStats.passing.passTD || 0,
-            passYards: fullStats.passing.passYards || 0,
-            passInt: fullStats.passing.passInt || 0,
-            passAttempts: fullStats.passing.passAttempts || 0,
-            passCompletions: fullStats.passing.passCompletions || 0,
-            twoPtPassMade: fullStats.twoPointAttempts.twoPtPassMade || 0
+        P: {
+            T: fullStats.passing.passTD || 0,
+            Y: fullStats.passing.passYards || 0,
+            I: fullStats.passing.passInt || 0,
+            A: fullStats.passing.passAttempts || 0,
+            C: fullStats.passing.passCompletions || 0,
+            '2P': fullStats.twoPointAttempts.twoPtPassMade || 0
         },
-        rushing: {
-            rushAttempts: fullStats.rushing.rushAttempts || 0,
-            rushYards: fullStats.rushing.rushYards || 0,
-            rushTD: fullStats.rushing.rushTD || 0,
-            rush20Plus: fullStats.rushing.rush20Plus || 0,
-            rush40Plus: fullStats.rushing.rush40Plus || 0,
-            rushFumbles: fullStats.rushing.rushFumbles || 0
+        RU: {
+            A: fullStats.rushing.rushAttempts || 0,
+            Y: fullStats.rushing.rushYards || 0,
+            T: fullStats.rushing.rushTD || 0,
+            '20': fullStats.rushing.rush20Plus || 0,
+            '40': fullStats.rushing.rush40Plus || 0,
+            F: fullStats.rushing.rushFumbles || 0,
+            '2P': fullStats.twoPointAttempts.twoPtRushMade || 0
         },
-        receiving: {
-            targets: fullStats.receiving.targets || 0,
-            receptions: fullStats.receiving.receptions || 0,
-            recYards: fullStats.receiving.recYards || 0,
-            recTD: fullStats.receiving.recTD || 0,
-            rec20Plus: fullStats.receiving.rec20Plus || 0,
-            rec40Plus: fullStats.receiving.rec40Plus || 0,
-            recFumbles: fullStats.receiving.recFumbles || 0
+        RE: {
+            TA: fullStats.receiving.targets || 0,
+            R: fullStats.receiving.receptions || 0,
+            Y: fullStats.receiving.recYards || 0,
+            T: fullStats.receiving.recTD || 0,
+            '20': fullStats.receiving.rec20Plus || 0,
+            '40': fullStats.receiving.rec40Plus || 0,
+            F: fullStats.receiving.recFumbles || 0,
+            '2P': fullStats.twoPointAttempts.twoPtPassRec || 0
         },
-        fumbles: {
-            fumbles: fullStats.fumbles.fumbles || 0,
-            fumbles: fullStats.fumbles.fumLost || 0
-        },
-        fieldGoals: {
-            fgMade1_19: fullStats.fieldGoals.fgMade1_19 || 0,
-            fgMade20_29: fullStats.fieldGoals.fgMade20_29 || 0,
-            fgMade30_39: fullStats.fieldGoals.fgMade30_39 || 0,
-            fgMade40_49: fullStats.fieldGoals.fgMade40_49 || 0,
-            fgMade50Plus: fullStats.fieldGoals.fgMade50Plus || 0
+        F: fullStats.fumbles.fumLost || 0,
+        FG: {
+            '1': fullStats.fieldGoals.fgMade1_19 || 0,
+            '20': fullStats.fieldGoals.fgMade20_29 || 0,
+            '30': fullStats.fieldGoals.fgMade30_39 || 0,
+            '40': fullStats.fieldGoals.fgMade40_49 || 0,
+            '50': fullStats.fieldGoals.fgMade50Plus || 0,
+            X: fullStats.extraPointAttempts.xpMade || 0
         }
     };
     return player;
@@ -123,7 +123,7 @@ const mergeMySportsWithDB = (playerInDB) => {
 const findPlayerInDB = async (playerID) => {
 
     try {
-        const playerInDB = await db.FantasyStats.findOne({ 'mySportsId': playerID });
+        const playerInDB = await db.PlayerData.findOne({ 'M': playerID });
         //First check if the player is currently in the database
         if (playerInDB === null) {
             return false;
@@ -244,7 +244,7 @@ const savePlayerScore = async (userId, allWeekScores, group) => {
         };
 
         // Update it if it there is a record in the DB
-        userScore.weeklyScore = allWeekScores
+        userScore.weeklyScore = allWeekScores;
         userScore.save(err => {
             if (err) {
                 console.log(err);
@@ -321,7 +321,7 @@ module.exports = {
             }
         });
 
-        console.log(`weekly data received, parsing`)
+        console.log(`weekly data received, parsing`);
 
         const weeklyPlayerArray = [];
 
@@ -330,23 +330,24 @@ module.exports = {
             let player = {};
 
             if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
-
-                //This is going to go two ways after this point
-                //If the player is found in the database then go and update the record
                 //This searches the database and then returns true if they are in there and false if they are not
                 //If they are in the database then the findPlayerInDB function convers it. Since we are already accessing the database with this, there is no reason to try and pass it back and then go out again
                 const playerInDB = await findPlayerInDB(search.data.gamelogs[i].player.id);
-
+                console.log(playerInDB)
                 if (!playerInDB) {
+                    //If they are not in the database then I need to first update the PlayerData collection
+
                     //They are not in the database. Init the object and then add them to an array which whill then be written to the database
-                    player = await getNewPlayerStats(search.data.gamelogs[i].player, search.data.gamelogs[i].stats, search.data.gamelogs[i].team, season, week);
+                    //player = await getNewPlayerStats(search.data.gamelogs[i].player, search.data.gamelogs[i].stats, search.data.gamelogs[i].team, season, week);
                     //If they are not found in the database, add them to an array and then
-                    weeklyPlayerArray.push(player);
+                    //weeklyPlayerArray.push(player);
                 } else {
                     //If the player is in the DB then pull all their stats together and add them to the db
-                    const dbReadyPlayer = completeStats(playerInDB, search.data.gamelogs[i].stats, season, week);
-                    await mergeMySportsWithDB(dbReadyPlayer);
+                    //const dbReadyPlayer = completeStats(playerInDB, search.data.gamelogs[i].stats, season, week);
+                    //await mergeMySportsWithDB(dbReadyPlayer);
                 };
+
+                //If they are in the database then I just need to make a new entry for the stats
             };
         };
         if (weeklyPlayerArray.length >= 1) {

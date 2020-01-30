@@ -12,12 +12,12 @@ module.exports = app => {
         await mySportsHandler.getWeeklyData(season, week);
 
         //TODO Refactor this out so it's not just a copy
-        const userRosters = await rosterHandler.getAllRosters(season);
-        const status = await mySportsHandler.calculateWeeklyScore(userRosters, season, week, `allUsers`);
-        await mySportsHandler.rankPlayers(season);
+        // const userRosters = await rosterHandler.getAllRosters(season);
+        // const status = await mySportsHandler.calculateWeeklyScore(userRosters, season, week, `allUsers`);
+        // await mySportsHandler.rankPlayers(season);
 
 
-        res.sendStatus(status);
+        res.sendStatus(200);
 
     });
 
