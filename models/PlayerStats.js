@@ -4,122 +4,134 @@ const Schema = mongoose.Schema;
 
 //Everything is to be singular
 const PlayerStatsSchema = new Schema({
-    M: {
+    M: { //mySportsId
         type: Number,
     },
-    W: {
+    W: { //Week
         type: Number,
     },
-    S: {
+    S: { //Season
         type: String,
     },
-    P: {
-        T: {
+    P: { //Passing
+        T: { //PassTD
             type: Number,
             default: 0
         },
-        Y: {
+        Y: { //PassYards
             type: Number,
             default: 0
         },
-        I: {
+        I: { //PassInt
             type: Number,
             default: 0
         },
-        A: {
+        A: { //PassAttempts
             type: Number,
             default: 0
         },
-        C: {
+        C: { //PassCompletions
             type: Number,
             default: 0
         },
-        '2P': {
-            type: Number,
-            default: 0
-        },
-    },
-    RU: {
-        A: {
-            type: Number,
-            default: 0
-        },
-        Y: {
-            type: Number,
-            default: 0
-        },
-        T: {
-            type: Number,
-            default: 0
-        },
-        '20': {
-            type: Number,
-            default: 0
-        },
-        '40': {
-            type: Number,
-            default: 0
-        },
-        F: {
+        '2P': { //TwoPtPassMade
             type: Number,
             default: 0
         },
     },
-    RE: {
-        TA: {
+    RU: { //Rushing
+        A: { //RushingAttempts
             type: Number,
             default: 0
         },
-        R: {
+        Y: { //RushingYards
             type: Number,
             default: 0
         },
-        Y: {
+        T: { //RushingTD
             type: Number,
             default: 0
         },
-        T: {
+        '20': { //Rushing20Plus
             type: Number,
             default: 0
         },
-        '20': {
+        '40': { //Rushing40Plus
             type: Number,
             default: 0
         },
-        '40': {
+        F: { //RushingFumbles
             type: Number,
             default: 0
         },
-        F: {
+        '2P': { //twoPtRushMade
             type: Number,
             default: 0
-        },
+        }
     },
-    F: {
+    RE: { //Receiving
+        TA: { //ReceivingTargets
+            type: Number,
+            default: 0
+        },
+        R: { //ReceivingReceptions
+            type: Number,
+            default: 0
+        },
+        Y: { //ReceivingYards
+            type: Number,
+            default: 0
+        },
+        T: { //ReceivingTD
+            type: Number,
+            default: 0
+        },
+        '20': { //Receiving20Plus
+            type: Number,
+            default: 0
+        },
+        '40': { //Receiving40Plus
+            type: Number,
+            default: 0
+        },
+        F: { //ReceivingFumbles
+            type: Number,
+            default: 0
+        },
+        '2P': { //twoPtReceivingMade
+            type: Number,
+            default: 0
+        }
+    },
+    F: { //FumblesLost
         type: Number,
         default: 0
     },
-    FG: {
-        '1': {
+    FG: { //FieldGoals
+        '1': { //1-19
             type: Number,
             default: 0
         },
-        '20': {
+        '20': { //20-29
             type: Number,
             default: 0
         },
-        '30': {
+        '30': { //30-39
             type: Number,
             default: 0
         },
-        '40': {
+        '40': { //40-49
             type: Number,
             default: 0
         },
-        '50': {
+        '50': { //50+
             type: Number,
             default: 0
         },
+        X: { //extraPointMade
+            type: Number,
+            default: 0
+        }
     }
 });
 

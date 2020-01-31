@@ -2,27 +2,26 @@ const mongoose = require(`mongoose`);
 
 const Schema = mongoose.Schema;
 
-//Everything is to be singular
 const PlayerDataSchema = new Schema({
-    N: {
+    N: { //Name
         type: String,
         required: true,
         trim: true
     },
-    M: {
+    M: { //mySportsId
         type: Number,
     },
-    T: {
+    T: { //Team
         type: String,
         default: `UNK`,
         trim: true
     },
-    P: {
+    P: { //Position
         type: String,
         default: `UNK`
     },
-    A: Boolean,
-    R: Number,
+    A: Boolean, //Active
+    R: Number, //Rank
 });
 
 module.exports = mongoose.model(`PlayerData`, PlayerDataSchema);

@@ -44,15 +44,21 @@ const placeholderStats = (stats) => {
     return stats;
 };
 
-const addPlayerToDB = (playerArray) => {
-    db.FantasyStats.collection.insertMany(playerArray, (err, writtenObj) => {
+const addPlayerData = (player, team) => {
+    db.PlayerData.create({
+        N: `${player.firstName} ${player.lastName}`,
+        M: player.id,
+        T: team,
+        P: player.primaryPosition || player.position,
+        A: true,
+        R: 7,
+    }, function (err, player) {
         if (err) {
-            //TODO Handle the error
             console.log(err);
-        } else {
-            return playerArray;
         };
     });
+
+    return player.id;
 };
 
 const completeStats = (player, stats, season, week) => {
@@ -128,7 +134,7 @@ const findPlayerInDB = async (playerID) => {
         if (playerInDB === null) {
             return false;
         } else {
-            return playerInDB;
+            return playerInDB.M;
         }
     } catch (err) {
         //TODO Do something more with the error
@@ -136,6 +142,7 @@ const findPlayerInDB = async (playerID) => {
     };
 };
 
+//TODO Delete this when I'm done
 const getNewPlayerStats = (player, stats, team, season, week) => {
     const combinedStats = {};
 
@@ -330,29 +337,26 @@ module.exports = {
             let player = {};
 
             if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
-                //This searches the database and then returns true if they are in there and false if they are not
-                //If they are in the database then the findPlayerInDB function convers it. Since we are already accessing the database with this, there is no reason to try and pass it back and then go out again
-                const playerInDB = await findPlayerInDB(search.data.gamelogs[i].player.id);
-                console.log(playerInDB)
-                if (!playerInDB) {
-                    //If they are not in the database then I need to first update the PlayerData collection
 
-                    //They are not in the database. Init the object and then add them to an array which whill then be written to the database
+                //This searches the database and then returns their ID if they're there and false if they are not
+                let mySportsId = await findPlayerInDB(search.data.gamelogs[i].player.id);
+                if (!mySportsId) {
+                    //If they are not in the database then I need to first update the PlayerData collection
+                    mySportsId = await addPlayerData(search.data.gamelogs[i].player, search.data.gamelogs[i].team.abbreviation);
+
                     //player = await getNewPlayerStats(search.data.gamelogs[i].player, search.data.gamelogs[i].stats, search.data.gamelogs[i].team, season, week);
-                    //If they are not found in the database, add them to an array and then
-                    //weeklyPlayerArray.push(player);
-                } else {
                     //If the player is in the DB then pull all their stats together and add them to the db
                     //const dbReadyPlayer = completeStats(playerInDB, search.data.gamelogs[i].stats, season, week);
                     //await mergeMySportsWithDB(dbReadyPlayer);
                 };
 
+                //Now update the stats entry
+                console.log(mySportsId);
+
                 //If they are in the database then I just need to make a new entry for the stats
             };
         };
-        if (weeklyPlayerArray.length >= 1) {
-            await addPlayerToDB(weeklyPlayerArray);
-        };
+
         //TODO Do more than just send the same thing
         const response = {
             status: 200,
