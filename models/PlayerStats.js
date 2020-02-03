@@ -38,6 +38,14 @@ const PlayerStatsSchema = new Schema({
             type: Number,
             default: 0
         },
+        '20': { //20Plus Passes
+            type: Number,
+            default: 0
+        },
+        '40': { //40 Plus Passes
+            type: Number,
+            default: 0
+        }
     },
     RU: { //Rushing
         A: { //RushingAttempts

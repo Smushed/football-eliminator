@@ -31,19 +31,6 @@ const calculateScore = (fieldToScore, result) => {
     return result * scoringSystem[fieldToScore];
 }
 
-const placeholderStats = (stats) => {
-    //This goes through the returned stats and adds a blank object to any field where the player doesn't have any information
-    //This is done for the getStats function. It needs to have an object to read & assign new values to
-    const scoringArray = [`P`, `RU`, `RE`, `F`, `FG`];
-
-    for (let i = 0; i < scoringArray.length; i++) {
-        if (typeof (stats[scoringArray[i]]) == `undefined`) {
-            stats[scoringArray[i]] = {};
-        }
-    };
-    return stats;
-};
-
 const addPlayerData = (player, team) => {
     db.PlayerData.create({
         N: `${player.firstName} ${player.lastName}`,
@@ -61,64 +48,9 @@ const addPlayerData = (player, team) => {
     return player.id;
 };
 
-const completeStats = (player, stats, season, week) => {
-    //First we iterate through and ensure that the objects are there to put stats in
-    const fullStats = placeholderStats(stats);
-
-    //Add in the object if it is not there. We need this for new players, we have to define the objects before we use bracket notation
-    if (typeof player.stats[season] === 'undefined' || typeof player.stats[season][week] === 'undefined') {
-        player.stats = {
-            [season]: {
-                [week]: {}
-            }
-        };
-    };
-
-    player.stats[season][week] = {
-        //Needs the 0s here in case the object is blank from placeholderStats
-        P: {
-            T: fullStats.passing.passTD || 0,
-            Y: fullStats.passing.passYards || 0,
-            I: fullStats.passing.passInt || 0,
-            A: fullStats.passing.passAttempts || 0,
-            C: fullStats.passing.passCompletions || 0,
-            '2P': fullStats.twoPointAttempts.twoPtPassMade || 0
-        },
-        RU: {
-            A: fullStats.rushing.rushAttempts || 0,
-            Y: fullStats.rushing.rushYards || 0,
-            T: fullStats.rushing.rushTD || 0,
-            '20': fullStats.rushing.rush20Plus || 0,
-            '40': fullStats.rushing.rush40Plus || 0,
-            F: fullStats.rushing.rushFumbles || 0,
-            '2P': fullStats.twoPointAttempts.twoPtRushMade || 0
-        },
-        RE: {
-            TA: fullStats.receiving.targets || 0,
-            R: fullStats.receiving.receptions || 0,
-            Y: fullStats.receiving.recYards || 0,
-            T: fullStats.receiving.recTD || 0,
-            '20': fullStats.receiving.rec20Plus || 0,
-            '40': fullStats.receiving.rec40Plus || 0,
-            F: fullStats.receiving.recFumbles || 0,
-            '2P': fullStats.twoPointAttempts.twoPtPassRec || 0
-        },
-        F: fullStats.fumbles.fumLost || 0,
-        FG: {
-            '1': fullStats.fieldGoals.fgMade1_19 || 0,
-            '20': fullStats.fieldGoals.fgMade20_29 || 0,
-            '30': fullStats.fieldGoals.fgMade30_39 || 0,
-            '40': fullStats.fieldGoals.fgMade40_49 || 0,
-            '50': fullStats.fieldGoals.fgMade50Plus || 0,
-            X: fullStats.extraPointAttempts.xpMade || 0
-        }
-    };
-    return player;
-};
-
-const mergeMySportsWithDB = (playerInDB) => {
+const writeWeekStatsToDB = (weeksStats) => {
     //Merge the player with the current pull. Take the current stats and then send it
-    db.FantasyStats.findByIdAndUpdate(playerInDB._id, playerInDB, (err) => {
+    db.PlayerStats.create({ weeksStats }, (err) => {
         if (err) {
             //TODO Do more than just log the error
             console.log(err)
@@ -142,22 +74,202 @@ const findPlayerInDB = async (playerID) => {
     };
 };
 
-//TODO Delete this when I'm done
-const getNewPlayerStats = (player, stats, team, season, week) => {
-    const combinedStats = {};
+const checkForWeeklyStats = async (mySportsId, stats, season, week) => {
+    //If the player already has a record in the database, return it so we can update it.
+    //If not return false so we can write a new record
+    const player = await db.PlayerStats.findOne({ M: mySportsId, W: week, S: season });
+    if (!player) {
+        return false;
+    };
+    updateWeekStats(player, stats);
 
-    combinedStats.full_name = `${player.firstName} ${player.lastName}`;
-    combinedStats.mySportsId = player.id;
-    combinedStats.position = player.primaryPosition || player.position;
-    combinedStats.team = team;
-    combinedStats.active = true;
+    return true;
+};
 
-    //This runs through the stats and fills in any objects that aren't available
-    combinedStats.stats = placeholderStats(stats)
-    const newPlayer = completeStats(combinedStats, stats, season, week);
-    //Iterate through the different stats and check if available. If so then put them into the player objects
+const newWeeklyStats = (mySportsId, stats, season, week) => {
+    //We need this because sometimes the object from MySports doesn't include parts (IE no kicking stats)
+    const player = new db.PlayerStats();
+    player.M = parseInt(mySportsId);
+    player.S = season;
+    player.W = parseInt(week);
+    player.P = {};
+    player.RU = {};
+    player.RE = {};
+    player.F = 0;
+    player.FG = {};
 
-    return newPlayer;
+    if (stats.passing) {
+        player.P = {
+            T: stats.passing.passTD || 0,
+            Y: stats.passing.passYards || 0,
+            I: stats.passing.passInt || 0,
+            A: stats.passing.passAttempts || 0,
+            C: stats.passing.passCompletions || 0,
+            '2P': stats.twoPointAttempts.twoPtPassMade || 0
+        };
+    } else {
+        player.P = {
+            T: 0,
+            Y: 0,
+            I: 0,
+            A: 0,
+            C: 0,
+            '2P': 0
+        };
+    };
+
+    if (stats.rushing) {
+        player.RU = {
+            A: stats.rushing.rushAttempts || 0,
+            Y: stats.rushing.rushYards || 0,
+            T: stats.rushing.rushTD || 0,
+            '20': stats.rushing.rush20Plus || 0,
+            '40': stats.rushing.rush40Plus || 0,
+            F: stats.rushing.rushFumbles || 0,
+            '2P': stats.twoPointAttempts.twoPtRushMade || 0
+        };
+    } else {
+        player.RU = {
+            A: 0,
+            Y: 0,
+            T: 0,
+            '20': 0,
+            '40': 0,
+            F: 0,
+            '2P': 0
+        };
+    };
+
+    if (stats.receiving) {
+        player.RE = {
+            TA: stats.receiving.targets || 0,
+            R: stats.receiving.receptions || 0,
+            Y: stats.receiving.recYards || 0,
+            T: stats.receiving.recTD || 0,
+            '20': stats.receiving.rec20Plus || 0,
+            '40': stats.receiving.rec40Plus || 0,
+            F: stats.receiving.recFumbles || 0,
+            '2P': stats.twoPointAttempts.twoPtPassRec || 0
+        };
+    } else {
+        player.RE = {
+            TA: 0,
+            R: 0,
+            Y: 0,
+            T: 0,
+            '20': 0,
+            '40': 0,
+            F: 0,
+            '2P': 0
+        }
+    };
+
+    if (stats.fumbles) {
+        player.F = stats.fumbles.fumLost || 0;
+    } else {
+        player.F = 0;
+    };
+
+    if (stats.fieldGoals) {
+        player.FG = {
+            '1': stats.fieldGoals.fgMade1_19 || 0,
+            '20': stats.fieldGoals.fgMade20_29 || 0,
+            '30': stats.fieldGoals.fgMade30_39 || 0,
+            '40': stats.fieldGoals.fgMade40_49 || 0,
+            '50': stats.fieldGoals.fgMade50Plus || 0,
+            X: stats.extraPointAttempts.xpMade || 0
+        };
+    } else {
+        player.FG = {
+            '1': 0,
+            '20': 0,
+            '30': 0,
+            '40': 0,
+            '50': 0,
+            X: 0
+        };
+    };
+
+    player.save(function (err) {
+        if (err) {
+            console.log(err)
+        };
+    });
+
+    return;
+};
+
+const updateWeekStats = (player, stats) => {
+    if (stats.passing) {
+        player.P = {
+            T: stats.passing.passTD || 0,
+            Y: stats.passing.passYards || 0,
+            I: stats.passing.passInt || 0,
+            A: stats.passing.passAttempts || 0,
+            C: stats.passing.passCompletions || 0,
+            '2P': stats.twoPointAttempts.twoPtPassMade || 0
+        };
+    };
+
+    if (stats.rushing) {
+        player.RU = {
+            A: stats.rushing.rushAttempts || 0,
+            Y: stats.rushing.rushYards || 0,
+            T: stats.rushing.rushTD || 0,
+            '20': stats.rushing.rush20Plus || 0,
+            '40': stats.rushing.rush40Plus || 0,
+            F: stats.rushing.rushFumbles || 0,
+            '2P': stats.twoPointAttempts.twoPtRushMade || 0
+        };
+    };
+
+    if (stats.receiving) {
+        player.RE = {
+            TA: stats.receiving.targets || 0,
+            R: stats.receiving.receptions || 0,
+            Y: stats.receiving.recYards || 0,
+            T: stats.receiving.recTD || 0,
+            '20': stats.receiving.rec20Plus || 0,
+            '40': stats.receiving.rec40Plus || 0,
+            F: stats.receiving.recFumbles || 0,
+            '2P': stats.twoPointAttempts.twoPtPassRec || 0
+        };
+    };
+
+    if (stats.fumbles) {
+        player.F = stats.fumbles.fumLost || 0;
+    };
+
+    if (stats.fieldGoals) {
+        player.FG = {
+            '1': stats.fieldGoals.fgMade1_19 || 0,
+            '20': stats.fieldGoals.fgMade20_29 || 0,
+            '30': stats.fieldGoals.fgMade30_39 || 0,
+            '40': stats.fieldGoals.fgMade40_49 || 0,
+            '50': stats.fieldGoals.fgMade50Plus || 0,
+            X: stats.extraPointAttempts.xpMade || 0
+        };
+    };
+
+    player.save(function (err) {
+        if (err) {
+            console.log(err)
+        };
+    });
+
+    return;
+};
+
+const addWeeksStats = async (mySportsId, stats, season, week) => {
+
+    //First check if there are already are stats, if so, update it
+    //If not, then create a new
+    const exists = await checkForWeeklyStats(mySportsId, stats, season, week);
+    if (!exists) {
+        newWeeklyStats(mySportsId, stats, season, week);
+    };
+
+    return;
 };
 
 //Goes through the roster of the team and pulls out all offensive players
@@ -321,6 +433,7 @@ module.exports = {
     getWeeklyData: async (season, week) => {
         //This gets a specific week's worth of games and iterates through the list of players to come up with an array
         //The array has player id, names, positions and stats in it. It then should feed an update a database
+        console.log(`requesting week ${week} data`)
         const search = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${week}/player_gamelogs.json`, {
             auth: {
                 username: mySportsFeedsAPI,
@@ -330,11 +443,8 @@ module.exports = {
 
         console.log(`weekly data received, parsing`);
 
-        const weeklyPlayerArray = [];
-
         for (let i = 0; i < search.data.gamelogs.length; i++) {
             const position = search.data.gamelogs[i].player.position || search.data.gamelogs[i].player.primaryPosition;
-            let player = {};
 
             if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
 
@@ -343,17 +453,9 @@ module.exports = {
                 if (!mySportsId) {
                     //If they are not in the database then I need to first update the PlayerData collection
                     mySportsId = await addPlayerData(search.data.gamelogs[i].player, search.data.gamelogs[i].team.abbreviation);
-
-                    //player = await getNewPlayerStats(search.data.gamelogs[i].player, search.data.gamelogs[i].stats, search.data.gamelogs[i].team, season, week);
-                    //If the player is in the DB then pull all their stats together and add them to the db
-                    //const dbReadyPlayer = completeStats(playerInDB, search.data.gamelogs[i].stats, season, week);
-                    //await mergeMySportsWithDB(dbReadyPlayer);
                 };
 
-                //Now update the stats entry
-                console.log(mySportsId);
-
-                //If they are in the database then I just need to make a new entry for the stats
+                addWeeksStats(mySportsId, search.data.gamelogs[i].stats, season, week)
             };
         };
 
