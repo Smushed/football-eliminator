@@ -1,5 +1,5 @@
 module.exports = {
-    buckets: [`passing`, `rushing`, `receiving`, `fumbles`, `fieldGoals`],
+    buckets: [`P`, `RU`, `RE`, `F`, `FG`],
     passTD: 4,
     passYards: 0.04, //1 for every 25 yards
     passInt: -2,

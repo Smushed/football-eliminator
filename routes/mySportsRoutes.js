@@ -6,16 +6,14 @@ module.exports = app => {
     app.get(`/api/updatePlayers/:season/:week`, async (req, res) => {
         const { season, week } = req.params;
 
-        await mySportsHandler.getWeeklyData(season, week);
-        await mySportsHandler.updateRoster(season);
+        // await mySportsHandler.getWeeklyData(season, week);
+        // await mySportsHandler.updateRoster(season);
+        await mySportsHandler.rankPlayers(season);
         //TODO Refactor this out so it's not just a copy
         // const userRosters = await rosterHandler.getAllRosters(season);
         // const status = await mySportsHandler.calculateWeeklyScore(userRosters, season, week, `allUsers`);
-        // await mySportsHandler.rankPlayers(season);
-
 
         res.sendStatus(200);
-
     });
 
     app.get(`/api/massPlayerUpdate`, async (req, res) => {

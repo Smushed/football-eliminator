@@ -2,34 +2,40 @@ const db = require(`../models`);
 const axios = require(`axios`);
 const nflTeams = require(`../constants/nflTeams`);
 const scoringSystem = require(`../constants/scoring`);
+const currentSeason = require(`../constants/currentSeason`);
 const positions = require(`../constants/positions`);
 require(`dotenv`).config();
 
 const mySportsFeedsAPI = process.env.MY_SPORTS_FEEDS_API;
-const currentSeason = process.env.CURRENT_SEASON;
 
-const playerScoreHandler = (player, season, week) => {
+const playerScoreHandler = async (player, season, week) => {
+    const playerStats = await db.PlayerStats.findOne({ 'M': player.M, 'W': week, 'S': season }).exec();
     let weeklyScore = 0;
 
-    const stats = player.stats[season][week];
-    const categories = Object.keys(stats)
-
-    for (category of categories) {
-        const scoringFields = Object.keys(stats[category]);
-        for (field of scoringFields) {
-            weeklyScore += calculateScore(field, stats[category][field]);
+    if (playerStats) {
+        for (bucket of scoringSystem.buckets) {
+            const scoringFields = Object.keys(playerStats[bucket]);
+            for (field of scoringFields) {
+                weeklyScore += await calculateScore(field, playerStats[bucket][field]);
+            };
         };
     };
+    if (week === 15 & player.M === 7549) {
 
+        console.log(weeklyScore)
+    }
     return weeklyScore;
 }
 
 const calculateScore = (fieldToScore, result) => {
-    //This is only currently in there to help debug
-    if (typeof scoringSystem[fieldToScore] === `undefined`) {
-        return 0;
-    };
-    return result * scoringSystem[fieldToScore];
+    return new Promise((res, rej) => {
+        console.log(fieldToScore, result)
+        //This is only currently in there to help debug
+        if (typeof scoringSystem[fieldToScore] === `undefined`) {
+            res(0);
+        };
+        res(result * scoringSystem[fieldToScore]);
+    });
 }
 
 const addPlayerData = (player, team, stats, season, week) => {
@@ -295,7 +301,6 @@ const parseRoster = async (playerArray, team, season) => {
 
     //This makes a new set of mySportsIds that we then iterate over and see if the dbRoster contains these Ids. If they don't then add them to the new Array
     const totalPlayerArrayIds = new Set(totalPlayerArray);
-    console.log(totalPlayerArrayIds)
     const inactivePlayerArray = dbNFLRoster.filter((player) => !totalPlayerArrayIds.has(player.M));
 
     //Now that we have all the players who are still registered as on team in the DB but not in the API we inactivate them
@@ -525,13 +530,13 @@ module.exports = {
         };
         return weeklyScore;
     },
-    rankPlayers: async function (season) {
+    rankPlayers: async function () {
 
         //Loop through the positions of the players to then rank them
         //We are doing the offense here, since D will be different
         for (const position of positions.offense) {
             console.log(`Pulling ${position} for scoring`);
-            const playersByPosition = await db.FantasyStats.find({ 'position': position }, { mySportsId: 1, full_name: 1, position: 1, stats: 1 });
+            const playersByPosition = await db.PlayerData.find({ 'P': position }, { M: 1, N: 1, P: 1 });
             const rankingArray = [];
 
             //Iterate through every player, get their total score for the season
@@ -540,7 +545,7 @@ module.exports = {
                 player.score = 0;
 
                 for (let i = 1; i <= 17; i++) {
-                    player.score += playerScoreHandler(player, season, i)
+                    player.score += playerScoreHandler(player, currentSeason, i)
                 };
 
                 //Put them in an array to rank them
