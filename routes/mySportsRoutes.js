@@ -7,7 +7,7 @@ module.exports = app => {
         const { season, week } = req.params;
 
         await mySportsHandler.getWeeklyData(season, week);
-
+        await mySportsHandler.updateRoster(season);
         //TODO Refactor this out so it's not just a copy
         // const userRosters = await rosterHandler.getAllRosters(season);
         // const status = await mySportsHandler.calculateWeeklyScore(userRosters, season, week, `allUsers`);

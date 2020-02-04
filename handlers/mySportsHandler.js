@@ -6,6 +6,7 @@ const positions = require(`../constants/positions`);
 require(`dotenv`).config();
 
 const mySportsFeedsAPI = process.env.MY_SPORTS_FEEDS_API;
+const currentSeason = process.env.CURRENT_SEASON;
 
 const playerScoreHandler = (player, season, week) => {
     let weeklyScore = 0;
@@ -31,47 +32,43 @@ const calculateScore = (fieldToScore, result) => {
     return result * scoringSystem[fieldToScore];
 }
 
-const addPlayerData = (player, team) => {
-    db.PlayerData.create({
-        N: `${player.firstName} ${player.lastName}`,
-        M: player.id,
-        T: team,
-        P: player.primaryPosition || player.position,
-        A: true,
-        R: 7,
-    }, function (err, player) {
-        if (err) {
-            console.log(err);
-        };
-    });
-
-    return player.id;
-};
-
-const writeWeekStatsToDB = (weeksStats) => {
-    //Merge the player with the current pull. Take the current stats and then send it
-    db.PlayerStats.create({ weeksStats }, (err) => {
-        if (err) {
-            //TODO Do more than just log the error
-            console.log(err)
-        };
+const addPlayerData = (player, team, stats, season, week) => {
+    return new Promise((res, rej) => {
+        db.PlayerData.create({
+            N: `${player.firstName} ${player.lastName}`,
+            M: parseInt(player.id),
+            T: team,
+            P: player.primaryPosition || player.position,
+            A: true,
+            R: 7,
+        }, function (err, player) {
+            if (err) {
+                console.log(err);
+            };
+            //If we are adding a new player from the weekly update we cascade it down to add their stats
+            if (stats) {
+                addWeeksStats(player.M, stats, season, week)
+            };
+        });
+        res(player.M);
     });
 };
 
 const findPlayerInDB = async (playerID) => {
-
-    try {
-        const playerInDB = await db.PlayerData.findOne({ 'M': playerID });
-        //First check if the player is currently in the database
-        if (playerInDB === null) {
-            return false;
-        } else {
-            return playerInDB.M;
-        }
-    } catch (err) {
-        //TODO Do something more with the error
-        console.log(`what`, err);
-    };
+    return new Promise(async (res, rej) => {
+        try {
+            const playerInDB = await db.PlayerData.findOne({ 'M': playerID }).exec();
+            //First check if the player is currently in the database
+            if (playerInDB === null) {
+                res(false);
+            } else {
+                res(playerInDB.M);
+            }
+        } catch (err) {
+            //TODO Do something more with the error
+            console.log(`what`, err);
+        };
+    });
 };
 
 const checkForWeeklyStats = async (mySportsId, stats, season, week) => {
@@ -261,10 +258,9 @@ const updateWeekStats = (player, stats) => {
 };
 
 const addWeeksStats = async (mySportsId, stats, season, week) => {
-
     //First check if there are already are stats, if so, update it
-    //If not, then create a new
     const exists = await checkForWeeklyStats(mySportsId, stats, season, week);
+    //If not, then create a new
     if (!exists) {
         newWeeklyStats(mySportsId, stats, season, week);
     };
@@ -274,34 +270,33 @@ const addWeeksStats = async (mySportsId, stats, season, week) => {
 
 //Goes through the roster of the team and pulls out all offensive players
 const parseRoster = async (playerArray, team, season) => {
-    const newPlayerArray = [];
     const totalPlayerArray = [];
     for (let i = 0; i < playerArray.length; i++) {
         const position = playerArray[i].player.primaryPosition || playerArray[i].player.position;
         if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
+            let mySportsId = await findPlayerInDB(playerArray[i].player.id);
+            if (!mySportsId) {
+                mySportsId = await addPlayerData(playerArray[i].player, team);
+            } else {
+                updatePlayerTeam();
+            }
             //This then takes the player that it pulled out of the player array and updates them in the database
-            const dbResponse = await updatePlayerTeam(playerArray[i].player, team, season);
             //If the updatePlayerTeam returns a certian value pass it along to the new player array to then add to the database
             //This happens if the player on the roster is not currently in the database and needs to be added
-            if (dbResponse.newPlayer) {
-                newPlayerArray.push(dbResponse.player);
-            };
-            totalPlayerArray.push(dbResponse.player);
+            if (mySportsId === undefined) { console.log(playerArray[i].player.lastName) }
+            totalPlayerArray.push(mySportsId);
         };
-    };
-    // If the amount of new players are over one, then add them all to the database
-    if (newPlayerArray.length >= 1) {
-        addPlayerToDB(newPlayerArray);
     };
 
     //Grab all the players in the database for that team so then we can check against the recent players in the API
-    const dbNFLRoster = await db.FantasyStats.find({ team: team });
+    const dbNFLRoster = await db.PlayerData.find({ T: team }).exec();
     //Iterate through the players we have sitting in the database
     //Take out all the players which we just wrote to the database and update all the rest to be inactive
 
     //This makes a new set of mySportsIds that we then iterate over and see if the dbRoster contains these Ids. If they don't then add them to the new Array
-    const totalPlayerArrayIds = new Set(totalPlayerArray.map(({ mySportsId }) => mySportsId));
-    const inactivePlayerArray = dbNFLRoster.filter((player) => !totalPlayerArrayIds.has(player.mySportsId));
+    const totalPlayerArrayIds = new Set(totalPlayerArray);
+    console.log(totalPlayerArrayIds)
+    const inactivePlayerArray = dbNFLRoster.filter((player) => !totalPlayerArrayIds.has(player.M));
 
     //Now that we have all the players who are still registered as on team in the DB but not in the API we inactivate them
     inactivatePlayers(inactivePlayerArray);
@@ -312,8 +307,8 @@ const parseRoster = async (playerArray, team, season) => {
 const inactivatePlayers = (inactivePlayerArray) => {
     //This takes all the players which we determined as inactive before and updates them in the database
     for (const player of inactivePlayerArray) {
-        db.FantasyStats.findOne({ mySportsId: player.mySportsId }, (err, dbPlayer) => {
-            dbPlayer.active = false;
+        db.PlayerData.findOne({ M: player.M }, (err, dbPlayer) => {
+            dbPlayer.A = false;
 
             dbPlayer.save((err, result) => {
                 if (err) {
@@ -327,24 +322,24 @@ const inactivatePlayers = (inactivePlayerArray) => {
     };
 };
 
-const updatePlayerTeam = async (player, team, season) => {
-    //Check the database for the player
-    const dbPlayer = await findPlayerInDB(player.id);
-    const response = {};
+const setPlayerToActive = (mySportsId) => {
+    db.PlayerData.findOne({ M: mySportsId }, (err, dbPlayer) => {
+        dbPlayer.A = true;
 
-    //If dbPlayer is false then we need to write them into the database
-    //If the dbPlayer is not false then we need to overwrite the team that the player is currently on
-    if (!dbPlayer) {
-        //Stats are going to be passed in a blank object. The Team API call doesn't return stats, so we just want to feed it an empty object
-        //The getNewPlayerStats needs stats to be passed in, but if there are none available it will default them to 0.
-        //Week here can be 17 because only new players should be added. If any of them aren't new then this will overwrite their week 17 stats
-        response.newPlayer = true;
-        response.player = getNewPlayerStats(player, {}, team, season, 17);
-    } else {
-        response.newPlayer = false;
-        response.player = await db.FantasyStats.findOneAndUpdate({ 'mySportsId': player.id }, { 'team': team, 'active': true }, { new: true });
-    };
-    return response;
+        dbPlayer.save((err, result) => {
+            if (err) {
+                //TODO Better error handling
+                console.log(`error ${dbPlayer.full_name}`, err);
+            } else {
+                return result;
+            };
+        });
+    });
+};
+
+const updatePlayerTeam = async (mySportsId, team) => {
+    db.FantasyStats.findOneAndUpdate({ 'M': mySportsId }, { 'team': team, 'active': true });
+    return;
 };
 
 const savePlayerScore = async (userId, allWeekScores, group) => {
@@ -380,6 +375,7 @@ module.exports = {
     updateRoster: async (season) => {
         // This loops through the array of all the teams above and gets the current rosters
         for (const team of nflTeams.teams) {
+            console.log(`Requesting ${team}`);
             await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
                 auth: {
                     username: mySportsFeedsAPI,
@@ -407,21 +403,18 @@ module.exports = {
     },
     getMassData: async function () {
         //This loops through the the seasons and weeks and pulls through all of the data for the players
-        const seasonList = [`2019-2020-regular`]; //TODO Need to update it here every year (unless I include this in the request)
         const weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
 
-        for (let i = 0; i < seasonList.length; i++) {
-            for (let ii = 0; ii < weeks.length; ii++) {
-                //We send what week we're currently on to the weeklydata where that's used to update pull the API and parse the data
-                console.log(`hitting season ${seasonList[i]} - week ${weeks[ii]}`)
-                await this.getWeeklyData(seasonList[i], weeks[ii]);
-                console.log('data has been updated')
-            };
+        for (let i = 0; i < weeks.length; i++) {
+            //We send what week we're currently on to the weeklydata where that's used to update pull the API and parse the data
+            console.log(`hitting season ${currentSeason} - week ${weeks[i]}`)
+            await this.getWeeklyData(currentSeason, weeks[i]);
+            console.log(`week ${weeks[i]} has been updated`);
         };
 
         //After this is done we want to run the updateRoster function to pull in players who have retired
         //There is no way in the API to get if they currently play when pulling historical data
-        this.updateRoster(`2019-2020-regular`);
+        this.updateRoster(currentSeason);
 
         //TODO Actually return something useful
         const testReturn = {
@@ -452,10 +445,12 @@ module.exports = {
                 let mySportsId = await findPlayerInDB(search.data.gamelogs[i].player.id);
                 if (!mySportsId) {
                     //If they are not in the database then I need to first update the PlayerData collection
-                    mySportsId = await addPlayerData(search.data.gamelogs[i].player, search.data.gamelogs[i].team.abbreviation);
+                    mySportsId = addPlayerData(search.data.gamelogs[i].player, search.data.gamelogs[i].team.abbreviation, search.data.gamelogs[i].stats, season, week);
+                } else {
+                    //Need to ensure the player is set to active when their stats are entered in
+                    setPlayerToActive(mySportsId);
+                    addWeeksStats(mySportsId, search.data.gamelogs[i].stats, season, week)
                 };
-
-                addWeeksStats(mySportsId, search.data.gamelogs[i].stats, season, week)
             };
         };
 
