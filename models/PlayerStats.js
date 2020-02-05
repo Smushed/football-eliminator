@@ -112,8 +112,10 @@ const PlayerStatsSchema = new Schema({
         }
     },
     F: { //FumblesLost
-        type: Number,
-        default: 0
+        F: {
+            type: Number,
+            default: 0
+        }
     },
     FG: { //FieldGoals
         '1': { //1-19

@@ -9,33 +9,28 @@ require(`dotenv`).config();
 const mySportsFeedsAPI = process.env.MY_SPORTS_FEEDS_API;
 
 const playerScoreHandler = async (player, season, week) => {
-    const playerStats = await db.PlayerStats.findOne({ 'M': player.M, 'W': week, 'S': season }).exec();
-    let weeklyScore = 0;
+    return new Promise(async (res, rej) => {
+        const playerStats = await db.PlayerStats.findOne({ 'M': player.M, 'W': week, 'S': season }).exec();
+        let weeklyScore = 0;
 
-    if (playerStats) {
-        for (bucket of scoringSystem.buckets) {
-            const scoringFields = Object.keys(playerStats[bucket]);
-            for (field of scoringFields) {
-                weeklyScore += await calculateScore(field, playerStats[bucket][field]);
+        if (playerStats) {
+            for (bucket of scoringSystem.buckets) {
+                const scoringFields = Object.keys(playerStats[bucket]);
+                for (field of scoringFields) {
+                    weeklyScore += calculateScore(field, bucket, playerStats[bucket][field]);
+                };
             };
         };
-    };
-    if (week === 15 & player.M === 7549) {
-
-        console.log(weeklyScore)
-    }
-    return weeklyScore;
-}
-
-const calculateScore = (fieldToScore, result) => {
-    return new Promise((res, rej) => {
-        console.log(fieldToScore, result)
-        //This is only currently in there to help debug
-        if (typeof scoringSystem[fieldToScore] === `undefined`) {
-            res(0);
-        };
-        res(result * scoringSystem[fieldToScore]);
+        res(weeklyScore);
     });
+};
+
+const calculateScore = (fieldToScore, bucket, result) => {
+    //This is only currently in there to help debug
+    if (typeof scoringSystem[bucket][fieldToScore] === `undefined`) {
+        return (0);
+    };
+    return (result * scoringSystem[bucket][fieldToScore]);
 }
 
 const addPlayerData = (player, team, stats, season, week) => {
@@ -168,9 +163,13 @@ const newWeeklyStats = (mySportsId, stats, season, week) => {
     };
 
     if (stats.fumbles) {
-        player.F = stats.fumbles.fumLost || 0;
+        player.F = {
+            F: stats.fumbles.fumLost || 0
+        };
     } else {
-        player.F = 0;
+        player.F = {
+            F: 0
+        };
     };
 
     if (stats.fieldGoals) {
@@ -240,7 +239,9 @@ const updateWeekStats = (player, stats) => {
     };
 
     if (stats.fumbles) {
-        player.F = stats.fumbles.fumLost || 0;
+        player.F = {
+            F: stats.fumbles.fumLost || 0
+        };
     };
 
     if (stats.fieldGoals) {
@@ -281,15 +282,11 @@ const parseRoster = async (playerArray, team, season) => {
         const position = playerArray[i].player.primaryPosition || playerArray[i].player.position;
         if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
             let mySportsId = await findPlayerInDB(playerArray[i].player.id);
-            if (!mySportsId) {
+            if (mySportsId === null || mySportsId === undefined) {
                 mySportsId = await addPlayerData(playerArray[i].player, team);
             } else {
-                updatePlayerTeam();
-            }
-            //This then takes the player that it pulled out of the player array and updates them in the database
-            //If the updatePlayerTeam returns a certian value pass it along to the new player array to then add to the database
-            //This happens if the player on the roster is not currently in the database and needs to be added
-            if (mySportsId === undefined) { console.log(playerArray[i].player.lastName) }
+                updatePlayerTeam(playerArray[i].player.id, playerArray[i].player.currentTeam.abbreviation);
+            };
             totalPlayerArray.push(mySportsId);
         };
     };
@@ -518,13 +515,13 @@ module.exports = {
         };
         let weeklyScore = 0
         try {
-            let player = await db.FantasyStats.findOne({ mySportsId: playerId }, 'stats').exec();
+            let player = await db.PlayerData.findOne({ M: playerId }).exec();
             if (player === null) {
                 return 0;
             };
             player = player.toObject()
 
-            weeklyScore = playerScoreHandler(player, season, week);
+            weeklyScore = await playerScoreHandler(player, season, week);
         } catch (err) {
             console.log(err, `Id:`, playerId);
         };
@@ -541,15 +538,14 @@ module.exports = {
 
             //Iterate through every player, get their total score for the season
             for (let player of playersByPosition) {
-                player.toObject();
-                player.score = 0;
+                const scoredPlayer = player.toObject();
+                scoredPlayer.score = 0;
 
                 for (let i = 1; i <= 17; i++) {
-                    player.score += playerScoreHandler(player, currentSeason, i)
+                    scoredPlayer.score += await playerScoreHandler(player, currentSeason, i)
                 };
-
                 //Put them in an array to rank them
-                rankingArray.push(player);
+                rankingArray.push(scoredPlayer);
             };
 
             //Sort the array by score so we can then divide it into the top performers
@@ -564,9 +560,7 @@ module.exports = {
                     currentRank = rankingArray;
                 }
                 for (let player of currentRank) {
-                    delete player.score;
-                    player.rank = i;
-                    await player.save();
+                    await db.PlayerData.findByIdAndUpdate(player._id, { R: i });
                 };
             };
         };

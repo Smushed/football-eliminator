@@ -24,13 +24,43 @@ module.exports = {
     fgMade20_29: 2,
     fgMade30_39: 2,
     fgMade40_49: 3,
-    fgMade50Plus: 5
+    fgMade50Plus: 5,
+    P: {//Passing
+        T: 4, //TD
+        Y: 0.04, //Pass Yards
+        I: -2, //Int
+        A: 0, //Attempts
+        C: 0, //Completions
+        '2P': 2 //2PtPass
+    },
+    RU: { //Rushing
+        A: 0, //Attempts
+        Y: 0.01, //Rush Yards
+        T: 6, //TD
+        '20': 0, //20Plus Rush
+        '40': 0, //40 Plus Rush
+        'F': 0, //Fumbles
+        '2P': 0 //2PT Rush
+    },
+    RE: {
+        TA: 0, //Targets
+        R: 0, //Receptions
+        Y: 0.1, //Rec Yards
+        T: 6, //TD 
+        '20': 0, //20 Plus Rec
+        '40': 0, //40 Plus Rec
+        F: -2, //Rec Fumble
+        '2P': 0 //2PT Rec
+    },
+    F: {
+        F: -2 //Fumble
+    },
+    FG: {
+        1: 2, //1-19 FG 
+        20: 2, //20-29 FG 
+        30: 2, //30-39 FG 
+        40: 3, //40-49 FG 
+        50: 5, //50 plus FG 
+        'X': 1//Extra Point}
+    }
 };
-
-
-// Right now these are useless but I didn't want to just delete them
-// passing: [`passTD`, `passYards`, `passInt`, `passAttempts`, `passCompletions`, `twoPtPassMade`],
-// rushing: [`rushAttempts`, `rushYards`, `rushTD`, `rush20Plus`, `rush40Plus`, `rushFumbles`],
-// receiving: [`targets`, `receptions`, `recYards`, `recTD`, `rec20Plus`, `rec40Plus`, `recFumbles`],
-// fumbles: [`fumbles`],
-// fieldGoals: [`fgMade1_19`, `fgMade20_29`, `fgmade30_39`, `fgMade40_49`, `fgMade50Plus`]
