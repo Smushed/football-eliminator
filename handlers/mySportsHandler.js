@@ -276,7 +276,7 @@ const addWeeksStats = async (mySportsId, stats, season, week) => {
 };
 
 //Goes through the roster of the team and pulls out all offensive players
-const parseRoster = async (playerArray, team, season) => {
+const parseRoster = async (playerArray, team) => {
     const totalPlayerArray = [];
     for (let i = 0; i < playerArray.length; i++) {
         const position = playerArray[i].player.primaryPosition || playerArray[i].player.position;
@@ -340,7 +340,7 @@ const setPlayerToActive = (mySportsId) => {
 };
 
 const updatePlayerTeam = async (mySportsId, team) => {
-    db.FantasyStats.findOneAndUpdate({ 'M': mySportsId }, { 'team': team, 'active': true });
+    db.PlayerData.findOneAndUpdate({ 'M': mySportsId }, { 'team': team, 'active': true });
     return;
 };
 
@@ -393,7 +393,7 @@ module.exports = {
                 //This also gets any new players and adds them to the DB but inside this function
                 //Await because I want it to iterate through the whole roster that was provided before moving onto the next one
                 console.log(`working through ${team}`)
-                await parseRoster(response.data.players, team, season);
+                await parseRoster(response.data.players, team);
             }).catch(err => {
                 //TODO Error handling if the AJAX failed
                 console.log(err);

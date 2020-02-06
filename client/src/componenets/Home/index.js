@@ -209,7 +209,7 @@ const UserLinks = (props) => (
                 </Button>
             </Link>
         }
-        <Link to={`/roster/${props.userId}`}>
+        <Link to={`/roster/allUsers/${props.userId}`}>
             <Button color='primary' className='userLinkButton'>
                 Go to Roster
             </Button>

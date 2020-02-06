@@ -104,9 +104,15 @@ module.exports = {
 
         return players
     },
-    userRoster: async function (userId, week, season, score) {
+    userRoster: async function (userId, groupName, week, season, score) {
         //This goes and grabs the user's roster that the page is currently on
-        const currentRoster = await db.UserRoster.findOne({ userId: userId });
+        let currentRoster = await db.UserRoster.findOne({ U: userId, G: groupName, S: season, W: week });
+        //TODO Come back to this
+        if (currentRoster === null) {
+            currentRoster = await db.UserRoster.create({
+
+            });
+        };
 
         //Parse the data we pulled out of the database and send it back in a useable format
         var parsedRoster = {};
@@ -115,7 +121,7 @@ module.exports = {
         if (score) {
             parsedRoster = await getPlayerScore(currentRoster, season, week)
         } else {
-            parsedRoster = await this.getRosterPlayers(currentRoster, season, week)
+            parsedRoster = await this.getRosterPlayers(currentRoster)
         }
 
         return parsedRoster;
@@ -155,9 +161,9 @@ module.exports = {
             });
         });
     },
-    getRosterPlayers: async (currentRoster, season, week) => {
+    getRosterPlayers: async (currentRoster) => {
         //Goes through the roster of players and pulls in their full data to then display
-        currentRoster = currentRoster.roster[season][week].toObject();
+        currentRoster = currentRoster.roster.toObject();
 
         rosterArray = Object.values(currentRoster);
 
@@ -165,8 +171,8 @@ module.exports = {
         for (const player of rosterArray) {
             if (player !== 0) {
                 //Go through the object that was given to us
-                const response = await db.FantasyStats.findOne({ mySportsId: player }, { mySportsId: 1, full_name: 1, position: 1, rank: 1, team: 1 })
-                responseRoster.push(response)
+                const response = await db.PlayerStats.findOne({ M: player }, { M: 1, N: 1, P: 1, R: 1, T: 1 });
+                responseRoster.push(response);
             };
         };
 

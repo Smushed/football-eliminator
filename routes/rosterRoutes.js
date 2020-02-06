@@ -22,7 +22,7 @@ module.exports = app => {
         res.status(200).send(availablePlayers);
     });
 
-    app.get(`/api/userRoster/:userId`, async (req, res) => {
+    app.get(`/api/userRoster/:groupName/:userId`, async (req, res) => {
         const { userId } = req.params;
         const { week, season } = req.query;
         if (userId !== 'undefined' && week !== 0 && season !== ``) { //Checks if this route received the userId before it was ready in react
@@ -65,7 +65,7 @@ module.exports = app => {
         res.status(200).send(usedPlayers);
     });
 
-    app.get(`/api/getPlayersByTeam/:userId/:team/:season`, async (req, res) => {
+    app.get(`/api/getPlayersByTeam/:groupName/:userId/:team/:season`, async (req, res) => {
         const { userId, team, season } = req.params;
 
         const playersByTeam = await rosterHandler.searchPlayerByTeam(userId, team, season);

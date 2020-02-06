@@ -4,26 +4,23 @@ const Schema = mongoose.Schema;
 
 //Everything is to be singular
 const GroupSchema = new Schema({
-    name: {
+    N: { //Name
         type: String,
         unique: true
     },
-    description: String,
-    userlist: [
+    D: String, //Description
+    UL: [ //Userlist
         {
-            _id: String,
-            isAdmin: {
+            I: String, //ID
+            A: { //Admin
                 type: Boolean,
                 default: false
             },
-            isMod: {
+            B: { //Blocked
                 type: Boolean,
                 default: false
             },
-            isBanned: {
-                type: Boolean,
-                default: false
-            }
+            UP: [Number] //Used Players
         }
     ],
 });
