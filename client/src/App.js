@@ -19,6 +19,7 @@ import Roster from './componenets/Roster';
 import AdminPanel from './componenets/AdminPanel';
 import UpgradeToAdmin from './componenets/AdminPanel/UpgradeToAdmin';
 import UsedPlayers from './componenets/UsedPlayers';
+import CreateWoodbilly from './componenets/GroupPage/CreateWoodbilly';
 
 class App extends Component {
   constructor(props) {
@@ -51,9 +52,9 @@ class App extends Component {
   isSignedIn = async (email) => {
     const dbResponse = await axios.get(`/api/getUser/${email}`);
     const currentUser = {
-      username: dbResponse.data.local.username,
+      username: dbResponse.data.UN,
       userId: dbResponse.data._id,
-      isAdmin: dbResponse.data.isAdmin
+      isAdmin: dbResponse.data.A
     }
     this.setState({ currentUser });
     this.getSeasonAndWeek();
@@ -154,6 +155,11 @@ class App extends Component {
                 season={this.state.currentSeason}
                 week={this.state.currentWeek} />
             }
+          />
+          <Route
+            path={Routes.createWoodbilly}
+            render={() =>
+              <CreateWoodbilly />}
           />
         </div>
       </BrowserRouter>

@@ -11,7 +11,7 @@ const GroupSchema = new Schema({
     D: String, //Description
     UL: [ //Userlist
         {
-            I: String, //ID
+            ID: String, //ID
             A: { //Admin
                 type: Boolean,
                 default: false
@@ -20,7 +20,6 @@ const GroupSchema = new Schema({
                 type: Boolean,
                 default: false
             },
-            UP: [Number] //Used Players
         }
     ],
 });

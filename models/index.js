@@ -1,10 +1,13 @@
 module.exports = {
     User: require(`./User`),
-    Group: require(`./Group`),
-    FantasyStats: require(`./FantasyStats`),
-    Post: require(`./Post`),
     UserRoster: require(`./UserRoster`),
     UserScores: require(`./UserScores`),
+    UsedPlayers: require(`./UsedPlayers`),
+
+    Group: require(`./Group`),
+    GroupScore: require(`./GroupScore`),
+
+    FantasyStats: require(`./FantasyStats`),
     PlayerData: require(`./PlayerData`),
     PlayerStats: require(`./PlayerStats`)
 };

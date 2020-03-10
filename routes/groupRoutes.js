@@ -29,23 +29,8 @@ module.exports = app => {
             res.status(200).send(added);
         } else {
             //TODO Need to have some sort of display on the front end 
-            return "You need to be a moderator to add users to the group"
+            return "You need to be a moderator to add users to the group";
         };
-    });
-
-    //Before post gets to here validate that there isn't a blank field
-    app.post(`/api/newpost`, async (req, res) => {
-        const { userID, groupID, userPost } = req.body;
-
-        const newPost = await postHandler.createPost(userID, groupID, userPost);
-        res.status(200).send(newPost);
-    });
-
-    app.post(`/api/newcomment`, async (req, res) => {
-        const { userID, postID, comment } = req.body;
-
-        const newComment = await postHandler.createComment(userID, postID, comment);
-        res.json(newComment);
     });
 
     //Everything is singular on the backend
@@ -63,14 +48,6 @@ module.exports = app => {
         }
     });
 
-    //Everything is singular on the backend
-    app.get(`/api/getallgrouppost/:group`, async (req, res) => {
-        const groupID = req.params.group;
-        const groupPosts = await postHandler.getAllGroupPost(groupID);
-        const sortedPosts = await postHandler.sortPostByDate(groupPosts);
-        res.json(sortedPosts);
-    });
-
     //Adds the amount of pages or chapters to the Club
     app.put(`/api/updatepagesetup/`, async (req, res) => {
         const { totalCount, groupID, isAdmin } = req.body;
@@ -84,60 +61,17 @@ module.exports = app => {
         };
     });
 
-    app.put(`/api/updatebenchmark`, async (req, res) => {
-        const { nextBenchmark, groupID, isAdmin } = req.body;
-
-        //Checks if the user is a mod of the group they're currently trying to update
-        if (isAdmin) {
-            //TODO if error returned show
-            const updatedGroup = await groupHandler.updateBenchmark(groupID, nextBenchmark);
-            if (updatedGroup.error) {
-                res.status(501).send(updatedGroup)
-            } else {
-                res.status(200).send(updatedGroup);
-            }
-        } else {
-            //TODO Add something to show if they tried to update a group they weren't a mod for
-            res.json({ 'error': `Moderator needed to update benchmark` });
-        };
-
-    });
-
-    app.delete(`/api/deletepost`, async (req, res) => {
-        const { postID } = req.body;
-
-        //Gets the full post data so we can check if the user is either a moderator of the group or the owner of the post
-        const userPost = await postHandler.getPostData(postID);
-        const isMod = await groupHandler.checkGroupMod(req.user._id, userPost.group);
-
-        await postHandler.deletePost(req.user._id, userPost, isMod)
-        const groupPosts = await postHandler.getAllGroupPost(userPost.group);
-
-        res.json(groupPosts);
-    });
-
-    //TODO FOR THE PROJECT THIS IS OK
-    //TODO After the project, this will be moved to a post
-    //Posts and comments are a different route since comments are nested inside posts
-    app.delete(`/api/deletecomment`, async (req, res) => {
-        const { commentID } = req.body;
-
-        //Gets the full post data so we can check if the user is either a moderator of the group or the owner of the post
-        const foundPost = await postHandler.getCommentForPost(commentID);
-        const isMod = await groupHandler.checkGroupMod(req.user._id, foundPost.group);
-
-        //Comment ID is the ID of the comment that is to be deleted
-        const newPost = await postHandler.deleteComment(foundPost.comment, foundPost._id, commentID, isMod)
-
-        //TODO probable need to return the group posts instead of just the new post
-        res.json(newPost);
-    });
-
     app.get(`/api/getLeaderboard/:groupId`, async (req, res) => {
         const { groupId } = req.params;
 
         const leaderboardArray = await groupHandler.getLeaderBoard(groupId);
 
         res.status(200).send(leaderboardArray);
+    });
+
+    app.post(`/api/createWoodbilly`, async (req, res) => {
+        const response = await groupHandler.createWoodbilly();
+
+        res.status(200).send(response);
     });
 };

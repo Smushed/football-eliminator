@@ -75,9 +75,9 @@ class SignUpFormBase extends Component {
         //Checks if all the input fields are valid
         //If not the validation messages are shown and no user is sent to sign up
         if (this.checkValidInput()) {
-            const { username, email, password, firstname, lastname } = this.state;
+            const { username, email, password } = this.state;
 
-            const dbResponse = await axios.post(`/api/newuser`, { username, email, firstname, lastname });
+            const dbResponse = await axios.post(`/api/newuser`, { username, email });
 
             if (dbResponse.status === 200) {
                 return this.props.firebase

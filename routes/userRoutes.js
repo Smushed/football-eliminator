@@ -19,14 +19,12 @@ module.exports = app => {
 
     app.post(`/api/newuser`, async (req, res) => {
         //Called after the user signs up with Firebase
-        const newUser = {}
-        newUser.local = {
-            username: req.body.username,
-            email: req.body.email,
-            firstname: req.body.firstname,
-            lastname: req.body.lastname,
+        const newUser = {
+            UN: req.body.username,
+            E: req.body.email,
+            A: false,
+            GL: [`Woodbilly`]
         };
-        newUser.isAdmin = false;
         const newUserInDB = await userHandler.saveNewUser(newUser);
         res.json(newUserInDB);
     });

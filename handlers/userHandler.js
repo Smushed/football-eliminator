@@ -1,6 +1,7 @@
 const db = require(`../models`);
 const weekDates = require(`../constants/weekDates`);
 const { DateTime } = require('luxon');
+const groupHandler = require(`./groupHandler`);
 
 //This is for updating the user profile once created
 //The user only has access to the local profile
@@ -68,17 +69,20 @@ module.exports = {
         return userProfile;
     },
     saveNewUser: async (newUser) => {
-        const newUserInDB = await db.User.create(newUser);
+        const usernameExists = await db.User.findOne({ UN: newUser.UN });
+        const emailExists = await db.User.findOne({ E: newUser.E });
+        //TODO Do more with this than just return false
+        if (usernameExists !== null || emailExists !== null) { return false };
 
-        //This then creates a new roster for the user that just signed up
-        const newUserRoster = {
-            userId: newUserInDB._id
-        }
-        await db.UserRoster.create(newUserRoster);
-        return newUserInDB;
+        const newUserInDB = await db.User.create(newUser);
+        const newUserInDBObj = newUserInDB.toObject();
+
+        groupHandler.addUser(newUserInDBObj._id, `Woodbilly`)
+
+        return newUserInDBObj;
     },
     getUserByEmail: async (email) => {
-        const foundUser = await db.User.findOne({ 'local.email': email });
+        const foundUser = await db.User.findOne({ 'E': email });
         return foundUser;
     },
     userSearch: async (query, searchParam) => {
