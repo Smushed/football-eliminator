@@ -70,7 +70,7 @@ module.exports = {
         if (isDuplicate) {
             return 500;
         };
-        console.log(addedUserID);
+
         const newUserForGroup = {
             A: false,
             B: false,
@@ -131,14 +131,18 @@ module.exports = {
         };
         return arrayForLeaderBoard;
     },
-    createAllGroup: async () => {
+    createAllGroup: async function () {
         //If there is no Dupe general group we are good to go ahead and add it
         if (!checkDuplicate('group', 'The Eliminator')) { return false };
         const allGroup = {
             N: `The Eliminator`,
             D: `All players for the football eliminator compete here`
         };
-        await db.Group.create(allGroup);
+        const allGroupFromDB = await db.Group.create(allGroup);
+        this.createGroupScore(allGroupFromDB._id);
         return `working`;
+    },
+    createGroupScore: (groupId) => {
+        db.GroupScore.create({ GID: groupId });
     }
 };

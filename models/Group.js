@@ -6,7 +6,8 @@ const Schema = mongoose.Schema;
 const GroupSchema = new Schema({
     N: { //Name
         type: String,
-        unique: true
+        unique: true,
+        required: true
     },
     D: String, //Description
     UL: [ //Userlist

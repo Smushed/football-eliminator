@@ -13,7 +13,10 @@ const UserSchema = new Schema({
         unique: true,
     },
     GL: [mongoose.Schema.Types.ObjectId], //GroupList
-    A: Boolean //Admin
+    A: { //Admin
+        type: Boolean,
+        default: false
+    }
 });
 
 

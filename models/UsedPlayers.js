@@ -6,8 +6,12 @@ const Schema = mongoose.Schema;
 const UsedPlayerSchema = new Schema({
     ID: { //UserId
         type: mongoose.Schema.Types.ObjectId,
+        required: true
     },
-    S: String, //Season
+    S: { //Season
+        type: String,
+        required: true
+    },
     UP: [Number] //Used Players (MySportsId)
 });
 

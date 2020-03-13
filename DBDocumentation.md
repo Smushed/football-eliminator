@@ -49,3 +49,5 @@ PlayerStatsSchema =
             40 - fgMade40_49: Number
             50 - fgMade50Plus: Number
             X - extraPointMade: Number
+     D - Defense
+            Sack 

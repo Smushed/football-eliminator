@@ -6,12 +6,15 @@ const Schema = mongoose.Schema;
 const PlayerStatsSchema = new Schema({
     M: { //mySportsId
         type: Number,
+        required: true
     },
     W: { //Week
         type: Number,
+        required: true
     },
     S: { //Season
         type: String,
+        required: true
     },
     P: { //Passing
         T: { //PassTD

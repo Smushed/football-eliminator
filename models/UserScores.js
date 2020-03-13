@@ -13,6 +13,10 @@ const UserScores = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true
     },
+    S: { //Season
+        type: String,
+        required: true
+    },
     TS: { //Total Score
         type: Number,
         default: 0
