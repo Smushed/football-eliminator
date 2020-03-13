@@ -131,14 +131,14 @@ module.exports = {
         };
         return arrayForLeaderBoard;
     },
-    createWoodbilly: async () => {
-        //If there is no Dupe Woodbilly group we are good to go ahead and add it
-        if (!checkDuplicate('group', 'Woodbilly')) { return false };
-        const woodbilly = {
-            N: `Woodbilly`,
+    createAllGroup: async () => {
+        //If there is no Dupe general group we are good to go ahead and add it
+        if (!checkDuplicate('group', 'The Eliminator')) { return false };
+        const allGroup = {
+            N: `The Eliminator`,
             D: `All players for the football eliminator compete here`
         };
-        await db.Group.create(woodbilly);
+        await db.Group.create(allGroup);
         return `working`;
     }
 };

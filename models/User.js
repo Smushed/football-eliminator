@@ -12,7 +12,7 @@ const UserSchema = new Schema({
         type: String,
         unique: true,
     },
-    GL: [String], //GroupList
+    GL: [mongoose.Schema.Types.ObjectId], //GroupList
     A: Boolean //Admin
 });
 

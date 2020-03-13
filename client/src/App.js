@@ -19,7 +19,7 @@ import Roster from './componenets/Roster';
 import AdminPanel from './componenets/AdminPanel';
 import UpgradeToAdmin from './componenets/AdminPanel/UpgradeToAdmin';
 import UsedPlayers from './componenets/UsedPlayers';
-import CreateWoodbilly from './componenets/GroupPage/CreateWoodbilly';
+import CreateAllGroup from './componenets/GroupPage/CreateAllGroup';
 
 class App extends Component {
   constructor(props) {
@@ -157,9 +157,9 @@ class App extends Component {
             }
           />
           <Route
-            path={Routes.createWoodbilly}
+            path={Routes.CreateAllGroup}
             render={() =>
-              <CreateWoodbilly />}
+              <CreateAllGroup />}
           />
         </div>
       </BrowserRouter>

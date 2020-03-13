@@ -69,8 +69,8 @@ module.exports = app => {
         res.status(200).send(leaderboardArray);
     });
 
-    app.post(`/api/createWoodbilly`, async (req, res) => {
-        const response = await groupHandler.createWoodbilly();
+    app.post(`/api/createAllGroup`, async (req, res) => {
+        const response = await groupHandler.createAllGroup();
 
         res.status(200).send(response);
     });

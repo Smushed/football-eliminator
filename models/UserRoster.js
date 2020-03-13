@@ -23,7 +23,7 @@ const UserRosterSchema = new Schema({
     },
     R: { //Roster
         QB: {
-            type: Number,
+            type: Number, //These are MySportsIds rather than Mongoose Ids
             default: 0
         },
         RB1: {

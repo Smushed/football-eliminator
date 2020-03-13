@@ -6,11 +6,11 @@ const Schema = mongoose.Schema;
 const UserScores = new Schema({
 
     ID: { //User ID
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
         required: true
     },
     G: { //GroupID
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
         required: true
     },
     TS: { //Total Score

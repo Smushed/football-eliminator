@@ -11,7 +11,7 @@ const GroupSchema = new Schema({
     D: String, //Description
     UL: [ //Userlist
         {
-            ID: String, //ID
+            ID: mongoose.Schema.Types.ObjectId, //UserID
             A: { //Admin
                 type: Boolean,
                 default: false
@@ -20,6 +20,7 @@ const GroupSchema = new Schema({
                 type: Boolean,
                 default: false
             },
+            _id: false
         }
     ],
 });

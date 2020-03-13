@@ -23,7 +23,6 @@ module.exports = app => {
             UN: req.body.username,
             E: req.body.email,
             A: false,
-            GL: [`Woodbilly`]
         };
         const newUserInDB = await userHandler.saveNewUser(newUser);
         res.json(newUserInDB);

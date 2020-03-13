@@ -4,11 +4,11 @@ const Schema = mongoose.Schema;
 
 //Everything is to be singular
 const UsedPlayerSchema = new Schema({
-    ID: { //ID
-        type: String,
+    ID: { //UserId
+        type: mongoose.Schema.Types.ObjectId,
     },
     S: String, //Season
-    UP: [Number]
+    UP: [Number] //Used Players (MySportsId)
 });
 
 
