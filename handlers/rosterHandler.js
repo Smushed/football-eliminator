@@ -1,11 +1,8 @@
 const db = require(`../models`);
-const weekDates = require(`../constants/weekDates`);
 const { getPlayerWeeklyScore } = require(`./mySportsHandler`);
-const { DateTime } = require(`luxon`);
+const userHandler = require(`./userHandler`);
 const axios = require(`axios`);
 require(`dotenv`).config();
-
-const timezoneAPI = process.env.TIMEZONE_DB_API_KEY;
 
 //This is here for when a user adds or drops a player. It fills out the object of the current week with 0s
 fillOutRoster = (dbReadyRoster) => {
@@ -253,47 +250,47 @@ module.exports = {
             res(rosterList);
         });
     },
-    checkLockPeriod: async () => {
-        let currentTime = ``;
-        let year = ``;
-        let lockYear = ``;
+    // checkLockPeriod: async () => {
+    //     let currentTime = ``;
+    //     let year = ``;
+    //     let lockYear = ``;
 
-        await axios.get(`http://api.timezonedb.com/v2.1/get-time-zone`, {
-            params: {
-                key: timezoneAPI,
-                format: `json`,
-                by: `zone`,
-                zone: `America/Chicago`
-            }
-        }).then(res => {
-            year = parseInt(res.data.formatted.substring(0, 4));
+    //     await axios.get(`http://api.timezonedb.com/v2.1/get-time-zone`, {
+    //         params: {
+    //             key: timezoneAPI,
+    //             format: `json`,
+    //             by: `zone`,
+    //             zone: `America/Chicago`
+    //         }
+    //     }).then(res => {
+    //         year = parseInt(res.data.formatted.substring(0, 4));
 
-            //Making the format work for the Luxon Parser
-            currentTime = DateTime.fromISO(`${res.data.formatted.replace(/ /g, "T")}Z`);
-        }).catch(err => {
-            //If the API fails we use Luxon (which has caused issues on Google Cloud)
-            currentTime = DateTime.local().setZone(`America/Chicago`);
-            year = parseInt(currentTime.c.year);
-        });
+    //         //Making the format work for the Luxon Parser
+    //         currentTime = DateTime.fromISO(`${res.data.formatted.replace(/ /g, "T")}Z`);
+    //     }).catch(err => {
+    //         //If the API fails we use Luxon (which has caused issues on Google Cloud)
+    //         currentTime = DateTime.local().setZone(`America/Chicago`);
+    //         year = parseInt(currentTime.c.year);
+    //     });
 
-        if (year === 2020) {
-            lockYear = `2019-2020-regular`;
-        } else if (year === 2019) {
-            lockYear = `2018-2019-regular`;
-        };
+    //     if (year === 2020) {
+    //         lockYear = `2019-2020-regular`;
+    //     } else if (year === 2019) {
+    //         lockYear = `2018-2019-regular`;
+    //     };
 
-        //Check if it's week 0
-        if (currentTime < DateTime.fromISO(weekDates[year].lockDates[0].lockTime)) {
-            return 0;
-        };
-        //Breaking this out to it's own function to ensure that people aren't saving their rosters past the lock period
-        //If this wasn't it's own function and relied on the client to define the lock
-        for (let i = 16; i >= 0; i--) { //Going down to check for the latest locked week
-            if (currentTime > DateTime.fromISO(weekDates[year].lockDates[i].lockTime)) {
-                return { lockWeek: weekDates[year].lockDates[i].lockWeek, lockYear };
-            };
-        };
-    },
+    //     //Check if it's week 0
+    //     if (currentTime < DateTime.fromISO(weekDates[year].lockDates[0].lockTime)) {
+    //         return 0;
+    //     };
+    //     //Breaking this out to it's own function to ensure that people aren't saving their rosters past the lock period
+    //     //If this wasn't it's own function and relied on the client to define the lock
+    //     for (let i = 16; i >= 0; i--) { //Going down to check for the latest locked week
+    //         if (currentTime > DateTime.fromISO(weekDates[year].lockDates[i].lockTime)) {
+    //             return { lockWeek: weekDates[year].lockDates[i].lockWeek, lockYear };
+    //         };
+    //     };
+    // },
     usedPlayersForTable: async (userId, season) => {
         const sortedPlayers = { 'QB': [], 'RB': [], 'WR': [], 'TE': [], 'K': [] };
         let usedPlayerArray = [];
@@ -348,5 +345,22 @@ module.exports = {
         };
 
         return scoredAllSeason;
+    },
+    createAllRosters: async function (season) {
+        //Get all the users
+        //Then send them to create season roster
+        const userList = await userHandler.getUserList();
+        for (let i = 0; i < userList.length; i++) {
+            for (let ii = 0; ii < userList[i].groupList.length; ii++) {
+                this.createSeasonRoster(userList[i]._id, season, userList[i].groupList[ii])
+            };
+        };
+    },
+    createSeasonRoster: async (userId, season, groupId) => {
+        //First be sure to create a UserScore document for the user
+        console.log(userId, season, groupId);
+        userHandler.createUserScore(userId, season, groupId);
+        //First check if there has been a roster created for a week
+        //If so, skip it and move to the next one
     }
 };

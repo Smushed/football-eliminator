@@ -71,7 +71,7 @@ module.exports = app => {
 
     app.post(`/api/createAllGroup`, async (req, res) => {
         const response = await groupHandler.createAllGroup();
-
+        userHandler.initSeasonAndWeekInDB();
         res.status(200).send(response);
     });
 };

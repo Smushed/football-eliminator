@@ -64,10 +64,14 @@ class UserEditor extends Component {
         };
 
         await axios.put(`/api/dummyRoster/`,
-            { userId: this.state.selectedUser, season: this.props.season, week: this.props.week, dummyRoster })
+            { userId: this.state.selectedUser, season: this.props.season, week: this.props.week, dummyRoster });
         this.setState({ QB: 0, RB1: 0, RB2: 0, WR1: 0, WR2: 0, Flex: 0, TE: 0, K: 0 })
     };
 
+    createRoster = async () => {
+        const dbResponse = await axios.post(`/api/createRoster/${this.state.selectedUser}`);
+        console.log(dbResponse)
+    };
 
     //This is to handle the change for the Input Type in the position search below
     handleChange = (e) => {
@@ -174,8 +178,11 @@ class UserEditor extends Component {
                                     </Col>
                                     <Col sm='12' md='6'>
                                         {/* If the admin hasn't yet selected a user then they will not be allowed to view */}
-                                        <Button color='secondary' onClick={this.dummyRoster} disabled={!this.state.selectedUser} className='dummyRosterButton'>
+                                        <Button color='secondary' onClick={this.dummyRoster} disabled={!this.state.selectedUser} className='userEditorButton'>
                                             Submit Dummy Roster
+                                        </Button>
+                                        <Button color='info' onClick={this.createRoster} disabled={!this.state.selectedUser} className='userEditorButton rightButton'>
+                                            Create User Roster
                                         </Button>
                                     </Col>
                                 </Row>

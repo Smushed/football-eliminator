@@ -1,8 +1,6 @@
 const db = require(`../models`);
 const axios = require(`axios`);
 const nflTeams = require(`../constants/nflTeams`);
-const scoringSystem = require(`../constants/scoring`);
-const currentSeason = require(`../constants/currentSeason`);
 const positions = require(`../constants/positions`);
 require(`dotenv`).config();
 
@@ -84,122 +82,122 @@ const checkForWeeklyStats = async (mySportsId, stats, season, week) => {
     return true;
 };
 
-const newWeeklyStats = (mySportsId, stats, season, week) => {
-    //We need this because sometimes the object from MySports doesn't include parts (IE no kicking stats)
-    const player = new db.PlayerStats();
-    player.M = parseInt(mySportsId);
-    player.S = season;
-    player.W = parseInt(week);
-    player.P = {};
-    player.RU = {};
-    player.RE = {};
-    player.F = 0;
-    player.FG = {};
+// const newWeeklyStats = (mySportsId, stats, season, week) => {
+//     //We need this because sometimes the object from MySports doesn't include parts (IE no kicking stats)
+//     const player = new db.PlayerStats();
+//     player.M = parseInt(mySportsId);
+//     player.S = season;
+//     player.W = parseInt(week);
+//     player.P = {};
+//     player.RU = {};
+//     player.RE = {};
+//     player.F = 0;
+//     player.FG = {};
 
-    if (stats.passing) {
-        player.P = {
-            T: stats.passing.passTD || 0,
-            Y: stats.passing.passYards || 0,
-            I: stats.passing.passInt || 0,
-            A: stats.passing.passAttempts || 0,
-            C: stats.passing.passCompletions || 0,
-            '2P': stats.twoPointAttempts.twoPtPassMade || 0
-        };
-    } else {
-        player.P = {
-            T: 0,
-            Y: 0,
-            I: 0,
-            A: 0,
-            C: 0,
-            '2P': 0
-        };
-    };
+//     if (stats.passing) {
+//         player.P = {
+//             T: stats.passing.passTD || 0,
+//             Y: stats.passing.passYards || 0,
+//             I: stats.passing.passInt || 0,
+//             A: stats.passing.passAttempts || 0,
+//             C: stats.passing.passCompletions || 0,
+//             '2P': stats.twoPointAttempts.twoPtPassMade || 0
+//         };
+//     } else {
+//         player.P = {
+//             T: 0,
+//             Y: 0,
+//             I: 0,
+//             A: 0,
+//             C: 0,
+//             '2P': 0
+//         };
+//     };
 
-    if (stats.rushing) {
-        player.RU = {
-            A: stats.rushing.rushAttempts || 0,
-            Y: stats.rushing.rushYards || 0,
-            T: stats.rushing.rushTD || 0,
-            '20': stats.rushing.rush20Plus || 0,
-            '40': stats.rushing.rush40Plus || 0,
-            F: stats.rushing.rushFumbles || 0,
-            '2P': stats.twoPointAttempts.twoPtRushMade || 0
-        };
-    } else {
-        player.RU = {
-            A: 0,
-            Y: 0,
-            T: 0,
-            '20': 0,
-            '40': 0,
-            F: 0,
-            '2P': 0
-        };
-    };
+//     if (stats.rushing) {
+//         player.RU = {
+//             A: stats.rushing.rushAttempts || 0,
+//             Y: stats.rushing.rushYards || 0,
+//             T: stats.rushing.rushTD || 0,
+//             '20': stats.rushing.rush20Plus || 0,
+//             '40': stats.rushing.rush40Plus || 0,
+//             F: stats.rushing.rushFumbles || 0,
+//             '2P': stats.twoPointAttempts.twoPtRushMade || 0
+//         };
+//     } else {
+//         player.RU = {
+//             A: 0,
+//             Y: 0,
+//             T: 0,
+//             '20': 0,
+//             '40': 0,
+//             F: 0,
+//             '2P': 0
+//         };
+//     };
 
-    if (stats.receiving) {
-        player.RE = {
-            TA: stats.receiving.targets || 0,
-            R: stats.receiving.receptions || 0,
-            Y: stats.receiving.recYards || 0,
-            T: stats.receiving.recTD || 0,
-            '20': stats.receiving.rec20Plus || 0,
-            '40': stats.receiving.rec40Plus || 0,
-            F: stats.receiving.recFumbles || 0,
-            '2P': stats.twoPointAttempts.twoPtPassRec || 0
-        };
-    } else {
-        player.RE = {
-            TA: 0,
-            R: 0,
-            Y: 0,
-            T: 0,
-            '20': 0,
-            '40': 0,
-            F: 0,
-            '2P': 0
-        }
-    };
+//     if (stats.receiving) {
+//         player.RE = {
+//             TA: stats.receiving.targets || 0,
+//             R: stats.receiving.receptions || 0,
+//             Y: stats.receiving.recYards || 0,
+//             T: stats.receiving.recTD || 0,
+//             '20': stats.receiving.rec20Plus || 0,
+//             '40': stats.receiving.rec40Plus || 0,
+//             F: stats.receiving.recFumbles || 0,
+//             '2P': stats.twoPointAttempts.twoPtPassRec || 0
+//         };
+//     } else {
+//         player.RE = {
+//             TA: 0,
+//             R: 0,
+//             Y: 0,
+//             T: 0,
+//             '20': 0,
+//             '40': 0,
+//             F: 0,
+//             '2P': 0
+//         }
+//     };
 
-    if (stats.fumbles) {
-        player.F = {
-            F: stats.fumbles.fumLost || 0
-        };
-    } else {
-        player.F = {
-            F: 0
-        };
-    };
+//     if (stats.fumbles) {
+//         player.F = {
+//             F: stats.fumbles.fumLost || 0
+//         };
+//     } else {
+//         player.F = {
+//             F: 0
+//         };
+//     };
 
-    if (stats.fieldGoals) {
-        player.FG = {
-            '1': stats.fieldGoals.fgMade1_19 || 0,
-            '20': stats.fieldGoals.fgMade20_29 || 0,
-            '30': stats.fieldGoals.fgMade30_39 || 0,
-            '40': stats.fieldGoals.fgMade40_49 || 0,
-            '50': stats.fieldGoals.fgMade50Plus || 0,
-            X: stats.extraPointAttempts.xpMade || 0
-        };
-    } else {
-        player.FG = {
-            '1': 0,
-            '20': 0,
-            '30': 0,
-            '40': 0,
-            '50': 0,
-            X: 0
-        };
-    };
+//     if (stats.fieldGoals) {
+//         player.FG = {
+//             '1': stats.fieldGoals.fgMade1_19 || 0,
+//             '20': stats.fieldGoals.fgMade20_29 || 0,
+//             '30': stats.fieldGoals.fgMade30_39 || 0,
+//             '40': stats.fieldGoals.fgMade40_49 || 0,
+//             '50': stats.fieldGoals.fgMade50Plus || 0,
+//             X: stats.extraPointAttempts.xpMade || 0
+//         };
+//     } else {
+//         player.FG = {
+//             '1': 0,
+//             '20': 0,
+//             '30': 0,
+//             '40': 0,
+//             '50': 0,
+//             X: 0
+//         };
+//     };
 
-    player.save(function (err) {
-        if (err) {
-            console.log(err)
-        };
-    });
+//     player.save(function (err) {
+//         if (err) {
+//             console.log(err)
+//         };
+//     });
 
-    return;
-};
+//     return;
+// };
 
 const updateWeekStats = (player, stats) => {
     if (stats.passing) {

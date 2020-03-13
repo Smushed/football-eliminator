@@ -1,4 +1,6 @@
 const db = require(`../models`);
+const rosterHandler = require(`./rosterHandler`);
+const userHandler = require(`./userHandler`);
 
 const checkDuplicate = async (checkedField, groupToSearch, userID) => {
     let result = false;
@@ -34,7 +36,7 @@ const checkDuplicate = async (checkedField, groupToSearch, userID) => {
             break;
     }
     return result;
-}
+};
 
 module.exports = {
     createGroup: async (userID, groupName, groupDescription) => {
@@ -64,6 +66,7 @@ module.exports = {
     },
     // Invite other users to the group
     addUser: async (addedUserID, groupName) => {
+        console.log(`hit`)
         //Checks if the user is already added to the group and returns 500 if they are
         const isDuplicate = await checkDuplicate(`userlist`, groupName, addedUserID);
         //TODO update this so it returns an error message
@@ -78,7 +81,10 @@ module.exports = {
         };
 
         //get the user ID, add them to the array userlist within the group
-        await db.Group.findOneAndUpdate({ N: groupName }, { $push: { UL: newUserForGroup } });
+        const groupDetail = await db.Group.findOneAndUpdate({ N: groupName }, { $push: { UL: newUserForGroup } });
+        const { season } = await userHandler.pullSeasonAndWeekFromDB();
+        console.log(season);
+        rosterHandler.createSeasonRoster(addedUserID, season, groupDetail._id)
 
         return 200;
     },
@@ -131,7 +137,7 @@ module.exports = {
         };
         return arrayForLeaderBoard;
     },
-    createAllGroup: async function () {
+    createAllGroup: async function () { //TODO Break this out to use the Create Group function above. Just not sure about the mod part
         //If there is no Dupe general group we are good to go ahead and add it
         if (!checkDuplicate('group', 'The Eliminator')) { return false };
         const allGroup = {
@@ -144,5 +150,10 @@ module.exports = {
     },
     createGroupScore: (groupId) => {
         db.GroupScore.create({ GID: groupId });
+    },
+    findGroupIdByName: async (groupName) => {
+        const foundGroup = await db.Group.findOne({ N: groupName });
+
+        return foundGroup._id;
     }
 };

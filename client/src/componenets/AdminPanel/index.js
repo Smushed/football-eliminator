@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { withAuthorization } from '../Session';
 import { Label, Input, Container, Button, Row, Col } from 'reactstrap';
+import axios from 'axios';
 
 import PlayerEditor from './PlayerEditor';
 import UserEditor from './UserEditor';
@@ -37,6 +38,11 @@ class AdminPanel extends Component {
 
     showUserEditor = () => {
         this.setState({ playerEditor: false, userEditor: true })
+    };
+
+    createAllRosters = async () => {
+        const dbResponse = await axios.post(`/api/createAllRosters/${this.state.seasonSelect}`);
+        console.log(dbResponse)
     };
 
     //This is to handle the change for the Input Type in the position search below
@@ -84,6 +90,9 @@ class AdminPanel extends Component {
                         <br />
                         <br />
                         <Button color='primary' onClick={this.showUserEditor}>User Editor</Button>
+                        <br />
+                        <br />
+                        <Button color='primary' onClick={this.createAllRosters}>Create All Rosters</Button>
                     </Col>
                     <Col sm='12' md='9'>
                         {playerEditor &&

@@ -1,4 +1,5 @@
 const userHandler = require(`../handlers/userHandler`);
+const rosterHandler = require(`../handlers/rosterHandler`);
 
 module.exports = app => {
     app.put(`/api/updateuser`, async (req, res) => {
@@ -62,4 +63,17 @@ module.exports = app => {
 
         res.status(200).send(seasonAndWeek);
     });
+
+    app.post(`/api/createRoster/:userid`, async (req, res) => {
+        const userId = req.params.userid;
+        console.log(userId);
+
+        res.status(200).send(`working`)
+    });
+
+    app.post(`/api/createAllRosters/:season/`, async (req, res) => {
+        const { season } = req.params;
+        const dbResponse = rosterHandler.createAllRosters(season);
+        res.status(200).send(`allrosterworking`)
+    })
 }

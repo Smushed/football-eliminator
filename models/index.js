@@ -3,6 +3,7 @@ module.exports = {
     UserRoster: require(`./UserRoster`),
     UserScores: require(`./UserScores`),
     UsedPlayers: require(`./UsedPlayers`),
+    SeasonAndWeek: require(`./SeasonAndWeek`),
 
     Group: require(`./Group`),
     GroupScore: require(`./GroupScore`),
