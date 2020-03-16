@@ -360,7 +360,6 @@ module.exports = {
         //If so, skip it and move to the next one
         for (let i = 1; i <= 17; i++) {
             const dupeCheck = await checkDuplicateRoster('userRoster', userId, groupId, season, i);
-            console.log(i, dupeCheck);
             if (!dupeCheck) {
                 const roster = {
                     U: userId,
@@ -372,5 +371,12 @@ module.exports = {
             };
         };
         return `working`;
+    },
+    getUserRoster: async (userId, week, season, groupId) => {
+        let roster = await db.UserRoster.findOne({ U: userId, W: week, S: season, G: groupId }, { R: 1 });
+        if (roster === null) {
+            roster = db.UserRoster.create({ U: userId, W: week, S: season, G: groupId })
+        };
+        return roster.R;
     }
 };

@@ -131,7 +131,7 @@ module.exports = {
         return userArrayToShow;
     },
     getUserByID: async (userID) => {
-        const foundUser = await db.User.findById([userID]);
+        const foundUser = await db.User.findById(userID);
         return foundUser;
     },
     // getSeasonAndWeek: async function () {

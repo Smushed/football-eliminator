@@ -2,13 +2,9 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
 import { withRouter } from 'react-router-dom';
 
 import './leaderBoardStyle.css'
-
-const Alert = withReactContent(Swal);
 
 class Leaderboard extends Component {
     constructor(props) {
@@ -89,17 +85,6 @@ class Leaderboard extends Component {
                             onClick: () => {
                                 if (!rowInfo) { return };
                                 this.props.userClicked(rowInfo.original.userId, rowInfo.original.username)
-                                // Alert.fire({
-                                //     title: rowInfo.original.username,
-                                //     showCancelButton: true,
-                                //     confirmButtonColor: '#228B22',
-                                //     cancelButtonColor: '#A9A9A9',
-                                //     confirmButtonText: 'Go to their page'
-                                // }).then(result => {
-                                //     if (result.value) {
-                                //         this.redirect(rowInfo.original.userId)
-                                //     };
-                                // });
                             }
                         };
                     }}

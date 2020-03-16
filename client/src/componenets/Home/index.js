@@ -45,15 +45,16 @@ class Home extends Component {
 
     getRoster(userId, week, username) {
 
-        if (week !== 0 && this.props.season !== ``) {
-            const season = this.props.season;
+        if (week !== 0 && this.props.season !== `` && this.props.group !== ``) {
+            const { season, group } = this.props
 
             this.setState({ weekSelect: week });
 
-            axios.get(`/api/userRoster/${userId}`,
+            axios.get(`/api/userRoster/${group}/${userId}`,
                 { params: { week, season } })
                 .then(res => {
-                    this.sortRoster(res.data);
+                    console.log(res.data);
+                    this.setState({ userRoster: res.data })
 
                     if (username) {
                         this.setState({ userDisplayed: username, userIdDisplayed: userId });
@@ -69,7 +70,7 @@ class Home extends Component {
     getUserName(userId) {
         axios.get(`/api/getUserById/${userId}`)
             .then(res => {
-                this.setState({ userDisplayed: res.data.local.username, userIdDisplayed: userId })
+                this.setState({ userDisplayed: res.data.UN, userIdDisplayed: userId })
             }).catch(err => {
                 console.log(err); //TODO better error handling
             });

@@ -29,7 +29,9 @@ class App extends Component {
       authUser: null,
       currentUser: {},
       currentWeek: 0,
-      currentSeason: ``
+      currentSeason: ``,
+      groupList: [],
+      currentGroup: ``
     }
 
   };
@@ -56,7 +58,7 @@ class App extends Component {
       userId: dbResponse.data._id,
       isAdmin: dbResponse.data.A
     }
-    this.setState({ currentUser });
+    this.setState({ currentUser, groupList: dbResponse.data.GL, currentGroup: dbResponse.data.GL[0] });
     this.getSeasonAndWeek();
   };
 
@@ -81,7 +83,9 @@ class App extends Component {
                 userId={this.state.currentUser.userId}
                 isAdmin={this.state.currentUser.isAdmin}
                 week={this.state.currentWeek}
-                season={this.state.currentSeason} />} />
+                season={this.state.currentSeason}
+                group={this.state.currentGroup} />}
+          />
           <Route
             path={Routes.adminPanel}
             render={() =>
