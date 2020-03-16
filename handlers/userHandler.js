@@ -182,7 +182,7 @@ module.exports = {
     createUserScore: async (userId, season, groupId) => {
         const checkDupeUser = await checkDuplicateUser(`userScore`, userId);
         if (!checkDupeUser) {
-            db.UserScores.create({ ID: userId, G: groupId, S: season });
+            db.UserScores.create({ U: userId, G: groupId, S: season });
         };
         return;
     }

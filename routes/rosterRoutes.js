@@ -37,8 +37,12 @@ module.exports = app => {
     });
 
     app.put(`/api/dummyRoster/`, async (req, res) => {
-        const { userId, week, season, dummyRoster } = req.body;
-        const dbResponse = await rosterHandler.dummyRoster(userId, week, season, dummyRoster);
+        const { userId, groupId, week, season, dummyRoster } = req.body;
+        if (userId === undefined || groupId === '') {
+            res.status(500).send(`Select Someone!`);
+            return;
+        }
+        const dbResponse = await rosterHandler.dummyRoster(userId, groupId, week, season, dummyRoster);
 
         res.status(200).send(dbResponse);
     });

@@ -15,7 +15,11 @@ class UserEditor extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            selectedUser: ``,
+            isSelected: false,
+            selectedUser: {
+                username: ''
+            },
+            groupSelect: ``,
             userArray: [],
             loading: true,
             QB: 0,
@@ -64,7 +68,7 @@ class UserEditor extends Component {
         };
 
         await axios.put(`/api/dummyRoster/`,
-            { userId: this.state.selectedUser, season: this.props.season, week: this.props.week, dummyRoster });
+            { userId: this.state.selectedUser._id, groupId: this.state.groupSelect, season: this.props.season, week: this.props.week, dummyRoster });
         this.setState({ QB: 0, RB1: 0, RB2: 0, WR1: 0, WR2: 0, Flex: 0, TE: 0, K: 0 })
     };
 
@@ -80,8 +84,8 @@ class UserEditor extends Component {
         });
     };
 
-    selectUser = (id) => {
-        this.setState({ selectedUser: id })
+    selectUser = (user) => {
+        this.setState({ selectedUser: user, isSelected: true, groupSelect: user.groupList[0] })
     };
 
     calculateScores = async () => {
@@ -94,13 +98,23 @@ class UserEditor extends Component {
         return (
             <div>
                 <Row>
-                    <Col xs='4'>
+                    <Col xs='6'>
+                        <SelectedUser selectedUser={this.state.selectedUser} />
+                    </Col>
+                    <Col xs='6'>
+                        {this.state.isSelected &&
+                            <Input value={this.state.groupSelect} type='select' name='groupSelect' id='groupSelect' onChange={this.handleChange}>
+                                {this.state.selectedUser.groupList.map((group, i) =>
+                                    <option key={i}>{group}</option>)}
+                            </Input>
+                        }
+                    </Col>
+                </Row>
+                <Row>
+                    <Col xs='12'>
                         <Button onClick={this.calculateScores} color='primary' className='calculateScoreButton'>
                             Update Scores
                         </Button>
-                    </Col>
-                    <Col xs='8'>
-                        <SelectedUser selectedUser={this.state.selectedUser} />
                     </Col>
                 </Row>
                 <Row>
@@ -176,15 +190,17 @@ class UserEditor extends Component {
                                             </Row>
                                         </div>
                                     </Col>
-                                    <Col sm='12' md='6'>
-                                        {/* If the admin hasn't yet selected a user then they will not be allowed to view */}
-                                        <Button color='secondary' onClick={this.dummyRoster} disabled={!this.state.selectedUser} className='userEditorButton'>
-                                            Submit Dummy Roster
+                                    {this.state.isSelected &&
+                                        <Col sm='12' md='6'>
+                                            {/* If the admin hasn't yet selected a user then they will not be allowed to view */}
+                                            <Button color='secondary' onClick={this.dummyRoster} disabled={!this.state.selectedUser} className='userEditorButton'>
+                                                Submit Dummy Roster
                                         </Button>
-                                        <Button color='info' onClick={this.createRoster} disabled={!this.state.selectedUser} className='userEditorButton rightButton'>
-                                            Create User Roster
+                                            <Button color='info' onClick={this.createRoster} disabled={!this.state.selectedUser} className='userEditorButton rightButton'>
+                                                TODO Create User Roster
                                         </Button>
-                                    </Col>
+                                        </Col>
+                                    }
                                 </Row>
                             </FormGroup>
                         </Form>
@@ -201,7 +217,7 @@ const SelectedUser = (props) => {
         <Row>
             <Col xs='12'>
                 <div className='selectedUser'>
-                    Selected User: <Input value={props.selectedUser} type='text' disabled />
+                    Selected User: <Input value={props.selectedUser.username} type='text' disabled />
                 </div>
             </Col>
         </Row>
@@ -227,7 +243,7 @@ const UserTable = (props) => {
                         return {
                             onClick: () => {
                                 if (!rowInfo) { return };
-                                props.selectUser(rowInfo.original._id);
+                                props.selectUser(rowInfo.original);
                             }
                         };
                     }}

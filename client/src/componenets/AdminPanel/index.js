@@ -12,7 +12,7 @@ class AdminPanel extends Component {
         this.state = {
             userEditor: false,
             playerEditor: false,
-            weekSelect: 0,
+            weekSelect: 1,
             seasonSelect: ``
         };
     };
@@ -61,8 +61,8 @@ class AdminPanel extends Component {
                     <Col sm='12' md='3'>
                         <Label for='seasonSelect'>Select Season</Label>
                         <Input value={this.state.seasonSelect} type='select' name='seasonSelect' id='seasonSelect' onChange={this.handleChange}>
-                            <option>2018-2019-regular</option>
                             <option>2019-2020-regular</option>
+                            <option>2020-2021-regular</option>
                         </Input>
                         <Label for='weekSelect'>Select Week</Label>
                         <Input value={this.state.weekSelect} type='select' name='weekSelect' id='weekSelect' onChange={this.handleChange}>

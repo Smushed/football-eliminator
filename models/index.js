@@ -7,6 +7,8 @@ module.exports = {
 
     Group: require(`./Group`),
     GroupScore: require(`./GroupScore`),
+    GroupRoster: require(`./GroupRoster`),
+    RosterTypes: require(`./RosterTypes`),
 
     FantasyStats: require(`./FantasyStats`),
     PlayerData: require(`./PlayerData`),

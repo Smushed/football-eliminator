@@ -51,3 +51,19 @@ PlayerStatsSchema =
             X - extraPointMade: Number
      D - Defense
             Sack 
+
+
+# Group / Roster Info
+The Roster is customizable for each group. They should be able to set the players that they want to play each and every week.
+They should be able to choose between
+
+Different Positions to choose from
+        1 - QB
+        2 - RB
+        3 - WR
+        4 - TE
+        5 - K
+        6 - D
+        7 - RB/WR
+        8 - Flex (RB/WR/TE)
+        9 - Super Flex (QB/RB/WR/TE)

@@ -53,7 +53,6 @@ class Home extends Component {
             axios.get(`/api/userRoster/${group}/${userId}`,
                 { params: { week, season } })
                 .then(res => {
-                    console.log(res.data);
                     this.setState({ userRoster: res.data })
 
                     if (username) {

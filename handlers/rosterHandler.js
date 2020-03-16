@@ -5,17 +5,8 @@ const axios = require(`axios`);
 require(`dotenv`).config();
 
 //This is here for when a user adds or drops a player. It fills out the object of the current week with 0s
-fillOutRoster = (dbReadyRoster) => {
-    const positions = [`QB`, `RB1`, `RB2`, `WR1`, `WR2`, `Flex`, `TE`, `K`];
-    let filledRoster = {};
-
-    //Iterate through the positions and ensure that it is full
-    //This is done in case a user drops a player without adding a new one
-    positions.forEach(position => {
-        filledRoster[position] = dbReadyRoster[position] || 0;
-    });
-
-    return filledRoster;
+fillOutRoster = (rosterFromDB) => {
+    console.log(rosterFromDB)
 };
 
 checkDuplicateRoster = async (checkedField, userId, groupId, season, week) => {
@@ -25,7 +16,16 @@ checkDuplicateRoster = async (checkedField, userId, groupId, season, week) => {
         case `userRoster`:
             try {
                 searched = await db.UserRoster.findOne({ U: userId, W: week, G: groupId, S: season }).exec();
-                //If there is a group with that name return true
+                if (searched !== null) {
+                    result = true;
+                };
+            } catch (err) {
+                console.log(err);
+            };
+            break;
+        case `usedPlayers`:
+            try {
+                searched = await db.UsedPlayers.findOne({ U: userId, S: season, G: groupId }).exec();
                 if (searched !== null) {
                     result = true;
                 };
@@ -112,7 +112,12 @@ getPlayerScore = async (currentRoster, season, week) => {
     return responseRoster;
 };
 
-
+createUsedPlayers = async (userId, season, groupId) => {
+    const isDupe = await checkDuplicateRoster(`usedPlayers`, userId, groupId, season, null);
+    if (!isDupe) {
+        return db.UsedPlayers.create({ U: userId, S: season, G: groupId });
+    };
+};
 
 module.exports = {
     byRoster: async () => {
@@ -120,38 +125,79 @@ module.exports = {
 
         return players
     },
-    dummyRoster: async (userId, week, season, dummyRoster) => { //Brute force updating a user's roster
+    dummyRoster: async (userId, groupId, week, season, dummyRoster) => { //Brute force updating a user's roster
         return new Promise((res, rej) => {
-            db.UserRoster.findOne({ userId: userId }, (err, userRoster) => {
-                const currentRoster = userRoster.roster[season][week].toJSON(); //Need to toJSON to chop off all the Mongo bits
-                const currentUsedPlayerArray = userRoster.roster[season].usedPlayers;
-                const currentRosterArray = Object.values(currentRoster);
-
-                //Need to filter out all the 0s before we try and save it down into usedPlayers
-                const filteredRosterArray = currentRosterArray.filter(playerId => playerId !== 0);
-                const currentRosterSet = new Set(filteredRosterArray);
-                //Filter out all the players that we removed from the roster that was in there
-                const usedPlayers = currentUsedPlayerArray.filter((playerId) => !currentRosterSet.has(playerId));
-
-                //TODO Some kind of flag or throw an error if the dummy player is already in there
-                const dummyRosterArray = Object.values(dummyRoster);
-                for (const player of dummyRosterArray) {
-                    if (parseInt(player) !== 0) {
-                        usedPlayers.push(player);
-                    };
+            db.UserRoster.findOne({ U: userId, G: groupId, W: week, S: season }, async (err, userRoster) => {
+                if (userRoster === null) {
+                    userRoster = await db.UserRoster.create({ U: userId, G: groupId, W: week, S: season });
                 };
+                await db.UsedPlayers.findOne({ U: userId, S: season, G: groupId }, async (err, usedPlayers) => {
+                    if (usedPlayers === null) {
+                        usedPlayers = createUsedPlayers(userId, season, groupId);
+                    };
+                    //Create a set of players currently in the week. We want to pull them out of the UsedPlayer Array when we update them
+                    const rosterArray = Object.values(userRoster);
+                    const currentRoster = new Set(rosterArray.filter(playerId => playerId !== 0));
+                    const currentUsedPlayerArray = usedPlayers.UP;
 
-                userRoster.roster[season][week] = dummyRoster;
-                userRoster.roster[season].usedPlayers = usedPlayers;
+                    //filter out all the players who are being pulled from the current week
+                    const updatedUsedPlayers = currentUsedPlayerArray.filter((playerId) => !currentRoster.has(playerId));
 
+                    //Add in all the players from the new players to the used player array
+                    const dummyRosterArray = Object.values(dummyRoster);
+
+                    for (const player of dummyRosterArray) {
+                        if (parseInt(player) !== 0) {
+                            updatedUsedPlayers.push(player);
+                        };
+                    };
+
+                    usedPlayers.UP = updatedUsedPlayers;
+                    usedPlayers.save((err, result) => {
+                        if (err) {
+                            console.log(err);
+                        };
+                    });
+                });
+                userRoster.R = dummyRoster;
                 userRoster.save((err, result) => {
                     if (err) {
-                        //TODO Better error handling
                         console.log(err);
                     } else {
                         res(result);
                     };
                 });
+
+
+                // const currentRoster = userRoster.roster[season][week].toJSON(); //Need to toJSON to chop off all the Mongo bits
+                // const currentUsedPlayerArray = userRoster.roster[season].usedPlayers;
+                // const currentRosterArray = Object.values(currentRoster);
+
+                //Need to filter out all the 0s before we try and save it down into usedPlayers
+                // const filteredRosterArray = currentRosterArray.filter(playerId => playerId !== 0);
+                // const currentRosterSet = new Set(filteredRosterArray);
+                //Filter out all the players that we removed from the roster that was in there
+                // const usedPlayers = currentUsedPlayerArray.filter((playerId) => !currentRosterSet.has(playerId));
+
+                // //TODO Some kind of flag or throw an error if the dummy player is already in there
+                // const dummyRosterArray = Object.values(dummyRoster);
+                // for (const player of dummyRosterArray) {
+                //     if (parseInt(player) !== 0) {
+                //         usedPlayers.push(player);
+                //     };
+                // };
+
+                // userRoster.roster[season][week] = dummyRoster;
+                // userRoster.roster[season].usedPlayers = usedPlayers;
+
+                // userRoster.save((err, result) => {
+                //     if (err) {
+                //         //TODO Better error handling
+                //         console.log(err);
+                //     } else {
+                //         res(result);
+                //     };
+                // });
             });
         });
     },
@@ -349,6 +395,7 @@ module.exports = {
         const userList = await userHandler.getUserList();
         for (let i = 0; i < userList.length; i++) {
             for (let ii = 0; ii < userList[i].groupList.length; ii++) {
+                createUsedPlayers(userList[i], season, userList[i].groupList[ii]);
                 this.createSeasonRoster(userList[i]._id, season, userList[i].groupList[ii])
             };
         };
@@ -375,8 +422,9 @@ module.exports = {
     getUserRoster: async (userId, week, season, groupId) => {
         let roster = await db.UserRoster.findOne({ U: userId, W: week, S: season, G: groupId }, { R: 1 });
         if (roster === null) {
-            roster = db.UserRoster.create({ U: userId, W: week, S: season, G: groupId })
+            roster = db.UserRoster.create({ U: userId, W: week, S: season, G: groupId });
         };
-        return roster.R;
+        const filledRoster = fillOutRoster(roster.R);
+        return filledRoster;
     }
 };

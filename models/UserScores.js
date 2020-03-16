@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 //Everything is to be singular
 const UserScores = new Schema({
 
-    ID: { //User ID
+    U: { //User ID
         type: mongoose.Schema.Types.ObjectId,
         required: true
     },
