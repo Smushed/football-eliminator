@@ -22,6 +22,7 @@ module.exports = app => {
         res.status(200).send(availablePlayers);
     });
 
+    //TODO THIS
     app.get(`/api/userRoster/:groupName/:userId`, async (req, res) => {
         const { userId } = req.params;
         const { week, season } = req.query;

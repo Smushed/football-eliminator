@@ -176,7 +176,7 @@ module.exports = {
             const week = dbResponse[0].W;
             const lockWeek = dbResponse[0].LW;
 
-            res(season, week, lockWeek);
+            res({ season, week, lockWeek });
         })
     },
     createUserScore: async (userId, season, groupId) => {

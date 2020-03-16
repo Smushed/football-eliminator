@@ -59,8 +59,7 @@ module.exports = app => {
     app.get(`/api/currentSeasonAndWeek`, async (req, res) => {
         //Finds the current season and week for today's date according to the server.
         //This should only drive the starting values for the selects
-        const seasonAndWeek = await userHandler.getSeasonAndWeek();
-
+        const seasonAndWeek = await userHandler.pullSeasonAndWeekFromDB();
         res.status(200).send(seasonAndWeek);
     });
 
@@ -74,6 +73,6 @@ module.exports = app => {
     app.post(`/api/createAllRosters/:season/`, async (req, res) => {
         const { season } = req.params;
         const dbResponse = rosterHandler.createAllRosters(season);
-        res.status(200).send(`allrosterworking`)
+        res.status(200).send(dbResponse)
     })
 }

@@ -6,20 +6,24 @@ const Schema = mongoose.Schema;
 const UserRosterSchema = new Schema({
 
     U: { //UserId
-        type: String,
-        required: true
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        unique: false
     },
     G: { //GroupId
-        type: String,
-        required: true
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        unique: false
     },
     W: { //Week
         type: Number,
-        required: true
+        required: true,
+        unique: false
     },
     S: { //Season
         type: String,
-        required: true
+        required: true,
+        unique: false
     },
     R: { //Roster
         QB: {

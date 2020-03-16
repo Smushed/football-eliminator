@@ -18,6 +18,25 @@ fillOutRoster = (dbReadyRoster) => {
     return filledRoster;
 };
 
+checkDuplicateRoster = async (checkedField, userId, groupId, season, week) => {
+    let result = false;
+    let searched;
+    switch (checkedField) {
+        case `userRoster`:
+            try {
+                searched = await db.UserRoster.findOne({ U: userId, W: week, G: groupId, S: season }).exec();
+                //If there is a group with that name return true
+                if (searched !== null) {
+                    result = true;
+                };
+            } catch (err) {
+                console.log(err);
+            };
+            break;
+    };
+    return result;
+};
+
 usedPlayersInReactTableFormat = (sortedPlayers) => {
     let checkLongest = 0;
     let arrayForTable = [];
@@ -100,28 +119,6 @@ module.exports = {
         const players = await db.FantasyStats.find({ 'team': 'CHI' })
 
         return players
-    },
-    userRoster: async function (userId, groupName, week, season, score) {
-        //This goes and grabs the user's roster that the page is currently on
-        let currentRoster = await db.UserRoster.findOne({ U: userId, G: groupName, S: season, W: week });
-        //TODO Come back to this
-        if (currentRoster === null) {
-            currentRoster = await db.UserRoster.create({
-
-            });
-        };
-
-        //Parse the data we pulled out of the database and send it back in a useable format
-        var parsedRoster = {};
-
-        //If we score the players or not (to see the totals)
-        if (score) {
-            parsedRoster = await getPlayerScore(currentRoster, season, week)
-        } else {
-            parsedRoster = await this.getRosterPlayers(currentRoster)
-        }
-
-        return parsedRoster;
     },
     dummyRoster: async (userId, week, season, dummyRoster) => { //Brute force updating a user's roster
         return new Promise((res, rej) => {
@@ -358,9 +355,22 @@ module.exports = {
     },
     createSeasonRoster: async (userId, season, groupId) => {
         //First be sure to create a UserScore document for the user
-        console.log(userId, season, groupId);
         userHandler.createUserScore(userId, season, groupId);
         //First check if there has been a roster created for a week
         //If so, skip it and move to the next one
+        for (let i = 1; i <= 17; i++) {
+            const dupeCheck = await checkDuplicateRoster('userRoster', userId, groupId, season, i);
+            console.log(i, dupeCheck);
+            if (!dupeCheck) {
+                const roster = {
+                    U: userId,
+                    G: groupId,
+                    W: i,
+                    S: season
+                };
+                await db.UserRoster.create(roster);
+            };
+        };
+        return `working`;
     }
 };
