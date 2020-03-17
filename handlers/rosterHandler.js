@@ -6,7 +6,6 @@ require(`dotenv`).config();
 
 //This is here for when a user adds or drops a player. It fills out the object of the current week with 0s
 fillOutRoster = (rosterFromDB) => {
-    console.log(rosterFromDB)
 };
 
 checkDuplicateRoster = async (checkedField, userId, groupId, season, week) => {
@@ -400,28 +399,30 @@ module.exports = {
             };
         };
     },
-    createSeasonRoster: async (userId, season, groupId) => {
-        //First be sure to create a UserScore document for the user
-        userHandler.createUserScore(userId, season, groupId);
-        //First check if there has been a roster created for a week
-        //If so, skip it and move to the next one
-        for (let i = 1; i <= 17; i++) {
-            const dupeCheck = await checkDuplicateRoster('userRoster', userId, groupId, season, i);
-            if (!dupeCheck) {
-                const roster = {
-                    U: userId,
-                    G: groupId,
-                    W: i,
-                    S: season
-                };
-                await db.UserRoster.create(roster);
-            };
-        };
-        return `working`;
-    },
+    // createSeasonRoster: async (userId, season, groupId) => { //TODO Not used right now because if the group switches up the roster construction this won't be able to handle it
+    //     //First be sure to create a UserScore document for the user
+    //     userHandler.createUserScore(userId, season, groupId);
+    //     console.log(`user score created`)
+    //     //First check if there has been a roster created for a week
+    //     //If so, skip it and move to the next one
+    //     for (let i = 1; i <= 17; i++) {
+    //         const dupeCheck = await checkDuplicateRoster('userRoster', userId, groupId, season, i);
+    //         if (!dupeCheck) {
+    //             const roster = {
+    //                 U: userId,
+    //                 G: groupId,
+    //                 W: i,
+    //                 S: season
+    //             };
+    //             await db.UserRoster.create(roster);
+    //         };
+    //     };
+    //     return `working`;
+    // },
     getUserRoster: async (userId, week, season, groupId) => {
         let roster = await db.UserRoster.findOne({ U: userId, W: week, S: season, G: groupId }, { R: 1 });
         if (roster === null) {
+            const group = db.GroupRoster.findOne({ G: groupId }); //TODO DONT FORGET THIS
             roster = db.UserRoster.create({ U: userId, W: week, S: season, G: groupId });
         };
         const filledRoster = fillOutRoster(roster.R);

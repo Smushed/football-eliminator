@@ -1,14 +1,14 @@
 const db = require(`../models`);
 const groupHandler = require(`./groupHandler`);
 
-const checkDuplicateUser = async (checkedField, userId) => {
+const checkDuplicateUser = async (checkedField, userId, groupId) => {
     let result = false;
     let searched;
     //TODO Do something other than log these errors
     switch (checkedField) {
         case `userScore`:
             try {
-                searched = await db.UserScores.findOne({ ID: userId }).exec();
+                searched = await db.UserScores.findOne({ U: userId, G: groupId }).exec();
                 //If there is a group with that name return true
                 if (searched !== null) {
                     result = true;
@@ -65,6 +65,7 @@ module.exports = {
     },
     updateToAdmin: async (userId) => {
         let dbResponse = ``;
+        console.log(userId)
         await db.User.updateOne({ _id: userId }, { $set: { A: true } }, (err, data) => {
             if (err) {
                 dbResponse = err;
@@ -93,14 +94,15 @@ module.exports = {
         const usernameExists = await db.User.findOne({ UN: newUser.UN });
         const emailExists = await db.User.findOne({ E: newUser.E });
         //TODO Do more with this than just return false
-        // if (usernameExists !== null || emailExists !== null) { return false };
+        if (usernameExists !== null || emailExists !== null) { return false };
 
         const newUserInDB = await db.User.create(newUser);
         const newUserInDBObj = newUserInDB.toObject();
-        console.log(`user hit`)
-        groupHandler.addUser(newUserInDBObj._id, `The Eliminator`)
 
-        return newUserInDBObj;
+        const addedGroup = await groupHandler.addUser(newUserInDBObj._id, `The Eliminator`)
+        const addedGroupId = addedGroup._id;
+
+        return { newUserInDB, addedGroupId };
     },
     getUserByEmail: async (email) => {
         const foundUser = await db.User.findOne({ 'E': email });
@@ -180,10 +182,19 @@ module.exports = {
         })
     },
     createUserScore: async (userId, season, groupId) => {
-        const checkDupeUser = await checkDuplicateUser(`userScore`, userId);
+        const checkDupeUser = await checkDuplicateUser(`userScore`, userId, groupId);
         if (!checkDupeUser) {
             db.UserScores.create({ U: userId, G: groupId, S: season });
         };
         return;
+    },
+    purgeDB: () => { //TODO If I make Admin Route and Handler, move this over
+        db.User.deleteMany({}, (err, res) => { if (err) { console.log(err) } else { console.log(`User Deleted`) } });
+        db.UserRoster.deleteMany({}, (err, res) => { if (err) { console.log(err) } else { console.log(`User Roster Deleted`) } });
+        db.UserScores.deleteMany({}, (err, res) => { if (err) { console.log(err) } else { console.log(`User Score Deleted`) } });
+        db.Group.deleteMany({}, (err, res) => { if (err) { console.log(err) } else { console.log(`Group Deleted`) } });
+        db.GroupRoster.deleteMany({}, (err, res) => { if (err) { console.log(err) } else { console.log(`Group Roster Deleted`) } });
+        db.GroupScore.deleteMany({}, (err, res) => { if (err) { console.log(err) } else { console.log(`Group Score Deleted`) } });
+        db.SeasonAndWeek.deleteMany({}, (err, res) => { if (err) { console.log(err) } else { console.log(`Season & Week Deleted`) } });
     }
 };

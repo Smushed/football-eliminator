@@ -1,3 +1,4 @@
+require(`dotenv`).config();
 const userHandler = require(`../handlers/userHandler`);
 const rosterHandler = require(`../handlers/rosterHandler`);
 
@@ -11,21 +12,26 @@ module.exports = app => {
     });
 
     app.put(`/api/updateUserToAdmin/:userId`, async (req, res) => {
-        const { userId } = req.params;
+        const userId = req.params.userId;
 
         const response = await userHandler.updateToAdmin(userId);
 
         res.status(200).send(response);
     });
 
-    app.post(`/api/newuser`, async (req, res) => {
-        //Called after the user signs up with Firebase
+    app.post(`/api/newUser`, async (req, res) => {
+        //Called before the user signs up with Firebase
         const newUser = {
             UN: req.body.username,
             E: req.body.email,
             A: false,
         };
-        const newUserInDB = await userHandler.saveNewUser(newUser);
+        const { newUserInDB, addedGroupId } = await userHandler.saveNewUser(newUser);
+
+        const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
+        userHandler.createUserScore(newUserInDB, season, addedGroupId);
+        //rosterHandler.createSeasonRoster(newUserInDB._id, season, addedGroupId)
+
         res.json(newUserInDB);
     });
 
@@ -74,5 +80,14 @@ module.exports = app => {
         const { season } = req.params;
         const dbResponse = rosterHandler.createAllRosters(season);
         res.status(200).send(dbResponse)
-    })
+    });
+
+    app.post(`/api/purgeUserAndGroupDB/:pass`, (req, res) => {
+        const { pass } = req.params;
+        console.log(`deleting`)
+        userHandler.purgeDB();
+        // if (pass === process.env.DROP_DB) {
+        // };
+        res.status(200).send(`success`);
+    });
 }

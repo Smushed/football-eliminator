@@ -14,28 +14,28 @@ const GroupRosterSchema = new Schema({
         default: [
             {
                 N: 'QB',
-                T: 1
+                I: 0
             }, {
                 N: 'RB1',
-                T: 2
+                I: 1
             }, {
                 N: 'RB2',
-                T: 2
+                I: 1
             }, {
                 N: 'WR1',
-                T: 3
+                I: 2
             }, {
                 N: 'WR2',
-                T: 3
+                I: 2
             }, {
                 N: 'RB/WR',
-                T: 7
+                I: 6
             }, {
                 N: 'TE',
-                T: 4
+                I: 3
             }, {
                 N: 'K',
-                T: 5
+                I: 4
             }]
     },
 });

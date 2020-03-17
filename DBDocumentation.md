@@ -57,7 +57,7 @@ PlayerStatsSchema =
 The Roster is customizable for each group. They should be able to set the players that they want to play each and every week.
 They should be able to choose between
 
-Different Positions to choose from
+Different Positions to choose from. This is in the constant folder
         1 - QB
         2 - RB
         3 - WR

@@ -1,6 +1,4 @@
 const db = require(`../models`);
-const rosterHandler = require(`./rosterHandler`);
-const userHandler = require(`./userHandler`);
 
 const checkDuplicate = async (checkedField, groupToSearch, userID) => {
     let result = false;
@@ -82,11 +80,8 @@ module.exports = {
 
         //get the user ID, add them to the array userlist within the group
         const groupDetail = await db.Group.findOneAndUpdate({ N: groupName }, { $push: { UL: newUserForGroup } });
-        const { season } = await userHandler.pullSeasonAndWeekFromDB();
-        console.log(season);
-        rosterHandler.createSeasonRoster(addedUserID, season, groupDetail._id)
 
-        return 200;
+        return groupDetail;
     },
     checkGroupMod: async (userID, groupID) => {
         //Looks up the group in the database
@@ -145,6 +140,7 @@ module.exports = {
             D: `All players for the football eliminator compete here`
         };
         const allGroupFromDB = await db.Group.create(allGroup);
+        this.createGroupRoster(allGroupFromDB._id);
         this.createGroupScore(allGroupFromDB._id);
         return `working`;
     },
@@ -155,5 +151,9 @@ module.exports = {
         const foundGroup = await db.Group.findOne({ N: groupName });
 
         return foundGroup._id;
+    },
+    createGroupRoster: async (groupId) => {
+        const dbResponse = db.GroupRoster.create({ G: groupId });
+        return dbResponse;
     }
 };

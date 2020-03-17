@@ -28,6 +28,7 @@ module.exports = app => {
         if (userId !== `undefined` && week !== 0 && season !== `` && groupId !== `undefined`) { //Checks if this route received the userId before it was ready in react
             //The check already comes in as the string undefined, rather than undefined itself. It comes in as truthly
             //Passing in null so it doesn't score the players
+            //First get the Group data to ensure that we populate the user roster properly
             const userRoster = await rosterHandler.getUserRoster(userId, week, season, groupId);
             res.status(200).send(userRoster);
         } else {

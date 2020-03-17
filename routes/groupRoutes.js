@@ -1,3 +1,4 @@
+require(`dotenv`).config();
 const userHandler = require(`../handlers/userHandler`);
 const groupHandler = require(`../handlers/groupHandler`);
 
@@ -69,9 +70,13 @@ module.exports = app => {
         res.status(200).send(leaderboardArray);
     });
 
-    app.post(`/api/createAllGroup`, async (req, res) => {
-        const response = await groupHandler.createAllGroup();
+    app.post(`/api/createAllGroup/:pass`, async (req, res) => {
+        const { pass } = req.params;
+        groupHandler.createAllGroup();
         userHandler.initSeasonAndWeekInDB();
-        res.status(200).send(response);
+        console.log(`Group Created`)
+        // if (pass === process.env.INIT_DB) {
+        // };
+        res.status(200).send(`success`);
     });
 };

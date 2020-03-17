@@ -33,7 +33,7 @@ class UpgradeToAdmin extends Component {
     };
 
     upgradeToAdmin = async () => {
-        const serverResponse = await axios.put(`/api/updateUserToAdmin/${this.state.selectedUser}`);
+        const serverResponse = await axios.put(`/api/updateUserToAdmin/${this.state.selectedUser._id}`);
         Alert.fire({
             type: 'success',
             text: serverResponse.data
