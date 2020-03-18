@@ -155,5 +155,9 @@ module.exports = {
     createGroupRoster: async (groupId) => {
         const dbResponse = db.GroupRoster.create({ G: groupId });
         return dbResponse;
+    },
+    getGroupPositions: async (groupId) => {
+        const dbResponse = await db.GroupRoster.findOne({ G: groupId });
+        return dbResponse.P;
     }
 };

@@ -420,9 +420,12 @@ module.exports = {
     //     return `working`;
     // },
     getUserRoster: async (userId, week, season, groupId) => {
+        //This grabs the user roster, and if not it creates one.
         let roster = await db.UserRoster.findOne({ U: userId, W: week, S: season, G: groupId }, { R: 1 });
         if (roster === null) {
             const groupRoster = await db.GroupRoster.findOne({ G: groupId });
+
+            //The roster on the UserRoster Schema is an array of MySportsPlayerIDs
             const userRoster = groupRoster.P.map(position => 0);
             const weeksRoster = { U: userId, W: week, S: season, G: groupId, R: userRoster };
             roster = db.UserRoster.create(weeksRoster);

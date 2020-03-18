@@ -29,6 +29,7 @@ class Roster extends Component {
             seasonOnPage: ``,
             currentUser: false,
             usernameOfPage: '',
+            groupPositions: [],
             dbReadyRoster: { //We populate this when we go to sort the user's roster. This is the way it's saved into the database
                 QB: 0,
                 RB1: 0,
@@ -46,8 +47,8 @@ class Roster extends Component {
         if (this.props.week !== 0 && this.props.season !== '') {
             this.setState({ weekSelect: this.props.week, seasonSelect: this.props.season });
             this.getRosterData(this.props.week, this.props.season);
-            this.checkCurrentUser();
-            this.getCurrentUsername();
+            // this.checkCurrentUser();
+            // this.getCurrentUsername();
         };
     };
 
@@ -55,8 +56,8 @@ class Roster extends Component {
         if (this.props.season !== prevProps.season) { // season here because it's the last prop we pass in. Probably not the best way
             this.setState({ weekSelect: this.props.week, seasonSelect: this.props.season });
             this.getRosterData(this.props.week, this.props.season);
-            this.checkCurrentUser();
-            this.getCurrentUsername();
+            // this.checkCurrentUser();
+            // this.getCurrentUsername();
         };
     };
 
@@ -118,7 +119,8 @@ class Roster extends Component {
             axios.get(`/api/userRoster/${this.props.match.params.groupId}/${this.props.match.params.userId}`,
                 { params: { week, season } })
                 .then(res => {
-                    this.setState({ userRoster: res.data });
+                    console.log(res.data)
+                    this.setState({ userRoster: res.data.userRoster, groupPositions: res.data.groupPositions });
                     this.sortRoster(res.data);
                     this.doneLoading();
                 }).catch(err => {
