@@ -145,7 +145,7 @@ module.exports = {
         return `working`;
     },
     createGroupScore: (groupId) => {
-        db.GroupScore.create({ GID: groupId });
+        db.GroupScore.create({ G: groupId });
     },
     findGroupIdByName: async (groupName) => {
         const foundGroup = await db.Group.findOne({ N: groupName });

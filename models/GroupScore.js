@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 //Everything is to be singular
 const GroupScoreSchema = new Schema({
-    GID: { //GroupID
+    G: { //GroupID
         type: mongoose.Types.ObjectId,
         required: true
     },

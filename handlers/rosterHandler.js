@@ -422,8 +422,10 @@ module.exports = {
     getUserRoster: async (userId, week, season, groupId) => {
         let roster = await db.UserRoster.findOne({ U: userId, W: week, S: season, G: groupId }, { R: 1 });
         if (roster === null) {
-            const group = db.GroupRoster.findOne({ G: groupId }); //TODO DONT FORGET THIS
-            roster = db.UserRoster.create({ U: userId, W: week, S: season, G: groupId });
+            const groupRoster = await db.GroupRoster.findOne({ G: groupId });
+            const userRoster = groupRoster.P.map(position => 0);
+            const weeksRoster = { U: userId, W: week, S: season, G: groupId, R: userRoster };
+            roster = db.UserRoster.create(weeksRoster);
         };
         const filledRoster = fillOutRoster(roster.R);
         return filledRoster;

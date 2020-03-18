@@ -25,8 +25,7 @@ const UserRosterSchema = new Schema({
         required: true,
         unique: false
     },
-    R: { //Roster
-    }
+    R: [Number] //Roster
 });
 
 
