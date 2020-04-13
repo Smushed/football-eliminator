@@ -8,6 +8,7 @@ import axios from 'axios';
 import SignUpPage from './componenets/SignUp';
 import SignInPage from './componenets/SignIn';
 import NavBar from './componenets/NavBar';
+import GroupBar from './componenets/GroupBar';
 import Home from './componenets/Home';
 import PasswordReset from './componenets/PasswordReset';
 import PasswordChange from './componenets/PasswordChange';
@@ -56,7 +57,7 @@ class App extends Component {
     const currentUser = {
       username: dbResponse.data.UN,
       userId: dbResponse.data._id,
-      isAdmin: dbResponse.data.A
+      isAdmin: dbResponse.data.A,
     }
     this.setState({ currentUser, groupList: dbResponse.data.GL, currentGroup: dbResponse.data.GL[0] });
     this.getSeasonAndWeek();
@@ -75,16 +76,20 @@ class App extends Component {
 
         <div>
           <NavBar authUser={this.state.authUser} />
-          {/* Routes to different components */}
+          <GroupBar
+            groupList={this.state.groupList}
+          />
           <Route
             exact path={Routes.home}
             render={() =>
               <Home
                 userId={this.state.currentUser.userId}
+                username={this.state.currentUser.username}
                 isAdmin={this.state.currentUser.isAdmin}
-                week={this.state.currentWeek}
                 season={this.state.currentSeason}
-                group={this.state.currentGroup} />}
+                group={this.state.currentGroup}
+                week={this.state.currentWeek}
+              />}
           />
           <Route
             path={Routes.adminPanel}

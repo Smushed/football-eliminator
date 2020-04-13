@@ -25,16 +25,16 @@ class Home extends Component {
     };
 
     componentDidMount() {
-        if (this.props.userId && this.props.week) {
+        if (this.props.userId && this.props.week && this.props.username) {
             this.setState({ weekSelect: this.props.week });
-            this.getRoster(this.props.userId, this.props.week);
+            this.getRoster(this.props.userId, this.props.week, this.props.username);
         };
     };
 
     componentDidUpdate(prevProps) {
         if (this.props.week !== prevProps.week) {
             this.setState({ weekSelect: this.props.week });
-            this.getRoster(this.props.userId, this.props.week);
+            this.getRoster(this.props.userId, this.props.week, this.props.username);
         };
     };
 
@@ -151,6 +151,7 @@ class Home extends Component {
                         weekSelect={weekSelect}
                         customSeasonWeekSearch={this.customSeasonWeekSearch}
                         handleChange={this.handleChange}
+                        groupName={this.props.group.N}
                         lockperoid={this.lockperoid} />
                     <Col sm='12' md='7'>
                         <Leaderboard week={this.props.week} season={this.props.season} userClicked={this.leaderboardUserClicked} />
@@ -194,7 +195,12 @@ const LeftPanel = (props) => (
         </Row>
         <Row>
             <Col xs='12' className='centerText userLinks'>
-                <UserLinks isAdmin={props.isAdmin} userId={props.userId} userDisplayed={props.userDisplayed} />
+                <UserLinks
+                    isAdmin={props.isAdmin}
+                    userId={props.userId}
+                    userDisplayed={props.userDisplayed}
+                    groupName={props.groupName}
+                />
             </Col>
         </Row>
     </Col>
@@ -209,7 +215,7 @@ const UserLinks = (props) => (
                 </Button>
             </Link>
         }
-        <Link to={`/roster/allUsers/${props.userId}`}>
+        <Link to={`/roster/${props.groupName}/${props.userId}`}>
             <Button color='primary' className='userLinkButton'>
                 Go to Roster
             </Button>

@@ -21,6 +21,26 @@ const checkDuplicateUser = async (checkedField, userId, groupId) => {
     return result;
 };
 
+const fillOutUserForFrontEnd = async (user) => {
+    const groupList = [];
+    for (let i = 0; i < user.GL.length; i++) {
+        const groupData = await groupHandler.getGroupData(user.GL[i])
+        groupList.push({
+            N: groupData.N,
+            D: groupData.D,
+            _id: groupData._id
+        });
+    };
+    const filledUser = {
+        UN: user.UN,
+        _id: user._id,
+        A: user.A,
+        GL: groupList
+    };
+
+    return filledUser;
+};
+
 //This is for updating the user profile once created
 //The user only has access to the local profile
 module.exports = {
@@ -106,7 +126,9 @@ module.exports = {
     },
     getUserByEmail: async (email) => {
         const foundUser = await db.User.findOne({ 'E': email });
-        return foundUser;
+        const response = await fillOutUserForFrontEnd(foundUser);
+
+        return response;
     },
     userSearch: async (query, searchParam) => {
         //On the front end we control what can be searched with a select dropdown
@@ -134,40 +156,9 @@ module.exports = {
     },
     getUserByID: async (userID) => {
         const foundUser = await db.User.findById(userID);
-        return foundUser;
+        const response = await fillOutUserForFrontEnd(foundUser);
+        return response;
     },
-    // getSeasonAndWeek: async function () {
-    //     const currentTime = DateTime.local().setZone(`America/Chicago`);
-    //     const year = parseInt(currentTime.c.year);
-    //     const month = parseInt(currentTime.c.month);
-    //     const day = parseInt(currentTime.c.day);
-
-    //     let season = ``;
-    //     let week = 1;
-
-    //     //First we check if the user is trying to access the game outside of the normal date range
-    //     if (typeof weekDates[year] === `undefined` || typeof weekDates[year][month] === `undefined` || typeof weekDates[year][month][day] === `undefined`) {
-    //         //If we are late in 2019 or early in 2020 then we want it to be the last week of the season
-    //         if ((year === 2019 && month === 12) || (year === 2020 && month < 5)) {
-    //             season = `2019-2020-regular`;
-    //             week = 17;
-    //         } else if (year === 2019) { //If it is not late in the year (month 12) we want it to default to week 1 of 2019-2020 season
-    //             season = `2019-2020-regular`;
-    //             week = 1;
-    //         } else if (year === 2020) {
-    //             return { season: `2020-2021-regular`, week: 1 }
-    //         } else if ((year === 2020 && month === 12) || (year === 2021 && month < 5)) {
-    //             season = `2020-2021-regular`;
-    //             week = 17;
-    //         };
-    //     } else { //This is if this is inside the season. There's an object in weekDates that I put the calendar in
-    //         season = weekDates[year].season;
-    //         week = weekDates[year][month][day];
-    //     };
-
-
-    //     return { season, week };
-    // },
     initSeasonAndWeekInDB: async () => {
         db.SeasonAndWeek.create({});
     },

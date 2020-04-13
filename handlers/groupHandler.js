@@ -94,7 +94,6 @@ module.exports = {
     },
     getGroupData: async (groupID) => {
         const groupData = await db.Group.findById([groupID]);
-
         return groupData;
     },
     getLeaderBoard: async (groupId) => {
