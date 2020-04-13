@@ -30,16 +30,6 @@ class Roster extends Component {
             currentUser: false,
             usernameOfPage: '',
             groupPositions: [],
-            dbReadyRoster: { //We populate this when we go to sort the user's roster. This is the way it's saved into the database
-                QB: 0,
-                RB1: 0,
-                RB2: 0,
-                WR1: 0,
-                WR2: 0,
-                Flex: 0,
-                TE: 0,
-                K: 0
-            }
         };
     };
 
@@ -619,7 +609,13 @@ const AvailablePlayerRow = (props) => (
 const RosterDisplay = (props) => (
     <Fragment>
         {props.rosterPlayers.map(position => (
-            <CurrentRosterRow key={position} position={position} player={props.currentRoster[position]} addDropPlayer={props.addDropPlayer} nameCol={props.nameCol} scoreCol={props.scoreCol} />
+            <CurrentRosterRow
+                key={position.N}
+                position={position.N}
+                player={props.currentRoster[position]}
+                addDropPlayer={props.addDropPlayer}
+                nameCol={props.nameCol}
+                scoreCol={props.scoreCol} />
         ))}
     </Fragment>
 );

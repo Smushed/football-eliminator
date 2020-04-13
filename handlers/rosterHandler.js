@@ -5,8 +5,18 @@ const axios = require(`axios`);
 require(`dotenv`).config();
 
 //This is here for when a user adds or drops a player. It fills out the object of the current week with 0s
-fillOutRoster = (rosterFromDB) => {
+fillOutRoster = async (rosterFromDB) => {
+    const filledOutRoster = [];
     //TODO DO THIS NEXT. FILL OUT ROSTER WITH PLAYERS
+    for (let i = 0; i < rosterFromDB.length; i++) {
+        if (rosterFromDB[i] === 0) {
+            filledOutRoster.push({});
+        } else {
+            const player = await db.PlayerData.find({ M: rosterFromDB[i] });
+            filledOutRoster.push(player);
+        };
+    };
+    return filledOutRoster;
 };
 
 checkDuplicateRoster = async (checkedField, userId, groupId, season, week) => {
@@ -436,7 +446,6 @@ module.exports = {
             roster = await createWeeklyRoster(userId, week, season, groupId);
         };
         const filledRoster = fillOutRoster(roster.R);
-        console.log(filledRoster)
         return filledRoster;
     }
 };

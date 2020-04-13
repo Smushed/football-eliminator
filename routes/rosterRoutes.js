@@ -1,4 +1,6 @@
 const rosterHandler = require(`../handlers/rosterHandler`);
+const groupHandler = require(`../handlers/groupHandler`);
+const positions = require(`../constants/positions`);
 
 module.exports = app => {
     app.get(`/api/displayplayers`, async (req, res) => {
@@ -28,10 +30,9 @@ module.exports = app => {
         if (userId !== `undefined` && week !== 0 && season !== `` && groupId !== `undefined`) { //Checks if this route received the userId before it was ready in react
             //The check already comes in as the string undefined, rather than undefined itself. It comes in as truthly
             const userRoster = await rosterHandler.getUserRoster(userId, week, season, groupId);
-            console.log(userRoster)
-            // const groupPositions = await groupHandler
-            // const response = { userRoster, groupPositions };
-            res.status(200).send(`placeholder`);
+            const groupPositions = await groupHandler.getGroupPositions(groupId);
+            const response = { userRoster, groupPositions };
+            res.status(200).send(response);
         } else {
             //TODO Do something with this error
             res.status(400).send(`userId is undefined. Try refreshing if this persists`);
@@ -84,6 +85,10 @@ module.exports = app => {
         const allPlayers = await rosterHandler.allSeasonRoster(userId, season);
 
         res.status(200).send(allPlayers);
+    });
+
+    app.get(`/api/getPositionData`, async (req, res) => {
+        res.status(200).send(positions);
     });
 
 };

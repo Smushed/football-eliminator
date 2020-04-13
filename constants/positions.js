@@ -1,5 +1,4 @@
 module.exports = {
-    positions: [`QB`, `RB`, `WR`, `TE`, `K`, `D`],
     rosterPositions:
         [
             { index: 0, description: `QB` },
@@ -11,5 +10,6 @@ module.exports = {
             { index: 6, description: `RB/WR` },
             { index: 7, description: `Flex (RB/WR/TE)` },
             { index: 8, description: `Super Flex (QB/RB/WR/TE)` },
-        ]
+        ],
+    orderOf: [0, 1, 2, 8, 6, 7, 3, 4, 5]
 }

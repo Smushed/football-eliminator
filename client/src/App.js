@@ -8,7 +8,7 @@ import axios from 'axios';
 import SignUpPage from './componenets/SignUp';
 import SignInPage from './componenets/SignIn';
 import NavBar from './componenets/NavBar';
-import GroupBar from './componenets/GroupBar';
+// import GroupBar from './componenets/GroupBar';
 import Home from './componenets/Home';
 import PasswordReset from './componenets/PasswordReset';
 import PasswordChange from './componenets/PasswordChange';
@@ -32,7 +32,9 @@ class App extends Component {
       currentWeek: 0,
       currentSeason: ``,
       groupList: [],
-      currentGroup: ``
+      currentGroup: ``,
+      rosterPositions: [],
+      orderOfPositions: []
     }
 
   };
@@ -58,8 +60,16 @@ class App extends Component {
       username: dbResponse.data.UN,
       userId: dbResponse.data._id,
       isAdmin: dbResponse.data.A,
-    }
-    this.setState({ currentUser, groupList: dbResponse.data.GL, currentGroup: dbResponse.data.GL[0] });
+    };
+    const playerPositions = await axios.get(`/api/getPositionData`);
+
+    this.setState({
+      currentUser,
+      groupList: dbResponse.data.GL,
+      currentGroup: dbResponse.data.GL[0],
+      rosterPositions: playerPositions.data.rosterPositions,
+      orderOfPositions: playerPositions.data.orderOfPositions
+    });
     this.getSeasonAndWeek();
   };
 
