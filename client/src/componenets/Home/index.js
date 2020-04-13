@@ -45,12 +45,12 @@ class Home extends Component {
 
     getRoster(userId, week, username) {
 
-        if (week !== 0 && this.props.season !== `` && this.props.group !== ``) {
+        if (week !== 0 && this.props.season !== `` && this.props.group !== {}) {
             const { season, group } = this.props
 
             this.setState({ weekSelect: week });
 
-            axios.get(`/api/userRoster/${group}/${userId}`,
+            axios.get(`/api/userRoster/${group._id}/${userId}`,
                 { params: { week, season } })
                 .then(res => {
                     this.setState({ userRoster: res.data })

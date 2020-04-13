@@ -6,6 +6,7 @@ require(`dotenv`).config();
 
 //This is here for when a user adds or drops a player. It fills out the object of the current week with 0s
 fillOutRoster = (rosterFromDB) => {
+    //TODO DO THIS NEXT. FILL OUT ROSTER WITH PLAYERS
 };
 
 checkDuplicateRoster = async (checkedField, userId, groupId, season, week) => {
@@ -116,6 +117,15 @@ createUsedPlayers = async (userId, season, groupId) => {
     if (!isDupe) {
         return db.UsedPlayers.create({ U: userId, S: season, G: groupId });
     };
+};
+
+createWeeklyRoster = async (userId, week, season, groupId) => {
+    const groupRoster = await db.GroupRoster.findOne({ G: groupId });
+
+    //The roster on the UserRoster Schema is an array of MySportsPlayerIDs
+    const userRoster = groupRoster.P.map(position => 0);
+    const weeksRoster = { U: userId, W: week, S: season, G: groupId, R: userRoster };
+    return db.UserRoster.create(weeksRoster).exec();
 };
 
 module.exports = {
@@ -423,14 +433,10 @@ module.exports = {
         //This grabs the user roster, and if not it creates one.
         let roster = await db.UserRoster.findOne({ U: userId, W: week, S: season, G: groupId }, { R: 1 });
         if (roster === null) {
-            const groupRoster = await db.GroupRoster.findOne({ G: groupId });
-
-            //The roster on the UserRoster Schema is an array of MySportsPlayerIDs
-            const userRoster = groupRoster.P.map(position => 0);
-            const weeksRoster = { U: userId, W: week, S: season, G: groupId, R: userRoster };
-            roster = db.UserRoster.create(weeksRoster);
+            roster = await createWeeklyRoster(userId, week, season, groupId);
         };
         const filledRoster = fillOutRoster(roster.R);
+        console.log(filledRoster)
         return filledRoster;
     }
 };
