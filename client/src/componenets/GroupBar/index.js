@@ -16,5 +16,6 @@ const GroupBar = (props) => {
     )
 }
 
+// This needs to be a top right part of the Nav BarProp, like modern websites.
 
 export default GroupBar;

@@ -76,9 +76,9 @@ class App extends Component {
 
         <div>
           <NavBar authUser={this.state.authUser} />
-          <GroupBar
+          {/* <GroupBar
             groupList={this.state.groupList}
-          />
+          /> */}
           <Route
             exact path={Routes.home}
             render={() =>
