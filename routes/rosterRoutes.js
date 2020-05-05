@@ -88,7 +88,7 @@ module.exports = app => {
     });
 
     app.get(`/api/getPositionData`, async (req, res) => {
-        res.status(200).send(positions);
+        res.status(200).send(positions.orderOf);
     });
 
 };

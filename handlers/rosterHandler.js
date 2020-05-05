@@ -146,6 +146,7 @@ module.exports = {
     },
     dummyRoster: async (userId, groupId, week, season, dummyRoster) => { //Brute force updating a user's roster
         return new Promise((res, rej) => {
+
             db.UserRoster.findOne({ U: userId, G: groupId, W: week, S: season }, async (err, userRoster) => {
                 if (userRoster === null) {
                     userRoster = await db.UserRoster.create({ U: userId, G: groupId, W: week, S: season });
@@ -155,12 +156,11 @@ module.exports = {
                         usedPlayers = createUsedPlayers(userId, season, groupId);
                     };
                     //Create a set of players currently in the week. We want to pull them out of the UsedPlayer Array when we update them
-                    const rosterArray = Object.values(userRoster);
+                    const rosterArray = Object.values(userRoster.R);
                     const currentRoster = new Set(rosterArray.filter(playerId => playerId !== 0));
                     const currentUsedPlayerArray = usedPlayers.UP;
-
                     //filter out all the players who are being pulled from the current week
-                    const updatedUsedPlayers = currentUsedPlayerArray.filter((playerId) => !currentRoster.has(playerId));
+                    const updatedUsedPlayers = currentUsedPlayerArray.filter((playerId) => !currentRoster.has(+playerId));
 
                     //Add in all the players from the new players to the used player array
                     const dummyRosterArray = Object.values(dummyRoster);
@@ -445,7 +445,7 @@ module.exports = {
         if (roster === null) {
             roster = await createWeeklyRoster(userId, week, season, groupId);
         };
-        const filledRoster = fillOutRoster(roster.R);
+        const filledRoster = (roster.R);
         return filledRoster;
     }
 };

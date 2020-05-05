@@ -56,20 +56,20 @@ class UserEditor extends Component {
     };
 
     dummyRoster = async () => {
-        const dummyRoster = {
-            QB: this.state.QB,
-            RB1: this.state.RB1,
-            RB2: this.state.RB2,
-            WR1: this.state.WR1,
-            WR2: this.state.WR2,
-            Flex: this.state.Flex,
-            TE: this.state.TE,
-            K: this.state.K
-        };
+        const dummyRoster = [
+            this.state.QB,
+            this.state.RB1,
+            this.state.RB2,
+            this.state.WR1,
+            this.state.WR2,
+            this.state.Flex,
+            this.state.TE,
+            this.state.K
+        ];
 
         await axios.put(`/api/dummyRoster/`,
             { userId: this.state.selectedUser._id, groupId: this.state.groupSelect, season: this.props.season, week: this.props.week, dummyRoster });
-        this.setState({ QB: 0, RB1: 0, RB2: 0, WR1: 0, WR2: 0, Flex: 0, TE: 0, K: 0 })
+        // this.setState({ QB: 0, RB1: 0, RB2: 0, WR1: 0, WR2: 0, Flex: 0, TE: 0, K: 0 })
     };
 
     createRoster = async () => {
@@ -92,6 +92,19 @@ class UserEditor extends Component {
         this.loading();
         await axios.get(`/api/calculateScore/${this.props.season}/${this.props.week}/`);
         this.doneLoading();
+    };
+
+    fillDummyRoster = () => {
+        this.setState({
+            QB: 7549,
+            RB1: 8285,
+            RB2: 9791,
+            WR1: 9952,
+            WR2: 7013,
+            Flex: 7380,
+            TE: 7299,
+            K: 6997
+        });
     };
 
     render() {
@@ -193,9 +206,12 @@ class UserEditor extends Component {
                                     {this.state.isSelected &&
                                         <Col sm='12' md='6'>
                                             {/* If the admin hasn't yet selected a user then they will not be allowed to view */}
+                                            <Button onClick={this.fillDummyRoster} disabled={!this.state.selectedUser} className='userEditorButton'>
+                                                Fill Dummy Roster
+                                            </Button>
                                             <Button color='secondary' onClick={this.dummyRoster} disabled={!this.state.selectedUser} className='userEditorButton'>
                                                 Submit Dummy Roster
-                                        </Button>
+                                            </Button>
                                             <Button color='info' onClick={this.createRoster} disabled={!this.state.selectedUser} className='userEditorButton rightButton'>
                                                 TODO Create User Roster
                                         </Button>

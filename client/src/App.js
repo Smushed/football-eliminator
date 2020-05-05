@@ -33,8 +33,7 @@ class App extends Component {
       currentSeason: ``,
       groupList: [],
       currentGroup: ``,
-      rosterPositions: [],
-      orderOfPositions: []
+      positionOrder: []
     }
 
   };
@@ -67,8 +66,7 @@ class App extends Component {
       currentUser,
       groupList: dbResponse.data.GL,
       currentGroup: dbResponse.data.GL[0],
-      rosterPositions: playerPositions.data.rosterPositions,
-      orderOfPositions: playerPositions.data.orderOfPositions
+      positionOrder: playerPositions.data
     });
     this.getSeasonAndWeek();
   };
@@ -99,6 +97,7 @@ class App extends Component {
                 season={this.state.currentSeason}
                 group={this.state.currentGroup}
                 week={this.state.currentWeek}
+                positionOrder={this.state.positionOrder}
               />}
           />
           <Route
