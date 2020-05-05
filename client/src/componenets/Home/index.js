@@ -55,6 +55,7 @@ class Home extends Component {
                 { params: { week, season } })
                 .then(res => {
                     this.sortRoster(res.data.userRoster);
+                    this.setState({ groupPositions: res.data.groupPositions });
 
                     if (username) {
                         this.setState({ userDisplayed: username, userIdDisplayed: userId });
@@ -79,11 +80,14 @@ class Home extends Component {
 
     sortRoster = (roster) => {
         const sortedRoster = [];
-        console.log(this.props.positionOrder)
-        console.log(roster)
-        for (let i = 0; i < this.props.positionOrder.length; i++) {
+        for (let i = 0; i < this.props.positionOrder.length - 1; i++) {
             for (let ii = 0; ii < roster.length; ii++) {
-                //START HERE WITH THE ROSTER TODO
+                if (this.props.positionOrder[i] === roster[ii].P) {
+                    sortedRoster.push(roster[ii]);
+                };
+            };
+            if (!sortedRoster[i]) {
+                sortedRoster.push({});
             };
         };
 
@@ -111,15 +115,15 @@ class Home extends Component {
 
     render() {
         const { isAdmin } = this.props;
-        const { userRoster, userDisplayed, userIdDisplayed, weekSelect } = this.state;
+        const { userRoster, userDisplayed, userIdDisplayed, weekSelect, groupPositions } = this.state;
 
         return (
             <Container fluid={true}>
                 <Row>
                     <LeftPanel smCol='12' mdCol='5'
-                        rosterPlayers={this.state.groupPositions}
+                        roster={userRoster}
+                        groupPositions={groupPositions}
                         addDropPlayer={null}
-                        currentRoster={userRoster}
                         isAdmin={isAdmin}
                         userId={userIdDisplayed}
                         userDisplayed={userDisplayed}
@@ -165,7 +169,7 @@ const LeftPanel = (props) => (
         </Row>
         <Row>
             <Col md='12'>
-                <RosterDisplay rosterPlayers={props.rosterPlayers} addDropPlayer={null} currentRoster={props.currentRoster} nameCol={'9'} scoreCol={'3'} />
+                <RosterDisplay roster={props.roster} groupPositions={props.groupPositions} addDropPlayer={null} nameCol={'9'} scoreCol={'3'} />
             </Col>
         </Row>
         <Row>

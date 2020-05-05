@@ -122,11 +122,15 @@ getPlayerScore = async (currentRoster, season, week) => {
     return responseRoster;
 };
 
-createUsedPlayers = async (userId, season, groupId) => {
-    const isDupe = await checkDuplicateRoster(`usedPlayers`, userId, groupId, season, null);
-    if (!isDupe) {
-        return db.UsedPlayers.create({ U: userId, S: season, G: groupId });
-    };
+createUsedPlayers = (userId, season, groupId) => {
+    return new Promise(async (res, rej) => {
+        const isDupe = await checkDuplicateRoster(`usedPlayers`, userId, groupId, season, null);
+        let newRecord;
+        if (!isDupe) {
+            newRecord = db.UsedPlayers.create({ U: userId, S: season, G: groupId }).exec();
+        };
+        res(newRecord);
+    })
 };
 
 createWeeklyRoster = async (userId, week, season, groupId) => {
@@ -135,7 +139,7 @@ createWeeklyRoster = async (userId, week, season, groupId) => {
     //The roster on the UserRoster Schema is an array of MySportsPlayerIDs
     const userRoster = groupRoster.P.map(position => 0);
     const weeksRoster = { U: userId, W: week, S: season, G: groupId, R: userRoster };
-    return db.UserRoster.create(weeksRoster).exec();
+    return await db.UserRoster.create(weeksRoster);
 };
 
 module.exports = {
@@ -186,37 +190,6 @@ module.exports = {
                         res(result);
                     };
                 });
-
-
-                // const currentRoster = userRoster.roster[season][week].toJSON(); //Need to toJSON to chop off all the Mongo bits
-                // const currentUsedPlayerArray = userRoster.roster[season].usedPlayers;
-                // const currentRosterArray = Object.values(currentRoster);
-
-                //Need to filter out all the 0s before we try and save it down into usedPlayers
-                // const filteredRosterArray = currentRosterArray.filter(playerId => playerId !== 0);
-                // const currentRosterSet = new Set(filteredRosterArray);
-                //Filter out all the players that we removed from the roster that was in there
-                // const usedPlayers = currentUsedPlayerArray.filter((playerId) => !currentRosterSet.has(playerId));
-
-                // //TODO Some kind of flag or throw an error if the dummy player is already in there
-                // const dummyRosterArray = Object.values(dummyRoster);
-                // for (const player of dummyRosterArray) {
-                //     if (parseInt(player) !== 0) {
-                //         usedPlayers.push(player);
-                //     };
-                // };
-
-                // userRoster.roster[season][week] = dummyRoster;
-                // userRoster.roster[season].usedPlayers = usedPlayers;
-
-                // userRoster.save((err, result) => {
-                //     if (err) {
-                //         //TODO Better error handling
-                //         console.log(err);
-                //     } else {
-                //         res(result);
-                //     };
-                // });
             });
         });
     },
@@ -312,47 +285,6 @@ module.exports = {
             res(rosterList);
         });
     },
-    // checkLockPeriod: async () => {
-    //     let currentTime = ``;
-    //     let year = ``;
-    //     let lockYear = ``;
-
-    //     await axios.get(`http://api.timezonedb.com/v2.1/get-time-zone`, {
-    //         params: {
-    //             key: timezoneAPI,
-    //             format: `json`,
-    //             by: `zone`,
-    //             zone: `America/Chicago`
-    //         }
-    //     }).then(res => {
-    //         year = parseInt(res.data.formatted.substring(0, 4));
-
-    //         //Making the format work for the Luxon Parser
-    //         currentTime = DateTime.fromISO(`${res.data.formatted.replace(/ /g, "T")}Z`);
-    //     }).catch(err => {
-    //         //If the API fails we use Luxon (which has caused issues on Google Cloud)
-    //         currentTime = DateTime.local().setZone(`America/Chicago`);
-    //         year = parseInt(currentTime.c.year);
-    //     });
-
-    //     if (year === 2020) {
-    //         lockYear = `2019-2020-regular`;
-    //     } else if (year === 2019) {
-    //         lockYear = `2018-2019-regular`;
-    //     };
-
-    //     //Check if it's week 0
-    //     if (currentTime < DateTime.fromISO(weekDates[year].lockDates[0].lockTime)) {
-    //         return 0;
-    //     };
-    //     //Breaking this out to it's own function to ensure that people aren't saving their rosters past the lock period
-    //     //If this wasn't it's own function and relied on the client to define the lock
-    //     for (let i = 16; i >= 0; i--) { //Going down to check for the latest locked week
-    //         if (currentTime > DateTime.fromISO(weekDates[year].lockDates[i].lockTime)) {
-    //             return { lockWeek: weekDates[year].lockDates[i].lockWeek, lockYear };
-    //         };
-    //     };
-    // },
     usedPlayersForTable: async (userId, season) => {
         const sortedPlayers = { 'QB': [], 'RB': [], 'WR': [], 'TE': [], 'K': [] };
         let usedPlayerArray = [];

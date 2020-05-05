@@ -568,7 +568,8 @@ const CurrentRosterRow = (props) => (
                 <Row>
                     <Col xs={props.nameCol}>
                         <div className='player'>
-                            {props.player.full_name + `, ` + props.player.team}
+                            {props.player.N &&
+                                props.player.N + `, ` + props.player.T}
                         </div>
                     </Col>
                     <Col xs={props.scoreCol}>
@@ -608,11 +609,11 @@ const AvailablePlayerRow = (props) => (
 
 const RosterDisplay = (props) => (
     <Fragment>
-        {props.rosterPlayers.map(position => (
+        {props.groupPositions.map((position, i) => (
             <CurrentRosterRow
-                key={position.N}
+                key={i}
                 position={position.N}
-                player={props.currentRoster[position]}
+                player={props.roster[i]}
                 addDropPlayer={props.addDropPlayer}
                 nameCol={props.nameCol}
                 scoreCol={props.scoreCol} />
