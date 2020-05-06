@@ -62,12 +62,13 @@ module.exports = app => {
         };
     });
 
-    app.get(`/api/getLeaderboard/:groupId`, async (req, res) => {
-        const { groupId } = req.params;
+    app.get(`/api/getLeaderboard/:groupId/:season`, async (req, res) => {
+        const { groupId, season } = req.params;
+        console.log(groupId)
 
-        const leaderboardArray = await groupHandler.getLeaderBoard(groupId);
+        const leaderboardArray = await groupHandler.getLeaderBoard(groupId, season);
 
-        res.status(200).send(leaderboardArray);
+        res.status(200).send(`woah`);
     });
 
     app.post(`/api/createAllGroup/:pass`, async (req, res) => {

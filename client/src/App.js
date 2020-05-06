@@ -32,8 +32,8 @@ class App extends Component {
       currentWeek: 0,
       currentSeason: ``,
       groupList: [],
-      currentGroup: ``,
-      positionOrder: []
+      currentGroup: {},
+      positionOrder: [],
     }
 
   };
@@ -65,7 +65,7 @@ class App extends Component {
     this.setState({
       currentUser,
       groupList: dbResponse.data.GL,
-      currentGroup: dbResponse.data.GL[0],
+      currentGroup: { N: dbResponse.data.GL[0].N, _id: dbResponse.data.GL[0]._id },
       positionOrder: playerPositions.data
     });
     this.getSeasonAndWeek();

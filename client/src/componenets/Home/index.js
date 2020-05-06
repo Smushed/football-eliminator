@@ -133,7 +133,12 @@ class Home extends Component {
                         groupName={this.props.group.N}
                         lockperoid={this.lockperoid} />
                     <Col sm='12' md='7'>
-                        <Leaderboard week={this.props.week} season={this.props.season} userClicked={this.leaderboardUserClicked} />
+                        <Leaderboard
+                            week={this.props.week}
+                            season={this.props.season}
+                            userClicked={this.leaderboardUserClicked}
+                            groupName={this.props.group.N}
+                            groupId={this.props.group._id} />
                     </Col>
                 </Row>
             </Container>

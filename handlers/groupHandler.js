@@ -96,40 +96,35 @@ module.exports = {
         const groupData = await db.Group.findById([groupID]);
         return groupData;
     },
-    getLeaderBoard: async (groupId) => {
+    getLeaderBoard: async (groupId, season) => {
 
-        let userList;
         const arrayForLeaderBoard = [];
 
-        if (groupId === `allUsers`) {
-            userList = await db.User.find().exec();
-        } else {
-            //TODO Add data for other groups
-        };
+        let userScoreList = await db.UserScores.find({ G: groupId, S: season });
 
-        const scores = await db.UserScores.find({ 'weeklyScore.groupId': groupId }).exec();
+        //TODO START HERE . COMBINE THE USER SCORE LIST WITH A USER LIST AND GET USERNAMES
 
-        for (const user of userList) {
-            for (const score of scores) {
-                if (user._id.toString() === score.userId.toString()) {
-                    //Setting this outside to make it easier to add just the weekly scores in userRecord
-                    const totalScore = score.weeklyScore.totalScore.toFixed(2);
-                    const weeklyScore = score.weeklyScore;
-                    delete weeklyScore.groupId;
-                    delete weeklyScore.totalScore;
+        // for (const user of userList) {
+        //     for (const score of scores) {
+        //         if (user._id.toString() === score.userId.toString()) {
+        //             //Setting this outside to make it easier to add just the weekly scores in userRecord
+        //             const totalScore = score.weeklyScore.totalScore.toFixed(2);
+        //             const weeklyScore = score.weeklyScore;
+        //             delete weeklyScore.groupId;
+        //             delete weeklyScore.totalScore;
 
-                    const userRecord = {
-                        email: user.local.email,
-                        userId: user._id,
-                        username: user.local.username,
-                        totalScore: totalScore,
-                        weekScores: weeklyScore
-                    };
-                    arrayForLeaderBoard.push(userRecord);
-                };
-            };
-        };
-        return arrayForLeaderBoard;
+        //             const userRecord = {
+        //                 email: user.local.email,
+        //                 userId: user._id,
+        //                 username: user.local.username,
+        //                 totalScore: totalScore,
+        //                 weekScores: weeklyScore
+        //             };
+        //             arrayForLeaderBoard.push(userRecord);
+        //         };
+        //     };
+        // };
+        return `yo`;
     },
     createAllGroup: async function () { //TODO Break this out to use the Create Group function above. Just not sure about the mod part
         //If there is no Dupe general group we are good to go ahead and add it

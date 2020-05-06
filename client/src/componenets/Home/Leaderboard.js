@@ -39,8 +39,8 @@ class Leaderboard extends Component {
 
     getAllRosters(season) {
         if (season === ``) {
-            return
-        }
+            return;
+        };
         return axios.get(`/api/getAllRosters/${season}`);
     };
 
@@ -48,10 +48,10 @@ class Leaderboard extends Component {
         this.setState({ loading: true });
 
         //Handling if this was called too early
-        if (season === ``) { return }
-        axios.get(`/api/getLeaderboard/allUsers/`)
+        if (season === ``) { return };
+        axios.get(`/api/getLeaderboard/${this.props.groupId}/${season}`)
             .then(res => {
-                this.setState({ loading: false, userList: res.data });
+                // this.setState({ loading: false, userList: res.data });
             });
     };
 
