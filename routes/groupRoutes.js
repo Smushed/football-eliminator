@@ -64,11 +64,10 @@ module.exports = app => {
 
     app.get(`/api/getLeaderboard/:groupId/:season`, async (req, res) => {
         const { groupId, season } = req.params;
-        console.log(groupId)
 
         const leaderboardArray = await groupHandler.getLeaderBoard(groupId, season);
 
-        res.status(200).send(`woah`);
+        res.status(200).send(leaderboardArray);
     });
 
     app.post(`/api/createAllGroup/:pass`, async (req, res) => {

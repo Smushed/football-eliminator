@@ -7,8 +7,8 @@ module.exports = app => {
         const { season, week } = req.params;
 
         await mySportsHandler.getWeeklyData(season, week);
-        await mySportsHandler.updateRoster(season);
-        await mySportsHandler.rankPlayers(season);
+        //await mySportsHandler.updateRoster(season);
+        //await mySportsHandler.rankPlayers(season);
         //TODO Refactor this out so it's not just a copy
         // const userRosters = await rosterHandler.getAllRosters(season);
         // const status = await mySportsHandler.calculateWeeklyScore(userRosters, season, week, `allUsers`);
@@ -16,9 +16,10 @@ module.exports = app => {
         res.sendStatus(200);
     });
 
-    app.get(`/api/massPlayerUpdate`, async (req, res) => {
+    app.get(`/api/massPlayerUpdate/:season`, async (req, res) => {
+        const { season } = req.params;
         //This runs the same thing as the route above but iterates over every season and week currently on the app
-        const dbResponse = await mySportsHandler.getMassData();
+        const dbResponse = await mySportsHandler.getMassData(season);
 
         if (dbResponse.status === 200) {
             res.status(200).send(dbResponse.text);

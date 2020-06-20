@@ -82,122 +82,122 @@ const checkForWeeklyStats = async (mySportsId, stats, season, week) => {
     return true;
 };
 
-// const newWeeklyStats = (mySportsId, stats, season, week) => {
-//     //We need this because sometimes the object from MySports doesn't include parts (IE no kicking stats)
-//     const player = new db.PlayerStats();
-//     player.M = parseInt(mySportsId);
-//     player.S = season;
-//     player.W = parseInt(week);
-//     player.P = {};
-//     player.RU = {};
-//     player.RE = {};
-//     player.F = 0;
-//     player.FG = {};
+const newWeeklyStats = (mySportsId, stats, season, week) => {
+    //We need this because sometimes the object from MySports doesn't include parts (IE no kicking stats)
+    const player = new db.PlayerStats();
+    player.M = parseInt(mySportsId);
+    player.S = season;
+    player.W = parseInt(week);
+    player.P = {};
+    player.RU = {};
+    player.RE = {};
+    player.F = 0;
+    player.FG = {};
 
-//     if (stats.passing) {
-//         player.P = {
-//             T: stats.passing.passTD || 0,
-//             Y: stats.passing.passYards || 0,
-//             I: stats.passing.passInt || 0,
-//             A: stats.passing.passAttempts || 0,
-//             C: stats.passing.passCompletions || 0,
-//             '2P': stats.twoPointAttempts.twoPtPassMade || 0
-//         };
-//     } else {
-//         player.P = {
-//             T: 0,
-//             Y: 0,
-//             I: 0,
-//             A: 0,
-//             C: 0,
-//             '2P': 0
-//         };
-//     };
+    if (stats.passing) {
+        player.P = {
+            T: stats.passing.passTD || 0,
+            Y: stats.passing.passYards || 0,
+            I: stats.passing.passInt || 0,
+            A: stats.passing.passAttempts || 0,
+            C: stats.passing.passCompletions || 0,
+            '2P': stats.twoPointAttempts.twoPtPassMade || 0
+        };
+    } else {
+        player.P = {
+            T: 0,
+            Y: 0,
+            I: 0,
+            A: 0,
+            C: 0,
+            '2P': 0
+        };
+    };
 
-//     if (stats.rushing) {
-//         player.RU = {
-//             A: stats.rushing.rushAttempts || 0,
-//             Y: stats.rushing.rushYards || 0,
-//             T: stats.rushing.rushTD || 0,
-//             '20': stats.rushing.rush20Plus || 0,
-//             '40': stats.rushing.rush40Plus || 0,
-//             F: stats.rushing.rushFumbles || 0,
-//             '2P': stats.twoPointAttempts.twoPtRushMade || 0
-//         };
-//     } else {
-//         player.RU = {
-//             A: 0,
-//             Y: 0,
-//             T: 0,
-//             '20': 0,
-//             '40': 0,
-//             F: 0,
-//             '2P': 0
-//         };
-//     };
+    if (stats.rushing) {
+        player.RU = {
+            A: stats.rushing.rushAttempts || 0,
+            Y: stats.rushing.rushYards || 0,
+            T: stats.rushing.rushTD || 0,
+            '20': stats.rushing.rush20Plus || 0,
+            '40': stats.rushing.rush40Plus || 0,
+            F: stats.rushing.rushFumbles || 0,
+            '2P': stats.twoPointAttempts.twoPtRushMade || 0
+        };
+    } else {
+        player.RU = {
+            A: 0,
+            Y: 0,
+            T: 0,
+            '20': 0,
+            '40': 0,
+            F: 0,
+            '2P': 0
+        };
+    };
 
-//     if (stats.receiving) {
-//         player.RE = {
-//             TA: stats.receiving.targets || 0,
-//             R: stats.receiving.receptions || 0,
-//             Y: stats.receiving.recYards || 0,
-//             T: stats.receiving.recTD || 0,
-//             '20': stats.receiving.rec20Plus || 0,
-//             '40': stats.receiving.rec40Plus || 0,
-//             F: stats.receiving.recFumbles || 0,
-//             '2P': stats.twoPointAttempts.twoPtPassRec || 0
-//         };
-//     } else {
-//         player.RE = {
-//             TA: 0,
-//             R: 0,
-//             Y: 0,
-//             T: 0,
-//             '20': 0,
-//             '40': 0,
-//             F: 0,
-//             '2P': 0
-//         }
-//     };
+    if (stats.receiving) {
+        player.RE = {
+            TA: stats.receiving.targets || 0,
+            R: stats.receiving.receptions || 0,
+            Y: stats.receiving.recYards || 0,
+            T: stats.receiving.recTD || 0,
+            '20': stats.receiving.rec20Plus || 0,
+            '40': stats.receiving.rec40Plus || 0,
+            F: stats.receiving.recFumbles || 0,
+            '2P': stats.twoPointAttempts.twoPtPassRec || 0
+        };
+    } else {
+        player.RE = {
+            TA: 0,
+            R: 0,
+            Y: 0,
+            T: 0,
+            '20': 0,
+            '40': 0,
+            F: 0,
+            '2P': 0
+        }
+    };
 
-//     if (stats.fumbles) {
-//         player.F = {
-//             F: stats.fumbles.fumLost || 0
-//         };
-//     } else {
-//         player.F = {
-//             F: 0
-//         };
-//     };
+    if (stats.fumbles) {
+        player.F = {
+            F: stats.fumbles.fumLost || 0
+        };
+    } else {
+        player.F = {
+            F: 0
+        };
+    };
 
-//     if (stats.fieldGoals) {
-//         player.FG = {
-//             '1': stats.fieldGoals.fgMade1_19 || 0,
-//             '20': stats.fieldGoals.fgMade20_29 || 0,
-//             '30': stats.fieldGoals.fgMade30_39 || 0,
-//             '40': stats.fieldGoals.fgMade40_49 || 0,
-//             '50': stats.fieldGoals.fgMade50Plus || 0,
-//             X: stats.extraPointAttempts.xpMade || 0
-//         };
-//     } else {
-//         player.FG = {
-//             '1': 0,
-//             '20': 0,
-//             '30': 0,
-//             '40': 0,
-//             '50': 0,
-//             X: 0
-//         };
-//     };
+    if (stats.fieldGoals) {
+        player.FG = {
+            '1': stats.fieldGoals.fgMade1_19 || 0,
+            '20': stats.fieldGoals.fgMade20_29 || 0,
+            '30': stats.fieldGoals.fgMade30_39 || 0,
+            '40': stats.fieldGoals.fgMade40_49 || 0,
+            '50': stats.fieldGoals.fgMade50Plus || 0,
+            X: stats.extraPointAttempts.xpMade || 0
+        };
+    } else {
+        player.FG = {
+            '1': 0,
+            '20': 0,
+            '30': 0,
+            '40': 0,
+            '50': 0,
+            X: 0
+        };
+    };
 
-//     player.save(function (err) {
-//         if (err) {
-//             console.log(err)
-//         };
-//     });
+    player.save(function (err) {
+        if (err) {
+            console.log(err)
+        };
+    });
 
-//     return;
-// };
+    return;
+};
 
 const updateWeekStats = (player, stats) => {
     if (stats.passing) {
@@ -375,6 +375,7 @@ module.exports = {
     updateRoster: async (season) => {
         // This loops through the array of all the teams above and gets the current rosters
         for (const team of nflTeams.teams) {
+            if (team === `UNK`) { continue };
             console.log(`Requesting ${team}`);
             await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
                 auth: {
@@ -401,7 +402,7 @@ module.exports = {
         //TODO Better response
         return { text: `Rosters updated!` };
     },
-    getMassData: async function () {
+    getMassData: async function (currentSeason) {
         //This loops through the the seasons and weeks and pulls through all of the data for the players
         const weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
 
@@ -444,8 +445,16 @@ module.exports = {
                 //This searches the database and then returns their ID if they're there and false if they are not
                 let mySportsId = await findPlayerInDB(search.data.gamelogs[i].player.id);
                 if (!mySportsId) {
+                    //Need to break out player team incase the team part is null
+                    //This is for players that have retired or are not currently on a team in mySportsDB
+                    let playerTeam = ``;
+                    if (search.data.gamelogs[i].team !== null) {
+                        playerTeam = search.data.gamelogs[i].team.abbreviation;
+                    } else {
+                        playerTeam = `UNK`;
+                    };
                     //If they are not in the database then I need to first update the PlayerData collection
-                    mySportsId = addPlayerData(search.data.gamelogs[i].player, search.data.gamelogs[i].team.abbreviation, search.data.gamelogs[i].stats, season, week);
+                    mySportsId = addPlayerData(search.data.gamelogs[i].player, playerTeam, search.data.gamelogs[i].stats, season, week);
                 } else {
                     //Need to ensure the player is set to active when their stats are entered in
                     setPlayerToActive(mySportsId);

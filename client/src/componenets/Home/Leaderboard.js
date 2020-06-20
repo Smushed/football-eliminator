@@ -51,7 +51,7 @@ class Leaderboard extends Component {
         if (season === ``) { return };
         axios.get(`/api/getLeaderboard/${this.props.groupId}/${season}`)
             .then(res => {
-                // this.setState({ loading: false, userList: res.data });
+                this.setState({ loading: false, userList: res.data });
             });
     };
 
@@ -63,10 +63,10 @@ class Leaderboard extends Component {
 
     render() {
         const columns = [
-            { Header: `Username`, accessor: `username`, show: true },
-            { Header: `email`, accessor: `email`, show: true },
-            { Header: `Last Week's Score`, accessor: `weekScores[${this.props.week - 1}]`, show: true },
-            { Header: `Total Score`, accessor: `totalScore`, show: true }];
+            { Header: `Username`, accessor: `UN`, show: true },
+            { Header: `email`, accessor: `E`, show: true },
+            { Header: `Last Week's Score`, accessor: `WS[${(this.props.week - 1).toString()}]`, show: true },
+            { Header: `Total Score`, accessor: `TS`, show: true }];
 
         const defaultSorted = [{ id: 'totalScore', desc: true }];
         return (
