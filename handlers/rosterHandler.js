@@ -1,7 +1,7 @@
 const db = require(`../models`);
 const { getPlayerWeeklyScore } = require(`./mySportsHandler`);
 const userHandler = require(`./userHandler`);
-const axios = require(`axios`);
+const positions = require(`../constants/positions`);
 require(`dotenv`).config();
 
 //This is here for when a user adds or drops a player. It fills out the object of the current week with 0s
@@ -99,10 +99,9 @@ sortPlayersByRank = (playerArray) => {
 
 getUsedPlayers = async (userId, season, groupId) => {
     const currentUser = await db.UsedPlayers.findOne({ U: userId, S: season }).exec();
-    console.log(currentUser)
     if (currentUser === null) {
         const createdUsedPlayers = createUsedPlayers(userId, season, groupId);
-        return createUsedPlayers.UP;
+        return createdUsedPlayers.UP;
     };
 
     return currentUser.UP;
@@ -228,55 +227,32 @@ module.exports = {
 
         return availablePlayers;
     },
-    updateUserRoster: async (userId, roster, droppedPlayer, week, season, saveWithNoDrop) => {
-        return new Promise((res, rej) => {
-            const dbReadyRoster = {};
-            for (const position in roster) {
-                dbReadyRoster[position] = roster[position].mySportsId;
+    //TODO FIGURE OUT THE ADD WITHOUT DROP
+    updateUserRoster: async (userId, roster, droppedPlayer, addedPlayer, week, season, saveWithNoDrop) => {
+        return new Promise(async (res, rej) => {
+            if (!saveWithNoDrop) {
+                const usedPlayers = await db.UsedPlayers.findOne({ U: userId });
+                const newUsedPlayers = [];
+                console.log(droppedPlayer, addedPlayer)
+                for (const playerId of usedPlayers.UP) {
+                    if (playerId !== +droppedPlayer) {
+                        newUsedPlayers.push(playerId);
+                    };
+                };
+                newUsedPlayers.push(addedPlayer);
+                usedPlayers.UP = newUsedPlayers;
+                usedPlayers.save();
             };
 
-            db.UserRoster.findOne({ userId }, (err, currentRoster) => {
-                //If the player is adding someone from the available player pool we remove the player they dropped and add the new player
-
-                if (parseInt(droppedPlayer) !== 0) {
-                    //Pulling the player they dropped out of the usedArray
-                    const playerIndex = currentRoster.roster[season].usedPlayers.indexOf(parseInt(droppedPlayer));
-                    currentRoster.roster[season].usedPlayers.splice(playerIndex, 1);
-
-                    //Figuring out the player they just added to the array
-                    //TODO Refactor this out. We use this exact thing below and for dummyRoster
-                    const newRoster = Object.values(dbReadyRoster);
-                    const dbSet = new Set(currentRoster.roster[season].usedPlayers);
-                    const addedPlayer = newRoster.filter((playerId) => !dbSet.has(playerId));
-                    if (addedPlayer.length !== 0) { //This checks if they dropped the only player for the current week
-                        currentRoster.roster[season].usedPlayers.push(addedPlayer[0]);
-                    };
-                };
-
-                if (saveWithNoDrop) {
-                    const newRoster = Object.values(dbReadyRoster);
-                    const dbSet = new Set(currentRoster.roster[season].usedPlayers);
-                    const addedPlayer = newRoster.filter((playerId) => !dbSet.has(playerId));
-                    currentRoster.roster[season].usedPlayers.push(addedPlayer[0]);
-                };
-
-                //Fills out the roster with 0s. This is in case a user drops a player without adding a new one
-                const filledOutRoster = fillOutRoster(dbReadyRoster);
-
-                //This iterates through the positions on the dbReadyRoster provided from the client and puts the players they want in the correct positions without overwriting the 0s
-                Object.keys(filledOutRoster).forEach(position => {
-                    currentRoster.roster[season][week][position] = filledOutRoster[position];
-                });
-
-                currentRoster.save((err, result) => {
-                    if (err) {
-                        //TODO Better error handling
-                        res(err);
-                    } else {
-                        res(result);
-                    };
-                });
-            });
+            const currentRoster = await db.UserRoster.findOne({ U: userId, W: week, S: season });
+            const newRoster = [];
+            console.log(roster)
+            for (const player of roster) {
+                newRoster.push(+player.M)
+            };
+            currentRoster.R = newRoster;
+            currentRoster.save();
+            res(currentRoster);
         });
     },
     getAllRosters: async (season) => {
@@ -356,26 +332,6 @@ module.exports = {
             };
         };
     },
-    // createSeasonRoster: async (userId, season, groupId) => { //TODO Not used right now because if the group switches up the roster construction this won't be able to handle it
-    //     //First be sure to create a UserScore document for the user
-    //     userHandler.createUserScore(userId, season, groupId);
-    //     console.log(`user score created`)
-    //     //First check if there has been a roster created for a week
-    //     //If so, skip it and move to the next one
-    //     for (let i = 1; i <= 17; i++) {
-    //         const dupeCheck = await checkDuplicateRoster('userRoster', userId, groupId, season, i);
-    //         if (!dupeCheck) {
-    //             const roster = {
-    //                 U: userId,
-    //                 G: groupId,
-    //                 W: i,
-    //                 S: season
-    //             };
-    //             await db.UserRoster.create(roster);
-    //         };
-    //     };
-    //     return `working`;
-    // },
     getUserRoster: async (userId, week, season, groupId) => {
         //This grabs the user roster, and if not it creates one.
         let roster = await db.UserRoster.findOne({ U: userId, W: week, S: season, G: groupId }, { R: 1 });
@@ -384,5 +340,5 @@ module.exports = {
         };
         const filledRoster = (roster.R);
         return filledRoster;
-    }
+    },
 };

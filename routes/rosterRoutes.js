@@ -21,7 +21,6 @@ module.exports = app => {
         const { userId, searchedPosition, season, groupId } = req.query;
         //Then iterate over the array and turn the strings into numbers to compare it to the DB
         const availablePlayers = await rosterHandler.availablePlayers(userId, searchedPosition, season, groupId);
-        console.log(availablePlayers)
         res.status(200).send(availablePlayers);
     });
 
@@ -53,9 +52,9 @@ module.exports = app => {
     });
 
     app.put(`/api/updateUserRoster/`, async (req, res) => {
-        const { userId, dbReadyRoster, droppedPlayer, week, season, saveWithNoDrop } = req.body;
+        const { userId, roster, droppedPlayer, addedPlayer, week, season, saveWithNoDrop } = req.body;
 
-        const dbResponse = await rosterHandler.updateUserRoster(userId, dbReadyRoster, droppedPlayer, week, season, saveWithNoDrop);
+        const dbResponse = await rosterHandler.updateUserRoster(userId, roster, droppedPlayer, addedPlayer, week, season, saveWithNoDrop);
 
         res.status(200).send(dbResponse);
     });

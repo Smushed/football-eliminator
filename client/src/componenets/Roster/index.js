@@ -109,9 +109,7 @@ class Roster extends Component {
             axios.get(`/api/userRoster/${this.props.match.params.groupId}/${this.props.match.params.userId}`,
                 { params: { week, season } })
                 .then(res => {
-                    console.log(res.data)
                     this.setState({ userRoster: res.data.userRoster, groupPositions: res.data.groupPositions });
-                    this.sortRoster(res.data.userRoster, res.data.groupPositions);
                     this.doneLoading();
                 }).catch(err => {
                     console.log(`roster data error`, err); //TODO better error handling
@@ -129,7 +127,7 @@ class Roster extends Component {
 
         //We then go through the current user roster and populate it with data to sort it and get all the players
         for (let i = 0; i < updatedRoster.length; i++) {
-            const position = updatedRoster[i].position;
+            const position = updatedRoster[i].P;
             //For the RB And WR positions, there are three options each they can be in
             //RB/WR 1 & 2 as well as a flex position. All of which are undefined because we cannot have duplicate keys in an object
             //We use a switch statement for WR and RB and start pulling the data into the fake roster
@@ -178,9 +176,9 @@ class Roster extends Component {
         let filteredRoster = [];
         if (position === `Flex`) {
             //If the position is flex, that means there are two of the current position and they can either swap it for RB or console.warn();
-            filteredRoster = roster.filter(player => player.position === `RB` || player.position === `WR`);
+            filteredRoster = roster.filter(player => player.P === `RB` || player.P === `WR`);
         } else {
-            filteredRoster = roster.filter(player => player.position === position);
+            filteredRoster = roster.filter(player => player.P === position);
         };
 
         //Iterate over the filtered array and get the full data for the players to give the user a choice
@@ -189,9 +187,9 @@ class Roster extends Component {
 
         for (let i = 0; i < filteredRoster.length; i++) {
             //First we have to initialize the object because of the bracket notation
-            fullPlayers[filteredRoster[i].mySportsId] = {};
+            fullPlayers[filteredRoster[i].M] = {};
             //THen we populate the full name from the state to give the player the chance to pick between the one they just added and the player on their roster
-            fullPlayers[filteredRoster[i].mySportsId] = filteredRoster[i].full_name;
+            fullPlayers[filteredRoster[i].M] = filteredRoster[i].N;
         };
 
         //chosenPlayer === the player the user would like to be dropped
@@ -203,23 +201,27 @@ class Roster extends Component {
             showCancelButton: true,
         });
 
+        if (+chosenPlayer === +addedPlayer.M) {
+            return;
+        };
+
         //If the player responded with the player they would like to drop then we will take them out of their current array and then set the new state
         if (chosenPlayer) {
             const intChosenPlayer = parseInt(chosenPlayer);
-            const intAddedPlayer = parseInt(addedPlayer);
+            const intAddedPlayer = parseInt(addedPlayer.M);
 
             const availablePlayers = originalAvailablePlayers.slice(0);
             let droppedPlayerIndex = 0;
             let availDroppedPlayerIndex = -1;
 
             const droppedPlayer = roster.find((player, i) => {
-                if (player.mySportsId === intChosenPlayer) {
+                if (player.M === intChosenPlayer) {
                     droppedPlayerIndex = i;
                     return player;
                 };
             });
             availablePlayers.find((player, i) => {
-                if (player.mySportsId === intAddedPlayer) {
+                if (player.M === intAddedPlayer) {
                     availDroppedPlayerIndex = i;
                 };
             });
@@ -229,10 +231,11 @@ class Roster extends Component {
                 availablePlayers.splice(availDroppedPlayerIndex, 1);
             };
 
-            roster.splice(droppedPlayerIndex, 1);
+            roster[droppedPlayerIndex] = { P: addedPlayer.P, M: addedPlayer.M, N: addedPlayer.N, T: addedPlayer.T };
+            roster.pop();
 
             //Add the player they dropped back to the available list of players
-            if (droppedPlayer.position === this.state.positionSelect) {
+            if (droppedPlayer.P === this.state.positionSelect) {
                 availablePlayers.unshift(droppedPlayer);
             };
 
@@ -243,11 +246,11 @@ class Roster extends Component {
             if (checkRoster) {
                 //We take the array of player IDs that are on the user roster and sort them
                 //SortRoster also saves down dbReadyRoster so we should be good to save it below
-                this.sortRoster(roster);
+                this.setState({ userRoster: roster });
 
                 //Here we feed the new sorted array along with the player to be deleted from the old array. The state is updated in the sortRoster function
                 //We need to new array to get the new player added and the old player so we can pull them out of the usedPlayersArray in the DB
-                this.saveRosterToDb(this.state.dbReadyRoster, chosenPlayer, false);
+                this.saveRosterToDb(roster, chosenPlayer, intAddedPlayer, false);
 
                 this.setState({ availablePlayers: availablePlayers });
             } else {
@@ -281,7 +284,7 @@ class Roster extends Component {
 
         //We then go through the current user roster and populate it with data to sort it and get all the players
         for (let i = 0; i < roster.length; i++) {
-            const position = roster[i].position;
+            const position = roster[i].P;
             //For the RB And WR positions, there are three options each they can be in
             //RB/WR 1 & 2 as well as a flex position. All of which are undefined because we cannot have duplicate keys in an object
             //We use a switch statement for WR and RB and start pulling the data into the fake roster
@@ -306,53 +309,12 @@ class Roster extends Component {
         return response;
     };
 
-    sortRoster = (roster, groupPositions) => {
-        //While we are sorting the roster we are also getting the object ready to be stored in the database
-        //This sortRoster will be run before we ever go to save anything into the DB so it should populate the state correctly when we go to put it in
-        const dbReadyRoster = {}; //It's saved as an object in the database
-
-        for (const position of groupPositions) {
-
-        };
-        //Here we iterate through the roster of the player and put them into an object for the order we want
-        // for (const player of roster) {
-        //     const position = player.position;
-        //     //If the position is QB, TE, or K then we can just put them directly in
-        //     if (position === `QB`) {
-        //         dbReadyRoster.QB = player;
-        //         //If it's RB or WR then we need to assign it manually to the 1, 2 and flex spots
-        //         //First we need to check the RB/WR 1 & 2 spots then assign it into the flex spot
-        //     } else if (position === `RB`) {
-        //         if (!dbReadyRoster.RB1) {
-        //             dbReadyRoster.RB1 = player;
-        //         } else if (!dbReadyRoster.RB2) {
-        //             dbReadyRoster.RB2 = player;
-        //         } else if (!dbReadyRoster.Flex) {
-        //             dbReadyRoster.Flex = player;
-        //         }
-        //     } else if (position === `WR`) {
-        //         if (!dbReadyRoster.WR1) {
-        //             dbReadyRoster.WR1 = player;
-        //         } else if (!dbReadyRoster.WR2) {
-        //             dbReadyRoster.WR2 = player;
-        //         } else if (!dbReadyRoster.Flex) {
-        //             dbReadyRoster.Flex = player;
-        //         };
-        //     } else if (position === `TE`) {
-        //         dbReadyRoster.TE = player;
-        //     } else if (position === `K`) {
-        //         dbReadyRoster.K = player;
-        //     };
-        // this.setState({ dbReadyRoster, userRoster: roster });
-    };
-
-
-
-    saveRosterToDb = async (dbReadyRoster, droppedPlayer, saveWithNoDrop) => {
+    saveRosterToDb = async (roster, droppedPlayer, addedPlayer, saveWithNoDrop) => {
+        console.log(roster, droppedPlayer, addedPlayer, saveWithNoDrop)
         //This will not always have a chosenPlayer because if the user is reorganizing the players currently on their roster it will not have a player to be dropped
         //The saveWithNoDrop var is if the user has a blank week roster, it ensures we save it to the usedPlayerArray because we will be feeding droppedPlayer of 0
         axios.put(`/api/updateUserRoster`,
-            { userId: this.props.userId, dbReadyRoster, droppedPlayer, week: this.state.weekSelect, season: this.state.seasonSelect, saveWithNoDrop })
+            { userId: this.props.userId, roster, droppedPlayer, addedPlayer, week: this.state.weekSelect, season: this.state.seasonSelect, saveWithNoDrop })
             .then(res => {
                 return
             }).catch(err => {
@@ -450,7 +412,7 @@ class Roster extends Component {
             let addedPlayerIndex = 0;
 
             const addedPlayer = newAvailablePlayers.find((player, i) => {
-                if (player.mySportsId === mySportsId) {
+                if (player.M === mySportsId) {
                     addedPlayerIndex = i;
                     return player;
                 };
@@ -459,18 +421,18 @@ class Roster extends Component {
             newAvailablePlayers.splice(addedPlayerIndex, 1);
             newRoster.push(addedPlayer);
 
-            //The line above is the one that is causing issues. It can handle one add / drop but not any more
-            const needToSave = this.countRoster(this.state.userRoster, newRoster, this.state.availablePlayers, addedPlayer.mySportsId);
+            //Need to save tunnels over to the tooManyPlayers function which then saves so we don't need to worry about it
+            const needToSave = this.countRoster(this.state.userRoster, newRoster, this.state.availablePlayers, addedPlayer);
             const correctRoster = this.checkRoster(newRoster);
 
             //We use this is the player has less than a complete roster
             if (correctRoster && needToSave) {
-                this.sortRoster(newRoster);
                 this.setState({ availablePlayers: newAvailablePlayers });
                 //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
                 //The true is to indicate we need to save a player down without dropping one in the usedPlayer array in the DB
-                this.saveRosterToDb(this.state.dbReadyRoster, 0, true);
+                this.saveRosterToDb(newRoster, 0, addedPlayer, true);
             };
+            //TODO NEED TO DO THE DROP MECHANIC
         } else if (addOrDrop === `drop`) {
             let droppedPlayerIndex = 0;
             const droppedPlayer = newRoster.find((player, i) => {
@@ -488,7 +450,6 @@ class Roster extends Component {
 
             //We use this is the player has less than a complete roster
             if (correctRoster && needToSave) {
-                this.sortRoster(newRoster);
                 this.setState({ availablePlayers: newAvailablePlayers });
                 //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
                 //The true is to indicate we need to save a player down without dropping one in the usedPlayer array in the DB
@@ -498,7 +459,6 @@ class Roster extends Component {
     };
 
     render() {
-        const currentRoster = this.state.dbReadyRoster;
         return (
             <Container fluid={true} className='lineHeight'>
                 <Row>
@@ -528,7 +488,7 @@ class Roster extends Component {
                                 <RosterDisplay
                                     groupPositions={this.state.groupPositions}
                                     addDropPlayer={this.addDropPlayer}
-                                    roster={currentRoster || {}}
+                                    roster={this.state.userRoster || {}}
                                     nameCol={'9'}
                                     scoreCol={'0'} />
                             </Col>
@@ -596,7 +556,7 @@ const AvailablePlayerRow = (props) => (
     <Row className='playerRow'>
         <Col xs='8'>
             <div className='player'>
-                {props.player.N + `, ` + props.player.T + `, ` + props.player.P}
+                {props.player && props.player.N + `, ` + props.player.T + `, ` + props.player.P}
             </div>
         </Col>
         <Col xs='3'>
