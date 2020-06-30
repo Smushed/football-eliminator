@@ -18,10 +18,10 @@ module.exports = app => {
 
     app.get(`/api/availablePlayers`, async (req, res) => {
         //req.query passes the array as an object. We turn this back to an array
-        const { userId, searchedPosition, season } = req.query;
+        const { userId, searchedPosition, season, groupId } = req.query;
         //Then iterate over the array and turn the strings into numbers to compare it to the DB
-        const availablePlayers = await rosterHandler.availablePlayers(userId, searchedPosition, season);
-
+        const availablePlayers = await rosterHandler.availablePlayers(userId, searchedPosition, season, groupId);
+        console.log(availablePlayers)
         res.status(200).send(availablePlayers);
     });
 

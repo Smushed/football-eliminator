@@ -85,7 +85,7 @@ checkForAvailablePlayers = (usedPlayers, searchedPlayers) => {
     const usedPlayerSet = new Set(usedPlayers);
 
     //This creates an array of objects. We need to turn this into an object for all the players and an array of all player Ids
-    const availablePlayerArray = searchedPlayers.filter((player) => !usedPlayerSet.has(player.mySportsId));
+    const availablePlayerArray = searchedPlayers.filter((player) => !usedPlayerSet.has(player.M));
 
     const sortedPlayerArray = sortPlayersByRank(availablePlayerArray);
 
@@ -97,10 +97,15 @@ sortPlayersByRank = (playerArray) => {
     return playerArray;
 };
 
-getUsedPlayers = async (userId, season) => {
-    const currentUser = await db.UserRoster.findOne({ userId: userId }).exec();
+getUsedPlayers = async (userId, season, groupId) => {
+    const currentUser = await db.UsedPlayers.findOne({ U: userId, S: season }).exec();
+    console.log(currentUser)
+    if (currentUser === null) {
+        const createdUsedPlayers = createUsedPlayers(userId, season, groupId);
+        return createUsedPlayers.UP;
+    };
 
-    return currentUser.roster[season].usedPlayers;
+    return currentUser.UP;
 };
 
 getPlayerScore = async (currentRoster, season, week) => {
@@ -211,13 +216,13 @@ module.exports = {
         //We also return the array so the drag & drop component can populate this without having to pull it again
         return responseRoster;
     },
-    availablePlayers: async (userId, searchedPosition, season) => {
+    availablePlayers: async (userId, searchedPosition, season, groupId) => {
 
-        const usedPlayers = await getUsedPlayers(userId, season);
+        const usedPlayers = await getUsedPlayers(userId, season, groupId);
 
         //usedPlayers is the array from the database of all players that the user has used
         //We need to grab ALL the playerIds that are currently active in the database and pull out any that are in the usedPlayers array
-        const searchedPlayers = await db.FantasyStats.find({ active: true, position: searchedPosition }, { mySportsId: 1, full_name: 1, position: 1, rank: 1, team: 1 });
+        const searchedPlayers = await db.PlayerData.find({ A: true, P: searchedPosition }, { M: 1, N: 1, P: 1, R: 1, T: 1 });
 
         const availablePlayers = checkForAvailablePlayers(usedPlayers, searchedPlayers);
 

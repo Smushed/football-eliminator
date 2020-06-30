@@ -37,8 +37,8 @@ class Roster extends Component {
         if (this.props.week !== 0 && this.props.season !== '') {
             this.setState({ weekSelect: this.props.week, seasonSelect: this.props.season });
             this.getRosterData(this.props.week, this.props.season);
-            // this.checkCurrentUser();
-            // this.getCurrentUsername();
+            this.checkCurrentUser();
+            this.getCurrentUsername();
         };
     };
 
@@ -46,15 +46,15 @@ class Roster extends Component {
         if (this.props.season !== prevProps.season) { // season here because it's the last prop we pass in. Probably not the best way
             this.setState({ weekSelect: this.props.week, seasonSelect: this.props.season });
             this.getRosterData(this.props.week, this.props.season);
-            // this.checkCurrentUser();
-            // this.getCurrentUsername();
+            this.checkCurrentUser();
+            this.getCurrentUsername();
         };
     };
 
     getCurrentUsername() {
         axios.get(`/api/getUserById/${this.props.match.params.userId}`)
             .then(res => {
-                this.setState({ usernameOfPage: res.data.local.username })
+                this.setState({ usernameOfPage: res.data.UN })
             }).catch(err => {
                 console.log(err); //TODO better error handling
             });
@@ -97,7 +97,7 @@ class Roster extends Component {
 
     getRosterData = (week, season) => {
 
-        this.loading();
+        // this.loading();
         this.setState({ weekOnPage: week, seasonOnPage: season })
         //We want to go and grab the roster no matter what
         //This is in case another user comes to the profile and wants to view their picks
@@ -111,7 +111,7 @@ class Roster extends Component {
                 .then(res => {
                     console.log(res.data)
                     this.setState({ userRoster: res.data.userRoster, groupPositions: res.data.groupPositions });
-                    this.sortRoster(res.data);
+                    this.sortRoster(res.data.userRoster, res.data.groupPositions);
                     this.doneLoading();
                 }).catch(err => {
                     console.log(`roster data error`, err); //TODO better error handling
@@ -306,46 +306,47 @@ class Roster extends Component {
         return response;
     };
 
-    sortRoster = (roster) => {
+    sortRoster = (roster, groupPositions) => {
         //While we are sorting the roster we are also getting the object ready to be stored in the database
         //This sortRoster will be run before we ever go to save anything into the DB so it should populate the state correctly when we go to put it in
         const dbReadyRoster = {}; //It's saved as an object in the database
 
-        //Here we iterate through the roster of the player and put them into an object for the order we want
-        for (const player of roster) {
-            const position = player.position;
-            //If the position is QB, TE, or K then we can just put them directly in
-            if (position === `QB`) {
-                dbReadyRoster.QB = player;
-                //If it's RB or WR then we need to assign it manually to the 1, 2 and flex spots
-                //First we need to check the RB/WR 1 & 2 spots then assign it into the flex spot
-            } else if (position === `RB`) {
-                if (!dbReadyRoster.RB1) {
-                    dbReadyRoster.RB1 = player;
-                } else if (!dbReadyRoster.RB2) {
-                    dbReadyRoster.RB2 = player;
-                } else if (!dbReadyRoster.Flex) {
-                    dbReadyRoster.Flex = player;
-                }
-            } else if (position === `WR`) {
-                if (!dbReadyRoster.WR1) {
-                    dbReadyRoster.WR1 = player;
-                } else if (!dbReadyRoster.WR2) {
-                    dbReadyRoster.WR2 = player;
-                } else if (!dbReadyRoster.Flex) {
-                    dbReadyRoster.Flex = player;
-                };
-            } else if (position === `TE`) {
-                dbReadyRoster.TE = player;
-            } else if (position === `K`) {
-                dbReadyRoster.K = player;
-            };
+        for (const position of groupPositions) {
+
         };
-
-        this.setState({ dbReadyRoster, userRoster: roster });
-
-        return;
+        //Here we iterate through the roster of the player and put them into an object for the order we want
+        // for (const player of roster) {
+        //     const position = player.position;
+        //     //If the position is QB, TE, or K then we can just put them directly in
+        //     if (position === `QB`) {
+        //         dbReadyRoster.QB = player;
+        //         //If it's RB or WR then we need to assign it manually to the 1, 2 and flex spots
+        //         //First we need to check the RB/WR 1 & 2 spots then assign it into the flex spot
+        //     } else if (position === `RB`) {
+        //         if (!dbReadyRoster.RB1) {
+        //             dbReadyRoster.RB1 = player;
+        //         } else if (!dbReadyRoster.RB2) {
+        //             dbReadyRoster.RB2 = player;
+        //         } else if (!dbReadyRoster.Flex) {
+        //             dbReadyRoster.Flex = player;
+        //         }
+        //     } else if (position === `WR`) {
+        //         if (!dbReadyRoster.WR1) {
+        //             dbReadyRoster.WR1 = player;
+        //         } else if (!dbReadyRoster.WR2) {
+        //             dbReadyRoster.WR2 = player;
+        //         } else if (!dbReadyRoster.Flex) {
+        //             dbReadyRoster.Flex = player;
+        //         };
+        //     } else if (position === `TE`) {
+        //         dbReadyRoster.TE = player;
+        //     } else if (position === `K`) {
+        //         dbReadyRoster.K = player;
+        //     };
+        // this.setState({ dbReadyRoster, userRoster: roster });
     };
+
+
 
     saveRosterToDb = async (dbReadyRoster, droppedPlayer, saveWithNoDrop) => {
         //This will not always have a chosenPlayer because if the user is reorganizing the players currently on their roster it will not have a player to be dropped
@@ -383,7 +384,7 @@ class Roster extends Component {
         this.loading();
         const userId = this.props.userId;
         axios.get(`/api/availablePlayers`,
-            { params: { userId, searchedPosition: this.state.positionSelect, season: this.state.seasonSelect } })
+            { params: { userId, searchedPosition: this.state.positionSelect, season: this.state.seasonSelect, groupId: this.props.match.params.groupId } })
             .then(res => {
                 this.setState({ availablePlayers: res.data });
                 this.doneLoading();
@@ -498,11 +499,9 @@ class Roster extends Component {
 
     render() {
         const currentRoster = this.state.dbReadyRoster;
-        const rosterPlayers = ['QB', 'RB1', 'RB2', 'WR1', 'WR2', 'Flex', 'TE', 'K'];
         return (
             <Container fluid={true} className='lineHeight'>
                 <Row>
-
                     <Col md='3' className='noMargin'>
                         <Label for='weekSelect'>Select Week</Label>
                         <WeekSearch weekSelect={this.state.weekSelect} handleChange={this.handleChange} customSeasonWeekSearch={this.customSeasonWeekSearch} />
@@ -512,7 +511,6 @@ class Roster extends Component {
                         <TeamSearch handleChange={this.handleChange} searchByTeam={this.searchByTeam} teamSelect={this.state.teamSelect} />
 
                         <UsedPlayerButton userId={this.props.match.params.userId} username={this.state.usernameOfPage} />
-
                     </Col>
 
                     <Col md='9'>
@@ -527,7 +525,12 @@ class Roster extends Component {
                         <Row>
                             <Col md='1' />
                             <Col md='5'>
-                                <RosterDisplay rosterPlayers={rosterPlayers} addDropPlayer={this.addDropPlayer} currentRoster={currentRoster} nameCol={'9'} scoreCol={'0'} />
+                                <RosterDisplay
+                                    groupPositions={this.state.groupPositions}
+                                    addDropPlayer={this.addDropPlayer}
+                                    roster={currentRoster || {}}
+                                    nameCol={'9'}
+                                    scoreCol={'0'} />
                             </Col>
                             <Col md='5'>
                                 <Row>
@@ -542,8 +545,7 @@ class Roster extends Component {
                                     <Col xs='12'>
                                         {this.state.availablePlayers.map((player, i) => (
                                             <AvailablePlayerRow player={player} key={i} addDropPlayer={this.addDropPlayer} />
-                                        ))
-                                        }
+                                        ))}
                                     </Col>
                                 </Row>
                             </Col>
@@ -574,12 +576,11 @@ const CurrentRosterRow = (props) => (
                     </Col>
                     <Col xs={props.scoreCol}>
                         {props.player.score &&
-                            props.player.score
-                        }
+                            props.player.score}
                     </Col>
                     {props.addDropPlayer &&
                         <Col xs='3'>
-                            <Button className='addDropButton' color='outline-success' size='sm' onClick={() => props.addDropPlayer(props.player.mySportsId, 'drop')}>
+                            <Button className='addDropButton' color='outline-success' size='sm' onClick={() => props.addDropPlayer(props.player.M, 'drop')}>
                                 Drop
                             </Button>
                         </Col>
@@ -595,12 +596,11 @@ const AvailablePlayerRow = (props) => (
     <Row className='playerRow'>
         <Col xs='8'>
             <div className='player'>
-
-                {props.player.full_name + `, ` + props.player.team + `, ` + props.player.position}
+                {props.player.N + `, ` + props.player.T + `, ` + props.player.P}
             </div>
         </Col>
         <Col xs='3'>
-            <Button className='addDropButton' color='outline-success' size='sm' onClick={() => props.addDropPlayer(props.player.mySportsId, 'add')}>
+            <Button className='addDropButton' color='outline-success' size='sm' onClick={() => props.addDropPlayer(props.player.M, 'add')}>
                 Add
             </Button>
         </Col>

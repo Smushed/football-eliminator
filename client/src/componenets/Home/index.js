@@ -130,7 +130,7 @@ class Home extends Component {
                         weekSelect={weekSelect}
                         customSeasonWeekSearch={this.customSeasonWeekSearch}
                         handleChange={this.handleChange}
-                        groupName={this.props.group.N}
+                        groupId={this.props.group._id}
                         lockperoid={this.lockperoid} />
                     <Col sm='12' md='7'>
                         <Leaderboard
@@ -183,7 +183,7 @@ const LeftPanel = (props) => (
                     isAdmin={props.isAdmin}
                     userId={props.userId}
                     userDisplayed={props.userDisplayed}
-                    groupName={props.groupName}
+                    groupName={props.groupId}
                 />
             </Col>
         </Row>
