@@ -1,7 +1,6 @@
 const db = require(`../models`);
 const { getPlayerWeeklyScore } = require(`./mySportsHandler`);
 const userHandler = require(`./userHandler`);
-const positions = require(`../constants/positions`);
 require(`dotenv`).config();
 
 //This is here for when a user adds or drops a player. It fills out the object of the current week with 0s
@@ -138,9 +137,10 @@ createUsedPlayers = (userId, season, groupId) => {
 };
 
 createWeeklyRoster = async (userId, week, season, groupId) => {
+    //TODO ISSUE CREATING MULTIPLE WEEKLY ROSTERS
     const groupRoster = await db.GroupRoster.findOne({ G: groupId });
-
     //The roster on the UserRoster Schema is an array of MySportsPlayerIDs
+
     const userRoster = groupRoster.P.map(position => 0);
     const weeksRoster = { U: userId, W: week, S: season, G: groupId, R: userRoster };
     return await db.UserRoster.create(weeksRoster);
@@ -230,29 +230,30 @@ module.exports = {
     //TODO FIGURE OUT THE ADD WITHOUT DROP
     updateUserRoster: async (userId, roster, droppedPlayer, addedPlayer, week, season, saveWithNoDrop) => {
         return new Promise(async (res, rej) => {
-            if (!saveWithNoDrop) {
-                const usedPlayers = await db.UsedPlayers.findOne({ U: userId });
-                const newUsedPlayers = [];
-                console.log(droppedPlayer, addedPlayer)
-                for (const playerId of usedPlayers.UP) {
+            const usedPlayers = await db.UsedPlayers.findOne({ U: userId });
+            let newUsedPlayers = [];
+            for (const playerId of usedPlayers.UP) {
+                //TODO START HERE THIS IS ANNOYING
+                if (!saveWithNoDrop) {
                     if (playerId !== +droppedPlayer) {
                         newUsedPlayers.push(playerId);
                     };
+                } else {
+                    newUsedPlayers = usedPlayers.UP;
                 };
                 newUsedPlayers.push(addedPlayer);
-                usedPlayers.UP = newUsedPlayers;
-                usedPlayers.save();
             };
+            usedPlayers.UP = newUsedPlayers;
+            await usedPlayers.save();
 
             const currentRoster = await db.UserRoster.findOne({ U: userId, W: week, S: season });
             const newRoster = [];
-            console.log(roster)
             for (const player of roster) {
-                newRoster.push(+player.M)
+                newRoster.push(+player.M || 0);
             };
             currentRoster.R = newRoster;
-            currentRoster.save();
-            res(currentRoster);
+            await currentRoster.save();
+            res(currentRoster.R);
         });
     },
     getAllRosters: async (season) => {
@@ -341,4 +342,8 @@ module.exports = {
         const filledRoster = (roster.R);
         return filledRoster;
     },
+    checkLockPeriod: async () => {
+        const lockPeroid = await db.SeasonAndWeek.findOne();
+        return lockPeroid;
+    }
 };

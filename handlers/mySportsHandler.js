@@ -581,7 +581,9 @@ module.exports = {
             if (playerIdRoster[i] !== 0) {
                 const { P, T, M, N } = await db.PlayerData.findOne({ M: playerIdRoster[i] }, { P: 1, T: 1, M: 1, N: 1 });
                 filledRoster.push({ P, T, M, N })
-            }
+            } else {
+                filledRoster.push(0);
+            };
         };
         return filledRoster;
     },

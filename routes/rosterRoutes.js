@@ -2,6 +2,7 @@ const rosterHandler = require(`../handlers/rosterHandler`);
 const groupHandler = require(`../handlers/groupHandler`);
 const mySportsHandler = require(`../handlers/mySportsHandler`);
 const positions = require(`../constants/positions`);
+const userHandler = require("../handlers/userHandler");
 
 module.exports = app => {
     app.get(`/api/displayplayers`, async (req, res) => {
@@ -51,12 +52,18 @@ module.exports = app => {
         res.status(200).send(dbResponse);
     });
 
-    app.put(`/api/updateUserRoster/`, async (req, res) => {
-        const { userId, roster, droppedPlayer, addedPlayer, week, season, saveWithNoDrop } = req.body;
+    app.put(`/api/updateUserRoster/`, (req, res) => {
+        const { userId, roster, droppedPlayer, addedPlayer, week, season, saveWithNoDrop, groupId } = req.body;
 
-        const dbResponse = await rosterHandler.updateUserRoster(userId, roster, droppedPlayer, addedPlayer, week, season, saveWithNoDrop);
+        rosterHandler.updateUserRoster(userId, roster, droppedPlayer, addedPlayer, week, season, saveWithNoDrop).then(async () => {
+            //TODO COMBINE THIS WITH get userRoster above so it's one function
+            const playerIdRoster = await rosterHandler.getUserRoster(userId, week, season, groupId);
+            const userRoster = await mySportsHandler.fillUserRoster(playerIdRoster);
+            const response = userRoster;
 
-        res.status(200).send(dbResponse);
+            res.status(200).send(response);
+        });
+
     });
 
     app.get(`/api/checkLockPeriod`, async (req, res) => {

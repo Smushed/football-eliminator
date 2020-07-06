@@ -8,22 +8,18 @@ const UserRosterSchema = new Schema({
     U: { //UserId
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        unique: false
     },
     G: { //GroupId
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        unique: false
     },
     W: { //Week
         type: Number,
         required: true,
-        unique: false
     },
     S: { //Season
         type: String,
         required: true,
-        unique: false
     },
     R: [Number] //Roster
 });

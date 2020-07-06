@@ -156,7 +156,8 @@ class App extends Component {
               <Roster
                 {...props}
                 userId={this.state.currentUser.userId}
-                week={this.state.currentWeek}
+                week={2}
+                // week={this.state.currentWeek}
                 season={this.state.currentSeason} />
             }
           />
