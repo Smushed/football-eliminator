@@ -113,8 +113,7 @@ class Roster extends Component {
         };
     };
 
-    //This is to check if the player has too many of a certain position on their roster
-    countRoster = (originalRoster, updatedRoster, originalAvailablePlayers, addedPlayer) => {
+    countLogic = (roster) => {
         let QBCount = 0;
         let RBCount = 0;
         let WRCount = 0;
@@ -122,8 +121,8 @@ class Roster extends Component {
         let KCount = 0;
 
         //We then go through the current user roster and populate it with data to sort it and get all the players
-        for (let i = 0; i < updatedRoster.length; i++) {
-            const position = updatedRoster[i].P;
+        for (let i = 0; i < roster.length; i++) {
+            const position = roster[i].P;
             //For the RB And WR positions, there are three options each they can be in
             //RB/WR 1 & 2 as well as a flex position. All of which are undefined because we cannot have duplicate keys in an object
             //We use a switch statement for WR and RB and start pulling the data into the fake roster
@@ -139,6 +138,12 @@ class Roster extends Component {
                 KCount++;
             };
         };
+        return { QBCount, RBCount, WRCount, TECount, KCount }
+    };
+
+    //This is to check if the player has too many of a certain position on their roster
+    countRoster = (originalRoster, updatedRoster, originalAvailablePlayers, addedPlayer) => {
+        const { QBCount, RBCount, WRCount, TECount, KCount } = this.countLogic(updatedRoster)
 
         //Checks if any positions have too many on the roster then feed the data into the function to handle this
         //Probably a bettwe way to do this, but unsure of how.
@@ -168,10 +173,9 @@ class Roster extends Component {
     };
 
     tooManyPlayers = async (originalRoster, roster, position, originalAvailablePlayers, addedPlayer) => {
-        //Pull out all the players for the position that has too many in it right now
+        console.log(`oG`, originalRoster, `R`, roster)
         let filteredRoster = [];
         if (position === `Flex`) {
-            //If the position is flex, that means there are two of the current position and they can either swap it for RB or console.warn();
             filteredRoster = roster.filter(player => player.P === `RB` || player.P === `WR`);
         } else {
             filteredRoster = roster.filter(player => player.P === position);
@@ -198,6 +202,7 @@ class Roster extends Component {
         });
 
         if (+chosenPlayer === +addedPlayer.M) {
+            this.setState({ userRoster: originalRoster });
             return;
         };
 
@@ -226,9 +231,43 @@ class Roster extends Component {
             if (availDroppedPlayerIndex >= 0) {
                 availablePlayers.splice(availDroppedPlayerIndex, 1);
             };
-
-            roster[droppedPlayerIndex] = { P: addedPlayer.P, M: addedPlayer.M, N: addedPlayer.N, T: addedPlayer.T };
-            roster.pop();
+            if (position === `Flex`) {
+                const { RBCount, WRCount } = this.countLogic(originalRoster);
+                if (RBCount === 3) {
+                    if (addedPlayer.P === `RB`) {
+                        roster[droppedPlayerIndex] = { P: addedPlayer.P, M: addedPlayer.M, N: addedPlayer.N, T: addedPlayer.T };
+                        roster.pop();
+                    } else {
+                        if (droppedPlayerIndex === 5) {
+                            roster[droppedPlayerIndex] = { P: addedPlayer.P, M: addedPlayer.M, N: addedPlayer.N, T: addedPlayer.T };
+                            roster.pop();
+                        } else {
+                            console.log(`before`, roster)
+                            roster[droppedPlayerIndex] = { P: roster[5].P, M: roster[5].M, N: roster[5].N, T: roster[5].T };
+                            roster[5] = { P: addedPlayer.P, M: addedPlayer.M, N: addedPlayer.N, T: addedPlayer.T };
+                            roster.pop();
+                            console.log(`after`, roster)
+                        };
+                    };
+                } else if (WRCount === 3) {
+                    console.log(addedPlayer)
+                    if (addedPlayer.P === `WR`) {
+                        roster[droppedPlayerIndex] = { P: addedPlayer.P, M: addedPlayer.M, N: addedPlayer.N, T: addedPlayer.T };
+                    } else {
+                        if (droppedPlayerIndex === 5) {
+                            roster[droppedPlayerIndex] = { P: addedPlayer.P, M: addedPlayer.M, N: addedPlayer.N, T: addedPlayer.T };
+                            roster.pop();
+                        } else {
+                            roster[droppedPlayerIndex] = { P: roster[5].P, M: roster[5].M, N: roster[5].N, T: roster[5].T };
+                            roster[5] = { P: addedPlayer.P, M: addedPlayer.M, N: addedPlayer.N, T: addedPlayer.T };
+                            roster.pop();
+                        };
+                    };
+                };
+            } else {
+                roster[droppedPlayerIndex] = { P: addedPlayer.P, M: addedPlayer.M, N: addedPlayer.N, T: addedPlayer.T };
+                roster.pop();
+            };
 
             //Add the player they dropped back to the available list of players
             if (droppedPlayer.P === this.state.positionSelect) {
@@ -305,8 +344,6 @@ class Roster extends Component {
 
     saveRosterToDb = async (roster, droppedPlayer, addedPlayer, saveWithNoDrop) => {
         this.loading()
-        //This will not always have a chosenPlayer because if the user is reorganizing the players currently on their roster it will not have a player to be dropped
-        //The saveWithNoDrop var is if the user has a blank week roster, it ensures we save it to the usedPlayerArray because we will be feeding droppedPlayer of 0
         axios.put(`/api/updateUserRoster`,
             { userId: this.props.userId, roster, droppedPlayer, addedPlayer, week: this.state.weekSelect, season: this.state.seasonSelect, saveWithNoDrop, groupId: this.props.match.params.groupId })
             .then(res => {
@@ -379,32 +416,44 @@ class Roster extends Component {
 
     addPlayerToRoster = (newRoster, addedPlayer) => {
         const sortedUpdatedRoster = newRoster
-        const { groupPositions } = this.state;
         const addedPosition = addedPlayer.P;
-        console.log(addedPlayer)
-        for (let i = 0; i < groupPositions.length; i++) {
-            if (addedPosition === `RB`) {
-                if (sortedUpdatedRoster[1] === 0) {
-                    sortedUpdatedRoster[1] = addedPlayer;
-                    break;
-                } else if (sortedUpdatedRoster[2] === 0) {
-                    sortedUpdatedRoster[2] = addedPlayer;
-                    break;
-                } else if (sortedUpdatedRoster[5] === 0) {
-                    sortedUpdatedRoster[5] = addedPlayer;
-                    break;
-                } else {
-                    sortedUpdatedRoster.push(sortedUpdatedRoster);
-                    break;
-                };
-            } else if (addedPosition === `WR`) {
-
-            } else if (addedPosition === `QB`) {
-
-            } else if (addedPosition === `TE`) {
-
-            } else if (addedPosition === `K`) {
-
+        if (addedPosition === `RB`) {
+            if (sortedUpdatedRoster[1] === 0) {
+                sortedUpdatedRoster[1] = addedPlayer;
+            } else if (sortedUpdatedRoster[2] === 0) {
+                sortedUpdatedRoster[2] = addedPlayer;
+            } else if (sortedUpdatedRoster[5] === 0) {
+                sortedUpdatedRoster[5] = addedPlayer;
+            } else {
+                sortedUpdatedRoster.push(addedPlayer);
+            };
+        } else if (addedPosition === `WR`) {
+            if (sortedUpdatedRoster[3] === 0) {
+                sortedUpdatedRoster[3] = addedPlayer;
+            } else if (sortedUpdatedRoster[4] === 0) {
+                sortedUpdatedRoster[4] = addedPlayer;
+            } else if (sortedUpdatedRoster[5] === 0) {
+                sortedUpdatedRoster[5] = addedPlayer;
+            } else {
+                sortedUpdatedRoster.push(addedPlayer);
+            };
+        } else if (addedPosition === `QB`) {
+            if (sortedUpdatedRoster[0] === 0) {
+                sortedUpdatedRoster[0] = addedPlayer;
+            } else {
+                sortedUpdatedRoster.push(addedPlayer);
+            };
+        } else if (addedPosition === `TE`) {
+            if (sortedUpdatedRoster[6] === 0) {
+                sortedUpdatedRoster[6] = addedPlayer;
+            } else {
+                sortedUpdatedRoster.push(addedPlayer);
+            };
+        } else if (addedPosition === `K`) {
+            if (sortedUpdatedRoster[7] === 0) {
+                sortedUpdatedRoster[7] = addedPlayer;
+            } else {
+                sortedUpdatedRoster.push(addedPlayer);
             };
         };
 
@@ -458,7 +507,7 @@ class Roster extends Component {
                 this.setState({ availablePlayers: newAvailablePlayers });
                 //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
                 //The true is to indicate we need to save a player down without dropping one in the usedPlayer array in the DB
-                this.saveRosterToDb(newRoster, 0, addedPlayer, true);
+                this.saveRosterToDb(newRoster, 0, addedPlayer.M, true);
             };
             //TODO NEED TO DO THE DROP MECHANIC
         } else if (addOrDrop === `drop`) {

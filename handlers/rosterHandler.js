@@ -1,6 +1,7 @@
 const db = require(`../models`);
 const { getPlayerWeeklyScore } = require(`./mySportsHandler`);
 const userHandler = require(`./userHandler`);
+const { discriminator } = require("../models/User");
 require(`dotenv`).config();
 
 //This is here for when a user adds or drops a player. It fills out the object of the current week with 0s
@@ -227,22 +228,16 @@ module.exports = {
 
         return availablePlayers;
     },
-    //TODO FIGURE OUT THE ADD WITHOUT DROP
     updateUserRoster: async (userId, roster, droppedPlayer, addedPlayer, week, season, saveWithNoDrop) => {
         return new Promise(async (res, rej) => {
             const usedPlayers = await db.UsedPlayers.findOne({ U: userId });
             let newUsedPlayers = [];
             for (const playerId of usedPlayers.UP) {
-                //TODO START HERE THIS IS ANNOYING
-                if (!saveWithNoDrop) {
-                    if (playerId !== +droppedPlayer) {
-                        newUsedPlayers.push(playerId);
-                    };
-                } else {
-                    newUsedPlayers = usedPlayers.UP;
+                if (playerId !== +droppedPlayer) {
+                    newUsedPlayers.push(playerId);
                 };
-                newUsedPlayers.push(addedPlayer);
             };
+            newUsedPlayers.push(addedPlayer);
             usedPlayers.UP = newUsedPlayers;
             await usedPlayers.save();
 
