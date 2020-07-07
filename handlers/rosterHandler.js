@@ -78,13 +78,8 @@ usedPlayersInReactTableFormat = (sortedPlayers) => {
 };
 
 checkForAvailablePlayers = (usedPlayers, searchedPlayers) => {
-    //usedPlayers is the array from the database of all players that the user has used
-    //We need to grab ALL the playerIds that are currently active in the database and pull out any that are in the usedPlayers array
-
-    //This turns the array into a set which then we iterate over the fantasy players we pulled from the DB and pull out duplicates
     const usedPlayerSet = new Set(usedPlayers);
 
-    //This creates an array of objects. We need to turn this into an object for all the players and an array of all player Ids
     const availablePlayerArray = searchedPlayers.filter((player) => !usedPlayerSet.has(player.M));
 
     const sortedPlayerArray = sortPlayersByRank(availablePlayerArray);
@@ -138,7 +133,6 @@ createUsedPlayers = (userId, season, groupId) => {
 };
 
 createWeeklyRoster = async (userId, week, season, groupId) => {
-    //TODO ISSUE CREATING MULTIPLE WEEKLY ROSTERS
     const groupRoster = await db.GroupRoster.findOne({ G: groupId });
     //The roster on the UserRoster Schema is an array of MySportsPlayerIDs
 
@@ -279,11 +273,11 @@ module.exports = {
 
         return arrayForTable;
     },
-    searchPlayerByTeam: async (userId, team, season) => {
+    searchPlayerByTeam: async (groupId, userId, team, season) => {
 
-        const usedPlayers = await getUsedPlayers(userId, season);
+        const usedPlayers = await getUsedPlayers(userId, season, groupId);
 
-        const playersByTeam = await db.FantasyStats.find({ team: team }, { mySportsId: 1, rank: 1, full_name: 1, position: 1, team: 1 });
+        const playersByTeam = await db.PlayerData.find({ A: true, T: team }, { M: 1, N: 1, P: 1, R: 1, T: 1 });
 
         const availablePlayers = checkForAvailablePlayers(usedPlayers, playersByTeam);
 

@@ -28,7 +28,7 @@ module.exports = app => {
         };
         const { newUserInDB, addedGroupId } = await userHandler.saveNewUser(newUser);
 
-        const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
+        const { season } = await userHandler.pullSeasonAndWeekFromDB();
         userHandler.createUserScore(newUserInDB, season, addedGroupId);
         //rosterHandler.createSeasonRoster(newUserInDB._id, season, addedGroupId)
 

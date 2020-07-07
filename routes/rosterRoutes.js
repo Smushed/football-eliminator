@@ -80,10 +80,10 @@ module.exports = app => {
         res.status(200).send(usedPlayers);
     });
 
-    app.get(`/api/getPlayersByTeam/:groupName/:userId/:team/:season`, async (req, res) => {
-        const { userId, team, season } = req.params;
+    app.get(`/api/getPlayersByTeam/:groupId/:userId/:team/:season`, async (req, res) => {
+        const { groupId, userId, team, season } = req.params;
 
-        const playersByTeam = await rosterHandler.searchPlayerByTeam(userId, team, season);
+        const playersByTeam = await rosterHandler.searchPlayerByTeam(groupId, userId, team, season);
 
         res.status(200).send(playersByTeam);
     });

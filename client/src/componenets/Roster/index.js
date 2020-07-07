@@ -21,7 +21,7 @@ class Roster extends Component {
         this.state = {
             userRoster: [],
             availablePlayers: [],
-            positionSelect: `RB`, //This is the default value for the position search
+            positionSelect: `QB`, //This is the default value for the position search
             teamSelect: `ARI`,
             weekSelect: 0,
             seasonSelect: 0,
@@ -173,7 +173,6 @@ class Roster extends Component {
     };
 
     tooManyPlayers = async (originalRoster, roster, position, originalAvailablePlayers, addedPlayer) => {
-        console.log(`oG`, originalRoster, `R`, roster)
         let filteredRoster = [];
         if (position === `Flex`) {
             filteredRoster = roster.filter(player => player.P === `RB` || player.P === `WR`);
@@ -242,15 +241,12 @@ class Roster extends Component {
                             roster[droppedPlayerIndex] = { P: addedPlayer.P, M: addedPlayer.M, N: addedPlayer.N, T: addedPlayer.T };
                             roster.pop();
                         } else {
-                            console.log(`before`, roster)
                             roster[droppedPlayerIndex] = { P: roster[5].P, M: roster[5].M, N: roster[5].N, T: roster[5].T };
                             roster[5] = { P: addedPlayer.P, M: addedPlayer.M, N: addedPlayer.N, T: addedPlayer.T };
                             roster.pop();
-                            console.log(`after`, roster)
                         };
                     };
                 } else if (WRCount === 3) {
-                    console.log(addedPlayer)
                     if (addedPlayer.P === `WR`) {
                         roster[droppedPlayerIndex] = { P: addedPlayer.P, M: addedPlayer.M, N: addedPlayer.N, T: addedPlayer.T };
                     } else {
@@ -404,8 +400,9 @@ class Roster extends Component {
             .then(res => {
                 this.setState({ availablePlayers: res.data });
                 this.doneLoading();
+                return;
             });
-    }
+    };
 
     //This is to handle the change for the Input Type in the position search below
     handleChange(e) {
