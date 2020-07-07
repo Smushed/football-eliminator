@@ -75,9 +75,9 @@ class SignUpFormBase extends Component {
         //Checks if all the input fields are valid
         //If not the validation messages are shown and no user is sent to sign up
         if (this.checkValidInput()) {
-            const { username, email, password, firstname, lastname } = this.state;
+            const { username, email, password } = this.state;
 
-            const dbResponse = await axios.post(`/api/newuser`, { username, email, firstname, lastname });
+            const dbResponse = await axios.post(`/api/newUser`, { username, email });
 
             if (dbResponse.status === 200) {
                 return this.props.firebase
@@ -154,15 +154,23 @@ class SignUpFormBase extends Component {
         };
     };
 
-    render() {
-        const { username, email, passwordOne, passwordTwo, error, validMessage } = this.state;
+    dummyData = () => {
+        this.setState({ username: `testing`, password: `123456`, confirmPassword: `123456`, email: `testing@gmail.com` }, () => {
+            this.validateForm(`email`, this.state.email);
+            this.validateForm(`username`, this.state.username);
+            this.validateForm(`password`, this.state.password);
+        });
+    };
 
-        const isInvalid =
-            passwordOne !== passwordTwo ||
-            passwordOne === '' ||
-            email === '' ||
-            username.length < 3 ||
-            passwordOne < 6;
+    render() {
+        const { username, email, password, confirmPassword, error, validMessage } = this.state;
+
+        const isValid =
+            password === confirmPassword &&
+            password !== '' &&
+            email !== '' &&
+            username.length > 3 &&
+            password > 6;
 
         return (
             <div className='SignupForm'>
@@ -244,15 +252,14 @@ class SignUpFormBase extends Component {
                     </FormGroup>
 
                     <FormGroup>
-                        <Button
-                            color='primary'
-                            size='lg'
-                            disabled={isInvalid}
-                            type='submit'>
+                        <Button color='primary' size='lg' disabled={!isValid} type='submit'>
                             Sign Up
                         </Button>
                     </FormGroup>
                 </Form>
+                <Button color='info' onClick={this.dummyData} size='lg' type='submit'>
+                    Dummy Data
+                </Button>
             </div >
         )
     };

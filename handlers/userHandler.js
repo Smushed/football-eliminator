@@ -1,13 +1,55 @@
 const db = require(`../models`);
-const weekDates = require(`../constants/weekDates`);
-const { DateTime } = require('luxon');
+
+const rosterHandler = require(`./rosterHandler`);
+const groupHandler = require(`./groupHandler`);
+const mySportsHandler = require(`./mySportsHandler`);
+
+const checkDuplicateUser = async (checkedField, userId, groupId) => {
+    let result = false;
+    let searched;
+    //TODO Do something other than log these errors
+    switch (checkedField) {
+        case `userScore`:
+            try {
+                searched = await db.UserScores.findOne({ U: userId, G: groupId }).exec();
+                //If there is a group with that name return true
+                if (searched !== null) {
+                    result = true;
+                };
+            } catch (err) {
+                console.log(err);
+            };
+            break;
+    }
+    return result;
+};
+
+const fillOutUserForFrontEnd = async (user) => {
+    const groupList = [];
+    for (let i = 0; i < user.GL.length; i++) {
+        const groupData = await groupHandler.getGroupData(user.GL[i])
+        groupList.push({
+            N: groupData.N,
+            D: groupData.D,
+            _id: groupData._id
+        });
+    };
+    const filledUser = {
+        UN: user.UN,
+        _id: user._id,
+        A: user.A,
+        GL: groupList
+    };
+
+    return filledUser;
+};
 
 //This is for updating the user profile once created
 //The user only has access to the local profile
 module.exports = {
     getUserList: async () => {
         const userlist = await db.User.find({});
-        const filteredList = userlist.map(user => { return { username: user.local.username, email: user.local.email, _id: user._id } });
+        const filteredList = userlist.map(user => { return { username: user.UN, email: user.E, _id: user._id, groupList: user.GL } });
 
         return filteredList;
     },
@@ -46,7 +88,8 @@ module.exports = {
     },
     updateToAdmin: async (userId) => {
         let dbResponse = ``;
-        await db.User.updateOne({ _id: userId }, { $set: { isAdmin: true } }, (err, data) => {
+        console.log(userId)
+        await db.User.updateOne({ _id: userId }, { $set: { A: true } }, (err, data) => {
             if (err) {
                 dbResponse = err;
             } else {
@@ -68,18 +111,27 @@ module.exports = {
         return userProfile;
     },
     saveNewUser: async (newUser) => {
-        const newUserInDB = await db.User.create(newUser);
+        const generalGroup = await db.Group.findOne({ N: 'The Eliminator' });
+        newUser.GL = generalGroup._id;
 
-        //This then creates a new roster for the user that just signed up
-        const newUserRoster = {
-            userId: newUserInDB._id
-        }
-        await db.UserRoster.create(newUserRoster);
-        return newUserInDB;
+        const usernameExists = await db.User.findOne({ UN: newUser.UN });
+        const emailExists = await db.User.findOne({ E: newUser.E });
+        //TODO Do more with this than just return false
+        if (usernameExists !== null || emailExists !== null) { return false };
+
+        const newUserInDB = await db.User.create(newUser);
+        const newUserInDBObj = newUserInDB.toObject();
+
+        const addedGroup = await groupHandler.addUser(newUserInDBObj._id, `The Eliminator`)
+        const addedGroupId = addedGroup._id;
+
+        return { newUserInDB, addedGroupId };
     },
     getUserByEmail: async (email) => {
-        const foundUser = await db.User.findOne({ 'local.email': email });
-        return foundUser;
+        const foundUser = await db.User.findOne({ 'E': email });
+        const response = await fillOutUserForFrontEnd(foundUser);
+
+        return response;
     },
     userSearch: async (query, searchParam) => {
         //On the front end we control what can be searched with a select dropdown
@@ -106,39 +158,37 @@ module.exports = {
         return userArrayToShow;
     },
     getUserByID: async (userID) => {
-        const foundUser = await db.User.findById([userID]);
-        return foundUser;
+        const foundUser = await db.User.findById(userID);
+        const response = await fillOutUserForFrontEnd(foundUser);
+        return response;
     },
-    getSeasonAndWeek: async function () {
-        const currentTime = DateTime.local().setZone(`America/Chicago`);
-        const year = parseInt(currentTime.c.year);
-        const month = parseInt(currentTime.c.month);
-        const day = parseInt(currentTime.c.day);
+    initSeasonAndWeekInDB: async () => {
+        db.SeasonAndWeek.create({});
+    },
+    pullSeasonAndWeekFromDB: async () => {
+        return new Promise(async (res, rej) => {
+            const dbResponse = await db.SeasonAndWeek.find({}).exec();
+            const season = dbResponse[0].S;
+            const week = dbResponse[0].W;
+            const lockWeek = dbResponse[0].LW;
 
-        let season = ``;
-        let week = 1;
-
-        //First we check if the user is trying to access the game outside of the normal date range
-        if (typeof weekDates[year] === `undefined` || typeof weekDates[year][month] === `undefined` || typeof weekDates[year][month][day] === `undefined`) {
-            //If we are late in 2019 or early in 2020 then we want it to be the last week of the season
-            if ((year === 2019 && month === 12) || (year === 2020 && month < 5)) {
-                season = `2019-2020-regular`;
-                week = 17;
-            } else if (year === 2019) { //If it is not late in the year (month 12) we want it to default to week 1 of 2019-2020 season
-                season = `2019-2020-regular`;
-                week = 1;
-            } else if (year === 2020) {
-                return { season: `2020-2021-regular`, week: 1 }
-            } else if ((year === 2020 && month === 12) || (year === 2021 && month < 5)) {
-                season = `2020-2021-regular`;
-                week = 17;
-            };
-        } else { //This is if this is inside the season. There's an object in weekDates that I put the calendar in
-            season = weekDates[year].season;
-            week = weekDates[year][month][day];
+            res({ season, week, lockWeek });
+        })
+    },
+    createUserScore: async (userId, season, groupId) => {
+        const checkDupeUser = await checkDuplicateUser(`userScore`, userId, groupId);
+        if (!checkDupeUser) {
+            db.UserScores.create({ U: userId, G: groupId, S: season });
         };
-
-
-        return { season, week };
+        return;
     },
+    purgeDB: () => { //TODO If I make Admin Route and Handler, move this over
+        db.User.deleteMany({}, (err, res) => { if (err) { console.log(err) } else { console.log(`User Deleted`) } });
+        db.UserRoster.deleteMany({}, (err, res) => { if (err) { console.log(err) } else { console.log(`User Roster Deleted`) } });
+        db.UserScores.deleteMany({}, (err, res) => { if (err) { console.log(err) } else { console.log(`User Score Deleted`) } });
+        db.Group.deleteMany({}, (err, res) => { if (err) { console.log(err) } else { console.log(`Group Deleted`) } });
+        db.GroupRoster.deleteMany({}, (err, res) => { if (err) { console.log(err) } else { console.log(`Group Roster Deleted`) } });
+        db.GroupScore.deleteMany({}, (err, res) => { if (err) { console.log(err) } else { console.log(`Group Score Deleted`) } });
+        db.SeasonAndWeek.deleteMany({}, (err, res) => { if (err) { console.log(err) } else { console.log(`Season & Week Deleted`) } });
+    }
 };

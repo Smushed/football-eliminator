@@ -1,5 +1,5 @@
 module.exports = {
-    teams: [`ARI`, `ATL`, `BAL`, `BUF`, `CAR`, `CHI`, `CIN`, `CLE`, `DAL`, `DEN`, `DET`, `GB`, `HOU`, `IND`, `JAX`, `KC`, `LAC`, `LA`, `MIA`, `MIN`, `NE`, `NO`, `NYG`, `NYJ`, `OAK`, `PHI`, `PIT`, `SEA`, `SF`, `TB`, `TEN`, `WAS`],
+    teams: [`ARI`, `ATL`, `BAL`, `BUF`, `CAR`, `CHI`, `CIN`, `CLE`, `DAL`, `DEN`, `DET`, `GB`, `HOU`, `IND`, `JAX`, `KC`, `LAC`, `LA`, `MIA`, `MIN`, `NE`, `NO`, `NYG`, `NYJ`, `OAK`, `PHI`, `PIT`, `SEA`, `SF`, `TB`, `TEN`, `WAS`, `UNK`],
     teamMapping: [
         { abbreviation: `ARI`, id: 76 },
         { abbreviation: `ATL`, id: 68 },
@@ -32,6 +32,7 @@ module.exports = {
         { abbreviation: `SF`, id: 78 },
         { abbreviation: `TB`, id: 71 },
         { abbreviation: `TEN`, id: 67 },
-        { abbreviation: `WAS`, id: 55 }
+        { abbreviation: `WAS`, id: 55 },
+        { abbreviation: `UNK`, id: 01 }
     ]
 }

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Button } from 'reactstrap';
 import { withRouter } from 'react-router-dom';
 
+import './usedPlayerStyle.css';
 
 class UsedPlayerButton extends Component {
 
@@ -14,7 +15,7 @@ class UsedPlayerButton extends Component {
 
     render() {
         return (
-            <div>
+            <div className='userPlayerButton'>
                 <Button color='info' onClick={this.redirect}>
                     View {this.props.username}'s Used Players
                 </Button>

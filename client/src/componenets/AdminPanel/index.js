@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { withAuthorization } from '../Session';
 import { Label, Input, Container, Button, Row, Col } from 'reactstrap';
+import axios from 'axios';
 
 import PlayerEditor from './PlayerEditor';
 import UserEditor from './UserEditor';
@@ -11,7 +12,7 @@ class AdminPanel extends Component {
         this.state = {
             userEditor: false,
             playerEditor: false,
-            weekSelect: 0,
+            weekSelect: 1,
             seasonSelect: ``
         };
     };
@@ -39,6 +40,11 @@ class AdminPanel extends Component {
         this.setState({ playerEditor: false, userEditor: true })
     };
 
+    createAllRosters = async () => {
+        const dbResponse = await axios.post(`/api/createAllRosters/${this.state.seasonSelect}`);
+        console.log(dbResponse)
+    };
+
     //This is to handle the change for the Input Type in the position search below
     handleChange = (e) => {
         this.setState({
@@ -55,8 +61,8 @@ class AdminPanel extends Component {
                     <Col sm='12' md='3'>
                         <Label for='seasonSelect'>Select Season</Label>
                         <Input value={this.state.seasonSelect} type='select' name='seasonSelect' id='seasonSelect' onChange={this.handleChange}>
-                            <option>2018-2019-regular</option>
                             <option>2019-2020-regular</option>
+                            <option>2020-2021-regular</option>
                         </Input>
                         <Label for='weekSelect'>Select Week</Label>
                         <Input value={this.state.weekSelect} type='select' name='weekSelect' id='weekSelect' onChange={this.handleChange}>
@@ -84,6 +90,9 @@ class AdminPanel extends Component {
                         <br />
                         <br />
                         <Button color='primary' onClick={this.showUserEditor}>User Editor</Button>
+                        <br />
+                        <br />
+                        <Button color='primary' onClick={this.createAllRosters}>Create All Rosters</Button>
                     </Col>
                     <Col sm='12' md='9'>
                         {playerEditor &&

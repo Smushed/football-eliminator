@@ -14,27 +14,28 @@ import './homeStyle.css';
 class Home extends Component {
     constructor(props) {
         super(props);
-        //Must set state hard here to ensure that it is loaded properly when the component unmounts and remounts±
+        //Must set state hard here to ensure that it is loaded properly when the component unmounts and remounts
         this.leaderboardUserClicked = this.leaderboardUserClicked.bind(this);
         this.state = {
             userDisplayed: '',
             userIdDisplayed: '',
             userRoster: {},
-            weekSelect: 1
+            weekSelect: 1,
+            groupPositions: []
         };
     };
 
     componentDidMount() {
-        if (this.props.userId && this.props.week) {
+        if (this.props.userId && this.props.week && this.props.username) {
             this.setState({ weekSelect: this.props.week });
-            this.getRoster(this.props.userId, this.props.week);
+            this.getRoster(this.props.userId, this.props.week, this.props.username);
         };
     };
 
     componentDidUpdate(prevProps) {
         if (this.props.week !== prevProps.week) {
             this.setState({ weekSelect: this.props.week });
-            this.getRoster(this.props.userId, this.props.week);
+            this.getRoster(this.props.userId, this.props.week, this.props.username);
         };
     };
 
@@ -45,21 +46,23 @@ class Home extends Component {
 
     getRoster(userId, week, username) {
 
-        if (week !== 0 && this.props.season !== ``) {
-            const season = this.props.season;
+        if (week !== 0 && this.props.season !== `` && this.props.group !== {}) {
+            const { season, group } = this.props
 
             this.setState({ weekSelect: week });
 
-            axios.get(`/api/userRoster/${userId}`,
+            axios.get(`/api/userRoster/${group._id}/${userId}`,
                 { params: { week, season } })
                 .then(res => {
-                    this.sortRoster(res.data);
+                    this.sortRoster(res.data.userRoster);
+                    this.setState({ groupPositions: res.data.groupPositions });
 
                     if (username) {
                         this.setState({ userDisplayed: username, userIdDisplayed: userId });
                     } else {
                         this.getUserName(userId);
-                    }
+                    };
+
                 }).catch(err => {
                     console.log(`roster data error`, err); //TODO better error handling
                 });
@@ -69,49 +72,26 @@ class Home extends Component {
     getUserName(userId) {
         axios.get(`/api/getUserById/${userId}`)
             .then(res => {
-                this.setState({ userDisplayed: res.data.local.username, userIdDisplayed: userId })
+                this.setState({ userDisplayed: res.data.UN, userIdDisplayed: userId })
             }).catch(err => {
                 console.log(err); //TODO better error handling
             });
     };
 
     sortRoster = (roster) => {
-        //While we are sorting the roster we are also getting the object ready to be stored in the database
-        //This sortRoster will be run before we ever go to save anything into the DB so it should populate the state correctly when we go to put it in
-        const dbReadyRoster = {}; //It's saved as an object in the database
-
-        //Here we iterate through the roster of the player and put them into an object for the order we want
-        for (const player of roster) {
-            const position = player.position;
-            //If the position is QB, TE, or K then we can just put them directly in
-            if (position === `QB`) {
-                dbReadyRoster.QB = player;
-                //If it's RB or WR then we need to assign it manually to the 1, 2 and flex spots
-                //First we need to check the RB/WR 1 & 2 spots then assign it into the flex spot
-            } else if (position === `RB`) {
-                if (!dbReadyRoster.RB1) {
-                    dbReadyRoster.RB1 = player;
-                } else if (!dbReadyRoster.RB2) {
-                    dbReadyRoster.RB2 = player;
-                } else if (!dbReadyRoster.Flex) {
-                    dbReadyRoster.Flex = player;
-                }
-            } else if (position === `WR`) {
-                if (!dbReadyRoster.WR1) {
-                    dbReadyRoster.WR1 = player;
-                } else if (!dbReadyRoster.WR2) {
-                    dbReadyRoster.WR2 = player;
-                } else if (!dbReadyRoster.Flex) {
-                    dbReadyRoster.Flex = player;
+        const sortedRoster = [];
+        for (let i = 0; i < this.props.positionOrder.length - 1; i++) {
+            for (let ii = 0; ii < roster.length; ii++) {
+                if (this.props.positionOrder[i] === roster[ii].P) {
+                    sortedRoster.push(roster[ii]);
                 };
-            } else if (position === `TE`) {
-                dbReadyRoster.TE = player;
-            } else if (position === `K`) {
-                dbReadyRoster.K = player;
+            };
+            if (!sortedRoster[i]) {
+                sortedRoster.push({});
             };
         };
 
-        this.setState({ userRoster: dbReadyRoster });
+        this.setState({ userRoster: sortedRoster });
 
         return;
     };
@@ -135,25 +115,30 @@ class Home extends Component {
 
     render() {
         const { isAdmin } = this.props;
-        const { userRoster, userDisplayed, userIdDisplayed, weekSelect } = this.state;
-        const rosterPlayers = ['QB', 'RB1', 'RB2', 'WR1', 'WR2', 'Flex', 'TE', 'K'];
+        const { userRoster, userDisplayed, userIdDisplayed, weekSelect, groupPositions } = this.state;
 
         return (
             <Container fluid={true}>
                 <Row>
                     <LeftPanel smCol='12' mdCol='5'
-                        rosterPlayers={rosterPlayers}
+                        roster={userRoster}
+                        groupPositions={groupPositions}
                         addDropPlayer={null}
-                        currentRoster={userRoster}
                         isAdmin={isAdmin}
                         userId={userIdDisplayed}
                         userDisplayed={userDisplayed}
                         weekSelect={weekSelect}
                         customSeasonWeekSearch={this.customSeasonWeekSearch}
                         handleChange={this.handleChange}
+                        groupId={this.props.group._id}
                         lockperoid={this.lockperoid} />
                     <Col sm='12' md='7'>
-                        <Leaderboard week={this.props.week} season={this.props.season} userClicked={this.leaderboardUserClicked} />
+                        <Leaderboard
+                            week={this.props.week}
+                            season={this.props.season}
+                            userClicked={this.leaderboardUserClicked}
+                            groupName={this.props.group.N}
+                            groupId={this.props.group._id} />
                     </Col>
                 </Row>
             </Container>
@@ -189,12 +174,17 @@ const LeftPanel = (props) => (
         </Row>
         <Row>
             <Col md='12'>
-                <RosterDisplay rosterPlayers={props.rosterPlayers} addDropPlayer={null} currentRoster={props.currentRoster} nameCol={'9'} scoreCol={'3'} />
+                <RosterDisplay roster={props.roster} groupPositions={props.groupPositions} addDropPlayer={null} nameCol={'9'} scoreCol={'3'} />
             </Col>
         </Row>
         <Row>
             <Col xs='12' className='centerText userLinks'>
-                <UserLinks isAdmin={props.isAdmin} userId={props.userId} userDisplayed={props.userDisplayed} />
+                <UserLinks
+                    isAdmin={props.isAdmin}
+                    userId={props.userId}
+                    userDisplayed={props.userDisplayed}
+                    groupName={props.groupId}
+                />
             </Col>
         </Row>
     </Col>
@@ -209,7 +199,7 @@ const UserLinks = (props) => (
                 </Button>
             </Link>
         }
-        <Link to={`/roster/${props.userId}`}>
+        <Link to={`/roster/${props.groupName}/${props.userId}`}>
             <Button color='primary' className='userLinkButton'>
                 Go to Roster
             </Button>

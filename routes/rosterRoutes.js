@@ -1,4 +1,8 @@
 const rosterHandler = require(`../handlers/rosterHandler`);
+const groupHandler = require(`../handlers/groupHandler`);
+const mySportsHandler = require(`../handlers/mySportsHandler`);
+const positions = require(`../constants/positions`);
+const userHandler = require("../handlers/userHandler");
 
 module.exports = app => {
     app.get(`/api/displayplayers`, async (req, res) => {
@@ -15,21 +19,22 @@ module.exports = app => {
 
     app.get(`/api/availablePlayers`, async (req, res) => {
         //req.query passes the array as an object. We turn this back to an array
-        const { userId, searchedPosition, season } = req.query;
+        const { userId, searchedPosition, season, groupId } = req.query;
         //Then iterate over the array and turn the strings into numbers to compare it to the DB
-        const availablePlayers = await rosterHandler.availablePlayers(userId, searchedPosition, season);
-
+        const availablePlayers = await rosterHandler.availablePlayers(userId, searchedPosition, season, groupId);
         res.status(200).send(availablePlayers);
     });
 
-    app.get(`/api/userRoster/:userId`, async (req, res) => {
-        const { userId } = req.params;
+    app.get(`/api/userRoster/:groupId/:userId`, async (req, res) => {
+        const { groupId, userId } = req.params;
         const { week, season } = req.query;
-        if (userId !== 'undefined' && week !== 0 && season !== ``) { //Checks if this route received the userId before it was ready in react
+        if (userId !== `undefined` && week !== 0 && season !== `` && groupId !== `undefined`) { //Checks if this route received the userId before it was ready in react
             //The check already comes in as the string undefined, rather than undefined itself. It comes in as truthly
-            //Passing in null so it doesn't score the players
-            const userRoster = await rosterHandler.userRoster(userId, week, season, false);
-            res.status(200).send(userRoster);
+            const playerIdRoster = await rosterHandler.getUserRoster(userId, week, season, groupId);
+            const userRoster = await mySportsHandler.fillUserRoster(playerIdRoster);
+            const groupPositions = await groupHandler.getGroupPositions(groupId);
+            const response = { userRoster, groupPositions };
+            res.status(200).send(response);
         } else {
             //TODO Do something with this error
             res.status(400).send(`userId is undefined. Try refreshing if this persists`);
@@ -37,18 +42,28 @@ module.exports = app => {
     });
 
     app.put(`/api/dummyRoster/`, async (req, res) => {
-        const { userId, week, season, dummyRoster } = req.body;
-        const dbResponse = await rosterHandler.dummyRoster(userId, week, season, dummyRoster);
+        const { userId, groupId, week, season, dummyRoster } = req.body;
+        if (userId === undefined || groupId === '') {
+            res.status(500).send(`Select Someone!`);
+            return;
+        }
+        const dbResponse = await rosterHandler.dummyRoster(userId, groupId, week, season, dummyRoster);
 
         res.status(200).send(dbResponse);
     });
 
-    app.put(`/api/updateUserRoster/`, async (req, res) => {
-        const { userId, dbReadyRoster, droppedPlayer, week, season, saveWithNoDrop } = req.body;
+    app.put(`/api/updateUserRoster/`, (req, res) => {
+        const { userId, roster, droppedPlayer, addedPlayer, week, season, saveWithNoDrop, groupId } = req.body;
 
-        const dbResponse = await rosterHandler.updateUserRoster(userId, dbReadyRoster, droppedPlayer, week, season, saveWithNoDrop);
+        rosterHandler.updateUserRoster(userId, roster, droppedPlayer, addedPlayer, week, season, saveWithNoDrop).then(async () => {
+            //TODO COMBINE THIS WITH get userRoster above so it's one function
+            const playerIdRoster = await rosterHandler.getUserRoster(userId, week, season, groupId);
+            const userRoster = await mySportsHandler.fillUserRoster(playerIdRoster);
+            const response = userRoster;
 
-        res.status(200).send(dbResponse);
+            res.status(200).send(response);
+        });
+
     });
 
     app.get(`/api/checkLockPeriod`, async (req, res) => {
@@ -65,10 +80,10 @@ module.exports = app => {
         res.status(200).send(usedPlayers);
     });
 
-    app.get(`/api/getPlayersByTeam/:userId/:team/:season`, async (req, res) => {
-        const { userId, team, season } = req.params;
+    app.get(`/api/getPlayersByTeam/:groupId/:userId/:team/:season`, async (req, res) => {
+        const { groupId, userId, team, season } = req.params;
 
-        const playersByTeam = await rosterHandler.searchPlayerByTeam(userId, team, season);
+        const playersByTeam = await rosterHandler.searchPlayerByTeam(groupId, userId, team, season);
 
         res.status(200).send(playersByTeam);
     });
@@ -78,6 +93,10 @@ module.exports = app => {
         const allPlayers = await rosterHandler.allSeasonRoster(userId, season);
 
         res.status(200).send(allPlayers);
+    });
+
+    app.get(`/api/getPositionData`, async (req, res) => {
+        res.status(200).send(positions.orderOfDescription);
     });
 
 };

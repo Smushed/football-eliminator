@@ -1,4 +1,6 @@
+require(`dotenv`).config();
 const userHandler = require(`../handlers/userHandler`);
+const rosterHandler = require(`../handlers/rosterHandler`);
 
 module.exports = app => {
     app.put(`/api/updateuser`, async (req, res) => {
@@ -10,24 +12,26 @@ module.exports = app => {
     });
 
     app.put(`/api/updateUserToAdmin/:userId`, async (req, res) => {
-        const { userId } = req.params;
+        const userId = req.params.userId;
 
         const response = await userHandler.updateToAdmin(userId);
 
         res.status(200).send(response);
     });
 
-    app.post(`/api/newuser`, async (req, res) => {
-        //Called after the user signs up with Firebase
-        const newUser = {}
-        newUser.local = {
-            username: req.body.username,
-            email: req.body.email,
-            firstname: req.body.firstname,
-            lastname: req.body.lastname,
+    app.post(`/api/newUser`, async (req, res) => {
+        //Called before the user signs up with Firebase
+        const newUser = {
+            UN: req.body.username,
+            E: req.body.email,
+            A: false,
         };
-        newUser.isAdmin = false;
-        const newUserInDB = await userHandler.saveNewUser(newUser);
+        const { newUserInDB, addedGroupId } = await userHandler.saveNewUser(newUser);
+
+        const { season } = await userHandler.pullSeasonAndWeekFromDB();
+        userHandler.createUserScore(newUserInDB, season, addedGroupId);
+        //rosterHandler.createSeasonRoster(newUserInDB._id, season, addedGroupId)
+
         res.json(newUserInDB);
     });
 
@@ -61,8 +65,29 @@ module.exports = app => {
     app.get(`/api/currentSeasonAndWeek`, async (req, res) => {
         //Finds the current season and week for today's date according to the server.
         //This should only drive the starting values for the selects
-        const seasonAndWeek = await userHandler.getSeasonAndWeek();
-
+        const seasonAndWeek = await userHandler.pullSeasonAndWeekFromDB();
         res.status(200).send(seasonAndWeek);
+    });
+
+    app.post(`/api/createRoster/:userid`, async (req, res) => {
+        const userId = req.params.userid;
+        console.log(userId);
+
+        res.status(200).send(`working`)
+    });
+
+    app.post(`/api/createAllRosters/:season/`, async (req, res) => {
+        const { season } = req.params;
+        const dbResponse = rosterHandler.createAllRosters(season);
+        res.status(200).send(dbResponse)
+    });
+
+    app.post(`/api/purgeUserAndGroupDB/:pass`, (req, res) => {
+        const { pass } = req.params;
+        console.log(`deleting`)
+        userHandler.purgeDB();
+        // if (pass === process.env.DROP_DB) {
+        // };
+        res.status(200).send(`success`);
     });
 }

@@ -2,13 +2,9 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
 import { withRouter } from 'react-router-dom';
 
 import './leaderBoardStyle.css'
-
-const Alert = withReactContent(Swal);
 
 class Leaderboard extends Component {
     constructor(props) {
@@ -43,8 +39,8 @@ class Leaderboard extends Component {
 
     getAllRosters(season) {
         if (season === ``) {
-            return
-        }
+            return;
+        };
         return axios.get(`/api/getAllRosters/${season}`);
     };
 
@@ -52,8 +48,8 @@ class Leaderboard extends Component {
         this.setState({ loading: true });
 
         //Handling if this was called too early
-        if (season === ``) { return }
-        axios.get(`/api/getLeaderboard/allUsers/`)
+        if (season === ``) { return };
+        axios.get(`/api/getLeaderboard/${this.props.groupId}/${season}`)
             .then(res => {
                 this.setState({ loading: false, userList: res.data });
             });
@@ -67,10 +63,10 @@ class Leaderboard extends Component {
 
     render() {
         const columns = [
-            { Header: `Username`, accessor: `username`, show: true },
-            { Header: `email`, accessor: `email`, show: true },
-            { Header: `Last Week's Score`, accessor: `weekScores[${this.props.week - 1}]`, show: true },
-            { Header: `Total Score`, accessor: `totalScore`, show: true }];
+            { Header: `Username`, accessor: `UN`, show: true },
+            { Header: `email`, accessor: `E`, show: true },
+            { Header: `Last Week's Score`, accessor: `WS[${(this.props.week - 1).toString()}]`, show: true },
+            { Header: `Total Score`, accessor: `TS`, show: true }];
 
         const defaultSorted = [{ id: 'totalScore', desc: true }];
         return (
@@ -89,17 +85,6 @@ class Leaderboard extends Component {
                             onClick: () => {
                                 if (!rowInfo) { return };
                                 this.props.userClicked(rowInfo.original.userId, rowInfo.original.username)
-                                // Alert.fire({
-                                //     title: rowInfo.original.username,
-                                //     showCancelButton: true,
-                                //     confirmButtonColor: '#228B22',
-                                //     cancelButtonColor: '#A9A9A9',
-                                //     confirmButtonText: 'Go to their page'
-                                // }).then(result => {
-                                //     if (result.value) {
-                                //         this.redirect(rowInfo.original.userId)
-                                //     };
-                                // });
                             }
                         };
                     }}

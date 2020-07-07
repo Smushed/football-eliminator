@@ -8,6 +8,7 @@ import axios from 'axios';
 import SignUpPage from './componenets/SignUp';
 import SignInPage from './componenets/SignIn';
 import NavBar from './componenets/NavBar';
+// import GroupBar from './componenets/GroupBar';
 import Home from './componenets/Home';
 import PasswordReset from './componenets/PasswordReset';
 import PasswordChange from './componenets/PasswordChange';
@@ -19,6 +20,7 @@ import Roster from './componenets/Roster';
 import AdminPanel from './componenets/AdminPanel';
 import UpgradeToAdmin from './componenets/AdminPanel/UpgradeToAdmin';
 import UsedPlayers from './componenets/UsedPlayers';
+import CreateAllGroup from './componenets/GroupPage/CreateAllGroup';
 
 class App extends Component {
   constructor(props) {
@@ -28,7 +30,10 @@ class App extends Component {
       authUser: null,
       currentUser: {},
       currentWeek: 0,
-      currentSeason: ``
+      currentSeason: ``,
+      groupList: [],
+      currentGroup: {},
+      positionOrder: [],
     }
 
   };
@@ -51,11 +56,18 @@ class App extends Component {
   isSignedIn = async (email) => {
     const dbResponse = await axios.get(`/api/getUser/${email}`);
     const currentUser = {
-      username: dbResponse.data.local.username,
+      username: dbResponse.data.UN,
       userId: dbResponse.data._id,
-      isAdmin: dbResponse.data.isAdmin
-    }
-    this.setState({ currentUser });
+      isAdmin: dbResponse.data.A,
+    };
+    const playerPositions = await axios.get(`/api/getPositionData`);
+
+    this.setState({
+      currentUser,
+      groupList: dbResponse.data.GL,
+      currentGroup: { N: dbResponse.data.GL[0].N, _id: dbResponse.data.GL[0]._id },
+      positionOrder: playerPositions.data
+    });
     this.getSeasonAndWeek();
   };
 
@@ -72,15 +84,22 @@ class App extends Component {
 
         <div>
           <NavBar authUser={this.state.authUser} />
-          {/* Routes to different components */}
+          {/* <GroupBar
+            groupList={this.state.groupList}
+          /> */}
           <Route
             exact path={Routes.home}
             render={() =>
               <Home
                 userId={this.state.currentUser.userId}
+                username={this.state.currentUser.username}
                 isAdmin={this.state.currentUser.isAdmin}
+                season={this.state.currentSeason}
+                group={this.state.currentGroup}
                 week={this.state.currentWeek}
-                season={this.state.currentSeason} />} />
+                positionOrder={this.state.positionOrder}
+              />}
+          />
           <Route
             path={Routes.adminPanel}
             render={() =>
@@ -154,6 +173,11 @@ class App extends Component {
                 season={this.state.currentSeason}
                 week={this.state.currentWeek} />
             }
+          />
+          <Route
+            path={Routes.CreateAllGroup}
+            render={() =>
+              <CreateAllGroup />}
           />
         </div>
       </BrowserRouter>

@@ -1,13 +1,13 @@
 const db = require(`../models`);
 
-const checkDuplicate = async (checkedField, groupToSearch, userID, nextBenchmark) => {
+const checkDuplicate = async (checkedField, groupToSearch, userID) => {
     let result = false;
     let searchedGroup;
     //TODO Do something other than log these errors
     switch (checkedField) {
         case `group`:
             try {
-                searchedGroup = await db.Group.findOne({ name: groupToSearch });
+                searchedGroup = await db.Group.findOne({ N: groupToSearch }).exec();
                 //If there is a group with that name return true
                 if (searchedGroup !== null) {
                     result = true;
@@ -19,12 +19,12 @@ const checkDuplicate = async (checkedField, groupToSearch, userID, nextBenchmark
         case `userlist`:
             //Grabs the group that the user is looking to add the user to 
             try {
-                searchedGroup = await db.Group.findById(groupToSearch);
+                searchedGroup = await db.Group.findOne({ N: groupToSearch });
             } catch (err) {
                 console.log(err);
             };
             try {
-                const isInGroup = await searchedGroup.userlist.filter(user => user._id === userID);
+                const isInGroup = await searchedGroup.UL.filter(user => user._id === userID);
                 if (isInGroup.length > 0) {
                     result = true;
                 };
@@ -32,16 +32,9 @@ const checkDuplicate = async (checkedField, groupToSearch, userID, nextBenchmark
                 console.log(err);
             };
             break;
-        case `benchmark`:
-            //Group to search here is the whole group
-            const benchmarkAlreadyCompleted = await groupToSearch.previousBenchmark.filter(benchmark => benchmark == nextBenchmark);
-            if (benchmarkAlreadyCompleted.length !== 0) {
-                result = true;
-            };
-            break;
     }
     return result;
-}
+};
 
 module.exports = {
     createGroup: async (userID, groupName, groupDescription) => {
@@ -70,22 +63,25 @@ module.exports = {
         return addedGroup;
     },
     // Invite other users to the group
-    addUser: async (addedUserID, groupID) => {
+    addUser: async (addedUserID, groupName) => {
+        console.log(`hit`)
         //Checks if the user is already added to the group and returns 500 if they are
-        const isDuplicate = await checkDuplicate(`userlist`, groupID, addedUserID);
+        const isDuplicate = await checkDuplicate(`userlist`, groupName, addedUserID);
+        //TODO update this so it returns an error message
         if (isDuplicate) {
-            //TODO update this so it returns an error message
             return 500;
         };
-        const newUser = {
-            _id: addedUserID,
-        };
-        //get the user ID, add them to the array userlist within the group
-        const updatedGroup = await db.Group.findByIdAndUpdate([groupID], { $push: { userlist: newUser } },
-            { new: true }); //Must be an object as we store if they their permissions
-        await db.User.findByIdAndUpdate([addedUserID], { $push: { grouplist: groupID } }); //Also saved the group that the user just added to their profile
 
-        return updatedGroup;
+        const newUserForGroup = {
+            A: false,
+            B: false,
+            ID: addedUserID
+        };
+
+        //get the user ID, add them to the array userlist within the group
+        const groupDetail = await db.Group.findOneAndUpdate({ N: groupName }, { $push: { UL: newUserForGroup } });
+
+        return groupDetail;
     },
     checkGroupMod: async (userID, groupID) => {
         //Looks up the group in the database
@@ -96,72 +92,60 @@ module.exports = {
         const isModerator = currentUser.isMod;
         return isModerator;
     },
-    setPageOrChapter: async (groupID, totalCount) => {
-        //This is hit after they check if the current user trying to make these changes is a mod
-        //Also, should only be hit one time unless they go into the settings and change it
-        const updatedGroup = await db.Group.findByIdAndUpdate([groupID], { $set: { totalBenchmark: totalCount } },
-            { new: true });
-        return updatedGroup;
-    },
-    updateBenchmark: async (groupID, nextBenchmark) => {
-        //Checks if the user is trying to set the benchmark higher than the total benchmarks
-        const currentGroup = await db.Group.findById([groupID]);
-
-        const isDuplicate = await checkDuplicate(`benchmark`, currentGroup, ``, currentGroup.currentBenchmark);
-
-        if (nextBenchmark <= currentGroup.totalBenchmark) {
-            //If this benchmark hasn't been assigned before
-            //We keep track of this have posts associated to it
-            const lastBenchmark = currentGroup.currentBenchmark || 0;
-            if (!isDuplicate) {
-                await db.Group.findByIdAndUpdate([groupID], { $push: { previousBenchmark: lastBenchmark } });
-            }
-            const updatedGroup = await db.Group.findByIdAndUpdate([groupID], { $set: { currentBenchmark: +nextBenchmark } },
-                { new: true });
-            return updatedGroup;
-        } else {
-            //TODO Proper error message
-            return { 'error': `Cannot set a benchmark higher than the total benchmarks` };
-        };
-    },
     getGroupData: async (groupID) => {
         const groupData = await db.Group.findById([groupID]);
-
         return groupData;
     },
-    getLeaderBoard: async (groupId) => {
+    getLeaderBoard: async (groupId, season) => {
 
-        let userList;
         const arrayForLeaderBoard = [];
 
-        if (groupId === `allUsers`) {
-            userList = await db.User.find().exec();
-        } else {
-            //TODO Add data for other groups
-        };
+        const userScoreList = await db.UserScores.find({ G: groupId, S: season }).exec();
 
-        const scores = await db.UserScores.find({ 'weeklyScore.groupId': groupId }).exec();
-
-        for (const user of userList) {
-            for (const score of scores) {
-                if (user._id.toString() === score.userId.toString()) {
-                    //Setting this outside to make it easier to add just the weekly scores in userRecord
-                    const totalScore = score.weeklyScore.totalScore.toFixed(2);
-                    const weeklyScore = score.weeklyScore;
-                    delete weeklyScore.groupId;
-                    delete weeklyScore.totalScore;
-
-                    const userRecord = {
-                        email: user.local.email,
-                        userId: user._id,
-                        username: user.local.username,
-                        totalScore: totalScore,
-                        weekScores: weeklyScore
-                    };
-                    arrayForLeaderBoard.push(userRecord);
-                };
+        for (const user of userScoreList) {
+            let totalUserScore = 0;
+            for (let i = 1; i < 18; i++) {
+                totalUserScore += user[i.toString()];
             };
+
+            const userRecord = await db.User.findById(user.U).exec();
+            const filledOutUser = {
+                TS: totalUserScore,
+                E: userRecord.E,
+                UID: user.U,
+                WS: user.TS,
+                UN: userRecord.UN
+            };
+            arrayForLeaderBoard.push(filledOutUser);
         };
         return arrayForLeaderBoard;
     },
+    createAllGroup: async function () { //TODO Break this out to use the Create Group function above. Just not sure about the mod part
+        //If there is no Dupe general group we are good to go ahead and add it
+        if (!checkDuplicate('group', 'The Eliminator')) { return false };
+        const allGroup = {
+            N: `The Eliminator`,
+            D: `All players for the football eliminator compete here`
+        };
+        const allGroupFromDB = await db.Group.create(allGroup);
+        this.createGroupRoster(allGroupFromDB._id);
+        this.createGroupScore(allGroupFromDB._id);
+        return `working`;
+    },
+    createGroupScore: (groupId) => {
+        db.GroupScore.create({ G: groupId });
+    },
+    findGroupIdByName: async (groupName) => {
+        const foundGroup = await db.Group.findOne({ N: groupName });
+
+        return foundGroup._id;
+    },
+    createGroupRoster: async (groupId) => {
+        const dbResponse = db.GroupRoster.create({ G: groupId });
+        return dbResponse;
+    },
+    getGroupPositions: async (groupId) => {
+        const dbResponse = await db.GroupRoster.findOne({ G: groupId });
+        return dbResponse.P;
+    }
 };

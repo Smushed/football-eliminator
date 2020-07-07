@@ -48,7 +48,7 @@ class PlayerEditor extends Component {
             if (result.value) {
                 Alert.fire(`Success`, `This will be a while. Go play some games?`, `success`);
                 this.loading(); // This successfully updates the database but doneLoading doesn't work
-                const response = await axios.get(`/api/massplayerupdate`);
+                const response = await axios.get(`/api/massPlayerUpdate/${this.props.season}/`);
                 this.doneLoading();
                 console.log(response);
             };

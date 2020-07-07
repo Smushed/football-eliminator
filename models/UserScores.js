@@ -5,36 +5,90 @@ const Schema = mongoose.Schema;
 //Everything is to be singular
 const UserScores = new Schema({
 
-    userId: { //This is who the roster belongs to
-        type: String,
-        unique: true,
+    U: { //User ID
+        type: mongoose.Schema.Types.ObjectId,
         required: true
     },
-    weeklyScore: {
-        'groupId': {
-            type: String,
-            required: true,
-            default: `allUsers`
-        },
-        'totalScore': Number,
-        '1': Number,
-        '2': Number,
-        '3': Number,
-        '4': Number,
-        '5': Number,
-        '6': Number,
-        '7': Number,
-        '8': Number,
-        '9': Number,
-        '10': Number,
-        '11': Number,
-        '12': Number,
-        '13': Number,
-        '14': Number,
-        '15': Number,
-        '16': Number,
-        '17': Number,
-    }
+    G: { //GroupID
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+    S: { //Season
+        type: String,
+        required: true
+    },
+    TS: { //Total Score
+        type: Number,
+        default: 0
+    },
+    '1': {
+        type: Number,
+        default: 0
+    },
+    '2': {
+        type: Number,
+        default: 0
+    },
+    '3': {
+        type: Number,
+        default: 0
+    },
+    '4': {
+        type: Number,
+        default: 0
+    },
+    '5': {
+        type: Number,
+        default: 0
+    },
+    '6': {
+        type: Number,
+        default: 0
+    },
+    '7': {
+        type: Number,
+        default: 0
+    },
+    '8': {
+        type: Number,
+        default: 0
+    },
+    '9': {
+        type: Number,
+        default: 0
+    },
+    '10': {
+        type: Number,
+        default: 0
+    },
+    '11': {
+        type: Number,
+        default: 0
+    },
+    '12': {
+        type: Number,
+        default: 0
+    },
+    '13': {
+        type: Number,
+        default: 0
+    },
+    '14': {
+        type: Number,
+        default: 0
+    },
+    '15': {
+        type: Number,
+        default: 0
+    },
+    '16': {
+        type: Number,
+        default: 0
+    },
+    '17': {
+        type: Number,
+        default: 0
+    },
 });
 
 module.exports = mongoose.model(`UserScores`, UserScores);
