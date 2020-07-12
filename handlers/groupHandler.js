@@ -147,5 +147,9 @@ module.exports = {
     getGroupPositions: async (groupId) => {
         const dbResponse = await db.GroupRoster.findOne({ G: groupId });
         return dbResponse.P;
+    },
+    getGroupScore: async (groupId) => {
+        const dbResponse = await db.GroupScore.findOne({ G: groupId });
+        return dbResponse;
     }
 };

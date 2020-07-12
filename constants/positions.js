@@ -12,5 +12,6 @@ module.exports = {
             { index: 8, description: `Super Flex (QB/RB/WR/TE)` },
         ],
     orderOf: [0, 1, 2, 8, 6, 7, 3, 4, 5],
-    orderOfDescription: [`QB`, `RB`, `WR`, `Super Flex`, `RB/WR`, `Flex`, `TE`, `K`, `D`]
+    orderOfDescription: [`QB`, `RB`, `WR`, `Super Flex`, `RB/WR`, `Flex`, `TE`, `K`, `D`],
+    offense: [`QB`, `RB`, `WR`, `TE`, `K`]
 }

@@ -67,6 +67,14 @@ class PlayerEditor extends Component {
         this.doneLoading();
     };
 
+    rankPlayers = async () => {
+        try {
+            await axios.get(`/api/rankPlayers/${this.props.season}/${this.props.week}/${this.props.groupId}`)
+        } catch (err) {
+            console.log(err);
+        };
+    };
+
     render() {
         return (
             <Row>
@@ -83,6 +91,11 @@ class PlayerEditor extends Component {
                     <br />
                     <Button color='secondary' onClick={this.getWeeklyData}>
                         Update Get Weekly Data
+                    </Button>
+                    <br />
+                    <br />
+                    <Button color='primary' onClick={this.rankPlayers}>
+                        Rank Players
                     </Button>
                 </Col>
             </Row>

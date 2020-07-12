@@ -105,7 +105,8 @@ class App extends Component {
             render={() =>
               <AdminPanel
                 week={this.state.currentWeek}
-                season={this.state.currentSeason} />}
+                season={this.state.currentSeason}
+                groupId={this.state.currentGroup._id} />}
           />
           <Route
             path={Routes.signin}
