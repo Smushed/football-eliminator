@@ -96,7 +96,7 @@ class AdminPanel extends Component {
                     </Col>
                     <Col sm='12' md='9'>
                         {playerEditor &&
-                            <PlayerEditor week={this.state.weekSelect} season={this.state.seasonSelect} />
+                            <PlayerEditor week={this.state.weekSelect} season={this.state.seasonSelect} groupId={this.props.groupId} />
                         }
                         {userEditor &&
                             <UserEditor week={this.state.weekSelect} season={this.state.seasonSelect} />

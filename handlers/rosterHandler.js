@@ -88,7 +88,7 @@ checkForAvailablePlayers = (usedPlayers, searchedPlayers) => {
 };
 
 sortPlayersByRank = (playerArray) => {
-    playerArray.sort((a, b) => { return a.rank - b.rank });
+    playerArray.sort((a, b) => { return a.R - b.R });
     return playerArray;
 };
 

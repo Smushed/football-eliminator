@@ -2,33 +2,32 @@ const db = require(`../models`);
 const axios = require(`axios`);
 const nflTeams = require(`../constants/nflTeams`);
 const positions = require(`../constants/positions`);
+const scoringSystem = require(`../constants/scoringSystem`)
 require(`dotenv`).config();
 
 const mySportsFeedsAPI = process.env.MY_SPORTS_FEEDS_API;
 
-const playerScoreHandler = async (player, season, week) => {
+const playerScoreHandler = async (player, season, week, groupScore) => {
     return new Promise(async (res, rej) => {
         const playerStats = await db.PlayerStats.findOne({ 'M': player.M, 'W': week, 'S': season }).exec();
         let weeklyScore = 0;
 
         if (playerStats) {
             for (bucket of scoringSystem.buckets) {
-                const scoringFields = Object.keys(playerStats[bucket]);
-                for (field of scoringFields) {
-                    weeklyScore += calculateScore(field, bucket, playerStats[bucket][field]);
-                };
+                for (field of scoringSystem[bucket])
+                    weeklyScore += calculateScore(field, bucket, playerStats[bucket][field], groupScore[bucket][field]);
             };
         };
         res(weeklyScore);
     });
 };
 
-const calculateScore = (fieldToScore, bucket, result) => {
+const calculateScore = (fieldToScore, bucket, playerStat, groupScore) => {
     //This is only currently in there to help debug
-    if (typeof scoringSystem[bucket][fieldToScore] === `undefined`) {
+    if (typeof playerStat === `undefined`) {
         return (0);
     };
-    return (result * scoringSystem[bucket][fieldToScore]);
+    return (playerStat * groupScore);
 }
 
 const addPlayerData = (player, team, stats, season, week) => {
@@ -534,8 +533,8 @@ module.exports = {
         };
         return weeklyScore;
     },
-    rankPlayers: async function () {
-
+    rankPlayers: async function (season, week, groupScore) {
+        console.log(season, week, groupScore);
         //Loop through the positions of the players to then rank them
         //We are doing the offense here, since D will be different
         for (const position of positions.offense) {
@@ -547,9 +546,9 @@ module.exports = {
             for (let player of playersByPosition) {
                 const scoredPlayer = player.toObject();
                 scoredPlayer.score = 0;
-
-                for (let i = 1; i <= 17; i++) {
-                    scoredPlayer.score += await playerScoreHandler(player, currentSeason, i)
+                // currentSeason
+                for (let i = 1; i <= week; i++) {
+                    scoredPlayer.score += await playerScoreHandler(player, season, i, groupScore)
                 };
                 //Put them in an array to rank them
                 rankingArray.push(scoredPlayer);

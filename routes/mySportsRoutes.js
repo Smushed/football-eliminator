@@ -1,5 +1,6 @@
 const mySportsHandler = require(`../handlers/mySportsHandler`);
 const rosterHandler = require(`../handlers/rosterHandler`);
+const groupHandler = require("../handlers/groupHandler");
 
 module.exports = app => {
 
@@ -52,7 +53,7 @@ module.exports = app => {
     app.get(`/api/calculateScore/:season/:week/`, async (req, res) => {
         const { season, week } = req.params;
         //TODO Add a loop to iterate over every group in the app
-        const group = `allUsers`;
+        const group = `The Eliminator`;
 
         console.log(`Calculating scores for `, group);
 
@@ -64,10 +65,12 @@ module.exports = app => {
         res.sendStatus(status);
     });
 
-    app.get(`/api/rankPlayers/:season/`, async (req, res) => {
-        const { season } = req.params;
+    app.get(`/api/rankPlayers/:season/:week/:groupId`, async (req, res) => {
+        const { season, week, groupId } = req.params;
 
-        const dbResponse = await mySportsHandler.rankPlayers(season);
+        const groupScore = await await groupHandler.getGroupScore(groupId);
+
+        const dbResponse = await mySportsHandler.rankPlayers(season, week, groupScore);
 
         res.sendStatus(dbResponse);
     });
