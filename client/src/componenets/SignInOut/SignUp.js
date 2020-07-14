@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
-import { withFirebase } from './Firebase';
+import { withFirebase } from '../Firebase';
 import { compose } from 'recompose';
 import axios from 'axios';
 import { Row, Col, Button, Form, FormGroup, Label, Input } from 'reactstrap';
 
-import * as Routes from '../constants/routes';
-import { SignInLink } from './SignInOut/SignIn';
+import * as Routes from '../../constants/routes';
+import { SignInLink } from './SignIn';
 import WelcomeMessage from './WelcomeMessage';
 
 const inputStyle = {

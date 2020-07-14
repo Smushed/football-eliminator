@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
 
-import { SignUpLink } from '../SignUp';
-import { PasswordResetLink } from '../PasswordReset'
+import { SignUpLink } from './SignUp';
+import { PasswordResetLink } from './PasswordReset'
 import { withFirebase } from '../Firebase';
 import * as Routes from '../../constants/routes';
 import { Row, Col, Button, Form, FormGroup, Label, Input } from "reactstrap";
-import WelcomeMessage from '../WelcomeMessage';
+import WelcomeMessage from './WelcomeMessage';
 
 const inputStyle = {
     width: '75%',

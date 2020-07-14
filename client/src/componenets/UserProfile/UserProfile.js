@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
-import { withAuthorization } from './Session';
-import PasswordChangeForm from './PasswordChange';
+import { withAuthorization } from '../Session';
+import PasswordChangeForm from '../SignInOut/PasswordChange';
 import axios from 'axios';
 import { Button, Label, Input, } from "reactstrap";
 

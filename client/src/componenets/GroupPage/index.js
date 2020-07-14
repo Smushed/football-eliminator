@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
 
-import UserSearch from '../UserSearch';
+import UserSearch from '../UserProfile/UserSearch';
 import UserList from './UserList';
 import GroupNav from './GroupNav';
 import { Row, Col } from 'reactstrap';

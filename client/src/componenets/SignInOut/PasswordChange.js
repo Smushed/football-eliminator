@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
-import { withAuthorization } from './Session';
+import { withAuthorization } from '../Session';
 
-import { withFirebase } from './Firebase';
-import * as Routes from '../constants/routes';
+import { withFirebase } from '../Firebase';
+import * as Routes from '../../constants/routes';
 import { Form, FormGroup, Label, Input, Button } from "reactstrap";
 
 const inputStyle = {

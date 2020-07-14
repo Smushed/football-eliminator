@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
 
-import { withFirebase } from './Firebase';
-import * as Routes from '../constants/routes';
-import { withAuthorization } from './Session';
+import { withFirebase } from '../Firebase';
+import * as Routes from '../../constants/routes';
+import { withAuthorization } from '../Session';
 import { Button } from 'reactstrap';
 
 const inputStyle = {

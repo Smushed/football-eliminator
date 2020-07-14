@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from 'reactstrap';
-import { withFirebase } from './Firebase';
+import { withFirebase } from '../Firebase';
 
 const textStyle = {
   fontSize: '25px',

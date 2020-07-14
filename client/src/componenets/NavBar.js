@@ -2,7 +2,7 @@ import React from 'react';
 import '../App.css';
 
 import * as Routes from '../constants/routes';
-import SignOutButton from './SignOutButton';
+import SignOutButton from './SignInOut/SignOutButton';
 import { HomeLink } from './Home';
 
 import { Nav, Navbar, NavItem, NavLink } from 'reactstrap';

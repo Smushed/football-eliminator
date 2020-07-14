@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { withAuthorization } from './Session';
+import { withAuthorization } from '../Session';
 import { Link } from 'react-router-dom';
-import * as Routes from '../constants/routes';
+import * as Routes from '../../constants/routes';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
