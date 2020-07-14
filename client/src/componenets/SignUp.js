@@ -170,7 +170,7 @@ class SignUpFormBase extends Component {
             password !== '' &&
             email !== '' &&
             username.length > 3 &&
-            password > 6;
+            password.length > 6;
 
         return (
             <div className='SignupForm'>
