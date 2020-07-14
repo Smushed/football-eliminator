@@ -6,7 +6,7 @@ import axios from 'axios';
 import { Row, Col, Button, Form, FormGroup, Label, Input } from 'reactstrap';
 
 import * as Routes from '../constants/routes';
-import { SignInLink } from './SignIn';
+import { SignInLink } from './SignInOut/SignIn';
 import WelcomeMessage from './WelcomeMessage';
 
 const inputStyle = {
