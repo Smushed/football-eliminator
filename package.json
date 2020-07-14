@@ -1,19 +1,19 @@
 {
     "name": "footballeliminator",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "Fantasy Football Eliminator",
     "main": "server.js",
     "engines": {
         "node": "10.X.X"
     },
     "scripts": {
-        "start": "if-env NODE_ENV=production && npm run start:prod || npm run start:dev",
+        "start:testings": "if-env NODE_ENV=production && npm run start:prod || npm run start:dev",
         "start:prod": "node server.js",
-        "start:dev": "concurrently \"nodemon --ignore client/\" \"npm run client\"",
+        "start": "concurrently \"nodemon --ignore client/\" \"npm run client\"",
         "client": "cd ./client && npm run start",
         "install": "cd ./client && npm install",
         "build": "cd ./client && npm run build",
-        "heroku-postbuild": "cd ./client && npm run start"
+        "heroku-postbuild": "npm run build"
     },
     "author": "Smushed",
     "license": "ISC",

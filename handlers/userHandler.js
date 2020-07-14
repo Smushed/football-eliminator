@@ -113,7 +113,6 @@ module.exports = {
     saveNewUser: async (newUser) => {
         const generalGroup = await db.Group.findOne({ N: 'The Eliminator' });
         newUser.GL = generalGroup._id;
-
         const usernameExists = await db.User.findOne({ UN: newUser.UN });
         const emailExists = await db.User.findOne({ E: newUser.E });
         //TODO Do more with this than just return false
