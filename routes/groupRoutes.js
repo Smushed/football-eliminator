@@ -71,9 +71,13 @@ module.exports = app => {
     });
 
     app.post(`/api/createAllGroup/:pass`, async (req, res) => {
+        const { pass } = req.params;
+        if (pass !== process.env.DB_ADMIN_PASS) {
+            res.status(401).send(`Get Outta Here!`);
+        };
         groupHandler.createAllGroup();
         userHandler.initSeasonAndWeekInDB();
         console.log(`Group Created`)
-        res.status(200).send(`success`);
+        res.sendStatus(200);
     });
 };

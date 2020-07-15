@@ -9,7 +9,8 @@ export const roster = '/roster/:groupId/:userId';
 export const adminPanel = '/adminPanel/';
 export const usedPlayers = '/usedPlayers/:userId';
 export const seasonLongScore = '/seasonLongScore/:userId';
-export const CreateAllGroup = '/createAllGroup';
+export const createAllGroup = '/createAllGroup';
+export const fourOFour = '/*'
 
 
 //These are hidden routes. Ones that have no link but anyone can go to them if they'd like

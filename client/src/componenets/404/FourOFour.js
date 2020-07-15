@@ -1,0 +1,19 @@
+import React from 'react';
+import './404style.css';
+import PoorBaby from './Champs.jpg'
+
+const FourOFour = (props) => {
+    return (
+        <div className='fourOFour' >
+            <div className='fourOFourText'>404 - Route Not Found</div>
+            <div className='gloat'>
+                Hope you didn't get here like Rogers did
+                <br />
+                <br />
+                <img className='ripGod' src={PoorBaby} alt='Sore Losers' />
+            </div>
+        </div>
+    )
+}
+
+export default FourOFour;
