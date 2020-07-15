@@ -9,7 +9,6 @@ import SignUpPage from './componenets/SignInOut/SignUp';
 import SignInPage from './componenets/SignInOut/SignIn';
 import NavBar from './componenets/NavBar/NavBar';
 import Home from './componenets/Home';
-import PasswordReset from './componenets/SignInOut/PasswordReset';
 import UserProfile from './componenets/UserProfile/UserProfile';
 import CreateGroup from './componenets/GroupPage/CreateGroup';
 import GroupPage from './componenets/GroupPage';
@@ -115,11 +114,6 @@ class App extends Component {
             path={Routes.signup}
             render={() =>
               <SignUpPage />}
-          />
-          <Route
-            path={Routes.passwordReset}
-            render={() =>
-              <PasswordReset />}
           />
           <Route
             path={Routes.userProfile}

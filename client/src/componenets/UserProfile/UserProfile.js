@@ -125,6 +125,9 @@ class UserProfile extends Component {
     };
 };
 
+//RE AUTH A USER
+// https://firebase.google.com/docs/auth/web/manage-users#re-authenticate_a_user
+
 class UpdateInformationForm extends Component {
     constructor(props) {
         super(props)
