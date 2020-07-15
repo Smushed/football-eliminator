@@ -1,13 +1,25 @@
 .navHeader {
-    background-color: #1d791d;
     height: 65px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    border-bottom: 1px solid lightgrey;
+    margin-bottom: 10px;
 }
 
 .navIcons {
     margin: 5px;
     height: 55px;
     width: 55px;
+}
+
+.verifyEmailDiv {
+    text-align: center;
+    font-weight: 600;
+}
+
+.sentEmail {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
