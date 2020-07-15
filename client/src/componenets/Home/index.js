@@ -146,13 +146,6 @@ class Home extends Component {
     };
 };
 
-const HomeLink = (props) => (
-    <Link to={Routes.home}>
-        <div style={props.testStyle}>
-            Home
-        </div>
-    </Link>
-);
 
 const LeftPanel = (props) => (
     <Col sm={props.smCol} md={props.mdCol}>
@@ -220,4 +213,3 @@ const UserLinks = (props) => (
 const condition = authUser => !!authUser;
 
 export default withAuthorization(condition)(Home);
-export { HomeLink };

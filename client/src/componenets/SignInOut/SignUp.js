@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
-import { withFirebase } from './Firebase';
+import { withFirebase } from '../Firebase';
 import { compose } from 'recompose';
 import axios from 'axios';
 import { Row, Col, Button, Form, FormGroup, Label, Input } from 'reactstrap';
 
-import * as Routes from '../constants/routes';
+import * as Routes from '../../constants/routes';
 import { SignInLink } from './SignIn';
 import WelcomeMessage from './WelcomeMessage';
 
@@ -154,14 +154,6 @@ class SignUpFormBase extends Component {
         };
     };
 
-    dummyData = () => {
-        this.setState({ username: `testing`, password: `123456`, confirmPassword: `123456`, email: `testing@gmail.com` }, () => {
-            this.validateForm(`email`, this.state.email);
-            this.validateForm(`username`, this.state.username);
-            this.validateForm(`password`, this.state.password);
-        });
-    };
-
     render() {
         const { username, email, password, confirmPassword, error, validMessage } = this.state;
 
@@ -170,7 +162,7 @@ class SignUpFormBase extends Component {
             password !== '' &&
             email !== '' &&
             username.length > 3 &&
-            password.length > 6;
+            password.length >= 6;
 
         return (
             <div className='SignupForm'>
@@ -257,9 +249,6 @@ class SignUpFormBase extends Component {
                         </Button>
                     </FormGroup>
                 </Form>
-                <Button color='info' onClick={this.dummyData} size='lg' type='submit'>
-                    Dummy Data
-                </Button>
             </div >
         )
     };

@@ -5,15 +5,12 @@ import { withFirebase } from './componenets/Firebase';
 import axios from 'axios';
 
 // Components
-import SignUpPage from './componenets/SignUp';
-import SignInPage from './componenets/SignIn';
-import NavBar from './componenets/NavBar';
-// import GroupBar from './componenets/GroupBar';
+import SignUpPage from './componenets/SignInOut/SignUp';
+import SignInPage from './componenets/SignInOut/SignIn';
+import NavBar from './componenets/NavBar/NavBar';
 import Home from './componenets/Home';
-import PasswordReset from './componenets/PasswordReset';
-import PasswordChange from './componenets/PasswordChange';
-import UserProfile from './componenets/UserProfile';
-import CreateGroup from './componenets/CreateGroup';
+import UserProfile from './componenets/UserProfile/UserProfile';
+import CreateGroup from './componenets/GroupPage/CreateGroup';
 import GroupPage from './componenets/GroupPage';
 import SeasonLongScore from './componenets/SeasonLongScore';
 import Roster from './componenets/Roster';
@@ -117,16 +114,6 @@ class App extends Component {
             path={Routes.signup}
             render={() =>
               <SignUpPage />}
-          />
-          <Route
-            path={Routes.passwordReset}
-            render={() =>
-              <PasswordReset />}
-          />
-          <Route
-            path={Routes.passwordChange}
-            render={() =>
-              <PasswordChange />}
           />
           <Route
             path={Routes.userProfile}

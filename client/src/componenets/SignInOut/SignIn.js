@@ -3,11 +3,16 @@ import { Link, withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
 
 import { SignUpLink } from './SignUp';
-import { PasswordResetLink } from './PasswordReset'
-import { withFirebase } from './Firebase';
-import * as Routes from '../constants/routes';
+import { withFirebase } from '../Firebase';
+import * as Routes from '../../constants/routes';
 import { Row, Col, Button, Form, FormGroup, Label, Input } from "reactstrap";
 import WelcomeMessage from './WelcomeMessage';
+import './signInOutStyle.css';
+
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+
+const Alert = withReactContent(Swal);
 
 const inputStyle = {
     width: '75%',
@@ -26,11 +31,6 @@ const formStyle = {
     fontSize: '20px'
 };
 
-const initialState = {
-    email: '',
-    password: '',
-    error: null
-};
 
 const SignInPage = () => (
     <div style={formStyle}>
@@ -54,7 +54,11 @@ const SignInPage = () => (
 class SignInFormBase extends Component {
     constructor(props) {
         super(props)
-        this.state = { ...initialState };
+        this.state = {
+            email: '',
+            password: '',
+            error: null
+        };
     };
 
     handleChange = event => {
@@ -64,19 +68,31 @@ class SignInFormBase extends Component {
     };
 
     handleSubmit = event => {
-        event.preventDefault()
-
+        event.preventDefault();
         const { email, password } = this.state;
-
         this.props.firebase
             .doSignInWithEmailAndPassword(email, password)
-            .then(async () => {
-                this.setState({ ...initialState });
+            .then(() => {
                 this.props.history.push(Routes.home);
             })
             .catch(error => {
                 this.setState({ error });
             });
+    };
+
+    async forgotPassword() {
+        const { value: email } = await Alert.fire({
+            title: 'Input Email Address',
+            input: 'email',
+            inputValue: this.state.email,
+            inputPlaceholder: 'email@email.com'
+        });
+        if (!email) {
+            return;
+        } else {
+            this.props.firebase.doPasswordReset(email)
+                .then(() => Alert.fire(`Password reset email sent to ${email}`));
+        }
     };
 
     render() {
@@ -127,7 +143,7 @@ class SignInFormBase extends Component {
                         </Button>
                     </FormGroup>
                 </Form>
-                <PasswordResetLink />
+                <Button color='secondary' onClick={() => this.forgotPassword()}>Forgot Password?</Button>
             </div >
         );
     };

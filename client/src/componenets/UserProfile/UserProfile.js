@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
-import { withAuthorization } from './Session';
-import PasswordChangeForm from './PasswordChange';
+import { withAuthorization } from '../Session';
+import PasswordChangeForm from '../SignInOut/PasswordChange';
 import axios from 'axios';
 import { Button, Label, Input, } from "reactstrap";
 
@@ -124,6 +124,9 @@ class UserProfile extends Component {
         );
     };
 };
+
+//RE AUTH A USER
+// https://firebase.google.com/docs/auth/web/manage-users#re-authenticate_a_user
 
 class UpdateInformationForm extends Component {
     constructor(props) {
