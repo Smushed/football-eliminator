@@ -7,7 +7,7 @@ import axios from 'axios';
 // Components
 import SignUpPage from './componenets/SignInOut/SignUp';
 import SignInPage from './componenets/SignInOut/SignIn';
-import NavBar from './componenets/NavBar';
+import NavBar from './componenets/NavBar/NavBar';
 import Home from './componenets/Home';
 import PasswordReset from './componenets/SignInOut/PasswordReset';
 import UserProfile from './componenets/UserProfile/UserProfile';

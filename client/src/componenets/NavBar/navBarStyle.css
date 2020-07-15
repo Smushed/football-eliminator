@@ -1,0 +1,13 @@
+.navHeader {
+    background-color: #1d791d;
+    height: 65px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.navIcons {
+    margin: 5px;
+    height: 55px;
+    width: 55px;
+}
