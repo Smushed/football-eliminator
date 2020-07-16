@@ -84,10 +84,11 @@ module.exports = app => {
 
     app.post(`/api/purgeUserAndGroupDB/:pass`, (req, res) => {
         const { pass } = req.params;
+        if (pass !== process.env.DB_ADMIN_PASS) {
+            res.status(401).send(`Get Outta Here!`);
+        };
         console.log(`deleting`)
         userHandler.purgeDB();
-        // if (pass === process.env.DROP_DB) {
-        // };
         res.status(200).send(`success`);
     });
 }
