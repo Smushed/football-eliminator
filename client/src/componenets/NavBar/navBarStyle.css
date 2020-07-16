@@ -1,5 +1,5 @@
 .navHeader {
-    height: 65px;
+    height: 80px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -7,10 +7,28 @@
     margin-bottom: 10px;
 }
 
-.navIcons {
+.navHomeIcon {
     margin: 5px;
-    height: 55px;
-    width: 55px;
+    height: 70px;
+    width: 93px;
+}
+
+.signoutIcon {
+    margin: 5px;
+    height: 45px;
+    width: 45px;
+}
+
+.signOut {
+    margin-right: 20px;
+    margin-top: 10px;
+    cursor: pointer;
+    padding: 3px;
+    padding-right: 7px;
+    border-radius: 5px;
+    border: 1px solid lightgray;
+    font-weight: 600;
+    background-color: rgb(247, 247, 247);
 }
 
 .verifyEmailDiv {

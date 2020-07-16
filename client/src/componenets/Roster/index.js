@@ -338,10 +338,10 @@ class Roster extends Component {
         return response;
     };
 
-    saveRosterToDb = async (roster, droppedPlayer, addedPlayer, saveWithNoDrop) => {
+    saveRosterToDb = async (roster, droppedPlayer, addedPlayer) => {
         this.loading()
         axios.put(`/api/updateUserRoster`,
-            { userId: this.props.userId, roster, droppedPlayer, addedPlayer, week: this.state.weekSelect, season: this.state.seasonSelect, saveWithNoDrop, groupId: this.props.match.params.groupId })
+            { userId: this.props.userId, roster, droppedPlayer, addedPlayer, week: this.state.weekSelect, season: this.state.seasonSelect, groupId: this.props.match.params.groupId })
             .then(res => {
                 this.doneLoading();
                 this.setState({ userRoster: res.data })
@@ -510,7 +510,7 @@ class Roster extends Component {
         } else if (addOrDrop === `drop`) {
             let droppedPlayerIndex = 0;
             const droppedPlayer = newRoster.find((player, i) => {
-                if (player.mySportsId === mySportsId) {
+                if (player.M === mySportsId) {
                     droppedPlayerIndex = i;
                     return player;
                 };
@@ -519,16 +519,13 @@ class Roster extends Component {
             newRoster.splice(droppedPlayerIndex, 1);
             newAvailablePlayers.unshift(droppedPlayer);
 
-            const needToSave = this.countRoster(this.state.userRoster, newRoster, this.state.availablePlayers);
-            const correctRoster = this.checkRoster(newRoster);
 
             //We use this is the player has less than a complete roster
-            if (correctRoster && needToSave) {
-                this.setState({ availablePlayers: newAvailablePlayers });
-                //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
-                //The true is to indicate we need to save a player down without dropping one in the usedPlayer array in the DB
-                this.saveRosterToDb(this.state.dbReadyRoster, mySportsId, false);
-            };
+            this.setState({ availablePlayers: newAvailablePlayers });
+            //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
+            //The true is to indicate we need to save a player down without dropping one in the usedPlayer array in the DB
+            this.saveRosterToDb(newRoster, mySportsId, false);
+
         };
     };
 

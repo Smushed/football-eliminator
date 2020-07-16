@@ -222,7 +222,7 @@ module.exports = {
 
         return availablePlayers;
     },
-    updateUserRoster: async (userId, roster, droppedPlayer, addedPlayer, week, season, saveWithNoDrop) => {
+    updateUserRoster: async (userId, roster, droppedPlayer, addedPlayer, week, season) => {
         return new Promise(async (res, rej) => {
             const usedPlayers = await db.UsedPlayers.findOne({ U: userId });
             let newUsedPlayers = [];
