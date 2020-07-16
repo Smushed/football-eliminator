@@ -5,7 +5,7 @@ import { Button } from 'reactstrap';
 import * as Routes from '../../constants/routes';
 import SignOutButton from './SignOutButton';
 
-import HomeIcon from './HomeButton.png';
+import ElimLogo from './ElimLogo.jpg';
 import './navBarStyle.css';
 
 
@@ -50,7 +50,7 @@ class NavBar extends Component {
                 <div className='navHeader'>
                     <div >
                         <Link to={Routes.home}>
-                            <img className='navIcons' src={HomeIcon} alt={`Home`} />
+                            <img className='navHomeIcon' src={ElimLogo} alt={`Home`} />
                         </Link>
                     </div>
                     {!this.props.authUser.emailVerified && (
@@ -65,7 +65,7 @@ class NavBar extends Component {
                     <div className='navHeader'>
                         <div >
                             <Link to={Routes.home}>
-                                <img className='navIcons' src={HomeIcon} alt={`Home`} />
+                                <img className='navIcons' src={ElimLogo} alt={`Home`} />
                             </Link>
                         </div>
                         <div>
