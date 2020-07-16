@@ -65,7 +65,7 @@ class NavBar extends Component {
                     <div className='navHeader'>
                         <div >
                             <Link to={Routes.home}>
-                                <img className='navIcons' src={ElimLogo} alt={`Home`} />
+                                <img className='navHomeIcon' src={ElimLogo} alt={`Home`} />
                             </Link>
                         </div>
                         <div>
