@@ -80,8 +80,13 @@ class App extends Component {
 
       <BrowserRouter>
         <Fragment>
-
-          <NavBar authUser={this.state.authUser} />
+          {this.state.authUser &&
+            <NavBar
+              authUser={this.state.authUser}
+              groupId={this.state.currentGroup._id}
+              userId={this.state.currentUser.userId}
+            />
+          }
           {/* <GroupBar
             groupList={this.state.groupList}
           /> */}

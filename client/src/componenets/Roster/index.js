@@ -51,6 +51,10 @@ class Roster extends Component {
         };
     };
 
+    componentWillUnmount() {
+        this.doneLoading();
+    }
+
     getCurrentUsername() {
         axios.get(`/api/getUserById/${this.props.match.params.userId}`)
             .then(res => {
@@ -506,7 +510,6 @@ class Roster extends Component {
                 //The true is to indicate we need to save a player down without dropping one in the usedPlayer array in the DB
                 this.saveRosterToDb(newRoster, 0, addedPlayer.M, true);
             };
-            //TODO NEED TO DO THE DROP MECHANIC
         } else if (addOrDrop === `drop`) {
             let droppedPlayerIndex = 0;
             const droppedPlayer = newRoster.find((player, i) => {
@@ -560,8 +563,7 @@ class Roster extends Component {
                                     groupPositions={this.state.groupPositions}
                                     addDropPlayer={this.addDropPlayer}
                                     roster={this.state.userRoster || {}}
-                                    nameCol={'9'}
-                                    scoreCol={'0'} />
+                                />
                             </Col>
                             <Col md='5'>
                                 <Row>
@@ -590,52 +592,38 @@ class Roster extends Component {
 };
 
 const CurrentRosterRow = (props) => (
-    <Row className='playerRow'>
-        <Col xs='2'>
-            <div className='positionBox'>
-                {props.position}
+    <div className='playerRow'>
+        <div className='positionBox'>
+            {props.position}
+        </div>
+        {props.player ?
+            <div className='playerContainer'>
+                <div className='player'>
+                    {props.player.N &&
+                        props.player.N + `, ` + props.player.T}
+                </div>
+                {props.player.score &&
+                    props.player.score}
+                {props.addDropPlayer &&
+                    <Button className='addDropButton' color='outline-success' size='sm' onClick={() => props.addDropPlayer(props.player.M, 'drop')}>
+                        Drop
+                    </Button>
+                }
             </div>
-        </Col>
-        <Col xs='9'>
-            {props.player ?
-                <Row>
-                    <Col xs={props.nameCol}>
-                        <div className='player'>
-                            {props.player.N &&
-                                props.player.N + `, ` + props.player.T}
-                        </div>
-                    </Col>
-                    <Col xs={props.scoreCol}>
-                        {props.player.score &&
-                            props.player.score}
-                    </Col>
-                    {props.addDropPlayer &&
-                        <Col xs='3'>
-                            <Button className='addDropButton' color='outline-success' size='sm' onClick={() => props.addDropPlayer(props.player.M, 'drop')}>
-                                Drop
-                            </Button>
-                        </Col>
-                    }
-                </Row>
-                : ``
-            }
-        </Col>
-    </Row>
+            : ``
+        }
+    </div>
 );
 
 const AvailablePlayerRow = (props) => (
-    <Row className='playerRow'>
-        <Col xs='8'>
-            <div className='player'>
-                {props.player && props.player.N + `, ` + props.player.T + `, ` + props.player.P}
-            </div>
-        </Col>
-        <Col xs='3'>
-            <Button className='addDropButton' color='outline-success' size='sm' onClick={() => props.addDropPlayer(props.player.M, 'add')}>
-                Add
-            </Button>
-        </Col>
-    </Row>
+    <div className='playerRow playerContainer'>
+        <div className='player'>
+            {props.player && props.player.N + `, ` + props.player.T + `, ` + props.player.P}
+        </div>
+        <Button className='addDropButton' color='outline-success' size='sm' onClick={() => props.addDropPlayer(props.player.M, 'add')}>
+            Add
+        </Button>
+    </div>
 );
 
 const RosterDisplay = (props) => (
@@ -646,8 +634,7 @@ const RosterDisplay = (props) => (
                 position={position.N}
                 player={props.roster[i]}
                 addDropPlayer={props.addDropPlayer}
-                nameCol={props.nameCol}
-                scoreCol={props.scoreCol} />
+            />
         ))}
     </Fragment>
 );

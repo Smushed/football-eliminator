@@ -15,13 +15,14 @@ class Home extends Component {
     constructor(props) {
         super(props);
         //Must set state hard here to ensure that it is loaded properly when the component unmounts and remounts
-        this.leaderboardUserClicked = this.leaderboardUserClicked.bind(this);
+        // this.leaderboardUserClicked = this.leaderboardUserClicked.bind(this);
         this.state = {
             userDisplayed: '',
             userIdDisplayed: '',
             userRoster: {},
             weekSelect: 1,
-            groupPositions: []
+            groupPositions: [],
+            groupUsers: []
         };
     };
 
@@ -39,10 +40,10 @@ class Home extends Component {
         };
     };
 
-    leaderboardUserClicked(userId, username) {
-        this.setState({ userRoster: {} });
-        this.getRoster(userId, this.props.week, username)
-    };
+    // leaderboardUserClicked(userId, username) {
+    //     this.setState({ userRoster: {} });
+    //     this.getRoster(userId, this.props.week, username)
+    // };
 
     getRoster(userId, week, username) {
 
@@ -119,28 +120,29 @@ class Home extends Component {
 
         return (
             <Container fluid={true}>
-                <Row>
-                    <LeftPanel smCol='12' mdCol='5'
-                        roster={userRoster}
-                        groupPositions={groupPositions}
-                        addDropPlayer={null}
-                        isAdmin={isAdmin}
-                        userId={userIdDisplayed}
-                        userDisplayed={userDisplayed}
-                        weekSelect={weekSelect}
-                        customSeasonWeekSearch={this.customSeasonWeekSearch}
-                        handleChange={this.handleChange}
-                        groupId={this.props.group._id}
-                        lockperoid={this.lockperoid} />
-                    <Col sm='12' md='7'>
-                        <Leaderboard
-                            week={this.props.week}
-                            season={this.props.season}
-                            userClicked={this.leaderboardUserClicked}
-                            groupName={this.props.group.N}
-                            groupId={this.props.group._id} />
-                    </Col>
-                </Row>
+                <div className='currentRostersForGroup'>
+                    This is where the array of rosters will go
+                </div>
+                <LeftPanel smCol='12' mdCol='5'
+                    roster={userRoster}
+                    groupPositions={groupPositions}
+                    addDropPlayer={null}
+                    isAdmin={isAdmin}
+                    userId={userIdDisplayed}
+                    userDisplayed={userDisplayed}
+                    weekSelect={weekSelect}
+                    customSeasonWeekSearch={this.customSeasonWeekSearch}
+                    handleChange={this.handleChange}
+                    groupId={this.props.group._id}
+                    lockperoid={this.lockperoid} />
+                <Col sm='12' md='7'>
+                    {/* <Leaderboard
+                        week={this.props.week}
+                        season={this.props.season}
+                        userClicked={this.leaderboardUserClicked}
+                        groupName={this.props.group.N}
+                        groupId={this.props.group._id} /> */}
+                </Col>
             </Container>
         );
     };
@@ -167,7 +169,7 @@ const LeftPanel = (props) => (
         </Row>
         <Row>
             <Col md='12'>
-                <RosterDisplay roster={props.roster} groupPositions={props.groupPositions} addDropPlayer={null} nameCol={'9'} scoreCol={'3'} />
+                <RosterDisplay roster={props.roster} groupPositions={props.groupPositions} addDropPlayer={null} />
             </Col>
         </Row>
         <Row>
@@ -176,7 +178,7 @@ const LeftPanel = (props) => (
                     isAdmin={props.isAdmin}
                     userId={props.userId}
                     userDisplayed={props.userDisplayed}
-                    groupName={props.groupId}
+                    groupId={props.groupId}
                 />
             </Col>
         </Row>
@@ -192,7 +194,7 @@ const UserLinks = (props) => (
                 </Button>
             </Link>
         }
-        <Link to={`/roster/${props.groupName}/${props.userId}`}>
+        <Link to={`/roster/${props.groupId}/${props.userId}`}>
             <Button color='primary' className='userLinkButton'>
                 Go to Roster
             </Button>

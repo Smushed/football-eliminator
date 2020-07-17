@@ -18,68 +18,48 @@ class NavBar extends Component {
         };
     };
 
-    componentDidMount() {
-        if (this.props.authUser !== null) {
-            // this.checkIfEmailAuth(this.props.authUser);
-        }
-    };
-
-
-    componentDidUpdate(prevProps) {
-        if (this.props.authUser !== prevProps.authUser) { // season here because it's the last prop we pass in. Probably not the best way
-            // this.checkIfEmailAuth(this.props.authUser);
-        };
-    };
-
     sendAuthEmail = (authUser) => {
         authUser.sendEmailVerification();
         this.setState({ emailSent: true });
     };
 
-    VerifyEmailButton = ({ authUser }) => <div className='verifyEmailDiv'>
-        Please Verify your Email
+    VerifyEmailButton = ({ authUser }) =>
+        <div className='verifyEmailDiv floatRight notifications'>
+            Please Verify your Email
         <br />
-        <Button color='info' onClick={() => this.sendAuthEmail(authUser)}>Send Verification Email</Button>
-    </div>;
+            <Button color='info' onClick={() => this.sendAuthEmail(authUser)}>Send Verification Email</Button>
+        </div>;
 
-    SentVerifyEmail = () => <div className='sentEmail'>Email has been sent</div>;
+    SentVerifyEmail = () => <div className='sentEmail floatRight notifications'>Email has been sent</div>;
 
     render() {
         return (
-            this.props.authUser ? (
-                <div className='navHeader'>
-                    <div >
+            <div className='navHeader'>
+                <div className='halfWay leftHalf'>
+                    <div>
                         <Link to={Routes.home}>
-                            <img className='navHomeIcon' src={ElimLogo} alt={`Home`} />
+                            <img className='navHomeIcon floatLeft' src={ElimLogo} alt={`Home`} />
                         </Link>
                     </div>
+                    <div>
+                        <Link to={`/roster/${this.props.groupId}/${this.props.userId}`}>
+                            <Button className='navButton floatLeft' color='success'>Your Roster</Button>
+                        </Link>
+                    </div>
+                    <div>
+                        <Link to={`/usedPlayers/${this.props.groupId}/${this.props.userId}`}>
+                            <Button className='navButton floatLeft' color='success'>Your Used Players</Button>
+                        </Link>
+                    </div>
+                </div>
+                <div className='halfWay rightHalf'>
+                    <SignOutButton />
                     {!this.props.authUser.emailVerified && (
                         this.state.emailSent ?
                             <this.SentVerifyEmail /> :
                             <this.VerifyEmailButton authUser={this.props.authUser} />)}
-                    <div>
-                        <SignOutButton />
-                    </div>
                 </div>
-            ) : (
-                    <div className='navHeader'>
-                        <div >
-                            <Link to={Routes.home}>
-                                <img className='navIcons' src={ElimLogo} alt={`Home`} />
-                            </Link>
-                        </div>
-                        <div>
-                            <Link to={Routes.home}>
-                                {/* <img className='navIcons' src={HomeIcon} alt={`Home`} /> */}
-                            </Link>
-                        </div>
-                        <div>
-                            <Link to={Routes.home}>
-                                {/* <img className='navIcons' src={HomeIcon} alt={`Home`} /> */}
-                            </Link>
-                        </div>
-                    </div>
-                )
+            </div>
         );
     };
 };
