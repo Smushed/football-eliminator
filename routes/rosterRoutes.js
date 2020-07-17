@@ -53,9 +53,9 @@ module.exports = app => {
     });
 
     app.put(`/api/updateUserRoster/`, (req, res) => {
-        const { userId, roster, droppedPlayer, addedPlayer, week, season, saveWithNoDrop, groupId } = req.body;
+        const { userId, roster, droppedPlayer, addedPlayer, week, season, groupId } = req.body;
 
-        rosterHandler.updateUserRoster(userId, roster, droppedPlayer, addedPlayer, week, season, saveWithNoDrop).then(async () => {
+        rosterHandler.updateUserRoster(userId, roster, droppedPlayer, addedPlayer, week, season).then(async () => {
             //TODO COMBINE THIS WITH get userRoster above so it's one function
             const playerIdRoster = await rosterHandler.getUserRoster(userId, week, season, groupId);
             const userRoster = await mySportsHandler.fillUserRoster(playerIdRoster);

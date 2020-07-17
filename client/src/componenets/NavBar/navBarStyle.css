@@ -7,6 +7,19 @@
     margin-bottom: 10px;
 }
 
+.halfWay {
+    width: 50%;
+    align-items: center;
+}
+
+.leftHalf {
+    justify-content: flex-start;
+}
+
+.rightHalf {
+    justify-content: flex-end;
+}
+
 .navHomeIcon {
     margin: 5px;
     height: 70px;
@@ -19,9 +32,25 @@
     width: 45px;
 }
 
+.floatLeft {
+    float: left;
+}
+
+.floatRight {
+    float: right;
+}
+
+.navButton {
+    min-width: 150px;
+    margin-left: 5%;
+    transform: translateY(50%);
+}
+
 .signOut {
+    transform: translateY(13%);
+    width: 137px;
+    float: right;
     margin-right: 20px;
-    margin-top: 10px;
     cursor: pointer;
     padding: 3px;
     padding-right: 7px;
@@ -29,6 +58,10 @@
     border: 1px solid lightgray;
     font-weight: 600;
     background-color: rgb(247, 247, 247);
+}
+
+.notifications {
+    margin-right: 5%;
 }
 
 .verifyEmailDiv {

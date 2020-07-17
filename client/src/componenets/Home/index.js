@@ -15,13 +15,14 @@ class Home extends Component {
     constructor(props) {
         super(props);
         //Must set state hard here to ensure that it is loaded properly when the component unmounts and remounts
-        this.leaderboardUserClicked = this.leaderboardUserClicked.bind(this);
+        // this.leaderboardUserClicked = this.leaderboardUserClicked.bind(this);
         this.state = {
             userDisplayed: '',
             userIdDisplayed: '',
             userRoster: {},
             weekSelect: 1,
-            groupPositions: []
+            groupPositions: [],
+            groupUsers: []
         };
     };
 
@@ -39,10 +40,10 @@ class Home extends Component {
         };
     };
 
-    leaderboardUserClicked(userId, username) {
-        this.setState({ userRoster: {} });
-        this.getRoster(userId, this.props.week, username)
-    };
+    // leaderboardUserClicked(userId, username) {
+    //     this.setState({ userRoster: {} });
+    //     this.getRoster(userId, this.props.week, username)
+    // };
 
     getRoster(userId, week, username) {
 
@@ -135,12 +136,12 @@ class Home extends Component {
                     groupId={this.props.group._id}
                     lockperoid={this.lockperoid} />
                 <Col sm='12' md='7'>
-                    <Leaderboard
+                    {/* <Leaderboard
                         week={this.props.week}
                         season={this.props.season}
                         userClicked={this.leaderboardUserClicked}
                         groupName={this.props.group.N}
-                        groupId={this.props.group._id} />
+                        groupId={this.props.group._id} /> */}
                 </Col>
             </Container>
         );
@@ -177,7 +178,7 @@ const LeftPanel = (props) => (
                     isAdmin={props.isAdmin}
                     userId={props.userId}
                     userDisplayed={props.userDisplayed}
-                    groupName={props.groupId}
+                    groupId={props.groupId}
                 />
             </Col>
         </Row>
@@ -193,7 +194,7 @@ const UserLinks = (props) => (
                 </Button>
             </Link>
         }
-        <Link to={`/roster/${props.groupName}/${props.userId}`}>
+        <Link to={`/roster/${props.groupId}/${props.userId}`}>
             <Button color='primary' className='userLinkButton'>
                 Go to Roster
             </Button>

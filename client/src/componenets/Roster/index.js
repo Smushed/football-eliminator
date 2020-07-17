@@ -51,6 +51,10 @@ class Roster extends Component {
         };
     };
 
+    componentWillUnmount() {
+        this.doneLoading();
+    }
+
     getCurrentUsername() {
         axios.get(`/api/getUserById/${this.props.match.params.userId}`)
             .then(res => {
@@ -601,7 +605,7 @@ const CurrentRosterRow = (props) => (
                 {props.player.score &&
                     props.player.score}
                 {props.addDropPlayer &&
-                    <Button color='outline-success' size='sm' onClick={() => props.addDropPlayer(props.player.M, 'drop')}>
+                    <Button className='addDropButton' color='outline-success' size='sm' onClick={() => props.addDropPlayer(props.player.M, 'drop')}>
                         Drop
                     </Button>
                 }
@@ -613,12 +617,12 @@ const CurrentRosterRow = (props) => (
 
 const AvailablePlayerRow = (props) => (
     <div className='playerRow playerContainer'>
-        <div className=' player'>
+        <div className='player'>
             {props.player && props.player.N + `, ` + props.player.T + `, ` + props.player.P}
         </div>
-        <Button color='outline-success' size='sm' onClick={() => props.addDropPlayer(props.player.M, 'add')}>
+        <Button className='addDropButton' color='outline-success' size='sm' onClick={() => props.addDropPlayer(props.player.M, 'add')}>
             Add
-            </Button>
+        </Button>
     </div>
 );
 
