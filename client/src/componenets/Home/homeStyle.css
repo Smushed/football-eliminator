@@ -1,3 +1,7 @@
+.wrapper {
+    width: 100%;
+}
+
 .centerText {
     text-align: center
 }
@@ -21,6 +25,26 @@
     margin-bottom: 15px;
 }
 
-.currentRostersForGroup {
-    width: 100%;
+.groupRosterWrapper {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.homePageRoster {
+    background-color: rgb(230, 255, 230);
+    border-radius: 15px;
+    width: 355px;
+    flex: 0 0 auto;
+    margin-left: 15px;
+    border: 1px solid lightgray;
+}
+
+.userNameOnRoster {
+    display: flex;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 5px;
 }

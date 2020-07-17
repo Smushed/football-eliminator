@@ -103,7 +103,8 @@ module.exports = app => {
         const { season, week, groupId } = req.params;
 
         const filledRosters = await rosterHandler.getAllRostersForGroup(season, week, groupId);
-        res.status(200).send(filledRosters);
+        const groupPositions = await groupHandler.getGroupPositions(groupId);
+        res.status(200).send({ rosters: filledRosters, groupPositions });
     });
 
 };
