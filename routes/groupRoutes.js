@@ -1,6 +1,7 @@
 require(`dotenv`).config();
 const userHandler = require(`../handlers/userHandler`);
 const groupHandler = require(`../handlers/groupHandler`);
+const rosterHandler = require(`../handlers/rosterHandler`);
 
 module.exports = app => {
     app.get(`/api/getuser/`, async (req, res) => {

@@ -99,4 +99,11 @@ module.exports = app => {
         res.status(200).send(positions.orderOfDescription);
     });
 
+    app.get(`/api/getAllRostersForGroup/:season/:week/:groupId`, async (req, res) => {
+        const { season, week, groupId } = req.params;
+
+        const filledRosters = await rosterHandler.getAllRostersForGroup(season, week, groupId);
+        res.status(200).send(filledRosters);
+    });
+
 };

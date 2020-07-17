@@ -36,6 +36,10 @@ const checkDuplicate = async (checkedField, groupToSearch, userID) => {
     return result;
 };
 
+const getUserScoreList = async (groupId, season) => {
+    return await db.UserScores.find({ G: groupId, S: season }).exec();
+};
+
 module.exports = {
     createGroup: async (userID, groupName, groupDescription) => {
         //Checks if there is already a group by that name
@@ -100,7 +104,7 @@ module.exports = {
 
         const arrayForLeaderBoard = [];
 
-        const userScoreList = await db.UserScores.find({ G: groupId, S: season }).exec();
+        const userScoreList = getUserScoreList(groupId, season);
 
         for (const user of userScoreList) {
             let totalUserScore = 0;
@@ -118,6 +122,7 @@ module.exports = {
             };
             arrayForLeaderBoard.push(filledOutUser);
         };
+        arrayForLeaderBoard.sort((a, b) => b.TS - a.TS);
         return arrayForLeaderBoard;
     },
     createAllGroup: async function () { //TODO Break this out to use the Create Group function above. Just not sure about the mod part

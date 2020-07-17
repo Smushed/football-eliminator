@@ -1,7 +1,7 @@
 const db = require(`../models`);
 const { getPlayerWeeklyScore } = require(`./mySportsHandler`);
 const userHandler = require(`./userHandler`);
-const { discriminator } = require("../models/User");
+const mySportsHandler = require("./mySportsHandler");
 require(`dotenv`).config();
 
 //This is here for when a user adds or drops a player. It fills out the object of the current week with 0s
@@ -141,6 +141,10 @@ createWeeklyRoster = async (userId, week, season, groupId) => {
     return await db.UserRoster.create(weeksRoster);
 };
 
+getAllRostersByGroupAndWeek = async (season, week, groupId) => {
+    return await db.UserRoster.find({ S: season, W: week, G: groupId }).exec();
+};
+
 module.exports = {
     byRoster: async () => {
         const players = await db.FantasyStats.find({ 'team': 'CHI' })
@@ -245,15 +249,16 @@ module.exports = {
             res(currentRoster.R);
         });
     },
-    getAllRosters: async (season) => {
-        //TODO Error handling
+    getAllRostersForGroup: async (season, week, groupId) => {
         return new Promise(async (res, rej) => {
-            const rosterList = {};
-
-            //Use the Exec for full promises in Mongoose
-            const rosters = await db.UserRoster.find({}).exec();
-            rosters.forEach(roster => rosterList[roster.userId] = { roster: roster.roster[season] });
-            res(rosterList);
+            const allRosters = await getAllRostersByGroupAndWeek(season, week, groupId);
+            const forDisplay = [];
+            for (const roster of allRosters) {
+                const filledRoster = await mySportsHandler.fillUserRoster(roster.R);
+                const user = await userHandler.getUserByID(roster.U);
+                forDisplay.push({ UID: user._id, UN: user.UN, R: filledRoster });
+            };
+            res(forDisplay);
         });
     },
     usedPlayersForTable: async (userId, season) => {
