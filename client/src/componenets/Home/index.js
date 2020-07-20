@@ -1,13 +1,11 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import axios from 'axios';
 import { withAuthorization } from '../Session';
-import { Link } from 'react-router-dom';
-import { Button } from 'reactstrap';
 import { RosterDisplay } from '../Roster';
-import * as Routes from '../../constants/routes';
 import { WeekSearch } from '../Roster/SearchDropdowns';
 
 import './homeStyle.css';
+import Leaderboard from './Leaderboard';
 
 //Stateful component to allow the grouplist to properly populate
 class Home extends Component {
@@ -26,14 +24,16 @@ class Home extends Component {
     componentDidMount() {
         if (this.props.week && this.props.season) {
             this.setState({ weekSelect: this.props.week });
-            this.getAllRostersForGroup(this.props.season, this.props.week, this.props.group._id)
+            this.getLeaderBoard(this.props.season, this.props.week, this.props.group._id);
+            // this.getAllRostersForGroup(this.props.season, this.props.week, this.props.group._id)
         };
     };
 
     componentDidUpdate(prevProps) {
         if (this.props.week !== prevProps.week) {
             this.setState({ weekSelect: this.props.week });
-            this.getAllRostersForGroup(this.props.season, this.props.week, this.props.group._id)
+            this.getLeaderBoard(this.props.season, this.props.week, this.props.group._id);
+            // this.getAllRostersForGroup(this.props.season, this.props.week, this.props.group._id)
         };
     };
 
@@ -41,6 +41,17 @@ class Home extends Component {
         axios.get(`/api/getAllRostersForGroup/${season}/${week}/${groupId}`)
             .then(res => {
                 this.setState({ groupRosters: res.data.rosters, groupPositions: res.data.groupPositions });
+                return;
+            });
+    };
+
+    // TODO START HERE WITH THE LEADERBOARD
+    getLeaderBoard(season, week, groupId) {
+        axios.get(`/api/getLeaderboard/${groupId}/${season}`)
+            .then(res => {
+                console.log(res)
+                this.getAllRostersForGroup(season, this.props.week, groupId);
+                // this.setState({ loading: false, userList: res.data });
                 return;
             });
     };
@@ -65,6 +76,11 @@ class Home extends Component {
     render() {
         return (
             <div className='wrapper'>
+                <Leaderboard
+                    week={this.props.week}
+                    season={this.props.season}
+                    groupId={this.props.group._id}
+                />
                 <div className='groupRosterWrapper'>
                     {this.state.groupRosters.map(roster =>
                         <div key={roster.UID} className='homePageRoster'>
