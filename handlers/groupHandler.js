@@ -68,7 +68,6 @@ module.exports = {
     },
     // Invite other users to the group
     addUser: async (addedUserID, groupName) => {
-        console.log(`hit`)
         //Checks if the user is already added to the group and returns 500 if they are
         const isDuplicate = await checkDuplicate(`userlist`, groupName, addedUserID);
         //TODO update this so it returns an error message

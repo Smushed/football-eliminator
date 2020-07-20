@@ -3,10 +3,20 @@
     justify-content: flex-start;
     border-bottom: 1px solid lightgrey;
     border-radius: 2px;
-    margin-bottom: 8px;
+    margin-left: 5%;
     background-color: transparent;
-    width: 100%;
+    width: 90%;
     height: 36px;
+}
+
+.usedPlayerButton {
+    margin: 10px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.oddRow {
+    background-color: rgb(245, 245, 245);
 }
 
 .positionBox {

@@ -40,7 +40,6 @@ class Home extends Component {
     getAllRostersForGroup(season, week, groupId) {
         axios.get(`/api/getAllRostersForGroup/${season}/${week}/${groupId}`)
             .then(res => {
-                console.log(res.data)
                 this.setState({ groupRosters: res.data.rosters, groupPositions: res.data.groupPositions });
                 return;
             });
@@ -67,40 +66,14 @@ class Home extends Component {
         return (
             <div className='wrapper'>
                 <div className='groupRosterWrapper'>
-                    {console.log(this.state.groupRosters)}
                     {this.state.groupRosters.map(roster =>
                         <div key={roster.UID} className='homePageRoster'>
                             <div className='userNameOnRoster'>{roster.UN}</div>
                             <RosterDisplay
                                 groupPositions={this.state.groupPositions}
                                 roster={roster.R}
-                            />
-                        </div>
-                    )}
-                    {this.state.groupRosters.map(roster =>
-                        <div key={roster.UID} className='homePageRoster'>
-                            <div>{roster.UN}</div>
-                            <RosterDisplay
-                                groupPositions={this.state.groupPositions}
-                                roster={roster.R}
-                            />
-                        </div>
-                    )}
-                    {this.state.groupRosters.map(roster =>
-                        <div key={roster.UID} className='homePageRoster'>
-                            <div>{roster.UN}</div>
-                            <RosterDisplay
-                                groupPositions={this.state.groupPositions}
-                                roster={roster.R}
-                            />
-                        </div>
-                    )}
-                    {this.state.groupRosters.map(roster =>
-                        <div key={roster.UID} className='homePageRoster'>
-                            <div>{roster.UN}</div>
-                            <RosterDisplay
-                                groupPositions={this.state.groupPositions}
-                                roster={roster.R}
+                                UN={roster.UN}
+                                UID={roster.UID}
                             />
                         </div>
                     )}

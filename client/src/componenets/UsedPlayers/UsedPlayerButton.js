@@ -15,7 +15,7 @@ class UsedPlayerButton extends Component {
 
     render() {
         return (
-            <div className='userPlayerButton'>
+            <div className=''>
                 <Button color='info' onClick={this.redirect}>
                     View {this.props.username}'s Used Players
                 </Button>

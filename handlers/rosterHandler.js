@@ -142,7 +142,25 @@ createWeeklyRoster = async (userId, week, season, groupId) => {
 };
 
 getAllRostersByGroupAndWeek = async (season, week, groupId) => {
-    return await db.UserRoster.find({ S: season, W: week, G: groupId }).exec();
+    return new Promise(async (res, rej) => {
+        const group = await db.Group.findById([groupId]).exec();
+        const userRosters = await db.UserRoster.find({ S: season, W: week, G: groupId }).exec();
+        const completeRosters = userRosters.slice(0);
+        if (group.UL.length !== userRosters.length) {
+            for (user of group.UL) {
+                let isIncluded = false;
+                for (userRoster of userRosters) {
+                    if (userRoster.U === user.ID) {
+                        isIncluded = true;
+                    };
+                };
+                if (!isIncluded) {
+                    completeRosters.push(await createWeeklyRoster(user.ID, week, season, groupId));
+                };
+            };
+        };
+        res(completeRosters);
+    });
 };
 
 module.exports = {
@@ -251,8 +269,8 @@ module.exports = {
     },
     getAllRostersForGroup: async (season, week, groupId) => {
         return new Promise(async (res, rej) => {
-            const allRosters = await getAllRostersByGroupAndWeek(season, week, groupId);
             const forDisplay = [];
+            const allRosters = await getAllRostersByGroupAndWeek(season, week, groupId);
             for (const roster of allRosters) {
                 const filledRoster = await mySportsHandler.fillUserRoster(roster.R);
                 const user = await userHandler.getUserByID(roster.U);
