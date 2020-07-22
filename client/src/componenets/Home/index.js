@@ -17,7 +17,7 @@ class Home extends Component {
             groupRosters: [],
             weekSelect: 1,
             groupPositions: [],
-            leaderBoard: []
+            leaderboard: []
         };
     };
 
@@ -37,20 +37,21 @@ class Home extends Component {
         };
     };
 
-    getAllRostersForGroup(season, week, groupId) {
-        axios.get(`/api/getAllRostersForGroup/${season}/${week}/${groupId}`)
+    getLeaderBoard(season, week, groupId) {
+        //Sending true to pull back the leaderboard as well
+        axios.get(`/api/getAllRostersForGroup/${season}/${week}/${groupId}/true`)
             .then(res => {
-                this.setState({ groupRosters: res.data.rosters, groupPositions: res.data.groupPositions });
+                console.log(res)
+                this.setState({ groupRosters: res.data.rosters, groupPositions: res.data.groupPositions, leaderboard: res.data.leaderboard });
                 return;
             });
     };
 
     // TODO START HERE WITH THE LEADERBOARD
-    getLeaderBoard(season, week, groupId) {
-        axios.get(`/api/getLeaderboard/${groupId}/${season}`)
+    updateRosterWeek(season, week, groupId) {
+        axios.get(`/api/getAllRostersForGroup/${season}/${week}/${groupId}/false`)
             .then(res => {
                 console.log(res)
-                this.getAllRostersForGroup(season, this.props.week, groupId);
                 // this.setState({ loading: false, userList: res.data });
                 return;
             });
@@ -74,14 +75,16 @@ class Home extends Component {
     };
 
     render() {
+        const weekForLeaderboard = this.props.week === 1 ? 1 : this.props.week;
         return (
             <div className='wrapper'>
                 <Leaderboard
-                    week={this.props.week}
+                    week={weekForLeaderboard}
                     season={this.props.season}
-                    groupId={this.props.group._id}
+                    leaderboard={this.state.leaderboard}
+                    groupName={this.props.group.N}
                 />
-                <div className='groupRosterWrapper'>
+                <div>
                     {this.state.groupRosters.map(roster =>
                         <div key={roster.UID} className='homePageRoster'>
                             <div className='userNameOnRoster'>{roster.UN}</div>

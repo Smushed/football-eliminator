@@ -99,12 +99,16 @@ module.exports = app => {
         res.status(200).send(positions.orderOfDescription);
     });
 
-    app.get(`/api/getAllRostersForGroup/:season/:week/:groupId`, async (req, res) => {
-        const { season, week, groupId } = req.params;
-
+    app.get(`/api/getAllRostersForGroup/:season/:week/:groupId/:updateLeaderBoard`, async (req, res) => {
+        const { season, week, groupId, updateLeaderBoard } = req.params;
+        let leaderboard = [];
         const filledRosters = await rosterHandler.getAllRostersForGroup(season, week, groupId);
+        if (updateLeaderBoard === `true`) {
+            const currWeekForLeaderboard = +week === 1 ? 1 : +week;
+            leaderboard = await groupHandler.getLeaderBoard(groupId, season, currWeekForLeaderboard, filledRosters);
+        }
         const groupPositions = await groupHandler.getGroupPositions(groupId);
-        res.status(200).send({ rosters: filledRosters, groupPositions });
+        res.status(200).send({ rosters: filledRosters, groupPositions, leaderboard });
     });
 
 };

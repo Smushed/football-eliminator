@@ -25,13 +25,6 @@
     margin-bottom: 15px;
 }
 
-.groupRosterWrapper {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
 .homePageRoster {
     border-radius: 15px;
     width: 355px;

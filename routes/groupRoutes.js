@@ -45,13 +45,6 @@ module.exports = app => {
         }
     });
 
-    app.get(`/api/getLeaderboard/:groupId/:season/`, async (req, res) => {
-        const { groupId, season } = req.params;
-        // const leaderboardArray = await groupHandler.getLeaderBoard(groupId, season);
-
-        res.status(200).send(`yea`);
-    });
-
     app.post(`/api/createAllGroup/:pass`, async (req, res) => {
         const { pass } = req.params;
         if (pass !== process.env.DB_ADMIN_PASS) {
