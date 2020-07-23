@@ -31,7 +31,7 @@ const Leaderboard = (props) => (
             {props.leaderboard &&
                 props.leaderboard.map((user, i) => (
                     <div className={i % 2 ? 'leaderboardRow' : 'leaderboardRow oddRow'} key={user.UN}>
-                        <div className='firstCol bold'>
+                        <div className='firstCol'>
                             {user.UN}
                         </div>
                         <div className='secondCol'>

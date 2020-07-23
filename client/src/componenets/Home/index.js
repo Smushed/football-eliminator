@@ -41,17 +41,15 @@ class Home extends Component {
         //Sending true to pull back the leaderboard as well
         axios.get(`/api/getAllRostersForGroup/${season}/${week}/${groupId}/true`)
             .then(res => {
-                console.log(res)
                 this.setState({ groupRosters: res.data.rosters, groupPositions: res.data.groupPositions, leaderboard: res.data.leaderboard });
                 return;
             });
     };
 
-    // TODO START HERE WITH THE LEADERBOARD
     updateRosterWeek(season, week, groupId) {
         axios.get(`/api/getAllRostersForGroup/${season}/${week}/${groupId}/false`)
             .then(res => {
-                console.log(res)
+                this.setState({ groupRosters: res.data.rosters });
                 // this.setState({ loading: false, userList: res.data });
                 return;
             });
@@ -66,12 +64,7 @@ class Home extends Component {
     customSeasonWeekSearch = (e) => {
         e.preventDefault();
 
-        //Need to clear the playerIds when switching weeks. If not the program makes the array an array of undefined
-        const userRoster = {};
-
-        this.setState({ userRoster })
-
-        this.getRoster(this.state.userIdDisplayed, this.state.weekSelect, this.state.userDisplayed);
+        this.updateRosterWeek(this.props.season, this.state.weekSelect, this.props.group._id);
     };
 
     render() {
@@ -84,6 +77,12 @@ class Home extends Component {
                     leaderboard={this.state.leaderboard}
                     groupName={this.props.group.N}
                 />
+                <div className='weekSearchOnHome'>
+                    <div className='weekDisplay'>
+                        Week Shown: {this.state.weekSelect}
+                    </div>
+                    <WeekSearch handleChange={this.handleChange} customSeasonWeekSearch={this.customSeasonWeekSearch} weekSelect={this.state.weekSelect} />
+                </div>
                 <div>
                     {this.state.groupRosters.map(roster =>
                         <div key={roster.UID} className='homePageRoster'>

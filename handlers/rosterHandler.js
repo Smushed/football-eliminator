@@ -27,7 +27,7 @@ checkDuplicateRoster = async (checkedField, userId, groupId, season, week) => {
             try {
                 searched = await db.UserRoster.findOne({ U: userId, W: week, G: groupId, S: season }).exec();
                 if (searched !== null) {
-                    result = true;
+                    return true;
                 };
             } catch (err) {
                 console.log(err);
@@ -37,7 +37,7 @@ checkDuplicateRoster = async (checkedField, userId, groupId, season, week) => {
             try {
                 searched = await db.UsedPlayers.findOne({ U: userId, S: season, G: groupId }).exec();
                 if (searched !== null) {
-                    result = true;
+                    return true;
                 };
             } catch (err) {
                 console.log(err);
@@ -126,7 +126,7 @@ createUsedPlayers = (userId, season, groupId) => {
         const isDupe = await checkDuplicateRoster(`usedPlayers`, userId, groupId, season, null);
         let newRecord;
         if (!isDupe) {
-            newRecord = db.UsedPlayers.create({ U: userId, S: season, G: groupId }).exec();
+            newRecord = await db.UsedPlayers.create({ U: userId, S: season, G: groupId });
         };
         res(newRecord);
     })

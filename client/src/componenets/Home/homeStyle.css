@@ -40,3 +40,15 @@
     font-weight: 600;
     margin-bottom: 5px;
 }
+
+.weekSearchOnHome {
+    margin-left: 33%;
+    display: flex;
+    text-align: center;
+    width: 100%;
+}
+
+.weekDisplay {
+    width: 200px;
+    font-size: 20px;
+}

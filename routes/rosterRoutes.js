@@ -18,9 +18,7 @@ module.exports = app => {
     });
 
     app.get(`/api/availablePlayers`, async (req, res) => {
-        //req.query passes the array as an object. We turn this back to an array
         const { userId, searchedPosition, season, groupId } = req.query;
-        //Then iterate over the array and turn the strings into numbers to compare it to the DB
         const availablePlayers = await rosterHandler.availablePlayers(userId, searchedPosition, season, groupId);
         res.status(200).send(availablePlayers);
     });
@@ -102,12 +100,13 @@ module.exports = app => {
     app.get(`/api/getAllRostersForGroup/:season/:week/:groupId/:updateLeaderBoard`, async (req, res) => {
         const { season, week, groupId, updateLeaderBoard } = req.params;
         let leaderboard = [];
+        let groupPositions = [];
         const filledRosters = await rosterHandler.getAllRostersForGroup(season, week, groupId);
         if (updateLeaderBoard === `true`) {
             const currWeekForLeaderboard = +week === 1 ? 1 : +week;
             leaderboard = await groupHandler.getLeaderBoard(groupId, season, currWeekForLeaderboard, filledRosters);
+            groupPositions = await groupHandler.getGroupPositions(groupId);
         }
-        const groupPositions = await groupHandler.getGroupPositions(groupId);
         res.status(200).send({ rosters: filledRosters, groupPositions, leaderboard });
     });
 
