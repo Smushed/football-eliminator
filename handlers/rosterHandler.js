@@ -1,7 +1,7 @@
 const db = require(`../models`);
 const { getPlayerWeeklyScore } = require(`./mySportsHandler`);
 const userHandler = require(`./userHandler`);
-const { discriminator } = require("../models/User");
+const mySportsHandler = require("./mySportsHandler");
 require(`dotenv`).config();
 
 //This is here for when a user adds or drops a player. It fills out the object of the current week with 0s
@@ -27,7 +27,7 @@ checkDuplicateRoster = async (checkedField, userId, groupId, season, week) => {
             try {
                 searched = await db.UserRoster.findOne({ U: userId, W: week, G: groupId, S: season }).exec();
                 if (searched !== null) {
-                    result = true;
+                    return true;
                 };
             } catch (err) {
                 console.log(err);
@@ -37,7 +37,7 @@ checkDuplicateRoster = async (checkedField, userId, groupId, season, week) => {
             try {
                 searched = await db.UsedPlayers.findOne({ U: userId, S: season, G: groupId }).exec();
                 if (searched !== null) {
-                    result = true;
+                    return true;
                 };
             } catch (err) {
                 console.log(err);
@@ -126,7 +126,7 @@ createUsedPlayers = (userId, season, groupId) => {
         const isDupe = await checkDuplicateRoster(`usedPlayers`, userId, groupId, season, null);
         let newRecord;
         if (!isDupe) {
-            newRecord = db.UsedPlayers.create({ U: userId, S: season, G: groupId }).exec();
+            newRecord = await db.UsedPlayers.create({ U: userId, S: season, G: groupId });
         };
         res(newRecord);
     })
@@ -139,6 +139,28 @@ createWeeklyRoster = async (userId, week, season, groupId) => {
     const userRoster = groupRoster.P.map(position => 0);
     const weeksRoster = { U: userId, W: week, S: season, G: groupId, R: userRoster };
     return await db.UserRoster.create(weeksRoster);
+};
+
+getAllRostersByGroupAndWeek = async (season, week, groupId) => {
+    return new Promise(async (res, rej) => {
+        const group = await db.Group.findById([groupId]).exec();
+        const userRosters = await db.UserRoster.find({ S: season, W: week, G: groupId }).exec();
+        const completeRosters = userRosters.slice(0);
+        if (group.UL.length !== userRosters.length) {
+            for (user of group.UL) {
+                let isIncluded = false;
+                for (userRoster of userRosters) {
+                    if (userRoster.U === user.ID) {
+                        isIncluded = true;
+                    };
+                };
+                if (!isIncluded) {
+                    completeRosters.push(await createWeeklyRoster(user.ID, week, season, groupId));
+                };
+            };
+        };
+        res(completeRosters);
+    });
 };
 
 module.exports = {
@@ -245,15 +267,16 @@ module.exports = {
             res(currentRoster.R);
         });
     },
-    getAllRosters: async (season) => {
-        //TODO Error handling
+    getAllRostersForGroup: async (season, week, groupId) => {
         return new Promise(async (res, rej) => {
-            const rosterList = {};
-
-            //Use the Exec for full promises in Mongoose
-            const rosters = await db.UserRoster.find({}).exec();
-            rosters.forEach(roster => rosterList[roster.userId] = { roster: roster.roster[season] });
-            res(rosterList);
+            const forDisplay = [];
+            const allRosters = await getAllRostersByGroupAndWeek(season, week, groupId);
+            for (const roster of allRosters) {
+                const filledRoster = await mySportsHandler.fillUserRoster(roster.R);
+                const user = await userHandler.getUserByID(roster.U);
+                forDisplay.push({ UID: user._id, UN: user.UN, R: filledRoster });
+            };
+            res(forDisplay);
         });
     },
     usedPlayersForTable: async (userId, season) => {

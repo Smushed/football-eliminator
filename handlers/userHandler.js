@@ -27,7 +27,7 @@ const checkDuplicateUser = async (checkedField, userId, groupId) => {
 const fillOutUserForFrontEnd = async (user) => {
     const groupList = [];
     for (let i = 0; i < user.GL.length; i++) {
-        const groupData = await groupHandler.getGroupData(user.GL[i])
+        const groupData = await groupHandler.getGroupData(user.GL[i]);
         groupList.push({
             N: groupData.N,
             D: groupData.D,

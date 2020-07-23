@@ -8,11 +8,6 @@ module.exports = app => {
         const { season, week } = req.params;
 
         await mySportsHandler.getWeeklyData(season, week);
-        //await mySportsHandler.updateRoster(season);
-        //await mySportsHandler.rankPlayers(season);
-        //TODO Refactor this out so it's not just a copy
-        // const userRosters = await rosterHandler.getAllRosters(season);
-        // const status = await mySportsHandler.calculateWeeklyScore(userRosters, season, week, `allUsers`);
 
         res.sendStatus(200);
     });
@@ -57,7 +52,9 @@ module.exports = app => {
 
         console.log(`Calculating scores for `, group);
 
-        const userRosters = await rosterHandler.getAllRosters(season);
+
+        //TODO FIX THIS SHIT
+        // const userRosters = await rosterHandler.getAllRosters(season);
         const status = await mySportsHandler.calculateWeeklyScore(userRosters, season, week, group);
 
         console.log(group, ` scores completed`);

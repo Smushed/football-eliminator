@@ -21,6 +21,7 @@ module.exports = app => {
 
     app.post(`/api/newUser`, async (req, res) => {
         //Called before the user signs up with Firebase
+        console.log(req.body)
         const newUser = {
             UN: req.body.username,
             E: req.body.email,

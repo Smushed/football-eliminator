@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import { Link } from 'react-router-dom';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
 import { Container, Button, Row, Col, Label } from 'reactstrap';
@@ -577,7 +578,7 @@ class Roster extends Component {
                                 <Row>
                                     <Col xs='12'>
                                         {this.state.availablePlayers.map((player, i) => (
-                                            <AvailablePlayerRow player={player} key={i} addDropPlayer={this.addDropPlayer} />
+                                            <AvailablePlayerRow player={player} key={i} addDropPlayer={this.addDropPlayer} evenOrOddRow={i % 2} />
                                         ))}
                                     </Col>
                                 </Row>
@@ -592,7 +593,7 @@ class Roster extends Component {
 };
 
 const CurrentRosterRow = (props) => (
-    <div className='playerRow'>
+    <div className={props.evenOrOddRow === 0 ? 'playerRow' : 'playerRow oddRow'}>
         <div className='positionBox'>
             {props.position}
         </div>
@@ -616,7 +617,7 @@ const CurrentRosterRow = (props) => (
 );
 
 const AvailablePlayerRow = (props) => (
-    <div className='playerRow playerContainer'>
+    <div className={props.evenOrOddRow === 0 ? 'playerRow playerContainer' : 'playerRow playerContainer oddRow'}>
         <div className='player'>
             {props.player && props.player.N + `, ` + props.player.T + `, ` + props.player.P}
         </div>
@@ -634,8 +635,18 @@ const RosterDisplay = (props) => (
                 position={position.N}
                 player={props.roster[i]}
                 addDropPlayer={props.addDropPlayer}
+                evenOrOddRow={i % 2}
             />
         ))}
+        {props.UID &&
+            <div className='usedPlayerButton'>
+                <Link to={`/usedPlayers/${props.UID}`}>
+                    <Button color='info'>
+                        {props.UN}'s used Players
+                    </Button>
+                </Link>
+            </div>
+        }
     </Fragment>
 );
 

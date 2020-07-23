@@ -1,6 +1,7 @@
 require(`dotenv`).config();
 const userHandler = require(`../handlers/userHandler`);
 const groupHandler = require(`../handlers/groupHandler`);
+const rosterHandler = require(`../handlers/rosterHandler`);
 
 module.exports = app => {
     app.get(`/api/getuser/`, async (req, res) => {
@@ -9,9 +10,6 @@ module.exports = app => {
         res.json(userProfile);
     });
 
-    //User adds a new group, fills out a form on the book name & description
-    //Then adds the current book they're reading
-    //THEN hits this route to complete the group
     app.post(`/api/creategroup`, async (req, res) => {
         const { groupName, groupDescription, currentUserID } = req.body;
         //If 500 is returned a group with that name already exists
@@ -21,7 +19,6 @@ module.exports = app => {
 
     });
 
-    //Need to find a way for this to approve the user to the group
     app.put(`/api/addusertogroup`, async (req, res) => {
         const { userID, groupID, isAdmin } = req.body;
 
@@ -34,7 +31,6 @@ module.exports = app => {
         };
     });
 
-    //Everything is singular on the backend
     app.get(`/api/getgroupdata/:groupID`, async (req, res) => {
         try {
             const groupID = req.params.groupID;
@@ -47,27 +43,6 @@ module.exports = app => {
         } catch (err) {
             res.status(500).send(err);
         }
-    });
-
-    //Adds the amount of pages or chapters to the Club
-    app.put(`/api/updatepagesetup/`, async (req, res) => {
-        const { totalCount, groupID, isAdmin } = req.body;
-
-        if (isAdmin) {
-            const updatedGroup = await groupHandler.setPageOrChapter(groupID, totalCount);
-            res.json(updatedGroup);
-        } else {
-            //TODO Add something to show if they tried to update a group they weren't a mod for
-            res.json({ 'error': `Moderator needed to update book` });
-        };
-    });
-
-    app.get(`/api/getLeaderboard/:groupId/:season`, async (req, res) => {
-        const { groupId, season } = req.params;
-
-        const leaderboardArray = await groupHandler.getLeaderBoard(groupId, season);
-
-        res.status(200).send(leaderboardArray);
     });
 
     app.post(`/api/createAllGroup/:pass`, async (req, res) => {

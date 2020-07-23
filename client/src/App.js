@@ -95,8 +95,6 @@ class App extends Component {
               exact path={Routes.home}
               render={() =>
                 <Home
-                  userId={this.state.currentUser.userId}
-                  username={this.state.currentUser.username}
                   isAdmin={this.state.currentUser.isAdmin}
                   season={this.state.currentSeason}
                   group={this.state.currentGroup}
