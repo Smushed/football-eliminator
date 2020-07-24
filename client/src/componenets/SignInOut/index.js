@@ -180,7 +180,7 @@ class SignUpFormBase extends Component {
                                 (Between 3 & 16 characters, no special characters & no spaces)
                             </div>
                             <div className='inputContainer'>
-                                <input className='signInOutInput' name='username' type='text' placeholder='ex. JaneDoe14' value={this.state.email} onChange={this.handleChange} />
+                                <input className='signInOutInput' name='username' type='text' placeholder='ex. JaneDoe14' value={this.state.username} onChange={this.handleChange} />
                             </div>
                             <div className='labelContainer'>
                                 <label className='signInOutLabel'>Password:</label>
@@ -195,7 +195,7 @@ class SignUpFormBase extends Component {
                                 <label className='signInOutLabel'>Confirm Password:</label>
                             </div>
                             <div className='inputContainer'>
-                                <input className='signInOutInput' name='password' type='password' placeholder='Confirm Password' value={this.state.password} onChange={this.handleChange} />
+                                <input className='signInOutInput' name='confirmPassword' type='password' placeholder='Confirm Password' value={this.state.confirmPassword} onChange={this.handleChange} />
                             </div>
                             <div className='inputContainer buttonContainer'>
                                 <button className='signInUpBtn btn btn-success'>Sign Up</button>
