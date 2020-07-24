@@ -25,7 +25,6 @@ class Home extends Component {
         if (this.props.week && this.props.season) {
             this.setState({ weekSelect: this.props.week });
             this.getLeaderBoard(this.props.season, this.props.week, this.props.group._id);
-            // this.getAllRostersForGroup(this.props.season, this.props.week, this.props.group._id)
         };
     };
 
@@ -33,7 +32,6 @@ class Home extends Component {
         if (this.props.week !== prevProps.week) {
             this.setState({ weekSelect: this.props.week });
             this.getLeaderBoard(this.props.season, this.props.week, this.props.group._id);
-            // this.getAllRostersForGroup(this.props.season, this.props.week, this.props.group._id)
         };
     };
 
@@ -41,7 +39,6 @@ class Home extends Component {
         //Sending true to pull back the leaderboard as well
         axios.get(`/api/getAllRostersForGroup/${season}/${week}/${groupId}/true`)
             .then(res => {
-                console.log(res)
                 this.setState({ groupRosters: res.data.rosters, groupPositions: res.data.groupPositions, leaderboard: res.data.leaderboard });
                 return;
             });
@@ -51,7 +48,6 @@ class Home extends Component {
         axios.get(`/api/getAllRostersForGroup/${season}/${week}/${groupId}/false`)
             .then(res => {
                 this.setState({ groupRosters: res.data.rosters });
-                // this.setState({ loading: false, userList: res.data });
                 return;
             });
     };

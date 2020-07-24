@@ -74,7 +74,7 @@ module.exports = app => {
         const { userId, season } = req.params;
 
         const usedPlayers = await rosterHandler.usedPlayersForTable(userId, season);
-
+        console.log(usedPlayers)
         res.status(200).send(usedPlayers);
     });
 

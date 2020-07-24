@@ -27,7 +27,6 @@ class Roster extends Component {
             weekSelect: 0,
             seasonSelect: 0,
             weekOnPage: 0, //The week and season are here when the player searches for their roster. This updates ONLY when the player actually refreshes their roster
-            seasonOnPage: ``,
             currentUser: false,
             usernameOfPage: '',
             groupPositions: [],
@@ -36,8 +35,9 @@ class Roster extends Component {
 
     componentDidMount() {
         if (this.props.week !== 0 && this.props.season !== '') {
-            this.setState({ weekSelect: this.props.week, seasonSelect: this.props.season });
-            this.getRosterData(this.props.week, this.props.season);
+            this.setState({ weekSelect: this.props.week });
+            this.getRosterData(this.props.week);
+            this.getUsedPlayers();
             this.checkCurrentUser();
             this.getCurrentUsername();
         };
@@ -45,8 +45,9 @@ class Roster extends Component {
 
     componentDidUpdate(prevProps) {
         if (this.props.season !== prevProps.season) { // season here because it's the last prop we pass in. Probably not the best way
-            this.setState({ weekSelect: this.props.week, seasonSelect: this.props.season });
-            this.getRosterData(this.props.week, this.props.season);
+            this.setState({ weekSelect: this.props.week });
+            this.getRosterData(this.props.week);
+            this.getUsedPlayers();
             this.checkCurrentUser();
             this.getCurrentUsername();
         };
@@ -54,7 +55,16 @@ class Roster extends Component {
 
     componentWillUnmount() {
         this.doneLoading();
-    }
+    };
+
+    getUsedPlayers() {
+        axios.get(`/api/getUsedPlayers/${this.props.match.params.userId}/${this.props.week}`)
+            .then(res => {
+                console.log(res)
+            }).catch(err => {
+                console.log(err); //TODO better error handling
+            });
+    };
 
     getCurrentUsername() {
         axios.get(`/api/getUserById/${this.props.match.params.userId}`)
@@ -96,9 +106,9 @@ class Roster extends Component {
         this.setState({ userRoster: [] });
     };
 
-    getRosterData = (week, season) => {
+    getRosterData = (week) => {
 
-        this.setState({ weekOnPage: week, seasonOnPage: season })
+        this.setState({ weekOnPage: week })
         //We want to go and grab the roster no matter what
         //This is in case another user comes to the profile and wants to view their picks
         //We pass in a params along with the API call stating if this is the current user or not
@@ -108,7 +118,7 @@ class Roster extends Component {
             //But can be changed in case people want to update more than just this week at once.
             this.loading();
             axios.get(`/api/userRoster/${this.props.match.params.groupId}/${this.props.match.params.userId}`,
-                { params: { week, season } })
+                { params: { week, season: this.props.season } })
                 .then(res => {
                     this.setState({ userRoster: res.data.userRoster, groupPositions: res.data.groupPositions });
                     this.doneLoading();
@@ -358,7 +368,6 @@ class Roster extends Component {
 
     checkLockPeriod = async () => {
         const response = await axios.get(`/api/checkLockPeriod`);
-        //If this week is already passed the lock date then return bad request
         if (response.data.LW === 0) {
             return true;
         };
@@ -367,11 +376,9 @@ class Roster extends Component {
             return false;
         };
 
-        //If the week and the season are not locked then we can return true, that the week they are trying to edit is not locked
         return true;
     };
 
-    //This triggers off the Form on the roster below that allows the user to search for the position they would like to add to their roster
     positionSearch = (e) => {
         e.preventDefault();
 
@@ -388,7 +395,6 @@ class Roster extends Component {
     customSeasonWeekSearch = (e) => {
         e.preventDefault();
 
-        //Need to clear the playerIds when switching weeks. If not the program makes the array an array of undefined
         const userRoster = [];
 
         this.setState({ userRoster })
@@ -409,7 +415,6 @@ class Roster extends Component {
             });
     };
 
-    //This is to handle the change for the Input Type in the position search below
     handleChange(e) {
         this.setState({
             [e.target.name]: e.target.value
@@ -463,7 +468,6 @@ class Roster extends Component {
     }
 
     addDropPlayer = async (mySportsId, addOrDrop) => {
-        //First check if the user is on a differnent page and if the peroid is locked
         if (!this.state.currentUser) {
             Alert.fire({
                 title: `Not your roster!`,
@@ -484,9 +488,6 @@ class Roster extends Component {
         const newAvailablePlayers = this.state.availablePlayers.slice(0);
         let newRoster = this.state.userRoster.slice(0);
 
-        //First I need to copy the state as is
-        //Then find the player the user wants to add or drop
-        //Then if they are dropping just add the player to the available player list
         if (addOrDrop === `add`) {
             let addedPlayerIndex = 0;
 
@@ -500,15 +501,11 @@ class Roster extends Component {
             newAvailablePlayers.splice(addedPlayerIndex, 1);
             newRoster = this.addPlayerToRoster(newRoster, addedPlayer)
 
-            //Need to save tunnels over to the tooManyPlayers function which then saves so we don't need to worry about it
             const needToSave = this.countRoster(this.state.userRoster, newRoster, this.state.availablePlayers, addedPlayer);
             const correctRoster = this.checkRoster(newRoster);
 
-            //We use this is the player has less than a complete roster
             if (correctRoster && needToSave) {
                 this.setState({ availablePlayers: newAvailablePlayers });
-                //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
-                //The true is to indicate we need to save a player down without dropping one in the usedPlayer array in the DB
                 this.saveRosterToDb(newRoster, 0, addedPlayer.M, true);
             };
         } else if (addOrDrop === `drop`) {
@@ -523,11 +520,7 @@ class Roster extends Component {
             newRoster.splice(droppedPlayerIndex, 1);
             newAvailablePlayers.unshift(droppedPlayer);
 
-
-            //We use this is the player has less than a complete roster
             this.setState({ availablePlayers: newAvailablePlayers });
-            //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
-            //The true is to indicate we need to save a player down without dropping one in the usedPlayer array in the DB
             this.saveRosterToDb(newRoster, mySportsId, false);
 
         };
