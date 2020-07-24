@@ -18,7 +18,7 @@ class SignInOut extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            showSignIn: false,
+            showSignIn: true,
         };
     };
     switchView = () => {
@@ -151,59 +151,59 @@ class SignUpFormBase extends Component {
 
     render() {
         return (
-            <Fragment>
-                <div className='formContainer'>
-                    <div>
+            <div className='formContainer'>
+                <div className='switchViewContainer'>
+                    <div className='fullWidth'>
                         Have an account?
+                    </div>
                     <button className='btn btn-info switchView' onClick={() => this.props.switchView()}>
-                            Sign In
+                        Sign In
                     </button>
-                    </div>
-                    <div className='signInUpWrapper' >
-                        <form onSubmit={this.handleSubmit}>
-                            <div className='signInHeader'>
-                                Sign Up
-                        </div>
-                            <div className='errorMessages'>
-                                {this.state.error}
-                            </div>
-                            <div className='labelContainer'>
-                                <label className='signInOutLabel'>Email:</label>
-                            </div>
-                            <div className='inputContainer'>
-                                <input className='signInOutInput' name='email' type='text' placeholder='ex. janedoe@gmail.com' value={this.state.email} onChange={this.handleChange} />
-                            </div>
-                            <div className='labelContainer'>
-                                <label className='signInOutLabel'>Username:</label>
-                            </div>
-                            <div className='labelDescriptor'>
-                                (Between 3 & 16 characters, no special characters & no spaces)
-                            </div>
-                            <div className='inputContainer'>
-                                <input className='signInOutInput' name='username' type='text' placeholder='ex. JaneDoe14' value={this.state.username} onChange={this.handleChange} />
-                            </div>
-                            <div className='labelContainer'>
-                                <label className='signInOutLabel'>Password:</label>
-                            </div>
-                            <div className='labelDescriptor'>
-                                (Must be at least 6 characters with no spaces)
-                            </div>
-                            <div className='inputContainer'>
-                                <input className='signInOutInput' name='password' type='password' placeholder='Password' value={this.state.password} onChange={this.handleChange} />
-                            </div>
-                            <div className='labelContainer'>
-                                <label className='signInOutLabel'>Confirm Password:</label>
-                            </div>
-                            <div className='inputContainer'>
-                                <input className='signInOutInput' name='confirmPassword' type='password' placeholder='Confirm Password' value={this.state.confirmPassword} onChange={this.handleChange} />
-                            </div>
-                            <div className='inputContainer buttonContainer'>
-                                <button className='signInUpBtn btn btn-success'>Sign Up</button>
-                            </div>
-                        </form>
-                    </div>
                 </div>
-            </Fragment>
+                <div className='signInUpWrapper' >
+                    <form onSubmit={this.handleSubmit}>
+                        <div className='signInHeader'>
+                            Sign Up
+                        </div>
+                        <div className='errorMessages'>
+                            {this.state.error}
+                        </div>
+                        <div className='labelContainer'>
+                            <label className='signInOutLabel'>Email:</label>
+                        </div>
+                        <div className='inputContainer'>
+                            <input className='signInOutInput' name='email' type='text' placeholder='ex. janedoe@gmail.com' value={this.state.email} onChange={this.handleChange} />
+                        </div>
+                        <div className='labelContainer'>
+                            <label className='signInOutLabel'>Username:</label>
+                        </div>
+                        <div className='labelDescriptor'>
+                            (Between 3 & 16 characters, no special characters & no spaces)
+                            </div>
+                        <div className='inputContainer'>
+                            <input className='signInOutInput' name='username' type='text' placeholder='ex. JaneDoe14' value={this.state.username} onChange={this.handleChange} />
+                        </div>
+                        <div className='labelContainer'>
+                            <label className='signInOutLabel'>Password:</label>
+                        </div>
+                        <div className='labelDescriptor'>
+                            (Must be at least 6 characters with no spaces)
+                            </div>
+                        <div className='inputContainer'>
+                            <input className='signInOutInput' name='password' type='password' placeholder='Password' value={this.state.password} onChange={this.handleChange} />
+                        </div>
+                        <div className='labelContainer'>
+                            <label className='signInOutLabel'>Confirm Password:</label>
+                        </div>
+                        <div className='inputContainer'>
+                            <input className='signInOutInput' name='confirmPassword' type='password' placeholder='Confirm Password' value={this.state.confirmPassword} onChange={this.handleChange} />
+                        </div>
+                        <div className='inputContainer buttonContainer'>
+                            <button className='signInUpBtn btn btn-success'>Sign Up</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         )
     };
 };
@@ -294,9 +294,14 @@ class SignInFormBase extends Component {
                         </div>
                     </form>
                 </div>
-                <button className='btn btn-info switchView' onClick={() => this.props.switchView()}>
-                    Sign Up
-                </button>
+                <div className='switchViewContainer'>
+                    <div className='fullWidth'>
+                        Need an account?
+                    </div>
+                    <button className='btn btn-info switchView' onClick={() => this.props.switchView()}>
+                        Sign Up
+                    </button>
+                </div>
             </div>
         );
     }
