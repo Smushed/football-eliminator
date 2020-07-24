@@ -8,10 +8,10 @@
 
 .formContainer {
     display: flex;
-    justify-content: space-evenly;
+    justify-content: center;
 }
 
-.signInWrapper {
+.signInUpWrapper {
     border: 1px solid lightgray;
     border-radius: 15px;
     width: 500px;
@@ -23,11 +23,65 @@
 }
 
 .signInHeader {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: 600;
     text-align: center;
 }
 
 .errorMessages {
     text-align: center;
+}
+
+.logoContainer {
+    text-align: center;
+    margin-top: 5%;
+}
+
+.switchView {
+    margin-top: 2.2%;
+    margin-left: 100px;
+    margin-right: 100px;
+}
+
+.labelContainer {
+    text-align: center;
+}
+
+.inputContainer {
+    display: flex;
+    justify-content: center;
+}
+
+.signInOutInput {
+    width: 225px;
+}
+
+.signInOutLabel {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 20px;
+    margin-bottom: 0;
+}
+
+.signInOutInput {
+    display: flex;
+    justify-content: center;
+}
+
+.buttonContainer {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.forgotPassBtn {
+    margin-left: 20px;
+}
+
+.signInUpBtn {
+    width: 150px;
+}
+
+.labelDescriptor {
+    text-align: center;
+    font-size: 13px;
 }

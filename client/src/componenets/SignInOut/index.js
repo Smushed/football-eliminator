@@ -18,7 +18,7 @@ class SignInOut extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            showSignIn: true,
+            showSignIn: false,
         };
     };
     switchView = () => {
@@ -30,7 +30,9 @@ class SignInOut extends Component {
         return (
 
             <div className='signInUpContainer'>
-                <img className='signInOutLogo' src={ElimLogo} alt={`Home`} />
+                <div className='logoContainer'>
+                    <img className='signInOutLogo' src={ElimLogo} alt={`Home`} />
+                </div>
                 {this.state.showSignIn ?
                     <SignInForm switchView={this.switchView} />
                     :
@@ -150,16 +152,61 @@ class SignUpFormBase extends Component {
     render() {
         return (
             <Fragment>
-                <div>
-                    Sign Up Box
+                <div className='formContainer'>
+                    <div>
+                        Have an account?
+                    <button className='btn btn-info switchView' onClick={() => this.props.switchView()}>
+                            Sign In
+                    </button>
+                    </div>
+                    <div className='signInUpWrapper' >
+                        <form onSubmit={this.handleSubmit}>
+                            <div className='signInHeader'>
+                                Sign Up
+                        </div>
+                            <div className='errorMessages'>
+                                {this.state.error}
+                            </div>
+                            <div className='labelContainer'>
+                                <label className='signInOutLabel'>Email:</label>
+                            </div>
+                            <div className='inputContainer'>
+                                <input className='signInOutInput' name='email' type='text' placeholder='ex. janedoe@gmail.com' value={this.state.email} onChange={this.handleChange} />
+                            </div>
+                            <div className='labelContainer'>
+                                <label className='signInOutLabel'>Username:</label>
+                            </div>
+                            <div className='labelDescriptor'>
+                                (Between 3 & 16 characters, no special characters & no spaces)
+                            </div>
+                            <div className='inputContainer'>
+                                <input className='signInOutInput' name='username' type='text' placeholder='ex. JaneDoe14' value={this.state.email} onChange={this.handleChange} />
+                            </div>
+                            <div className='labelContainer'>
+                                <label className='signInOutLabel'>Password:</label>
+                            </div>
+                            <div className='labelDescriptor'>
+                                (Must be at least 6 characters with no spaces)
+                            </div>
+                            <div className='inputContainer'>
+                                <input className='signInOutInput' name='password' type='password' placeholder='Password' value={this.state.password} onChange={this.handleChange} />
+                            </div>
+                            <div className='labelContainer'>
+                                <label className='signInOutLabel'>Confirm Password:</label>
+                            </div>
+                            <div className='inputContainer'>
+                                <input className='signInOutInput' name='password' type='password' placeholder='Confirm Password' value={this.state.password} onChange={this.handleChange} />
+                            </div>
+                            <div className='inputContainer buttonContainer'>
+                                <button className='signInUpBtn btn btn-success'>Sign Up</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <button className='btn btn-info' onClick={() => this.props.switchView()}>
-                    Switch to Sign In
-            </button>
             </Fragment>
         )
-    }
-}
+    };
+};
 
 class SignInFormBase extends Component {
     constructor(props) {
@@ -221,7 +268,7 @@ class SignInFormBase extends Component {
     render() {
         return (
             <div className='formContainer'>
-                <div className='signInWrapper' >
+                <div className='signInUpWrapper' >
                     <form onSubmit={this.handleSubmit}>
                         <div className='signInHeader'>
                             Sign In
@@ -229,16 +276,26 @@ class SignInFormBase extends Component {
                         <div className='errorMessages'>
                             {this.state.error}
                         </div>
-                        <label>Email:</label>
-                        <input name='email' type='text' placeholder='email' value={this.state.email} onChange={this.handleChange} />
-                        <label>Password:</label>
-                        <input name='password' type='password' placeholder='password' value={this.state.password} onChange={this.handleChange} />
-                        <button className='btn btn-success'>Sign In</button>
+                        <div className='labelContainer'>
+                            <label className='signInOutLabel'>Email:</label>
+                        </div>
+                        <div className='inputContainer'>
+                            <input className='signInOutInput' name='email' type='text' placeholder='email' value={this.state.email} onChange={this.handleChange} />
+                        </div>
+                        <div className='labelContainer'>
+                            <label className='signInOutLabel'>Password:</label>
+                        </div>
+                        <div className='inputContainer'>
+                            <input className='signInOutInput' name='password' type='password' placeholder='password' value={this.state.password} onChange={this.handleChange} />
+                        </div>
+                        <div className='inputContainer buttonContainer'>
+                            <button className='signInUpBtn btn btn-success'>Sign In</button>
+                            <input type='button' className='forgotPassBtn btn btn-secondary' onClick={this.forgotPassword} value='Forgot Password?' />
+                        </div>
                     </form>
-                    <button className='btn btn-secondary' onClick={this.forgotPassword}>Forgot Password?</button>
                 </div>
                 <button className='btn btn-info switchView' onClick={() => this.props.switchView()}>
-                    Switch to Sign Up
+                    Sign Up
                 </button>
             </div>
         );
