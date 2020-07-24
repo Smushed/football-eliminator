@@ -150,7 +150,7 @@ getAllRostersByGroupAndWeek = async (season, week, groupId) => {
             for (user of group.UL) {
                 let isIncluded = false;
                 for (userRoster of userRosters) {
-                    if (userRoster.U === user.ID) {
+                    if (userRoster.U.toString() === user.ID.toString()) {
                         isIncluded = true;
                     };
                 };

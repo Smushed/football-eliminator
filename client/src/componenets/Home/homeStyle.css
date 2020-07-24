@@ -28,7 +28,7 @@
 .homePageRoster {
     border-radius: 15px;
     width: 355px;
-    flex: 0 0 auto;
+    float: left;
     margin-left: 15px;
     border: 1px solid lightgray;
 }
@@ -45,7 +45,6 @@
     margin-left: 33%;
     display: flex;
     text-align: center;
-    width: 100%;
 }
 
 .weekDisplay {

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from 'reactstrap';
 
 import * as Routes from '../../constants/routes';
 import SignOutButton from './SignOutButton';
@@ -27,7 +26,7 @@ class NavBar extends Component {
         <div className='verifyEmailDiv floatRight notifications'>
             Please Verify your Email
         <br />
-            <Button color='info' onClick={() => this.sendAuthEmail(authUser)}>Send Verification Email</Button>
+            <button className='btn btn-info' onClick={() => this.sendAuthEmail(authUser)}>Send Verification Email</button>
         </div>;
 
     SentVerifyEmail = () => <div className='sentEmail floatRight notifications'>Email has been sent</div>;
@@ -43,12 +42,12 @@ class NavBar extends Component {
                     </div>
                     <div>
                         <Link to={`/roster/${this.props.groupId}/${this.props.userId}`}>
-                            <Button className='navButton floatLeft' color='success'>Your Roster</Button>
+                            <button className='btn btn-success navButton floatLeft'>Your Roster</button>
                         </Link>
                     </div>
                     <div>
                         <Link to={`/usedPlayers/${this.props.groupId}/${this.props.userId}`}>
-                            <Button className='navButton floatLeft' color='success'>Your Used Players</Button>
+                            <button className='btn btn-success navButton floatLeft'>Your Used Players</button>
                         </Link>
                     </div>
                 </div>
