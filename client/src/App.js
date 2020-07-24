@@ -4,9 +4,7 @@ import { Route, BrowserRouter, Switch } from 'react-router-dom';
 import { withFirebase } from './componenets/Firebase';
 import axios from 'axios';
 
-// Components
-import SignUpPage from './componenets/SignInOut/SignUp';
-import SignInPage from './componenets/SignInOut/SignIn';
+import SignInOut from './componenets/SignInOut';
 import NavBar from './componenets/NavBar/NavBar';
 import Home from './componenets/Home';
 import UserProfile from './componenets/UserProfile/UserProfile';
@@ -113,12 +111,12 @@ class App extends Component {
             <Route
               path={Routes.signin}
               render={() =>
-                <SignInPage />}
+                <SignInOut />}
             />
             <Route
               path={Routes.signup}
               render={() =>
-                <SignUpPage />}
+                <SignInOut />}
             />
             <Route
               path={Routes.userProfile}
