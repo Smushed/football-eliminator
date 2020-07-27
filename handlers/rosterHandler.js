@@ -47,36 +47,6 @@ checkDuplicateRoster = async (checkedField, userId, groupId, season, week) => {
     return result;
 };
 
-usedPlayersInReactTableFormat = (sortedPlayers) => {
-    let checkLongest = 0;
-    let arrayForTable = [];
-    if (sortedPlayers.RB.length > sortedPlayers.WR.length) {
-        checkLongest = sortedPlayers.RB.length;
-    } else {
-        checkLongest = sortedPlayers.WR.length;
-    };
-
-    for (let i = 0; i < checkLongest; i++) {
-        arrayForTable[i] = {};
-        if (typeof sortedPlayers.QB[i] !== `undefined`) {
-            arrayForTable[i].QB = sortedPlayers.QB[i];
-        };
-        if (typeof sortedPlayers.RB[i] !== `undefined`) {
-            arrayForTable[i].RB = sortedPlayers.RB[i];
-        };
-        if (typeof sortedPlayers.WR[i] !== `undefined`) {
-            arrayForTable[i].WR = sortedPlayers.WR[i];
-        };
-        if (typeof sortedPlayers.TE[i] !== `undefined`) {
-            arrayForTable[i].TE = sortedPlayers.TE[i];
-        };
-        if (typeof sortedPlayers.K[i] !== `undefined`) {
-            arrayForTable[i].K = sortedPlayers.K[i];
-        };
-    };
-    return arrayForTable;
-};
-
 checkForAvailablePlayers = (usedPlayers, searchedPlayers) => {
     const usedPlayerSet = new Set(usedPlayers);
 
@@ -279,23 +249,18 @@ module.exports = {
             res(forDisplay);
         });
     },
-    usedPlayersForTable: async (userId, season) => {
+    usedPlayersByPosition: async (userId, season, groupId) => {
         //TODO START HERE
         const sortedPlayers = { 'QB': [], 'RB': [], 'WR': [], 'TE': [], 'K': [] };
-        let usedPlayerArray = [];
-        let arrayForTable = [];
 
-        const currentRoster = await db.UserRoster.findOne({ userId }).exec();
-        usedPlayerArray = currentRoster.R[season].usedPlayers;
+        const usedPlayers = await getUsedPlayers(userId, season, groupId);
 
-        for (let i = 0; i < usedPlayerArray.length; i++) {
-            let player = await db.FantasyStats.findOne({ mySportsId: usedPlayerArray[i] }, { position: 1, full_name: 1 });
-            sortedPlayers[player.position].push(player.full_name);
+        for (playerId of usedPlayers) {
+            const player = await db.PlayerData.findOne({ M: playerId }, { N: 1, P: 1, T: 1 });
+            sortedPlayers[player.P].push(player);
         };
 
-        arrayForTable = usedPlayersInReactTableFormat(sortedPlayers);
-
-        return arrayForTable;
+        return sortedPlayers;
     },
     searchPlayerByTeam: async (groupId, userId, team, season) => {
 

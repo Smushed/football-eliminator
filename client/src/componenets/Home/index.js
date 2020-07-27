@@ -78,7 +78,9 @@ class Home extends Component {
                     <div className='weekDisplay'>
                         Week Shown: {this.state.weekSelect}
                     </div>
-                    <WeekSearch handleChange={this.handleChange} customSeasonWeekSearch={this.customSeasonWeekSearch} weekSelect={this.state.weekSelect} />
+                    <div className='weekSearchInputOnHome'>
+                        <WeekSearch handleChange={this.handleChange} customSeasonWeekSearch={this.customSeasonWeekSearch} weekSelect={this.state.weekSelect} />
+                    </div>
                 </div>
                 <div>
                     {this.state.groupRosters.map(roster =>
