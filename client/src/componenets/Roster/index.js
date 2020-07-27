@@ -2,15 +2,14 @@ import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
-import { Container, Button, Row, Col, Label } from 'reactstrap';
+import { Button } from 'reactstrap';
 
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import './rosterStyle.css';
 import './playerStyle.css';
 
-import UsedPlayerButton from '../UsedPlayers/UsedPlayerButton';
-import { WeekSearch, PositionSearch, TeamSearch } from './SearchDropdowns';
+import { WeekSearch, PositionSearch, TeamSearch, PlayerSearch } from './SearchDropdowns';
 
 const Alert = withReactContent(Swal);
 
@@ -23,21 +22,22 @@ class Roster extends Component {
             userRoster: [],
             availablePlayers: [],
             positionSelect: `QB`, //This is the default value for the position search
-            teamSelect: `ARI`,
+            playerSearch: ``,
             weekSelect: 0,
-            seasonSelect: 0,
             weekOnPage: 0, //The week and season are here when the player searches for their roster. This updates ONLY when the player actually refreshes their roster
-            seasonOnPage: ``,
             currentUser: false,
             usernameOfPage: '',
             groupPositions: [],
+            usedPlayers: {},
+            currentPositionUsedPlayers: []
         };
     };
 
     componentDidMount() {
         if (this.props.week !== 0 && this.props.season !== '') {
-            this.setState({ weekSelect: this.props.week, seasonSelect: this.props.season });
-            this.getRosterData(this.props.week, this.props.season);
+            this.setState({ weekSelect: this.props.week });
+            this.getRosterData(this.props.week);
+            this.getUsedPlayers();
             this.checkCurrentUser();
             this.getCurrentUsername();
         };
@@ -45,8 +45,9 @@ class Roster extends Component {
 
     componentDidUpdate(prevProps) {
         if (this.props.season !== prevProps.season) { // season here because it's the last prop we pass in. Probably not the best way
-            this.setState({ weekSelect: this.props.week, seasonSelect: this.props.season });
-            this.getRosterData(this.props.week, this.props.season);
+            this.setState({ weekSelect: this.props.week });
+            this.getRosterData(this.props.week);
+            this.getUsedPlayers();
             this.checkCurrentUser();
             this.getCurrentUsername();
         };
@@ -54,7 +55,16 @@ class Roster extends Component {
 
     componentWillUnmount() {
         this.doneLoading();
-    }
+    };
+
+    getUsedPlayers() {
+        axios.get(`/api/getUsedPlayers/${this.props.match.params.userId}/${this.props.season}/${this.props.match.params.groupId}`)
+            .then(res => {
+                this.setState({ usedPlayers: res.data })
+            }).catch(err => {
+                console.log(err); //TODO better error handling
+            });
+    };
 
     getCurrentUsername() {
         axios.get(`/api/getUserById/${this.props.match.params.userId}`)
@@ -96,9 +106,9 @@ class Roster extends Component {
         this.setState({ userRoster: [] });
     };
 
-    getRosterData = (week, season) => {
+    getRosterData = (week) => {
 
-        this.setState({ weekOnPage: week, seasonOnPage: season })
+        this.setState({ weekOnPage: week })
         //We want to go and grab the roster no matter what
         //This is in case another user comes to the profile and wants to view their picks
         //We pass in a params along with the API call stating if this is the current user or not
@@ -108,7 +118,7 @@ class Roster extends Component {
             //But can be changed in case people want to update more than just this week at once.
             this.loading();
             axios.get(`/api/userRoster/${this.props.match.params.groupId}/${this.props.match.params.userId}`,
-                { params: { week, season } })
+                { params: { week, season: this.props.season } })
                 .then(res => {
                     this.setState({ userRoster: res.data.userRoster, groupPositions: res.data.groupPositions });
                     this.doneLoading();
@@ -346,7 +356,7 @@ class Roster extends Component {
     saveRosterToDb = async (roster, droppedPlayer, addedPlayer) => {
         this.loading()
         axios.put(`/api/updateUserRoster`,
-            { userId: this.props.userId, roster, droppedPlayer, addedPlayer, week: this.state.weekSelect, season: this.state.seasonSelect, groupId: this.props.match.params.groupId })
+            { userId: this.props.userId, roster, droppedPlayer, addedPlayer, week: this.state.weekSelect, season: this.props.season, groupId: this.props.match.params.groupId })
             .then(res => {
                 this.doneLoading();
                 this.setState({ userRoster: res.data })
@@ -358,7 +368,6 @@ class Roster extends Component {
 
     checkLockPeriod = async () => {
         const response = await axios.get(`/api/checkLockPeriod`);
-        //If this week is already passed the lock date then return bad request
         if (response.data.LW === 0) {
             return true;
         };
@@ -367,49 +376,40 @@ class Roster extends Component {
             return false;
         };
 
-        //If the week and the season are not locked then we can return true, that the week they are trying to edit is not locked
         return true;
     };
 
-    //This triggers off the Form on the roster below that allows the user to search for the position they would like to add to their roster
     positionSearch = (e) => {
         e.preventDefault();
 
         this.loading();
         const userId = this.props.userId;
         axios.get(`/api/availablePlayers`,
-            { params: { userId, searchedPosition: this.state.positionSelect, season: this.state.seasonSelect, groupId: this.props.match.params.groupId } })
+            { params: { userId, searchedPosition: this.state.positionSelect, season: this.props.season, groupId: this.props.match.params.groupId } })
             .then(res => {
+                const { usedPlayers, positionSelect } = this.state;
                 this.setState({ availablePlayers: res.data });
+                this.setState({ currentPositionUsedPlayers: usedPlayers[positionSelect] })
                 this.doneLoading();
             });
+    };
+
+    customPlayerSearch = (e) => {
+        e.preventDefault();
+
+        console.log(this.state.playerSearch);
     };
 
     customSeasonWeekSearch = (e) => {
         e.preventDefault();
 
-        //Need to clear the playerIds when switching weeks. If not the program makes the array an array of undefined
         const userRoster = [];
 
         this.setState({ userRoster })
 
-        this.getRosterData(this.state.weekSelect, this.state.seasonSelect);
+        this.getRosterData(this.state.weekSelect, this.props.season);
     };
 
-    searchByTeam = (e) => {
-        e.preventDefault();
-
-        this.loading();
-
-        axios.get(`/api/getPlayersByTeam/${this.props.match.params.groupId}/${this.props.userId}/${this.state.teamSelect}/${this.props.season}`)
-            .then(res => {
-                this.setState({ availablePlayers: res.data });
-                this.doneLoading();
-                return;
-            });
-    };
-
-    //This is to handle the change for the Input Type in the position search below
     handleChange(e) {
         this.setState({
             [e.target.name]: e.target.value
@@ -463,7 +463,6 @@ class Roster extends Component {
     }
 
     addDropPlayer = async (mySportsId, addOrDrop) => {
-        //First check if the user is on a differnent page and if the peroid is locked
         if (!this.state.currentUser) {
             Alert.fire({
                 title: `Not your roster!`,
@@ -484,9 +483,6 @@ class Roster extends Component {
         const newAvailablePlayers = this.state.availablePlayers.slice(0);
         let newRoster = this.state.userRoster.slice(0);
 
-        //First I need to copy the state as is
-        //Then find the player the user wants to add or drop
-        //Then if they are dropping just add the player to the available player list
         if (addOrDrop === `add`) {
             let addedPlayerIndex = 0;
 
@@ -500,15 +496,11 @@ class Roster extends Component {
             newAvailablePlayers.splice(addedPlayerIndex, 1);
             newRoster = this.addPlayerToRoster(newRoster, addedPlayer)
 
-            //Need to save tunnels over to the tooManyPlayers function which then saves so we don't need to worry about it
             const needToSave = this.countRoster(this.state.userRoster, newRoster, this.state.availablePlayers, addedPlayer);
             const correctRoster = this.checkRoster(newRoster);
 
-            //We use this is the player has less than a complete roster
             if (correctRoster && needToSave) {
                 this.setState({ availablePlayers: newAvailablePlayers });
-                //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
-                //The true is to indicate we need to save a player down without dropping one in the usedPlayer array in the DB
                 this.saveRosterToDb(newRoster, 0, addedPlayer.M, true);
             };
         } else if (addOrDrop === `drop`) {
@@ -523,11 +515,7 @@ class Roster extends Component {
             newRoster.splice(droppedPlayerIndex, 1);
             newAvailablePlayers.unshift(droppedPlayer);
 
-
-            //We use this is the player has less than a complete roster
             this.setState({ availablePlayers: newAvailablePlayers });
-            //Is a 0 here because if they added a player earlier to the DB that would have already been picked up by countRoster
-            //The true is to indicate we need to save a player down without dropping one in the usedPlayer array in the DB
             this.saveRosterToDb(newRoster, mySportsId, false);
 
         };
@@ -535,59 +523,51 @@ class Roster extends Component {
 
     render() {
         return (
-            <Container fluid={true} className='lineHeight'>
-                <Row>
-                    <Col md='3' className='noMargin'>
-                        <Label for='weekSelect'>Select Week</Label>
-                        <WeekSearch weekSelect={this.state.weekSelect} handleChange={this.handleChange} customSeasonWeekSearch={this.customSeasonWeekSearch} />
-
-                        <PositionSearch positionSelect={this.state.positionSelect} handleChange={this.handleChange} positionSearch={this.positionSearch} />
-
-                        <TeamSearch handleChange={this.handleChange} searchByTeam={this.searchByTeam} teamSelect={this.state.teamSelect} />
-
-                        <UsedPlayerButton userId={this.props.match.params.userId} username={this.state.usernameOfPage} />
-                    </Col>
-
-                    <Col md='9'>
-                        <Row className='topRow'>
-                            <Col xs='12'>
-                                <div className='centerText headerFont'>
-                                    {this.state.usernameOfPage}'s Roster
-                                </div>
-                            </Col>
-                        </Row>
-
-                        <Row>
-                            <Col md='1' />
-                            <Col md='5'>
-                                <RosterDisplay
-                                    groupPositions={this.state.groupPositions}
-                                    addDropPlayer={this.addDropPlayer}
-                                    roster={this.state.userRoster || {}}
-                                />
-                            </Col>
-                            <Col md='5'>
-                                <Row>
-                                    <Col xs='12'>
-                                        <div className='colHeader'>
-                                            Available Players
-                                        </div>
-                                    </Col>
-                                </Row>
-
-                                <Row>
-                                    <Col xs='12'>
-                                        {this.state.availablePlayers.map((player, i) => (
-                                            <AvailablePlayerRow player={player} key={i} addDropPlayer={this.addDropPlayer} evenOrOddRow={i % 2} />
-                                        ))}
-                                    </Col>
-                                </Row>
-                            </Col>
-                            <Col md='1' />
-                        </Row>
-                    </Col>
-                </Row>
-            </Container >
+            <div>
+                <div className='centerText headerFont userNameRow'>
+                    {this.state.usernameOfPage}'s Roster
+                </div>
+                <div className='rosterContainer'>
+                    <div className='rosterCol'>
+                        <div className='searchRow'>
+                            Change Week
+                            <WeekSearch weekSelect={this.state.weekSelect} handleChange={this.handleChange} customSeasonWeekSearch={this.customSeasonWeekSearch} />
+                        </div>
+                        <div className='sectionHeader'>
+                            Week {this.state.weekOnPage} Roster
+                        </div>
+                        <RosterDisplay
+                            groupPositions={this.state.groupPositions}
+                            addDropPlayer={this.addDropPlayer}
+                            roster={this.state.userRoster || {}}
+                        />
+                    </div>
+                    <div className='rosterCol'>
+                        <div className='searchRow'>
+                            Position Search
+                            <PositionSearch positionSelect={this.state.positionSelect} handleChange={this.handleChange} positionSearch={this.positionSearch} />
+                        </div>
+                        <div className='sectionHeader'>
+                            Available Players
+                        </div>
+                        {this.state.availablePlayers.map((player, i) => (
+                            <PlayerDisplayRow player={player} key={i} addDropPlayer={this.addDropPlayer} evenOrOddRow={i % 2} />
+                        ))}
+                    </div>
+                    <div className='rosterCol'>
+                        <div className='searchRow'>
+                            Player Search
+                            <PlayerSearch playerSearch={this.state.playerSearch} handleChange={this.handleChange} customPlayerSearch={this.customPlayerSearch} />
+                        </div>
+                        <div className='sectionHeader'>
+                            Used Players
+                        </div>
+                        {this.state.currentPositionUsedPlayers.map((player, i) => (
+                            <PlayerDisplayRow player={player} key={i} evenOrOddRow={i % 2} />
+                        ))}
+                    </div>
+                </div>
+            </div>
         );
     };
 };
@@ -606,9 +586,9 @@ const CurrentRosterRow = (props) => (
                 {props.player.score &&
                     props.player.score}
                 {props.addDropPlayer &&
-                    <Button className='addDropButton' color='outline-success' size='sm' onClick={() => props.addDropPlayer(props.player.M, 'drop')}>
+                    <button className='addDropButton btn btn-outline-success btn-sm' onClick={() => props.addDropPlayer(props.player.M, 'drop')}>
                         Drop
-                    </Button>
+                    </button>
                 }
             </div>
             : ``
@@ -616,14 +596,16 @@ const CurrentRosterRow = (props) => (
     </div>
 );
 
-const AvailablePlayerRow = (props) => (
+const PlayerDisplayRow = (props) => (
     <div className={props.evenOrOddRow === 0 ? 'playerRow playerContainer' : 'playerRow playerContainer oddRow'}>
         <div className='player'>
             {props.player && props.player.N + `, ` + props.player.T + `, ` + props.player.P}
         </div>
-        <Button className='addDropButton' color='outline-success' size='sm' onClick={() => props.addDropPlayer(props.player.M, 'add')}>
-            Add
-        </Button>
+        {props.addDropPlayer &&
+            <button className='addDropButton btn btn-outline-success btn-sm' onClick={() => props.addDropPlayer(props.player.M, 'add')}>
+                Add
+            </button>
+        }
     </div>
 );
 

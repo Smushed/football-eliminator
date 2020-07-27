@@ -70,11 +70,10 @@ module.exports = app => {
         res.status(200).send(lockPeriod);
     });
 
-    app.get(`/api/getUsedPlayers/:userId/:season`, async (req, res) => {
-        const { userId, season } = req.params;
+    app.get(`/api/getUsedPlayers/:userId/:season/:groupId`, async (req, res) => {
+        const { userId, season, groupId } = req.params;
 
-        const usedPlayers = await rosterHandler.usedPlayersForTable(userId, season);
-
+        const usedPlayers = await rosterHandler.usedPlayersByPosition(userId, season, groupId);
         res.status(200).send(usedPlayers);
     });
 

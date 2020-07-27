@@ -4,7 +4,7 @@ import { Label, Input, Button } from 'reactstrap';
 
 const WeekSearch = (props) => (
     <div className='selectContainer'>
-        <div className='secondRowInput'>
+        <div className='inputLength'>
             <Input value={props.weekSelect} type='select' name='weekSelect' id='weekSelect' className='searchDropdown' onChange={props.handleChange}>
                 <option>1</option>
                 <option>2</option>
@@ -33,10 +33,7 @@ const WeekSearch = (props) => (
 
 const TeamSearch = (props) => (
     <div className='selectContainer'>
-        <Label for='teamSelect'>
-            Search For Players By Team
-        </Label>
-        <div className='inputContainer secondRowInput'>
+        <div className='inputContainer inputLength'>
             <Input value={props.teamSelect} type='select' name='teamSelect' id='teamSelect' className='searchDropdown' onChange={props.handleChange}>
                 <option>ARI</option>
                 <option>ATL</option>
@@ -80,8 +77,7 @@ const TeamSearch = (props) => (
 
 const PositionSearch = (props) => (
     <div className='selectContainer'>
-        <Label for='positionSelect'>Search Available Players By Position</Label>
-        <div className='secondRowInput'>
+        <div className='inputLength'>
             <Input value={props.positionSelect} type='select' name='positionSelect' id='positionSelect' className='searchDropdown' onChange={props.handleChange}>
                 <option>QB</option>
                 <option>RB</option>
@@ -96,5 +92,16 @@ const PositionSearch = (props) => (
     </div>
 );
 
+const PlayerSearch = (props) => (
+    <div className='selectContainer'>
+        <div className='inputLength'>
+            <Input value={'COMING SOON'} type='text' name='playerSearch' id='playerSearch' className='searchDropdown' onChange={''} />
+        </div>
+        <Button color='primary' onClick={''} className='submitButton'>
+            Search
+        </Button>
+    </div>
+)
 
-export { PositionSearch, TeamSearch, WeekSearch };
+
+export { PositionSearch, TeamSearch, WeekSearch, PlayerSearch };

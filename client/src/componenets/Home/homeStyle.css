@@ -2,6 +2,10 @@
     width: 100%;
 }
 
+.weekSearchInputOnHome {
+    justify-self: start;
+}
+
 .centerText {
     text-align: center
 }

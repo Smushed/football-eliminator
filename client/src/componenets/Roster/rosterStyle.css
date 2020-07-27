@@ -1,33 +1,21 @@
-.lineHeight {
-    line-height: 1.25;
-}
-
-
-.noMargin {
-    margin: 0;
-}
-
-.selectRow {
-    width: 100%;
-    margin-top: 20px;
-}
-
-.topRow {
-    margin-top: 10px;
-}
-
-
 .searchDropdown {
     text-align: center;
     margin-bottom: 0;
     float: left;
 }
 
-.shiftInputAndSubmit {
-    margin-left: 25px;
+.userNameRow {
+    margin-bottom: 30px;
 }
 
-.secondRowInput {
+.sectionHeader {
+    font-size: 20px;
+    text-align: center;
+    margin-top: 5px;
+    border-bottom: 1px solid lightgray;
+}
+
+.inputLength {
     width: 150px;
 }
 
@@ -39,11 +27,8 @@
 
 .selectContainer {
     width: 100%;
-    display: inline-block;
-}
-
-.playerColumn {
-    width: 100%;
+    display: flex;
+    justify-content: center;
 }
 
 .columnStyle {
@@ -66,10 +51,23 @@
 }
 
 .searchRow {
+    text-align: center;
     margin-top: 15px;
-    height: 100px;
+}
+
+.searchLabel {
+    width: 150px;
 }
 
 .floatRight {
     float:right;
+}
+
+.rosterContainer {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.rosterCol {
+    width: 30%;
 }
