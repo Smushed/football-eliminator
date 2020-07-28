@@ -96,4 +96,15 @@ module.exports = app => {
         userHandler.purgeDB();
         res.status(200).send(`success`);
     });
+
+    app.put(`/api/updateWeekSeason/:pass/:season/:currentWeek/:lockWeek`, async (req, res) => {
+        const { pass, season, currentWeek, lockWeek } = req.params;
+        if (pass !== process.env.DB_ADMIN_PASS) {
+            res.status(401).send(`Get Outta Here!`);
+            return;
+        };
+        const updated = await userHandler.updateSeasonWeek(season, currentWeek, lockWeek);
+
+        res.status(200).send(updated);
+    });
 }

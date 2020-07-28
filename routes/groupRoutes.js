@@ -49,6 +49,7 @@ module.exports = app => {
         const { pass } = req.params;
         if (pass !== process.env.DB_ADMIN_PASS) {
             res.status(401).send(`Get Outta Here!`);
+            return;
         };
         groupHandler.createAllGroup();
         userHandler.initSeasonAndWeekInDB();

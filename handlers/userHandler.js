@@ -188,5 +188,16 @@ module.exports = {
         db.GroupRoster.deleteMany({}, (err, res) => { if (err) { console.log(err) } else { console.log(`Group Roster Deleted`) } });
         db.GroupScore.deleteMany({}, (err, res) => { if (err) { console.log(err) } else { console.log(`Group Score Deleted`) } });
         db.SeasonAndWeek.deleteMany({}, (err, res) => { if (err) { console.log(err) } else { console.log(`Season & Week Deleted`) } });
+    },
+    updateSeasonWeek: (season, currentWeek, lockWeek) => {
+        return new Promise(async (res, rej) => {
+            try {
+                await db.SeasonAndWeek.updateMany({}, { $set: { S: season, W: currentWeek, LW: lockWeek } });
+                res(`success!`);
+            } catch (e) {
+                console.log(e);
+                res(`failure, check logs!`);
+            };
+        })
     }
 };
