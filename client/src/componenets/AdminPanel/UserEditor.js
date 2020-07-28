@@ -230,13 +230,9 @@ class UserEditor extends Component {
 
 const SelectedUser = (props) => {
     return (
-        <Row>
-            <Col xs='12'>
-                <div className='selectedUser'>
-                    Selected User: <Input value={props.selectedUser.username} type='text' disabled />
-                </div>
-            </Col>
-        </Row>
+        <div className='selectedUser'>
+            Selected User: <input value={props.selectedUser.username} type='text' disabled />
+        </div>
     );
 };
 
