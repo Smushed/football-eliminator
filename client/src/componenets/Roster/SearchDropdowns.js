@@ -95,7 +95,7 @@ const PositionSearch = (props) => (
 const PlayerSearch = (props) => (
     <div className='selectContainer'>
         <div className='inputLength'>
-            <Input value={'COMING SOON'} type='text' name='playerSearch' id='playerSearch' className='searchDropdown' onChange={''} />
+            <Input value={'COMING SOON'} type='text' name='playerSearch' id='playerSearch' className='searchDropdown' />
         </div>
         <Button color='primary' onClick={''} className='submitButton'>
             Search
