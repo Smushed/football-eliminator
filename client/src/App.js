@@ -8,11 +8,10 @@ import SignInOut from './componenets/SignInOut';
 import NavBar from './componenets/NavBar/NavBar';
 import Home from './componenets/Home';
 import UserProfile from './componenets/UserProfile/UserProfile';
-import CreateGroup from './componenets/GroupPage/CreateGroup';
-import GroupPage from './componenets/GroupPage';
 import SeasonLongScore from './componenets/SeasonLongScore';
 import Roster from './componenets/Roster';
 import AdminPanel from './componenets/AdminPanel';
+import UpdateWeek from './componenets/AdminPanel/UpdateWeek';
 import UpgradeToAdmin from './componenets/AdminPanel/UpgradeToAdmin';
 import UsedPlayers from './componenets/UsedPlayers';
 import CreateAllGroup from './componenets/GroupPage/CreateAllGroup';
@@ -125,18 +124,6 @@ class App extends Component {
                 <UserProfile />}
             />
             <Route
-              path={Routes.createGroup}
-              render={() =>
-                <CreateGroup
-                  userID={this.state.currentUser.userID} />}
-            />
-            <Route
-              path={`/group/:groupID`}
-              render={() =>
-                <GroupPage
-                  userID={this.state.currentUser.userID} />}
-            />
-            <Route
               path={Routes.seasonLongScore}
               render={() =>
                 <SeasonLongScore
@@ -170,6 +157,11 @@ class App extends Component {
               path={Routes.createAllGroup}
               render={() =>
                 <CreateAllGroup />}
+            />
+            <Route
+              path={Routes.updateWeek}
+              render={() =>
+                <UpdateWeek />}
             />
             <Route
               render={() =>
