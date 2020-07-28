@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
-import { Container, Button, Row, Col } from 'reactstrap';
+import { Button } from 'reactstrap';
 import { UserTable, SelectedUser } from './UserEditor';
+import * as Routes from '../../constants/routes';
 
 import './upgradeToAdmin.css';
 
@@ -19,6 +20,7 @@ class UpgradeToAdmin extends Component {
             selectedUser: ``,
             userArray: [],
             loading: true,
+            dbPass: ``
         };
     };
 
@@ -33,24 +35,41 @@ class UpgradeToAdmin extends Component {
     };
 
     upgradeToAdmin = async () => {
-        const serverResponse = await axios.put(`/api/updateUserToAdmin/${this.state.selectedUser._id}`);
-        Alert.fire({
-            type: 'success',
-            text: serverResponse.data
+        let serverResponse = {};
+        try {
+            serverResponse = await axios.put(`/api/updateUserToAdmin/${this.state.selectedUser._id}/${this.state.dbPass}`);
+            Alert.fire({
+                type: 'success',
+                text: serverResponse.data
+            });
+        } catch (err) {
+            this.handleWrongPass(`Get Outta Here!`);
+        };
+    };
+
+    handleChange = event => {
+        this.setState({ [event.target.name]: event.target.value });
+    };
+
+    async handleWrongPass(message) {
+        await Alert.fire({
+            type: 'error',
+            title: message,
+            showConfirmButton: false,
+            showCancelButton: true,
+            cancelButtonText: 'X'
         });
+        this.props.history.push(Routes.home);
     };
 
     render() {
         return (
-            <Container fluid={true}>
-                <Row>
-                    <Col xs='12' className='upgradeCol'>
-                        <SelectedUser selectedUser={this.state.selectedUser} />
-                        <Button className='adminButton' onClick={this.upgradeToAdmin} disabled={!this.state.selectedUser} >Upgrade to Admin</Button>
-                        <UserTable userArray={this.state.userArray} loading={this.state.loading} selectUser={this.selectUser} />
-                    </Col>
-                </Row>
-            </Container>
+            <div className='upgradeCol'>
+                <SelectedUser selectedUser={this.state.selectedUser} />
+                <input type='text' name='dbPass' value={this.state.dbPass} onChange={this.handleChange} />
+                <Button className='adminButton' onClick={this.upgradeToAdmin} disabled={!this.state.selectedUser} >Upgrade to Admin</Button>
+                <UserTable userArray={this.state.userArray} loading={this.state.loading} selectUser={this.selectUser} />
+            </div>
         );
     };
 };

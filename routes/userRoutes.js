@@ -11,9 +11,12 @@ module.exports = app => {
         res.status(200).send(updatedUser);
     });
 
-    app.put(`/api/updateUserToAdmin/:userId`, async (req, res) => {
-        const userId = req.params.userId;
-
+    app.put(`/api/updateUserToAdmin/:userId/:pass`, async (req, res) => {
+        const { userId, pass } = req.params;
+        if (pass !== process.env.DB_ADMIN_PASS) {
+            res.status(401).send(`Get Outta Here!`);
+            return;
+        };
         const response = await userHandler.updateToAdmin(userId);
 
         res.status(200).send(response);
@@ -87,6 +90,7 @@ module.exports = app => {
         const { pass } = req.params;
         if (pass !== process.env.DB_ADMIN_PASS) {
             res.status(401).send(`Get Outta Here!`);
+            return;
         };
         console.log(`deleting`)
         userHandler.purgeDB();
