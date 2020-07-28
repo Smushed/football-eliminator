@@ -88,7 +88,6 @@ module.exports = {
     },
     updateToAdmin: async (userId) => {
         let dbResponse = ``;
-        console.log(userId)
         await db.User.updateOne({ _id: userId }, { $set: { A: true } }, (err, data) => {
             if (err) {
                 dbResponse = err;
