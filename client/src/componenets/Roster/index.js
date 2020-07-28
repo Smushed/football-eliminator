@@ -594,6 +594,7 @@ const CurrentRosterRow = (props) => (
                         {props.player.score}
                     </div>
                     :
+                    props.addDropPlayer &&
                     <button className='addDropButton btn btn-outline-success btn-sm' onClick={() => props.addDropPlayer(props.player.M, 'drop')}>
                         Drop
                     </button>

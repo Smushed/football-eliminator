@@ -65,7 +65,7 @@ class Home extends Component {
     };
 
     render() {
-        const weekForLeaderboard = this.props.week === 1 ? 1 : this.props.week;
+        const weekForLeaderboard = this.props.week === 0 ? 1 : this.props.week;
         return (
             <div className='wrapper'>
                 <Leaderboard
