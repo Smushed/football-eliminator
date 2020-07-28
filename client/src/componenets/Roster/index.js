@@ -579,13 +579,21 @@ const CurrentRosterRow = (props) => (
         </div>
         {props.player ?
             <div className='playerContainer'>
-                <div className='player'>
-                    {props.player.N &&
-                        props.player.N + `, ` + props.player.T}
-                </div>
-                {props.player.score &&
-                    props.player.score}
-                {props.addDropPlayer &&
+                {props.player.N &&
+                    <div className='playerCol'>
+                        {props.player.N}
+                    </div>
+                }
+                {props.player.T &&
+                    <div className='teamCol'>
+                        {props.player.T}
+                    </div>
+                }
+                {props.player.score ?
+                    <div className='scoreCol'>
+                        {props.player.score}
+                    </div>
+                    :
                     <button className='addDropButton btn btn-outline-success btn-sm' onClick={() => props.addDropPlayer(props.player.M, 'drop')}>
                         Drop
                     </button>
@@ -598,8 +606,14 @@ const CurrentRosterRow = (props) => (
 
 const PlayerDisplayRow = (props) => (
     <div className={props.evenOrOddRow === 0 ? 'playerRow playerContainer' : 'playerRow playerContainer oddRow'}>
-        <div className='player'>
-            {props.player && props.player.N + `, ` + props.player.T + `, ` + props.player.P}
+        <div className='playerCol'>
+            {props.player.N && props.player.N}
+        </div>
+        <div className='teamCol'>
+            {props.player.T && props.player.T}
+        </div>
+        <div className='posCol'>
+            {props.player.P && props.player.P}
         </div>
         {props.addDropPlayer &&
             <button className='addDropButton btn btn-outline-success btn-sm' onClick={() => props.addDropPlayer(props.player.M, 'add')}>
