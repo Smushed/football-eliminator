@@ -1,25 +1,24 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import ReactTable from 'react-table';
 import 'react-table/react-table.css';
-import { Container, Col, Row } from 'reactstrap';
 
 import './usedPlayerStyle.css';
-import RosterButton from '../Roster/RosterButton';
 
 class UsedPlayers extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            usedPlayers: [],
+            usedPlayers: {},
             loading: false,
             usernameOfPage: '',
+            displayPositions: [] //Figure out if we need to display them with a boolean
         };
     };
 
     componentDidMount() {
         if (this.props.season !== '') {
             this.getUsedPlayers();
+            this.getGroupPositionsForDisplay();
             this.getCurrentUsername();
         };
     };
@@ -27,14 +26,28 @@ class UsedPlayers extends Component {
     componentDidUpdate(prevProps) {
         if (this.props.season !== prevProps.season) {
             this.getUsedPlayers();
+            this.getGroupPositionsForDisplay();
             this.getCurrentUsername();
         };
     };
 
     getCurrentUsername() {
-        axios.get(`/api/getUserById/${this.props.match.params.userId}`)
+        if (typeof this.props.username !== `undefined` && this.props.username !== ``) {
+            this.setState({ usernameOfPage: this.props.username })
+        } else {
+            axios.get(`/api/getUserById/${this.props.match.params.userId}`)
+                .then(res => {
+                    this.setState({ usernameOfPage: res.data.UN })
+                }).catch(err => {
+                    console.log(err); //TODO better error handling
+                });
+        };
+    };
+
+    getGroupPositionsForDisplay = () => {
+        axios.get(`/api/getGroupPositionsForDisplay/${this.props.match.params.groupId}`)
             .then(res => {
-                this.setState({ usernameOfPage: res.data.local.username })
+                this.setState({ displayPositions: res.data.forDisplay });
             }).catch(err => {
                 console.log(err); //TODO better error handling
             });
@@ -42,47 +55,36 @@ class UsedPlayers extends Component {
 
     getUsedPlayers = () => {
         this.setState({ loading: true });
-        axios.get(`/api/getUsedPlayers/${this.props.match.params.userId}/${this.props.season}`)
+        axios.get(`/api/getUsedPlayers/${this.props.match.params.userId}/${this.props.season}/${this.props.match.params.groupId}`)
             .then(res => {
                 this.setState({ usedPlayers: res.data, loading: false });
             }).catch(err => {
                 console.log(err)//TODO Better error handling
             });
-
     };
 
     render() {
-        const columns = [
-            { Header: `QB`, accessor: `QB`, show: true },
-            { Header: `RB`, accessor: `RB`, show: true },
-            { Header: `WR`, accessor: `WR`, show: true },
-            { Header: `TE`, accessor: `TE`, show: true },
-            { Header: `K`, accessor: `K`, show: true }];
-
+        const positions = [`QB`, `RB`, `WR`, `TE`, `K`, `D`]
         return (
-            <Container fluid={true}>
-                <Row>
-                    <Col xs='12'>
-                        <Row>
-                            <Col xs='12'>
-                                <div className='centerText titleMargin headerFont'>
-                                    {this.state.usernameOfPage}'s Used Players
-                                </div>
-                                <RosterButton
-                                    username={this.state.usernameOfPage}
-                                    userId={this.props.match.params.userId} />
-                            </Col>
-                        </Row>
-                        <ReactTable
-                            data={this.state.usedPlayers}
-                            columns={columns}
-                            loading={this.state.loading}
-                            defaultPageSize={50}
-                            className="-highlight"
-                        />
-                    </Col>
-                </Row>
-            </Container>
+            <div>
+                <div className='centerText titleMargin headerFont'>
+                    {this.state.usernameOfPage}'s Used Players
+                </div>
+                {positions.map(position => (
+                    <div key={position}>
+                        {this.state.usedPlayers[position] &&
+                            <div>
+                                {position}
+                                {this.state.usedPlayers[position].map((player, i) => (
+                                    <div key={i}>
+                                        {player.N}
+                                    </div>
+                                ))}
+                            </div>
+                        }
+                    </div>
+                ))}
+            </div>
         )
     }
 }

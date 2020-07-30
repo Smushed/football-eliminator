@@ -146,6 +146,37 @@ module.exports = {
         const dbResponse = await db.GroupRoster.findOne({ G: groupId });
         return dbResponse.P;
     },
+    groupPositionsForDisplay: async (rawPositionData) => {
+        const positionsToDisplay = [false, false, false, false, false, false]; //QB, RB, WR, TE, K, D
+        for (const position of rawPositionData) {
+            if (position.I === 0) {
+                positionsToDisplay[0] = true;
+            } else if (position.I === 1) {
+                positionsToDisplay[1] = true;
+            } else if (position.I === 2) {
+                positionsToDisplay[2] = true;
+            } else if (position.I === 3) {
+                positionsToDisplay[3] = true;
+            } else if (position.I === 4) {
+                positionsToDisplay[4] = true;
+            } else if (position.I === 5) {
+                positionsToDisplay[5] = true;
+            } else if (position.I === 6) {
+                positionsToDisplay[1] = true;
+                positionsToDisplay[2] = true;
+            } else if (position.I === 7) {
+                positionsToDisplay[1] = true;
+                positionsToDisplay[2] = true;
+                positionsToDisplay[3] = true;
+            } else if (position.I === 8) {
+                positionsToDisplay[0] = true;
+                positionsToDisplay[1] = true;
+                positionsToDisplay[2] = true;
+                positionsToDisplay[3] = true;
+            };
+        };
+        return positionsToDisplay;
+    },
     getGroupScore: async (groupId) => {
         const dbResponse = await db.GroupScore.findOne({ G: groupId });
         return dbResponse;

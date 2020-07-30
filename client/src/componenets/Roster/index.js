@@ -2,14 +2,13 @@ import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
-import { Button } from 'reactstrap';
 
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import './rosterStyle.css';
 import './playerStyle.css';
 
-import { WeekSearch, PositionSearch, TeamSearch, PlayerSearch } from './SearchDropdowns';
+import { WeekSearch, PositionSearch, PlayerSearch } from './SearchDropdowns';
 
 const Alert = withReactContent(Swal);
 
@@ -638,9 +637,9 @@ const RosterDisplay = (props) => (
         {props.UID &&
             <div className='usedPlayerButton'>
                 <Link to={`/usedPlayers/${props.UID}`}>
-                    <Button color='info'>
+                    <button className='btn btn-info'>
                         {props.UN}'s used Players
-                    </Button>
+                    </button>
                 </Link>
             </div>
         }
