@@ -650,4 +650,4 @@ const RosterDisplay = (props) => (
 const condition = authUser => !!authUser;
 
 export default withAuthorization(condition)(Roster);
-export { RosterDisplay };
+export { RosterDisplay, PlayerDisplayRow };

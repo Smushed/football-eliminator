@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import { PlayerDisplayRow } from '../Roster';
 import 'react-table/react-table.css';
 
 import './usedPlayerStyle.css';
@@ -73,12 +74,12 @@ class UsedPlayers extends Component {
                 {positions.map(position => (
                     <div key={position}>
                         {this.state.usedPlayers[position] &&
-                            <div>
-                                {position}
+                            <div className='usedPosition'>
+                                <div className='sectionHeader'>
+                                    {position}
+                                </div>
                                 {this.state.usedPlayers[position].map((player, i) => (
-                                    <div key={i}>
-                                        {player.N}
-                                    </div>
+                                    <PlayerDisplayRow player={player} key={i} evenOrOddRow={i % 2} />
                                 ))}
                             </div>
                         }
