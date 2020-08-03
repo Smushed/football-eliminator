@@ -1,5 +1,5 @@
 import React from 'react';
-import { Label, Input, Button } from 'reactstrap';
+import { Input } from 'reactstrap';
 
 
 const WeekSearch = (props) => (
@@ -25,9 +25,9 @@ const WeekSearch = (props) => (
                 <option>17</option>
             </Input>
         </div>
-        <Button color='primary' onClick={props.customSeasonWeekSearch} className='submitButton'>
+        <button className='btn btn-primary submitButton' onClick={props.customSeasonWeekSearch} >
             Search
-    </Button>
+    </button>
     </div>
 );
 
@@ -69,9 +69,9 @@ const TeamSearch = (props) => (
                 <option>WAS</option>
             </Input>
         </div>
-        <Button color="primary" onClick={props.searchByTeam} className='submitButton'>
+        <button className='btn btn-primary submitButton' onClick={props.searchByTeam} >
             Search
-        </Button>
+        </button>
     </div>
 );
 
@@ -86,9 +86,9 @@ const PositionSearch = (props) => (
                 <option>K</option>
             </Input>
         </div>
-        <Button color='primary' onClick={props.positionSearch} className='submitButton'>
+        <button className='btn btn-primary submitButton' onClick={props.positionSearch} >
             Search
-    </Button>
+    </button>
     </div>
 );
 
@@ -97,9 +97,9 @@ const PlayerSearch = (props) => (
         <div className='inputLength'>
             <Input value={'COMING SOON'} type='text' name='playerSearch' id='playerSearch' className='searchDropdown' />
         </div>
-        <Button color='primary' onClick={''} className='submitButton'>
+        <button className='btn btn-primary submitButton' onClick={''}>
             Search
-        </Button>
+        </button>
     </div>
 )
 

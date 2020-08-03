@@ -12,3 +12,9 @@
 .rosterButton {
     margin-bottom: 10px;
 }
+
+.usedPosition {
+    float: left;
+    width: 17%;
+    margin-left: 2%;
+}

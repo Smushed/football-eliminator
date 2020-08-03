@@ -56,4 +56,17 @@ module.exports = app => {
         console.log(`Group Created`)
         res.sendStatus(200);
     });
+
+    app.get(`/api/getGroupPositions/:groupId`, async (req, res) => {
+        const { groupId } = req.params;
+        const positions = await groupHandler.getGroupPositions(groupId);
+        res.status(200).send(positions);
+    });
+
+    app.get(`/api/getGroupPositionsForDisplay/:groupId`, async (req, res) => {
+        const { groupId } = req.params;
+        const positions = await groupHandler.getGroupPositions(groupId);
+        const forDisplay = await groupHandler.groupPositionsForDisplay(positions);
+        res.status(200).send({ positions, forDisplay });
+    })
 };

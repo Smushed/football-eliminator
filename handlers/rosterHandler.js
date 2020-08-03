@@ -250,7 +250,6 @@ module.exports = {
         });
     },
     usedPlayersByPosition: async (userId, season, groupId) => {
-        //TODO START HERE
         const sortedPlayers = { 'QB': [], 'RB': [], 'WR': [], 'TE': [], 'K': [] };
 
         const usedPlayers = await getUsedPlayers(userId, season, groupId);
