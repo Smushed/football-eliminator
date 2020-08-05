@@ -22,7 +22,6 @@ class SignInOut extends Component {
         };
     };
     switchView = () => {
-        console.log(this.state)
         this.setState({ showSignIn: !this.state.showSignIn });
     };
 
@@ -152,7 +151,7 @@ class SignUpFormBase extends Component {
     render() {
         return (
             <div className='formContainer'>
-                <div className='switchViewContainer'>
+                <div className='switchViewContainer largeScreenSignIn'>
                     <div className='fullWidth'>
                         Have an account?
                     </div>
@@ -202,6 +201,14 @@ class SignUpFormBase extends Component {
                             <button className='signInUpBtn btn btn-success'>Sign Up</button>
                         </div>
                     </form>
+                </div>
+                <div className='switchViewContainer smallScreenSignIn'>
+                    <div className='fullWidth'>
+                        Have an account?
+                    </div>
+                    <button className='btn btn-info switchView' onClick={() => this.props.switchView()}>
+                        Sign In
+                    </button>
                 </div>
             </div>
         )

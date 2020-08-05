@@ -534,7 +534,7 @@ module.exports = {
         return weeklyScore;
     },
     rankPlayers: async function (season, week, groupScore) {
-        console.log(season, week, groupScore);
+        console.log(`Ranking Players for `, season, week, groupScore);
         //Loop through the positions of the players to then rank them
         //We are doing the offense here, since D will be different
         for (const position of positions.offense) {
@@ -546,7 +546,6 @@ module.exports = {
             for (let player of playersByPosition) {
                 const scoredPlayer = player.toObject();
                 scoredPlayer.score = 0;
-                // currentSeason
                 for (let i = 1; i <= week; i++) {
                     scoredPlayer.score += await playerScoreHandler(player, season, i, groupScore)
                 };

@@ -65,7 +65,7 @@ module.exports = app => {
     app.get(`/api/rankPlayers/:season/:week/:groupId`, async (req, res) => {
         const { season, week, groupId } = req.params;
 
-        const groupScore = await await groupHandler.getGroupScore(groupId);
+        const groupScore = await groupHandler.getGroupScore(groupId);
 
         const dbResponse = await mySportsHandler.rankPlayers(season, week, groupScore);
 

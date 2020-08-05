@@ -1,25 +1,28 @@
 {
   "files": {
-    "main.css": "/static/css/main.68153984.chunk.css",
-    "main.js": "/static/js/main.69c5df69.chunk.js",
-    "main.js.map": "/static/js/main.69c5df69.chunk.js.map",
-    "runtime-main.js": "/static/js/runtime-main.e8f60050.js",
-    "runtime-main.js.map": "/static/js/runtime-main.e8f60050.js.map",
-    "static/css/2.78b1011a.chunk.css": "/static/css/2.78b1011a.chunk.css",
-    "static/js/2.74d56927.chunk.js": "/static/js/2.74d56927.chunk.js",
-    "static/js/2.74d56927.chunk.js.map": "/static/js/2.74d56927.chunk.js.map",
+    "main.css": "/static/css/main.de244e46.chunk.css",
+    "main.js": "/static/js/main.2301dca0.chunk.js",
+    "main.js.map": "/static/js/main.2301dca0.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.51558156.js",
+    "runtime-main.js.map": "/static/js/runtime-main.51558156.js.map",
+    "static/css/2.4dac0d46.chunk.css": "/static/css/2.4dac0d46.chunk.css",
+    "static/js/2.5793a1e2.chunk.js": "/static/js/2.5793a1e2.chunk.js",
+    "static/js/2.5793a1e2.chunk.js.map": "/static/js/2.5793a1e2.chunk.js.map",
     "index.html": "/index.html",
-    "precache-manifest.f6bbe692965bfec695f05fd0154e788c.js": "/precache-manifest.f6bbe692965bfec695f05fd0154e788c.js",
+    "precache-manifest.1c291279e6714b2f31d39774eb501823.js": "/precache-manifest.1c291279e6714b2f31d39774eb501823.js",
     "service-worker.js": "/service-worker.js",
-    "static/css/2.78b1011a.chunk.css.map": "/static/css/2.78b1011a.chunk.css.map",
-    "static/css/main.68153984.chunk.css.map": "/static/css/main.68153984.chunk.css.map",
-    "static/js/2.74d56927.chunk.js.LICENSE.txt": "/static/js/2.74d56927.chunk.js.LICENSE.txt"
+    "static/css/2.4dac0d46.chunk.css.map": "/static/css/2.4dac0d46.chunk.css.map",
+    "static/css/main.de244e46.chunk.css.map": "/static/css/main.de244e46.chunk.css.map",
+    "static/media/Champs.jpg": "/static/media/Champs.e35b1081.jpg",
+    "static/media/ElimLogo.jpg": "/static/media/ElimLogo.5b1946b9.jpg",
+    "static/media/EliminatorSignInLogo.png": "/static/media/EliminatorSignInLogo.f0543dd4.png",
+    "static/media/SignOut.png": "/static/media/SignOut.781f5e34.png"
   },
   "entrypoints": [
-    "static/js/runtime-main.e8f60050.js",
-    "static/css/2.78b1011a.chunk.css",
-    "static/js/2.74d56927.chunk.js",
-    "static/css/main.68153984.chunk.css",
-    "static/js/main.69c5df69.chunk.js"
+    "static/js/runtime-main.51558156.js",
+    "static/css/2.4dac0d46.chunk.css",
+    "static/js/2.5793a1e2.chunk.js",
+    "static/css/main.de244e46.chunk.css",
+    "static/js/main.2301dca0.chunk.js"
   ]
 }
