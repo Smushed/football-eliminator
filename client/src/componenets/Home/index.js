@@ -16,6 +16,7 @@ class Home extends Component {
             userIdDisplayed: '',
             groupRosters: [],
             weekSelect: 1,
+            weekDisplay: 1,
             groupPositions: [],
             leaderboard: []
         };
@@ -23,14 +24,14 @@ class Home extends Component {
 
     componentDidMount() {
         if (this.props.week && this.props.season) {
-            this.setState({ weekSelect: this.props.week });
+            this.setState({ weekSelect: this.props.week, weekDisplay: this.props.week });
             this.getLeaderBoard(this.props.season, this.props.week, this.props.group._id);
         };
     };
 
     componentDidUpdate(prevProps) {
         if (this.props.week !== prevProps.week) {
-            this.setState({ weekSelect: this.props.week });
+            this.setState({ weekSelect: this.props.week, weekDisplay: this.props.week });
             this.getLeaderBoard(this.props.season, this.props.week, this.props.group._id);
         };
     };
@@ -47,7 +48,7 @@ class Home extends Component {
     updateRosterWeek(season, week, groupId) {
         axios.get(`/api/getAllRostersForGroup/${season}/${week}/${groupId}/false`)
             .then(res => {
-                this.setState({ groupRosters: res.data.rosters });
+                this.setState({ groupRosters: res.data.rosters, weekDisplay: week });
                 return;
             });
     };
@@ -76,7 +77,7 @@ class Home extends Component {
                 />
                 <div className='weekSearchOnHome'>
                     <div className='weekDisplay'>
-                        Week Shown: {this.state.weekSelect}
+                        Week Shown: {this.state.weekDisplay}
                     </div>
                     <div className='weekSearchInputOnHome'>
                         <WeekSearch handleChange={this.handleChange} customSeasonWeekSearch={this.customSeasonWeekSearch} weekSelect={this.state.weekSelect} />

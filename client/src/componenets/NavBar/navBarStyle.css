@@ -83,16 +83,21 @@
     display: block;
 }
 
-/* FOR SMARTPHONES */
-@media only screen and (max-width: 767px) {
+@media only screen and (max-width: 900px) {
     .smallViewLinks {
         display: block;
     }
     .largeViewLinks {
         display: none;
-    }  
+    } 
+}
+
+/* FOR SMARTPHONES */
+@media only screen and (max-width: 767px) {
     .navButton {
-        min-width: 100px;
+        min-width: 70px;
+        max-width: 100px;
+        line-height: 0;
         margin-left: 0;
         margin-top: 6px;
         transform: translateY(0);
@@ -110,5 +115,14 @@
         margin-top: 25px;
         font-weight: 600;
         margin-right: 20%;
+    }
+}
+
+@media only screen and (max-width: 400px) {
+    .superSmallHide {
+        display: none;
+    }
+    .navButton {
+        margin-top: 20px;
     }
 }

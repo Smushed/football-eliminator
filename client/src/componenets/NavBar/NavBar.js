@@ -59,9 +59,11 @@ class NavBar extends Component {
                         <Link to={`/roster/${this.props.groupId}/${this.props.userId}`}>
                             <button className='btn btn-success btn-sm navButton floatLeft'>Roster</button>
                         </Link>
-                        <Link to={`/usedPlayers/${this.props.groupId}/${this.props.userId}`}>
-                            <button className='btn btn-success btn-sm navButton floatLeft'>Used Players</button>
-                        </Link>
+                        <div className='superSmallHide'>
+                            <Link to={`/usedPlayers/${this.props.groupId}/${this.props.userId}`}>
+                                <button className=' btn btn-success btn-sm navButton floatLeft'>Used Players</button>
+                            </Link>
+                        </div>
                     </div>
                 </div>
                 <div className='halfWay rightHalf'>
