@@ -74,3 +74,41 @@
     justify-content: center;
     align-items: center;
 }
+
+.smallViewLinks {
+    display: none;
+}
+
+.largeViewLinks {
+    display: block;
+}
+
+/* FOR SMARTPHONES */
+@media only screen and (max-width: 767px) {
+    .smallViewLinks {
+        display: block;
+    }
+    .largeViewLinks {
+        display: none;
+    }  
+    .navButton {
+        min-width: 100px;
+        margin-left: 0;
+        margin-top: 6px;
+        transform: translateY(0);
+    }
+    .signOut {
+        transform: translateY(0);
+        margin-top: 7px;
+        width: 55px;
+        margin-right: 0;
+    }
+    .smallVerifyEmailBtn {
+        margin-top: 20px;
+    }
+    .smallSentEmail {
+        margin-top: 25px;
+        font-weight: 600;
+        margin-right: 20%;
+    }
+}

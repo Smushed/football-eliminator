@@ -31,6 +31,13 @@ class NavBar extends Component {
 
     SentVerifyEmail = () => <div className='sentEmail floatRight notifications'>Email has been sent</div>;
 
+    SmallVerifyEmailButton = ({ authUser }) =>
+        <div className='verifyEmailDiv floatRight notifications smallVerifyEmailBtn'>
+            <button className='btn btn-info btn-sm' onClick={() => this.sendAuthEmail(authUser)}>Verifiy Email</button>
+        </div>;
+
+    SmallSentVerifyEmail = () => <div className='sentEmail smallSentEmail floatRight notifications'>Sent!</div>;
+
     render() {
         return (
             <div className='navHeader'>
@@ -40,23 +47,38 @@ class NavBar extends Component {
                             <img className='navHomeIcon floatLeft' src={ElimLogo} alt={`Home`} />
                         </Link>
                     </div>
-                    <div>
+                    <div className='largeViewLinks'>
                         <Link to={`/roster/${this.props.groupId}/${this.props.userId}`}>
                             <button className='btn btn-success navButton floatLeft'>Your Roster</button>
                         </Link>
-                    </div>
-                    <div>
                         <Link to={`/usedPlayers/${this.props.groupId}/${this.props.userId}`}>
                             <button className='btn btn-success navButton floatLeft'>Your Used Players</button>
                         </Link>
                     </div>
+                    <div className='smallViewLinks'>
+                        <Link to={`/roster/${this.props.groupId}/${this.props.userId}`}>
+                            <button className='btn btn-success btn-sm navButton floatLeft'>Roster</button>
+                        </Link>
+                        <Link to={`/usedPlayers/${this.props.groupId}/${this.props.userId}`}>
+                            <button className='btn btn-success btn-sm navButton floatLeft'>Used Players</button>
+                        </Link>
+                    </div>
                 </div>
                 <div className='halfWay rightHalf'>
-                    <SignOutButton />
-                    {!this.props.authUser.emailVerified && (
-                        this.state.emailSent ?
-                            <this.SentVerifyEmail /> :
-                            <this.VerifyEmailButton authUser={this.props.authUser} />)}
+                    <div className='largeViewLinks'>
+                        <SignOutButton descText={true} />
+                        {!this.props.authUser.emailVerified && (
+                            this.state.emailSent ?
+                                <this.SentVerifyEmail /> :
+                                <this.VerifyEmailButton authUser={this.props.authUser} />)}
+                    </div>
+                    <div className='smallViewLinks'>
+                        <SignOutButton descText={false} />
+                        {!this.props.authUser.emailVerified && (
+                            this.state.emailSent ?
+                                <this.SmallSentVerifyEmail /> :
+                                <this.SmallVerifyEmailButton authUser={this.props.authUser} />)}
+                    </div>
                 </div>
             </div>
         );
