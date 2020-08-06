@@ -31,7 +31,7 @@
 
 .homePageRoster {
     border-radius: 15px;
-    width: 355px;
+    min-width: 355px;
     float: left;
     margin-left: 15px;
     border: 1px solid lightgray;
@@ -60,5 +60,10 @@
 @media only screen and (max-width: 767px) {
     .weekSearchOnHome {
         padding-left: 0;
+    }
+    .homePageRoster {
+        margin-top: 10px;
+        margin-left: 0;
+        width: 100%;
     }
 }
