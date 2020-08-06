@@ -40,7 +40,6 @@ class Home extends Component {
         //Sending true to pull back the leaderboard as well
         axios.get(`/api/getAllRostersForGroup/${season}/${week}/${groupId}/true`)
             .then(res => {
-                console.log(week)
                 this.setState({ groupRosters: res.data.rosters, groupPositions: res.data.groupPositions, leaderboard: res.data.leaderboard });
                 return;
             });

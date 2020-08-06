@@ -46,7 +46,7 @@
 }
 
 .weekSearchOnHome {
-    margin-left: 33%;
+    padding-left: 33%;
     display: flex;
     text-align: center;
 }
@@ -54,4 +54,11 @@
 .weekDisplay {
     width: 200px;
     font-size: 20px;
+}
+
+/* FOR SMARTPHONES */
+@media only screen and (max-width: 767px) {
+    .weekSearchOnHome {
+        padding-left: 0;
+    }
 }
