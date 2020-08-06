@@ -18,3 +18,15 @@
     width: 17%;
     margin-left: 2%;
 }
+
+/* FOR SMARTPHONES */
+@media only screen and (max-width: 767px) {
+    .usedPosition {
+        float: none;
+        width: 100%;
+        margin-top: 10px;
+        margin-left:0;
+        border: 1px solid lightgray;
+        border-radius: 15px;
+    }
+}
