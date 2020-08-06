@@ -92,7 +92,7 @@
         display: none;
     }  
     .navButton {
-        min-width: 100px;
+        min-width: 70px;
         margin-left: 0;
         margin-top: 6px;
         transform: translateY(0);
