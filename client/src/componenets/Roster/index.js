@@ -526,9 +526,15 @@ class Roster extends Component {
                 <div className='centerText headerFont userNameRow'>
                     {this.state.usernameOfPage}'s Roster
                 </div>
+                <div className='smallSearchContainer'>
+                    <div className='searchRow'>
+                        Change Week
+                        <WeekSearch weekSelect={this.state.weekSelect} handleChange={this.handleChange} customSeasonWeekSearch={this.customSeasonWeekSearch} />
+                    </div>
+                </div>
                 <div className='rosterContainer'>
                     <div className='rosterCol'>
-                        <div className='searchRow'>
+                        <div className='searchRow largeScreenSearch'>
                             Change Week
                             <WeekSearch weekSelect={this.state.weekSelect} handleChange={this.handleChange} customSeasonWeekSearch={this.customSeasonWeekSearch} />
                         </div>

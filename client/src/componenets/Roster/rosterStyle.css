@@ -71,3 +71,21 @@
 .rosterCol {
     width: 30%;
 }
+
+.smallSearchContainer {
+    display: none;
+}
+
+.largeScreenSearch {
+    display: block;
+}
+
+/* FOR SMARTPHONES */
+@media only screen and (max-width: 767px) {
+    .smallSearchContainer {
+        display: block
+    }
+    .largeScreenSearch {
+        display: none;
+    }
+}
