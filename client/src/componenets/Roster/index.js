@@ -526,9 +526,23 @@ class Roster extends Component {
                 <div className='centerText headerFont userNameRow'>
                     {this.state.usernameOfPage}'s Roster
                 </div>
+                <div className='smallSearchContainer'>
+                    <div className='searchRow'>
+                        Change Week
+                        <WeekSearch weekSelect={this.state.weekSelect} handleChange={this.handleChange} customSeasonWeekSearch={this.customSeasonWeekSearch} />
+                    </div>
+                    <div className='searchRow'>
+                        Position Search
+                        <PositionSearch positionSelect={this.state.positionSelect} handleChange={this.handleChange} positionSearch={this.positionSearch} />
+                    </div>
+                    <div className='searchRow'>
+                        Player Search
+                        <PlayerSearch playerSearch={this.state.playerSearch} handleChange={this.handleChange} customPlayerSearch={this.customPlayerSearch} />
+                    </div>
+                </div>
                 <div className='rosterContainer'>
                     <div className='rosterCol'>
-                        <div className='searchRow'>
+                        <div className='searchRow largeScreenShow'>
                             Change Week
                             <WeekSearch weekSelect={this.state.weekSelect} handleChange={this.handleChange} customSeasonWeekSearch={this.customSeasonWeekSearch} />
                         </div>
@@ -542,7 +556,7 @@ class Roster extends Component {
                         />
                     </div>
                     <div className='rosterCol'>
-                        <div className='searchRow'>
+                        <div className='searchRow largeScreenShow'>
                             Position Search
                             <PositionSearch positionSelect={this.state.positionSelect} handleChange={this.handleChange} positionSearch={this.positionSearch} />
                         </div>
@@ -553,7 +567,7 @@ class Roster extends Component {
                             <PlayerDisplayRow player={player} key={i} addDropPlayer={this.addDropPlayer} evenOrOddRow={i % 2} />
                         ))}
                     </div>
-                    <div className='rosterCol'>
+                    <div className='rosterCol largeScreenShow'>
                         <div className='searchRow'>
                             Player Search
                             <PlayerSearch playerSearch={this.state.playerSearch} handleChange={this.handleChange} customPlayerSearch={this.customPlayerSearch} />

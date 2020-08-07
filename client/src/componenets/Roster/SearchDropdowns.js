@@ -34,7 +34,7 @@ const WeekSearch = (props) => (
 const TeamSearch = (props) => (
     <div className='selectContainer'>
         <div className='inputContainer inputLength'>
-            <Input value={props.teamSelect} type='select' name='teamSelect' id='teamSelect' className='searchDropdown' onChange={props.handleChange}>
+            <Input value={props.teamSelect} type='select' name='teamSelect' className='searchDropdown' onChange={props.handleChange}>
                 <option>ARI</option>
                 <option>ATL</option>
                 <option>BAL</option>
@@ -78,7 +78,7 @@ const TeamSearch = (props) => (
 const PositionSearch = (props) => (
     <div className='selectContainer'>
         <div className='inputLength'>
-            <Input value={props.positionSelect} type='select' name='positionSelect' id='positionSelect' className='searchDropdown' onChange={props.handleChange}>
+            <Input value={props.positionSelect} type='select' name='positionSelect' className='searchDropdown' onChange={props.handleChange}>
                 <option>QB</option>
                 <option>RB</option>
                 <option>WR</option>
@@ -95,12 +95,12 @@ const PositionSearch = (props) => (
 const PlayerSearch = (props) => (
     <div className='selectContainer'>
         <div className='inputLength'>
-            <Input value={'COMING SOON'} type='text' name='playerSearch' id='playerSearch' className='searchDropdown' />
+            <Input value={'COMING SOON'} type='text' name='playerSearch' className='searchDropdown' readOnly />
         </div>
-        <button className='btn btn-primary submitButton' onClick={''}>
+        <button className='btn btn-primary submitButton' onClick={() => { }}>
             Search
         </button>
-    </div>
+    </div >
 )
 
 
