@@ -76,7 +76,7 @@
     display: none;
 }
 
-.largeScreenSearch {
+.largeScreenShow {
     display: block;
 }
 
@@ -85,7 +85,19 @@
     .smallSearchContainer {
         display: block
     }
-    .largeScreenSearch {
+    .largeScreenShow {
         display: none;
     }
+    .searchRow {
+        text-align: center;
+        margin-top: 0;
+    }
+    .rosterCol {
+        width: 100%;
+        margin-top: 15px;
+    }
+    .rosterContainer {
+        display: block;
+    }
+    
 }
