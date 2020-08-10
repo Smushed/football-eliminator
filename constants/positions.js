@@ -14,5 +14,5 @@ module.exports = {
     orderOf: [0, 1, 2, 8, 6, 7, 3, 4, 5],
     positionMap: [[0], [1], [2], [3], [4], [5], [1, 2], [1, 2, 3], [0, 1, 2, 3]],
     orderOfDescription: [`QB`, `RB`, `WR`, `Super Flex`, `RB/WR`, `Flex`, `TE`, `K`, `D`],
-    offense: [`QB`, `RB`, `WR`, `TE`, `K`],
+    positionArray: [`QB`, `RB`, `WR`, `TE`, `K`],
 }

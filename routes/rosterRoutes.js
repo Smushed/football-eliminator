@@ -32,7 +32,7 @@ module.exports = app => {
             const userRoster = await mySportsHandler.fillUserRoster(playerIdRoster);
             const groupPositions = await groupHandler.getGroupPositions(groupId);
             const groupMap = await groupHandler.mapGroupPositions(groupPositions, positions.positionMap);
-            const response = { userRoster, groupPositions, groupMap };
+            const response = { userRoster, groupPositions, groupMap, positionArray: positions.positionArray };
             res.status(200).send(response);
         } else {
             //TODO Do something with this error
