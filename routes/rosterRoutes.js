@@ -31,7 +31,8 @@ module.exports = app => {
             const playerIdRoster = await rosterHandler.getUserRoster(userId, week, season, groupId);
             const userRoster = await mySportsHandler.fillUserRoster(playerIdRoster);
             const groupPositions = await groupHandler.getGroupPositions(groupId);
-            const response = { userRoster, groupPositions };
+            const groupMap = await groupHandler.mapGroupPositions(groupPositions, positions.positionMap);
+            const response = { userRoster, groupPositions, groupMap };
             res.status(200).send(response);
         } else {
             //TODO Do something with this error

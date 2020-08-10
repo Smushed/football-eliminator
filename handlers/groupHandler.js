@@ -180,5 +180,12 @@ module.exports = {
     getGroupScore: async (groupId) => {
         const dbResponse = await db.GroupScore.findOne({ G: groupId });
         return dbResponse;
+    },
+    mapGroupPositions: async (groupPositions, positionMap) => {
+        const groupMap = [];
+        for (const position of groupPositions) {
+            groupMap.push(positionMap[position.I])
+        };
+        return groupMap;
     }
 };

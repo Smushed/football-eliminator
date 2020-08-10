@@ -3,7 +3,6 @@ import { withAuthorization } from '../Session';
 import axios from 'axios';
 import { Container, Row, Col } from 'reactstrap';
 import { RosterDisplay } from '../Roster';
-import 'react-table/react-table.css';
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 

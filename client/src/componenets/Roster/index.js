@@ -28,7 +28,8 @@ class Roster extends Component {
             usernameOfPage: '',
             groupPositions: [],
             usedPlayers: {},
-            currentPositionUsedPlayers: []
+            currentPositionUsedPlayers: [],
+            positionMap: []
         };
     };
 
@@ -119,7 +120,7 @@ class Roster extends Component {
             axios.get(`/api/userRoster/${this.props.match.params.groupId}/${this.props.match.params.userId}`,
                 { params: { week, season: this.props.season } })
                 .then(res => {
-                    this.setState({ userRoster: res.data.userRoster, groupPositions: res.data.groupPositions });
+                    this.setState({ userRoster: res.data.userRoster, groupPositions: res.data.groupPositions, positionMap: res.data.groupMap });
                     this.doneLoading();
                 }).catch(err => {
                     console.log(`roster data error`, err); //TODO better error handling
