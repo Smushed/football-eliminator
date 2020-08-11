@@ -4,9 +4,9 @@ import axios from 'axios';
 import { Input, Form, FormGroup, Button, Row, Col } from 'reactstrap';
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import ReactTable from 'react-table';
+import ReactTable from 'react-table-v6';
 
-import 'react-table/react-table.css';
+import 'react-table-v6/react-table.css';
 import './userEditorStyle.css';
 
 const Alert = withReactContent(Swal);

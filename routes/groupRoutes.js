@@ -1,7 +1,6 @@
 require(`dotenv`).config();
 const userHandler = require(`../handlers/userHandler`);
 const groupHandler = require(`../handlers/groupHandler`);
-const rosterHandler = require(`../handlers/rosterHandler`);
 
 module.exports = app => {
     app.get(`/api/getuser/`, async (req, res) => {
@@ -68,5 +67,5 @@ module.exports = app => {
         const positions = await groupHandler.getGroupPositions(groupId);
         const forDisplay = await groupHandler.groupPositionsForDisplay(positions);
         res.status(200).send({ positions, forDisplay });
-    })
+    });
 };

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { PlayerDisplayRow } from '../Roster';
-import 'react-table/react-table.css';
 
 import './usedPlayerStyle.css';
 
