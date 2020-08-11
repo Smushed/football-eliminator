@@ -349,11 +349,8 @@ class Roster extends Component {
 
     customSeasonWeekSearch = (e) => {
         e.preventDefault();
-
         const userRoster = [];
-
         this.setState({ userRoster })
-
         this.getRosterData(this.state.weekSelect, this.props.season);
     };
 
@@ -363,7 +360,7 @@ class Roster extends Component {
         });
     };
 
-    addPlayerToRoster = async (newRoster, addedPlayer) => {
+    addPlayerToRoster = async (newRoster, addedPlayer, newAvailablePlayers) => {
         let sortedUpdatedRoster = newRoster.slice(0);
         const { positionMap } = this.state;
         const playerIndex = this.state.positionArray.indexOf(addedPlayer.P);
@@ -372,19 +369,25 @@ class Roster extends Component {
         for (let i = 0; i < positionMap.length; i++) {
             if (positionMap[i].includes(playerIndex)) {
                 allowedMap[i] = true;
-                if (sortedUpdatedRoster[i] === 0) {
-                    sortedUpdatedRoster[i] = addedPlayer;
-                    added = true;
-                }
+                if (!added) { //If they are not already added, add them. If they are ignore this
+                    if (sortedUpdatedRoster[i] === 0) {
+                        sortedUpdatedRoster[i] = addedPlayer;
+                        added = true;
+                    };
+                };
             } else {
                 allowedMap[i] = false;
             };
         };
+        //Checks if we added a player without dropping one
         if (!added) {
             this.tooManyPlayers(sortedUpdatedRoster, allowedMap, addedPlayer);
         } else {
-            //TODO HAVE IT SAVE HERE RATHER THAN BOUNCE BACK
-        }
+            this.saveRosterToDb(sortedUpdatedRoster, 0, addedPlayer.M);
+            const newUsedPlayers = { ...this.state.usedPlayers };
+            newUsedPlayers[addedPlayer.P].push(addedPlayer);
+            this.setState({ availablePlayers: newAvailablePlayers, usedPlayers: newUsedPlayers });
+        };
     }
 
     addDropPlayer = async (mySportsId, addOrDrop) => {
@@ -419,7 +422,7 @@ class Roster extends Component {
             });
 
             newAvailablePlayers.splice(addedPlayerIndex, 1);
-            this.addPlayerToRoster(newRoster, addedPlayer)
+            this.addPlayerToRoster(newRoster, addedPlayer, newAvailablePlayers);
         } else if (addOrDrop === `drop`) {
             let droppedPlayerIndex = 0;
             const droppedPlayer = newRoster.find((player, i) => {
