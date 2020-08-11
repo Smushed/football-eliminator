@@ -28,7 +28,6 @@ class Roster extends Component {
             usernameOfPage: '',
             groupPositions: [],
             positionArray: [],
-            maxPosition: {},
             usedPlayers: {},
             currentPositionUsedPlayers: [],
             positionMap: []
@@ -117,7 +116,6 @@ class Roster extends Component {
                 { params: { week, season: this.props.season } })
                 .then(res => {
                     this.setState({ userRoster: res.data.userRoster, groupPositions: res.data.groupPositions, positionMap: res.data.groupMap, positionArray: res.data.positionArray });
-                    this.countMaxPosition(res.data.groupMap, res.data.positionArray);
                     this.doneLoading();
                 }).catch(err => {
                     console.log(`roster data error`, err); //TODO better error handling
@@ -125,179 +123,62 @@ class Roster extends Component {
         };
     };
 
-    countMaxPosition = (groupPositionMap, positionArray) => {
-        var maxPosition = { QB: 0, RB: 0, WR: 0, TE: 0, K: 0, total: 0 };
-        for (const posMap of groupPositionMap) {
-            for (const pos of posMap) {
-                maxPosition[positionArray[pos]]++
+    tooManyPlayers = async (currentRoster, allowedMap, addedPlayer) => {
+        const possibleDrops = [];
+        for (let i = 0; i < allowedMap.length; i++) {
+            if (allowedMap[i]) {
+                possibleDrops.push(currentRoster[i]);
             };
         };
-        maxPosition.total = groupPositionMap.length;
-        this.setState({ maxPosition });
-    };
+        possibleDrops.push(addedPlayer)
+        const playersForSwal = {};
 
-    countLogic = (roster) => {
-        let QBCount = 0;
-        let RBCount = 0;
-        let WRCount = 0;
-        let TECount = 0;
-        let KCount = 0;
-
-        //We then go through the current user roster and populate it with data to sort it and get all the players
-        for (let i = 0; i < roster.length; i++) {
-            const position = roster[i].P;
-            //For the RB And WR positions, there are three options each they can be in
-            //RB/WR 1 & 2 as well as a flex position. All of which are undefined because we cannot have duplicate keys in an object
-            //We use a switch statement for WR and RB and start pulling the data into the fake roster
-            if (position === `RB`) {
-                RBCount++;
-            } else if (position === `WR`) {
-                WRCount++;
-            } else if (position === `QB`) {
-                QBCount++;
-            } else if (position === `TE`) {
-                TECount++;
-            } else if (position === `K`) {
-                KCount++;
-            };
+        for (const player of possibleDrops) {
+            playersForSwal[player.M] = ``;
+            playersForSwal[player.M] = player.N;
         };
-        return { QBCount, RBCount, WRCount, TECount, KCount }
-    };
 
-    tooManyPlayers = async (sortedUpdatedRoster, allowedMap, addedPlayer) => {
-        return new Promise(async (res, rej) => {
+        const { value: chosenPlayer } = await Alert.fire({
+            title: `Too many players`,
+            input: `select`,
+            inputPlaceholder: `Which player do you want to drop?`,
+            inputOptions: playersForSwal,
+            showCancelButton: true,
+        });
+        let droppedPlayerIndex = 0;
+        const droppedPlayer = currentRoster.find((player, i) => {
+            if (+player.M === +chosenPlayer) {
+                droppedPlayerIndex = i;
+                return player;
+            };
+        });
 
-            // let filteredRoster = [];
-            // if (position === `Flex`) {
-            //     filteredRoster = roster.filter(player => player.P === `RB` || player.P === `WR`);
-            // } else {
-            //     filteredRoster = roster.filter(player => player.P === position);
-            // };
+        if (droppedPlayer) {
+            let availDroppedPlayerIndex = -1;
 
-            // //Iterate over the filtered array and get the full data for the players to give the user a choice
-            // //We need it in this format so swal will properly list the options
-            // const fullPlayers = {};
+            const availablePlayers = this.state.availablePlayers.slice(0);
+            availablePlayers.find((player, i) => {
+                if (+player.M === +addedPlayer.M) {
+                    availDroppedPlayerIndex = i;
+                };
+            });
+            if (availDroppedPlayerIndex >= 0) {
+                availablePlayers.splice(availDroppedPlayerIndex, 1);
+            };
+            if (droppedPlayer.P === this.state.positionSelect) {
+                availablePlayers.unshift(droppedPlayer);
+            };
+            currentRoster[droppedPlayerIndex] = { P: addedPlayer.P, M: addedPlayer.M, N: addedPlayer.N, T: addedPlayer.T };
 
-            // for (let i = 0; i < filteredRoster.length; i++) {
-            //     //First we have to initialize the object because of the bracket notation
-            //     fullPlayers[filteredRoster[i].M] = ``;
-            //     //THen we populate the full name from the state to give the player the chance to pick between the one they just added and the player on their roster
-            //     fullPlayers[filteredRoster[i].M] = filteredRoster[i].N;
-            // };
+            const usedPlayers = this.state.currentPositionUsedPlayers.filter(player => player.M !== droppedPlayer.M)
+            usedPlayers.push(addedPlayer);
 
-            // //chosenPlayer === the player the user would like to be dropped
-            // const { value: chosenPlayer } = await Alert.fire({
-            //     title: `Too many ${position}s`,
-            //     input: `select`,
-            //     inputPlaceholder: `Which player do you want to drop?`,
-            //     inputOptions: fullPlayers,
-            //     showCancelButton: true,
-            // });
-
-            // if (+chosenPlayer === +addedPlayer.M) {
-            //     this.setState({ userRoster: originalRoster });
-            //     return;
-            // };
-
-            // //If the player responded with the player they would like to drop then we will take them out of their current array and then set the new state
-            // if (chosenPlayer) {
-            //     const intChosenPlayer = parseInt(chosenPlayer);
-            //     const intAddedPlayer = parseInt(addedPlayer.M);
-
-            //     const availablePlayers = originalAvailablePlayers.slice(0);
-            //     let droppedPlayerIndex = 0;
-            //     let availDroppedPlayerIndex = -1;
-
-            //     const droppedPlayer = roster.find((player, i) => {
-            //         if (player.M === intChosenPlayer) {
-            //             droppedPlayerIndex = i;
-            //             return player;
-            //         };
-            //     });
-            //     availablePlayers.find((player, i) => {
-            //         if (player.M === intAddedPlayer) {
-            //             availDroppedPlayerIndex = i;
-            //         };
-            //     });
-
-            //     //Remove the player they chose from the array and then save it down into state
-            //     if (availDroppedPlayerIndex >= 0) {
-            //         availablePlayers.splice(availDroppedPlayerIndex, 1);
-            //     };
-            //     if (position === `Flex`) {
-            //         const { RBCount, WRCount } = this.countLogic(originalRoster);
-            //         if (RBCount === 3) {
-            //             if (addedPlayer.P === `RB`) {
-            //                 roster[droppedPlayerIndex] = { P: addedPlayer.P, M: addedPlayer.M, N: addedPlayer.N, T: addedPlayer.T };
-            //                 roster.pop();
-            //             } else {
-            //                 if (droppedPlayerIndex === 5) {
-            //                     roster[droppedPlayerIndex] = { P: addedPlayer.P, M: addedPlayer.M, N: addedPlayer.N, T: addedPlayer.T };
-            //                     roster.pop();
-            //                 } else {
-            //                     roster[droppedPlayerIndex] = { P: roster[5].P, M: roster[5].M, N: roster[5].N, T: roster[5].T };
-            //                     roster[5] = { P: addedPlayer.P, M: addedPlayer.M, N: addedPlayer.N, T: addedPlayer.T };
-            //                     roster.pop();
-            //                 };
-            //             };
-            //         } else if (WRCount === 3) {
-            //             if (addedPlayer.P === `WR`) {
-            //                 roster[droppedPlayerIndex] = { P: addedPlayer.P, M: addedPlayer.M, N: addedPlayer.N, T: addedPlayer.T };
-            //             } else {
-            //                 if (droppedPlayerIndex === 5) {
-            //                     roster[droppedPlayerIndex] = { P: addedPlayer.P, M: addedPlayer.M, N: addedPlayer.N, T: addedPlayer.T };
-            //                     roster.pop();
-            //                 } else {
-            //                     roster[droppedPlayerIndex] = { P: roster[5].P, M: roster[5].M, N: roster[5].N, T: roster[5].T };
-            //                     roster[5] = { P: addedPlayer.P, M: addedPlayer.M, N: addedPlayer.N, T: addedPlayer.T };
-            //                     roster.pop();
-            //                 };
-            //             };
-            //         };
-            //     } else {
-            //         roster[droppedPlayerIndex] = { P: addedPlayer.P, M: addedPlayer.M, N: addedPlayer.N, T: addedPlayer.T };
-            //         roster.pop();
-            //     };
-
-            //     //Add the player they dropped back to the available list of players
-            //     if (droppedPlayer.P === this.state.positionSelect) {
-            //         availablePlayers.unshift(droppedPlayer);
-            //     };
-
-            //     //Now we make one final check before moving things along. If everything is done right above this should be simple.
-            //     const checkRoster = this.checkRoster(roster);
-
-            //     //If the check failed, then we will have an issue and are going to revert the state back to the previous point
-            //     if (checkRoster) {
-            //         //We take the array of player IDs that are on the user roster and sort them
-            //         this.setState({ userRoster: roster });
-
-            //         //We need to new array to get the new player added and the old player so we can pull them out of the usedPlayersArray in the DB
-            //         this.saveRosterToDb(roster, chosenPlayer, intAddedPlayer, false);
-
-            //         this.setState({ availablePlayers: availablePlayers });
-            //     } else {
-            //         Alert.fire({
-            //             type: 'warning',
-            //             title: 'Roster Save Error!',
-            //             text: 'Something went wrong with saving your roster! Please refresh and try again',
-            //             confirmButtonColor: '#3085d6',
-            //             confirmButtonText: 'Take me back'
-            //         });
-            //         this.setState({ userRoster: originalRoster });
-            //     };
-            // } else if (chosenPlayer === undefined) {
-            //     //This is if the player has chosen to cancel out of the box above. We reload the old state to remove the player they just added
-            //     this.setState({ userRoster: originalRoster, availablePlayers: originalAvailablePlayers });
-            // } else {
-            //     //This is if the player doesn't select one of the players and just presses accept
-            //     await Alert.fire(`You must pick one or cancel`)
-            //     this.tooManyPlayers(originalRoster, roster, position, originalAvailablePlayers);
-            // };
-
-
-            res();
-        })
+            this.saveRosterToDb(currentRoster, droppedPlayer.M, addedPlayer.M);
+            this.setState({ availablePlayers, currentPositionUsedPlayers: usedPlayers })
+        } else {
+            //The user has selected the player who is not on their team            
+            this.setState({ userRoster: currentRoster });
+        };
     };
 
     saveRosterToDb = async (roster, droppedPlayer, addedPlayer) => {

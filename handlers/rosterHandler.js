@@ -255,7 +255,7 @@ module.exports = {
         const usedPlayers = await getUsedPlayers(userId, season, groupId);
 
         for (playerId of usedPlayers) {
-            const player = await db.PlayerData.findOne({ M: playerId }, { N: 1, P: 1, T: 1 });
+            const player = await db.PlayerData.findOne({ M: playerId }, { N: 1, P: 1, T: 1, M: 1 });
             sortedPlayers[player.P].push(player);
         };
 
