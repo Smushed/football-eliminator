@@ -7,9 +7,13 @@ class CreateGroup extends Component {
         super(props);
         this.state = {
             rosterPositions: [],
+            positionMap: [],
+            maxOfPosition: [],
+            errorPositions: '', //String to give user an error message
             groupName: '',
             groupDesc: '',
-            groupPosChose: [{}],
+            groupPosChose: ['QB'],
+            dbReadyGroupPos: [{ I: 1, N: 'QB' }],
             groupNameValid: false,
             groupDescValid: false,
             groupPosValid: false
@@ -22,7 +26,8 @@ class CreateGroup extends Component {
 
     getRosterPositions = async () => {
         const dbResponse = await axios.get(`/api/getRosterPositions`);
-        this.setState({ rosterPositions: dbResponse.data });
+        const { rosterPositions, positionMap, maxOfPosition } = dbResponse.data;
+        this.setState({ rosterPositions, positionMap, maxOfPosition });
     };
 
     handleSubmit = async event => {
@@ -30,13 +35,29 @@ class CreateGroup extends Component {
         console.log(`hit`)
     };
 
-    handleChange = event => {
+    handleChange = e => {
         //Breaking this out due to the input validation
-        const name = event.target.name;
-        const value = event.target.value;
+        const { name, value } = e.target;
 
-        this.setState({ [event.target.name]: event.target.value },
+        this.setState({ [e.target.name]: e.target.value },
             () => this.validateForm(name, value));
+    };
+
+    handleRosterUpdate = e => {
+        const { name, value } = e.target;
+        const groupPositions = this.state.groupPosChose.slice(0);
+        groupPositions[name] = value;
+        this.setState({ groupPosChose: groupPositions },
+            () => this.convertForDB(groupPositions));
+    };
+
+    convertForDB = (groupPositions) => {
+        const dbReadyPositions = groupPositions.slice(0);
+        for (let i = 0; i < groupPositions.length; i++) {
+            dbReadyPositions[i] = this.state.rosterPositions.find(position => position.N === groupPositions[i]);
+        };
+        this.setState({ dbReadyGroupPos: dbReadyPositions },
+            () => this.validateForm('groupPos', dbReadyPositions));
 
     };
 
@@ -52,28 +73,60 @@ class CreateGroup extends Component {
                 validCheck = (value.length >= 6) ? true : false;
                 this.setState({ groupDesc: validCheck });
                 break;
-            case `groupPositions`:
-                let checkUsername = value.match(/^([a-z0-9-_])+$/i);
-                let usernameLength = value.length >= 3 && value.length <= 16;
-                validCheck = checkUsername && usernameLength ? true : false;
-                this.setState({ usernameValid: validCheck });
+            case `groupPos`:
+                const groupPosMap = [];
+                for (const groupPos of value) {
+                    groupPosMap.push(this.state.positionMap[groupPos.I]);
+                };
+                validCheck = this.countPositions(groupPosMap)
+                this.setState({ groupPosValid: validCheck });
                 break;
             default:
                 break;
         };
     };
 
+    countPositions = (groupPosMap) => {
+        let tooMany = [];
+        const positionCount = [0, 0, 0, 0, 0];
+        for (let i = 0; i < groupPosMap.length; i++) {
+            for (let ii = 0; ii < groupPosMap[i].length; ii++) {
+                positionCount[groupPosMap[i][ii]]++
+            };
+        };
+        for (let iii = 0; iii < positionCount.length; iii++) {
+            if (positionCount[iii] > this.state.maxOfPosition[iii]) {
+                tooMany.push(this.state.rosterPositions[iii].N)
+            };
+        };
+        if (tooMany.length > 0) {
+            console.log(tooMany)
+            let errorMessage = '';
+            for (let iiii = 0; iiii < tooMany.length; iiii++) {
+                errorMessage += ` ${tooMany[iiii]}`;
+            };
+            this.setState({ errorPositions: errorMessage })
+            return false;
+        } else {
+            return true;
+        }
+    };
+
     addPosition = () => {
         const groupPositions = this.state.groupPosChose.slice(0);
-        groupPositions.push({});
-        this.setState({ groupPosChose: groupPositions });
+        if (groupPositions.length <= 12) {
+            groupPositions.push('QB');
+            this.setState({ groupPosChose: groupPositions },
+                () => this.convertForDB(groupPositions));
+        }
     };
 
     removePosition = () => {
         const groupPositions = this.state.groupPosChose.slice(0);
         if (groupPositions.length > 1) {
             groupPositions.pop();
-            this.setState({ groupPosChose: groupPositions });
+            this.setState({ groupPosChose: groupPositions },
+                () => this.convertForDB(groupPositions));
         };
     };
 
@@ -94,17 +147,19 @@ class CreateGroup extends Component {
                     </div>
                     <div className='form-group'>
                         <div>
-                            <button type='button' onClick={() => this.addPosition()}>
-                                Plus Button
-                            </button>
                             Add or Remove Roster Spots
-                            <button type='button' onClick={() => this.removePosition()}>
-                                Minus Button
-                            </button>
+                            <div>
+                                <button type='button' onClick={() => this.addPosition()}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z" /></svg>
+                                </button>
+                                <button type='button' onClick={() => this.removePosition()}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 10h24v4h-24z" /></svg>
+                                </button>
+                            </div>
                         </div>
                         {this.state.groupPosChose.map((position, i) => {
-                            return <select className='form-control' name={`groupPos-${i}`}>Yup
-                                {this.state.rosterPositions.map((possiblePos, i) => <option>{possiblePos.N}</option>)}
+                            return <select className='form-control' onChange={this.handleRosterUpdate} name={i} key={`groupPos-${i}`} value={this.state.groupPosChose[i]}>
+                                {this.state.rosterPositions.map((possiblePos, ii) => <option value={possiblePos.N} key={`possiblePos-${ii}`}>{possiblePos.N}</option>)}
                             </select>
                         })}
                     </div>

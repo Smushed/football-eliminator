@@ -98,7 +98,8 @@ module.exports = app => {
     });
 
     app.get(`/api/getRosterPositions`, async (req, res) => {
-        res.status(200).send(positions.rosterPositions);
+        const { rosterPositions, positionMap, maxOfPosition } = positions;
+        res.status(200).send({ rosterPositions, positionMap, maxOfPosition });
     });
 
     app.get(`/api/getAllRostersForGroup/:season/:week/:groupId/:updateLeaderBoard`, async (req, res) => {
