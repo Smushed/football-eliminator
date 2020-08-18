@@ -7,7 +7,6 @@ import { WeekSearch } from '../Roster/SearchDropdowns';
 import './homeStyle.css';
 import Leaderboard from './Leaderboard';
 
-//Stateful component to allow the grouplist to properly populate
 class Home extends Component {
     constructor(props) {
         super(props);

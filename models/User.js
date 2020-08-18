@@ -16,7 +16,8 @@ const UserSchema = new Schema({
     A: { //Admin
         type: Boolean,
         default: false
-    }
+    },
+    MG: mongoose.Types.ObjectId //Main Group
 });
 
 

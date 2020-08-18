@@ -16,16 +16,16 @@ const GroupRosterSchema = new Schema({
                 N: 'QB',
                 I: 0
             }, {
-                N: 'RB1',
+                N: 'RB',
                 I: 1
             }, {
-                N: 'RB2',
+                N: 'RB',
                 I: 1
             }, {
-                N: 'WR1',
+                N: 'WR',
                 I: 2
             }, {
-                N: 'WR2',
+                N: 'WR',
                 I: 2
             }, {
                 N: 'RB/WR',

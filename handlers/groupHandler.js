@@ -3,7 +3,6 @@ const db = require(`../models`);
 const checkDuplicate = async (checkedField, groupToSearch, userID) => {
     let result = false;
     let searchedGroup;
-    //TODO Do something other than log these errors
     switch (checkedField) {
         case `group`:
             try {
@@ -42,29 +41,18 @@ const getUserScoreList = async (groupId, season, week) => {
 
 module.exports = {
     createGroup: async (userID, groupName, groupDescription) => {
-        //Checks if there is already a group by that name
-        //If there is return a bad status code which then can be used to display data to the user
-        const isDuplicate = await checkDuplicate(`group`, groupName);
-        //Is true if there is a duplicate
-        if (isDuplicate) {
-            return 500;
-        };
+        if (!checkDuplicate('group', groupName)) { return false };
         const newGroup = {
-            name: groupName,
-            description: groupDescription,
-            userlist: {
-                _id: userID,
-                isAdmin: true,
-                isMod: true,
-                isBanned: false
-            }
+            N: groupName,
+            D: groupDescription
         };
-        const addedGroup = await db.Group.create(newGroup);
-
+        const newGroupFromDB = await db.Group.create(newGroup);
+        this.createGroupRoster(newGroupFromDB._id);
+        this.createGroupScore(newGroupFromDB._id);
         //Add the new group to the user who created it
-        await db.User.findByIdAndUpdate([userID], { $push: { grouplist: addedGroup._id } }); //Also saved the group that the user just added to their profile
+        await db.User.findByIdAndUpdate([userID], { $push: { GL: newGroupFromDB._id } }); //Also saved the group that the user just added to their profile
 
-        return addedGroup;
+        return newGroupFromDB;
     },
     // Invite other users to the group
     addUser: async (addedUserID, groupName) => {
@@ -118,16 +106,16 @@ module.exports = {
         arrayForLeaderBoard.sort((a, b) => b.TS - a.TS);
         return arrayForLeaderBoard;
     },
-    createAllGroup: async function () { //TODO Break this out to use the Create Group function above. Just not sure about the mod part
+    createClapper: async function () { //TODO Break this out to use the Create Group function above. Just not sure about the mod part
         //If there is no Dupe general group we are good to go ahead and add it
-        if (!checkDuplicate('group', 'The Eliminator')) { return false };
-        const allGroup = {
-            N: `The Eliminator`,
-            D: `All players for the football eliminator compete here`
+        if (!checkDuplicate('group', 'Clapper')) { return false };
+        const clapper = {
+            N: `Clapper`,
+            D: `Everyone competing for the Clapper`
         };
-        const allGroupFromDB = await db.Group.create(allGroup);
-        this.createGroupRoster(allGroupFromDB._id);
-        this.createGroupScore(allGroupFromDB._id);
+        const clapperFromDB = await db.Group.create(clapper);
+        this.createGroupRoster(clapperFromDB._id);
+        this.createGroupScore(clapperFromDB._id);
         return `working`;
     },
     createGroupScore: (groupId) => {
@@ -138,11 +126,15 @@ module.exports = {
 
         return foundGroup._id;
     },
-    createGroupRoster: async (groupId) => {
+    createGroupRoster: async (groupId, rosterSpots) => {
+        const dbResponse = db.GroupRoster.create({ G: groupId, P: rosterSpots });
+        return dbResponse;
+    },
+    createGeneralGroupRoster: async (groupId) => {
         const dbResponse = db.GroupRoster.create({ G: groupId });
         return dbResponse;
     },
-    getGroupPositions: async (groupId) => {
+    getGeneralGroupPositions: async (groupId) => {
         const dbResponse = await db.GroupRoster.findOne({ G: groupId });
         return dbResponse.P;
     },

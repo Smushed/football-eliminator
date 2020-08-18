@@ -44,13 +44,13 @@ module.exports = app => {
         }
     });
 
-    app.post(`/api/createAllGroup/:pass`, async (req, res) => {
+    app.post(`/api/createClapper/:pass`, async (req, res) => {
         const { pass } = req.params;
         if (pass !== process.env.DB_ADMIN_PASS) {
             res.status(401).send(`Get Outta Here!`);
             return;
         };
-        groupHandler.createAllGroup();
+        groupHandler.createWoodbilly();
         userHandler.initSeasonAndWeekInDB();
         console.log(`Group Created`)
         res.sendStatus(200);

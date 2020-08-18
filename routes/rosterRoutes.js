@@ -97,6 +97,10 @@ module.exports = app => {
         res.status(200).send(positions.orderOfDescription);
     });
 
+    app.get(`/api/getRosterPositions`, async (req, res) => {
+        res.status(200).send(positions.rosterPositions);
+    });
+
     app.get(`/api/getAllRostersForGroup/:season/:week/:groupId/:updateLeaderBoard`, async (req, res) => {
         const { season, week, groupId, updateLeaderBoard } = req.params;
         let leaderboard = [];

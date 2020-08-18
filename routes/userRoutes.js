@@ -24,17 +24,12 @@ module.exports = app => {
 
     app.post(`/api/newUser`, async (req, res) => {
         //Called before the user signs up with Firebase
-        console.log(req.body)
         const newUser = {
             UN: req.body.username,
             E: req.body.email,
             A: false,
         };
-        const { newUserInDB, addedGroupId } = await userHandler.saveNewUser(newUser);
-
-        const { season } = await userHandler.pullSeasonAndWeekFromDB();
-        userHandler.createUserScore(newUserInDB, season, addedGroupId);
-        //rosterHandler.createSeasonRoster(newUserInDB._id, season, addedGroupId)
+        const { newUserInDB } = await userHandler.saveNewUser(newUser);
 
         res.json(newUserInDB);
     });

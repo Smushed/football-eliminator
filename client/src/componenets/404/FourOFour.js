@@ -5,7 +5,7 @@ import PoorBaby from './Champs.jpg'
 const FourOFour = (props) => {
     return (
         <div className='fourOFour' >
-            <div className='fourOFourText'>404 - Route Not Found</div>
+            <div className='fourOFourText'>404 - Not Found</div>
             <div className='gloat'>
                 Hope you didn't get here like Rogers did
                 <br />

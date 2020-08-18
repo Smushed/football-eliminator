@@ -1,26 +1,31 @@
 const db = require(`../models`);
 
-const rosterHandler = require(`./rosterHandler`);
 const groupHandler = require(`./groupHandler`);
-const mySportsHandler = require(`./mySportsHandler`);
 
-const checkDuplicateUser = async (checkedField, userId, groupId) => {
+const checkDuplicateUser = async (checkedField, checkField1, checkField2) => {
     let result = false;
     let searched;
     //TODO Do something other than log these errors
     switch (checkedField) {
         case `userScore`:
             try {
-                searched = await db.UserScores.findOne({ U: userId, G: groupId }).exec();
+                searched = await db.UserScores.findOne({ U: checkField1, G: checkField2 }).exec();
                 //If there is a group with that name return true
-                if (searched !== null) {
-                    result = true;
-                };
+
             } catch (err) {
                 console.log(err);
             };
             break;
+        case `username`:
+            searched = await db.User.findOne({ UN: checkField1 });
+            break;
+        case `email`:
+            searched = await db.User.findOne({ E: newUser.E });
+            break;
     }
+    if (searched !== null) {
+        result = true;
+    };
     return result;
 };
 
@@ -110,20 +115,11 @@ module.exports = {
         return userProfile;
     },
     saveNewUser: async (newUser) => {
-        const generalGroup = await db.Group.findOne({ N: 'The Eliminator' });
-        newUser.GL = generalGroup._id;
-        const usernameExists = await db.User.findOne({ UN: newUser.UN });
-        const emailExists = await db.User.findOne({ E: newUser.E });
-        //TODO Do more with this than just return false
-        if (usernameExists !== null || emailExists !== null) { return false };
+        if (!checkDuplicateUser(`username`, newUser.UN) || !checkDuplicateUser(`email`, newUser.E)) { return false };
 
         const newUserInDB = await db.User.create(newUser);
-        const newUserInDBObj = newUserInDB.toObject();
 
-        const addedGroup = await groupHandler.addUser(newUserInDBObj._id, `The Eliminator`)
-        const addedGroupId = addedGroup._id;
-
-        return { newUserInDB, addedGroupId };
+        return { newUserInDB };
     },
     getUserByEmail: async (email) => {
         const foundUser = await db.User.findOne({ 'E': email });

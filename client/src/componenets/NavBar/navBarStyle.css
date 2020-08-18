@@ -97,6 +97,7 @@
     .navButton {
         min-width: 70px;
         max-width: 100px;
+        min-height: 30px;
         line-height: 0;
         margin-left: 0;
         margin-top: 6px;
