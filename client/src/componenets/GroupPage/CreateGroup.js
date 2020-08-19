@@ -48,6 +48,10 @@ class CreateGroup extends Component {
             () => this.validateForm(name, value));
     };
 
+    updateGroupsScore = (e) => {
+
+    };
+
     handleRosterUpdate = e => {
         const { name, value } = e.target;
         const groupPositions = this.state.groupPosChose.slice(0);
@@ -198,7 +202,13 @@ class CreateGroup extends Component {
                                 {this.state.scoringMap.buckets.map(bucket =>
                                     <div className='scoringGroup' key={bucket}>
                                         {this.state.scoringMap[bucket].map((bucketKey, ii) =>
-                                            <ScoringRow description={this.state.scoringMap[`${bucket}Description`][ii]} group={bucket} bucketKey={bucketKey} key={`${bucket}${bucketKey}`} />
+                                            <ScoringRow
+                                                description={this.state.scoringMap[`${bucket}Description`][ii]}
+                                                bucket={bucket}
+                                                bucketKey={bucketKey}
+                                                val={this.state.enteredScore[bucket][bucketKey]}
+                                                onChange={this.updateGroupsScore}
+                                                key={`${bucket}${bucketKey}`} />
                                         )}
                                     </div>
                                 )}
@@ -213,7 +223,9 @@ class CreateGroup extends Component {
 
 const ScoringRow = (props) => (
     <div>
-        {props.description} {props.group} {props.bucketKey}
+        {props.bucket} {props.bucketKey} {props.val}
+        <label>{props.description}</label>
+        <input className='form-control' type='text' name={props} value={props.val} onChange={props.handleChange} />
     </div>
 );
 
