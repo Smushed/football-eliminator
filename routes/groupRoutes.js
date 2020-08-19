@@ -1,6 +1,7 @@
 require(`dotenv`).config();
 const userHandler = require(`../handlers/userHandler`);
 const groupHandler = require(`../handlers/groupHandler`);
+const scoringSystem = require(`../constants/scoringSystem`);
 
 module.exports = app => {
     app.get(`/api/getuser/`, async (req, res) => {
@@ -50,7 +51,7 @@ module.exports = app => {
             res.status(401).send(`Get Outta Here!`);
             return;
         };
-        groupHandler.createWoodbilly();
+        groupHandler.createClapper();
         userHandler.initSeasonAndWeekInDB();
         console.log(`Group Created`)
         res.sendStatus(200);
@@ -67,5 +68,9 @@ module.exports = app => {
         const positions = await groupHandler.getGroupPositions(groupId);
         const forDisplay = await groupHandler.groupPositionsForDisplay(positions);
         res.status(200).send({ positions, forDisplay });
+    });
+
+    app.get(`/api/getScoring`, async (req, res) => {
+        res.status(200).send(scoringSystem);
     });
 };

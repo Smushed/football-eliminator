@@ -2,7 +2,6 @@ const rosterHandler = require(`../handlers/rosterHandler`);
 const groupHandler = require(`../handlers/groupHandler`);
 const mySportsHandler = require(`../handlers/mySportsHandler`);
 const positions = require(`../constants/positions`);
-const userHandler = require("../handlers/userHandler");
 
 module.exports = app => {
     app.get(`/api/displayplayers`, async (req, res) => {

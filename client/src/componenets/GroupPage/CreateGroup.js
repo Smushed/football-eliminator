@@ -2,6 +2,8 @@ import React, { Component, Fragment } from 'react';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
 
+import './groupStyle.css';
+
 class CreateGroup extends Component {
     constructor(props) {
         super(props);
@@ -16,7 +18,10 @@ class CreateGroup extends Component {
             dbReadyGroupPos: [{ I: 1, N: 'QB' }],
             groupNameValid: false,
             groupDescValid: false,
-            groupPosValid: false
+            groupPosValid: true,
+            showScore: false,
+            scoringMap: {},
+            enteredScore: {},
         };
     };
 
@@ -71,14 +76,14 @@ class CreateGroup extends Component {
                 break;
             case `groupDesc`:
                 validCheck = (value.length >= 6) ? true : false;
-                this.setState({ groupDesc: validCheck });
+                this.setState({ groupDescValid: validCheck });
                 break;
             case `groupPos`:
                 const groupPosMap = [];
                 for (const groupPos of value) {
                     groupPosMap.push(this.state.positionMap[groupPos.I]);
                 };
-                validCheck = this.countPositions(groupPosMap)
+                validCheck = this.countPositions(groupPosMap);
                 this.setState({ groupPosValid: validCheck });
                 break;
             default:
@@ -100,7 +105,6 @@ class CreateGroup extends Component {
             };
         };
         if (tooMany.length > 0) {
-            console.log(tooMany)
             let errorMessage = '';
             for (let iiii = 0; iiii < tooMany.length; iiii++) {
                 errorMessage += ` ${tooMany[iiii]}`;
@@ -130,7 +134,27 @@ class CreateGroup extends Component {
         };
     };
 
+    openScore = async () => {
+        const newGroupScore = {};
+        const dbResponse = await axios.get(`/api/getScoring`);
+        this.setState({ scoringMap: dbResponse.data });
+        console.log(this.state.scoringMap)
+
+        //Create the new group scoring object
+        for (const bucket of dbResponse.data.buckets) {
+            newGroupScore[bucket] = {};
+            for (const key of dbResponse.data[bucket]) {
+                newGroupScore[bucket][key] = 0;
+            };
+        };
+
+        this.setState({ showScore: true, enteredScore: newGroupScore })
+    };
+
     render() {
+        // const groupValid = (this.state.groupNameValid & this.state.groupDescValid & this.state.groupPosValid);
+        const groupValid = true;
+
         return (
             <Fragment>
                 <div>Creating a group</div>
@@ -142,7 +166,7 @@ class CreateGroup extends Component {
                     </div>
                     <div className='form-group'>
                         <label>Group Description</label>
-                        <input className='form-control' type='text' name='groupDesc' placeholder='Burninating the Competition' value={this.state.groupName} onChange={this.handleChange} />
+                        <input className='form-control' type='text' name='groupDesc' placeholder='Burninating the Competition' value={this.state.groupDesc} onChange={this.handleChange} />
                         <small>Must be at least 6 characters</small>
                     </div>
                     <div className='form-group'>
@@ -163,11 +187,35 @@ class CreateGroup extends Component {
                             </select>
                         })}
                     </div>
+                    <div className='form-group'>
+                        <button type='button' onClick={() => this.openScore()} disabled={!groupValid}>
+                            Enter Scores
+                        </button>
+                    </div>
+                    {this.state.showScore &&
+                        <div className='form-group'>
+                            <div className='scoringContainer'>
+                                {this.state.scoringMap.buckets.map(bucket =>
+                                    <div className='scoringGroup' key={bucket}>
+                                        {this.state.scoringMap[bucket].map((bucketKey, ii) =>
+                                            <ScoringRow description={this.state.scoringMap[`${bucket}Description`][ii]} group={bucket} bucketKey={bucketKey} key={`${bucket}${bucketKey}`} />
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    }
                 </form>
             </Fragment>
         )
     };
 };
+
+const ScoringRow = (props) => (
+    <div>
+        {props.description} {props.group} {props.bucketKey}
+    </div>
+);
 
 const condition = authUser => !!authUser;
 
