@@ -18,13 +18,15 @@ class NoGroup extends Component {
     render() {
         return (
             <Fragment>
+                <ChangeWindowButtons changeWindow={this.changeWindow} currentWindow={this.state.currentWindow} />
                 {this.state.currentWindow === 'No Group' ?
                     <div>Welcome to the eliminator! Let's start with selecting a group <br />
                     </div> :
                     this.state.currentWindow === 'Join Group' ?
                         <GroupSelect /> :
-                        <CreateGroup />}
-                <ChangeWindowButtons changeWindow={this.changeWindow} currentWindow={this.state.currentWindow} />
+                        <CreateGroup
+                            userId={this.props.userId}
+                        />}
             </Fragment>
         )
     };

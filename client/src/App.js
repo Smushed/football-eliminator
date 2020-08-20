@@ -54,7 +54,7 @@ class App extends Component {
     const dbResponse = await axios.get(`/api/getUser/${email}`);
 
     if (this.userHasGroup(dbResponse.data)) {
-      this.getGroupAndPositions(dbResponse.data)
+      this.getGroupAndPositions(dbResponse.data);
     } else {
       this.setState({ noGroup: true });
     };
@@ -100,6 +100,7 @@ class App extends Component {
           {this.state.noGroup ?
             <NoGroup
               {...this.props}
+              userId={this.state.currentUser.userId}
             />
             :
             <Switch>

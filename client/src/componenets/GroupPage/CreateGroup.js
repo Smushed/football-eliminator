@@ -37,7 +37,17 @@ class CreateGroup extends Component {
 
     handleSubmit = async event => {
         event.preventDefault();
-        console.log(`hit`)
+        axios.post(`/api/createNewGroup`,
+            {
+                userId: this.props.userId,
+                newGroupScore: this.state.enteredScore,
+                groupName: this.state.groupName,
+                groupDesc: this.state.groupDesc,
+                groupPositions: this.state.dbReadyGroupPos,
+            })
+            .then(res => {
+                console.log(res.data)
+            })
     };
 
     handleChange = e => {
@@ -49,7 +59,20 @@ class CreateGroup extends Component {
     };
 
     updateGroupsScore = (e) => {
-
+        const { name, value } = e.target;
+        if (isNaN(+value)) {
+            return;
+        } else if (value > 100) {
+            return;
+        } else if (value < -100) {
+            return;
+        } else if (value.length > 4) {
+            return;
+        };
+        const [bucket, bucketKey] = name.split(`-`);
+        const updatedScore = { ...this.state.enteredScore };
+        updatedScore[bucket][bucketKey] = value;
+        this.setState({ enteredScore: updatedScore });
     };
 
     handleRosterUpdate = e => {
@@ -142,17 +165,16 @@ class CreateGroup extends Component {
         const newGroupScore = {};
         const dbResponse = await axios.get(`/api/getScoring`);
         this.setState({ scoringMap: dbResponse.data });
-        console.log(this.state.scoringMap)
 
         //Create the new group scoring object
         for (const bucket of dbResponse.data.buckets) {
             newGroupScore[bucket] = {};
             for (const key of dbResponse.data[bucket]) {
-                newGroupScore[bucket][key] = 0;
+                newGroupScore[bucket][key] = dbResponse.data.defaultScores[bucket][key];
             };
         };
 
-        this.setState({ showScore: true, enteredScore: newGroupScore })
+        this.setState({ showScore: true, enteredScore: newGroupScore });
     };
 
     render() {
@@ -192,40 +214,43 @@ class CreateGroup extends Component {
                         })}
                     </div>
                     <div className='form-group'>
-                        <button type='button' onClick={() => this.openScore()} disabled={!groupValid}>
+                        <button type='button' className='btn btn-primary' onClick={() => this.openScore()} disabled={!groupValid}>
                             Enter Scores
                         </button>
                     </div>
                     {this.state.showScore &&
                         <div className='form-group'>
+                            Scores must be from -100 to 100 and cannot go more than two places past the decimal
                             <div className='scoringContainer'>
-                                {this.state.scoringMap.buckets.map(bucket =>
+                                {this.state.scoringMap.buckets.map((bucket, i) =>
                                     <div className='scoringGroup' key={bucket}>
+                                        <div>{this.state.scoringMap.bucketDescription[i]}</div>
                                         {this.state.scoringMap[bucket].map((bucketKey, ii) =>
                                             <ScoringRow
                                                 description={this.state.scoringMap[`${bucket}Description`][ii]}
                                                 bucket={bucket}
                                                 bucketKey={bucketKey}
                                                 val={this.state.enteredScore[bucket][bucketKey]}
-                                                onChange={this.updateGroupsScore}
+                                                handleChange={this.updateGroupsScore}
                                                 key={`${bucket}${bucketKey}`} />
                                         )}
                                     </div>
                                 )}
                             </div>
+                            <button className='btn btn-success'>Submit Group!</button>
                         </div>
                     }
                 </form>
             </Fragment>
-        )
+        );
     };
 };
 
+
 const ScoringRow = (props) => (
     <div>
-        {props.bucket} {props.bucketKey} {props.val}
         <label>{props.description}</label>
-        <input className='form-control' type='text' name={props} value={props.val} onChange={props.handleChange} />
+        <input className='form-control' type='text' name={`${props.bucket}-${props.bucketKey}`} value={props.val} onChange={props.handleChange} />
     </div>
 );
 

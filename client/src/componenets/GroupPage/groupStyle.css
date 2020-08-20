@@ -1,12 +1,11 @@
 .scoringContainer {
     display: flex;
+    justify-content: space-evenly;
     flex-wrap: wrap;
-    width: 900px;
-    margin-left: 15%;
 }
 
 .scoringGroup {
-    width: 300px;
+    width: 250px;
     min-width: 200px;
 }
 
