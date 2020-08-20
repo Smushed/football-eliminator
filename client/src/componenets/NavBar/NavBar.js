@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import * as Routes from '../../constants/routes';
 import SignOutButton from './SignOutButton';
 
-import ElimLogo from './ElimLogo.jpg';
+import ElimLogo from './ElimLogo.png';
 import './navBarStyle.css';
 
 
