@@ -2,13 +2,13 @@ const db = require(`../models`);
 
 const checkDuplicate = async (checkedField, groupToSearch, userID) => {
     let result = false;
-    let searchedGroup;
+    let searched;
     switch (checkedField) {
         case `group`:
             try {
-                searchedGroup = await db.Group.findOne({ N: groupToSearch }).exec();
+                searched = await db.Group.findOne({ N: groupToSearch }).exec();
                 //If there is a group with that name return true
-                if (searchedGroup !== null) {
+                if (searched !== null) {
                     result = true;
                 };
             } catch (err) {
@@ -18,13 +18,23 @@ const checkDuplicate = async (checkedField, groupToSearch, userID) => {
         case `userlist`:
             //Grabs the group that the user is looking to add the user to 
             try {
-                searchedGroup = await db.Group.findById(groupToSearch);
+                searched = await db.Group.findById(groupToSearch);
             } catch (err) {
                 console.log(err);
             };
             try {
-                const isInGroup = await searchedGroup.UL.filter(user => user._id === userID);
+                const isInGroup = await searched.UL.filter(user => user._id === userID);
                 if (isInGroup.length > 0) {
+                    result = true;
+                };
+            } catch (err) {
+                console.log(err);
+            };
+            break;
+        case `userScore`:
+            try {
+                searched = await db.UserScores.findOne({ U: userID, G: groupToSearch }).exec();
+                if (searched !== null) {
                     result = true;
                 };
             } catch (err) {
@@ -47,6 +57,15 @@ const createGroupRoster = async (groupId, rosterSpots) => {
 const createGroupScore = (groupId, groupScore) => {
     const { P, RU, RE, F, FG } = groupScore;
     db.GroupScore.create({ G: groupId, P, RU, RE, F, FG });
+};
+
+const createUserScore = async (userId, season, groupId) => {
+    console.log(userId, season, groupId)
+    const checkDupeUser = await checkDuplicate(`userScore`, userId, groupId);
+    if (!checkDupeUser) {
+        await db.UserScores.create({ U: userId, G: groupId, S: season });
+    };
+    return;
 };
 
 module.exports = {
@@ -81,6 +100,8 @@ module.exports = {
 
         //get the user ID, add them to the array userlist within the group
         const groupDetail = await db.Group.findByIdAndUpdate(groupId, { $push: { UL: newUserForGroup } }, { new: true });
+        const dbResponse = await db.SeasonAndWeek.find({}).exec();
+        await createUserScore(addedUserID, dbResponse[0].S, groupId)
 
         return groupDetail;
     },
@@ -98,11 +119,9 @@ module.exports = {
         return groupData;
     },
     getLeaderBoard: async (groupId, season, week, filledRosters) => {
-
         const arrayForLeaderBoard = [];
 
         const userScoreList = await getUserScoreList(groupId, season, week);
-
         for (const user of userScoreList) {
             const { UN } = filledRosters.find(roster => roster.UID.toString() === user.U.toString());
             const filledOutUser = {

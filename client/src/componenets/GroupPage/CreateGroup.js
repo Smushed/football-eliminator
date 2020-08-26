@@ -36,6 +36,7 @@ class CreateGroup extends Component {
     };
 
     handleSubmit = async event => {
+        event.preventDefault();
         axios.post(`/api/createGroup`,
             {
                 userId: this.props.userId,
@@ -46,7 +47,8 @@ class CreateGroup extends Component {
             })
             .then(res => {
                 console.log(res.data)
-            })
+            });
+        window.location.reload(false);
     };
 
     handleChange = e => {

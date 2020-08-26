@@ -110,7 +110,7 @@ module.exports = app => {
             const currWeekForLeaderboard = +week === 1 ? 1 : +week;
             leaderboard = await groupHandler.getLeaderBoard(groupId, season, currWeekForLeaderboard, filledRosters);
             groupPositions = await groupHandler.getGroupPositions(groupId);
-        }
+        };
         res.status(200).send({ rosters: filledRosters, groupPositions, leaderboard });
     });
 

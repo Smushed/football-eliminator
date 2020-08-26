@@ -23,7 +23,7 @@ class App extends Component {
     super(props);
 
     this.state = {
-      noGroup: true,
+      noGroup: false,
       authUser: null,
       currentUser: {},
       currentWeek: 0,
@@ -105,7 +105,7 @@ class App extends Component {
           }
           {this.state.noGroup ?
             <NoGroup
-              {...this.props}
+              noGroup={this.state.noGroup}
               userId={this.state.currentUser.userId}
             />
             :

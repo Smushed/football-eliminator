@@ -7,20 +7,12 @@ const checkDuplicateUser = async (checkedField, checkField1, checkField2) => {
     let searched;
     //TODO Do something other than log these errors
     switch (checkedField) {
-        case `userScore`:
-            try {
-                searched = await db.UserScores.findOne({ U: checkField1, G: checkField2 }).exec();
-                //If there is a group with that name return true
 
-            } catch (err) {
-                console.log(err);
-            };
-            break;
         case `username`:
             searched = await db.User.findOne({ UN: checkField1 });
             break;
         case `email`:
-            searched = await db.User.findOne({ E: newUser.E });
+            searched = await db.User.findOne({ E: checkField1 });
             break;
     }
     if (searched !== null) {
@@ -168,13 +160,6 @@ module.exports = {
 
             res({ season, week, lockWeek });
         })
-    },
-    createUserScore: async (userId, season, groupId) => {
-        const checkDupeUser = await checkDuplicateUser(`userScore`, userId, groupId);
-        if (!checkDupeUser) {
-            db.UserScores.create({ U: userId, G: groupId, S: season });
-        };
-        return;
     },
     purgeDB: () => { //TODO If I make Admin Route and Handler, move this over
         db.User.deleteMany({}, (err, res) => { if (err) { console.log(err) } else { console.log(`User Deleted`) } });
