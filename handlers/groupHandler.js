@@ -202,5 +202,23 @@ module.exports = {
             groupMap.push(positionMap[position.I])
         };
         return groupMap;
+    },
+    getGroupList: async () => {
+        const filledData = [];
+        const groupResponse = await db.Group.find();
+
+        for (let i = 0; i < groupResponse.length; i++) {
+            filledData[i] = {
+                N: groupResponse[i].N,
+                D: groupResponse[i].D,
+                id: groupResponse[i]._id,
+                UL: []
+            };
+            for (let ii = 0; ii < groupResponse[i].UL.length; ii++) {
+                const { UN } = await db.User.findById(groupResponse[i].UL[ii].ID);
+                filledData[i].UL.push(UN);
+            };
+        };
+        return filledData;
     }
 };

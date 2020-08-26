@@ -4,11 +4,6 @@ const groupHandler = require(`../handlers/groupHandler`);
 const scoringSystem = require(`../constants/scoringSystem`);
 
 module.exports = app => {
-    app.get(`/api/getuser/`, async (req, res) => {
-        const userProfile = await userHandler.getProfile(req.user._id);
-
-        res.json(userProfile);
-    });
 
     app.put(`/api/addusertogroup`, async (req, res) => {
         const { userID, groupID, isAdmin } = req.body;
@@ -71,5 +66,10 @@ module.exports = app => {
         const addUserResponse = await groupHandler.addUser(userId, groupResponse._id, true);
         console.log(addUserResponse)
         res.status(200).send(addUserResponse);
+    });
+
+    app.get(`/api/getGroupList`, async (req, res) => {
+        const dbResponse = await groupHandler.getGroupList();
+        res.status(200).send(dbResponse);
     });
 };

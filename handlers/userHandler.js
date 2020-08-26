@@ -102,10 +102,6 @@ module.exports = {
         // if they aren't redirect them to the home page
         res.redirect(`/`);
     },
-    getProfile: async (userID) => {
-        const userProfile = await db.User.findById([userID]);
-        return userProfile;
-    },
     saveNewUser: async (newUser) => {
         if (!checkDuplicateUser(`username`, newUser.UN) || !checkDuplicateUser(`email`, newUser.E)) { return false };
 
