@@ -9,6 +9,26 @@
     min-width: 200px;
 }
 
+.joinGroupRow {
+    display: flex;
+}
+
+.joinGroupHeader {
+    display: flex;
+}
+
+.col1 {
+    width: 33%;
+}
+
+.col2 {
+    width: 33%;
+}
+
+.col3 {
+    width: 33%;
+}
+
 @media only screen and (max-width: 1000px) {
     .scoringContainer {
         margin: 0;
