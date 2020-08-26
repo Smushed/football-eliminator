@@ -7,7 +7,7 @@ class NoGroup extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            currentWindow: 'fgs'
+            currentWindow: 'No Group'
         };
     };
 

@@ -10,15 +10,6 @@ module.exports = app => {
         res.json(userProfile);
     });
 
-    app.post(`/api/creategroup`, async (req, res) => {
-        const { groupName, groupDescription, currentUserID } = req.body;
-        //If 500 is returned a group with that name already exists
-        //Else it returns the new group
-        const response = await groupHandler.createGroup(currentUserID, groupName, groupDescription);
-        res.status(200).send(response);
-
-    });
-
     app.put(`/api/addusertogroup`, async (req, res) => {
         const { userID, groupID, isAdmin } = req.body;
 
@@ -72,5 +63,13 @@ module.exports = app => {
 
     app.get(`/api/getScoring`, async (req, res) => {
         res.status(200).send(scoringSystem);
+    });
+
+    app.post(`/api/createGroup`, async (req, res) => {
+        const { userId, newGroupScore, groupName, groupDesc, groupPositions } = req.body;
+        const groupResponse = await groupHandler.createGroup(userId, newGroupScore, groupName, groupDesc, groupPositions);
+        const addUserResponse = await groupHandler.addUser(userId, groupResponse._id, true);
+        console.log(addUserResponse)
+        res.status(200).send(addUserResponse);
     });
 };

@@ -36,13 +36,12 @@ class CreateGroup extends Component {
     };
 
     handleSubmit = async event => {
-        event.preventDefault();
-        axios.post(`/api/createNewGroup`,
+        axios.post(`/api/createGroup`,
             {
                 userId: this.props.userId,
                 newGroupScore: this.state.enteredScore,
-                groupName: this.state.groupName,
-                groupDesc: this.state.groupDesc,
+                groupName: this.state.groupName.trim(),
+                groupDesc: this.state.groupDesc.trim(),
                 groupPositions: this.state.dbReadyGroupPos,
             })
             .then(res => {
@@ -60,13 +59,22 @@ class CreateGroup extends Component {
 
     updateGroupsScore = (e) => {
         const { name, value } = e.target;
-        if (isNaN(+value)) {
+        let maxLength = 0;
+        if (value >= 10) {
+            maxLength = 5;
+        } else if (value <= -10) {
+            maxLength = 6
+        } else {
+            maxLength = 4;
+        };
+        if (value === `-`) {
+        } else if (isNaN(+value)) {
             return;
         } else if (value > 100) {
             return;
         } else if (value < -100) {
             return;
-        } else if (value.length > 4) {
+        } else if (value.length > maxLength) {
             return;
         };
         const [bucket, bucketKey] = name.split(`-`);
@@ -178,8 +186,7 @@ class CreateGroup extends Component {
     };
 
     render() {
-        // const groupValid = (this.state.groupNameValid & this.state.groupDescValid & this.state.groupPosValid);
-        const groupValid = true;
+        const groupValid = (this.state.groupNameValid & this.state.groupDescValid & this.state.groupPosValid);
 
         return (
             <Fragment>
@@ -220,7 +227,7 @@ class CreateGroup extends Component {
                     </div>
                     {this.state.showScore &&
                         <div className='form-group'>
-                            Scores must be from -100 to 100 and cannot go more than two places past the decimal
+                            Scores must range from -100 to 100 and cannot go more than two places past the decimal
                             <div className='scoringContainer'>
                                 {this.state.scoringMap.buckets.map((bucket, i) =>
                                     <div className='scoringGroup' key={bucket}>

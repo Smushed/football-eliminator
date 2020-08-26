@@ -53,6 +53,8 @@ class App extends Component {
   isSignedIn = async (email) => {
     const dbResponse = await axios.get(`/api/getUser/${email}`);
 
+    this.setCurrentUser(dbResponse.data)
+
     if (this.userHasGroup(dbResponse.data)) {
       this.getGroupAndPositions(dbResponse.data);
     } else {
@@ -60,16 +62,20 @@ class App extends Component {
     };
   };
 
-  getGroupAndPositions = async (user) => {
+  setCurrentUser = (user) => {
     const currentUser = {
       username: user.UN,
       userId: user._id,
       isAdmin: user.A,
     };
+    this.setState({ currentUser })
+  }
+
+  getGroupAndPositions = async (user) => {
+
     const playerPositions = await axios.get(`/api/getPositionData`);
     this.setState({
       noGroup: false,
-      currentUser,
       groupList: user.GL,
       currentGroup: { N: user.GL[0].N, _id: user.GL[0]._id },
       positionOrder: playerPositions.data
