@@ -1,9 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 import './groupStyle.css';
 
+const Alert = withReactContent(Swal);
 
 class GroupSelect extends Component {
     constructor(props) {
@@ -25,6 +28,16 @@ class GroupSelect extends Component {
         console.log(groupId)
     };
 
+    showUserlist = async (userlist, groupName) => {
+        console.log(userlist)
+        const listWithBreaks = userlist.map(user => `<br />${user}`)
+        const userlistForDisplay = listWithBreaks.join();
+        await Alert.fire({
+            title: `${groupName} userlist`,
+            html: userlistForDisplay,
+        })
+    };
+
     render() {
         return (
             <Fragment>
@@ -34,7 +47,7 @@ class GroupSelect extends Component {
                             Group Name
                         </div>
                         <small>
-                            Hover for Userlist
+                            Click for Userlist
                         </small>
                     </div>
                     <div className='col2'>
@@ -50,6 +63,7 @@ class GroupSelect extends Component {
                             UL={group.UL}
                             groupId={group.id}
                             joinGroup={this.joinGroup}
+                            showUserlist={this.showUserlist}
                         />
                     </div>)}
             </Fragment>
@@ -59,7 +73,7 @@ class GroupSelect extends Component {
 
 const GroupRow = (props) => (
     <div className='joinGroupRow'>
-        <div className='col1'>
+        <div className='col1' onClick={() => props.showUserlist(props.UL, props.name)}>
             {props.name}
         </div>
         <div className='col2'>
