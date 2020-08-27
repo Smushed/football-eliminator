@@ -29,7 +29,6 @@ class GroupSelect extends Component {
     };
 
     showUserlist = async (userlist, groupName) => {
-        console.log(userlist)
         const listWithBreaks = userlist.map(user => `<br />${user}`)
         const userlistForDisplay = listWithBreaks.join();
         await Alert.fire({
@@ -40,46 +39,48 @@ class GroupSelect extends Component {
 
     render() {
         return (
-            <Fragment>
-                <div className='joinGroupHeader'>
-                    <div className='col1'>
-                        <div>
-                            Group Name
+            <div className='joinGroupFlexContainer'>
+                <div className='joinGroupContainer'>
+                    <div className='joinGroupHeader'>
+                        <div className='groupListCol'>
+                            <div>
+                                Group Name
                         </div>
-                        <small>
-                            Click for Userlist
+                            <small>
+                                Click for Userlist
                         </small>
+                        </div>
+                        <div className='groupListCol'>
+                            Group Description
                     </div>
-                    <div className='col2'>
-                        Group Description
+                        <div className='groupListCol'></div>
                     </div>
-                    <div className='col3'>som</div>
+                    {this.state.groupList.map(group =>
+                        <div key={group.N}>
+                            <GroupRow
+                                name={group.N}
+                                desc={group.D}
+                                UL={group.UL}
+                                groupId={group.id}
+                                joinGroup={this.joinGroup}
+                                showUserlist={this.showUserlist}
+                            />
+                        </div>)}
                 </div>
-                {this.state.groupList.map(group =>
-                    <div key={group.N}>
-                        <GroupRow
-                            name={group.N}
-                            desc={group.D}
-                            UL={group.UL}
-                            groupId={group.id}
-                            joinGroup={this.joinGroup}
-                            showUserlist={this.showUserlist}
-                        />
-                    </div>)}
-            </Fragment>
+            </div>
         )
     };
 };
 
 const GroupRow = (props) => (
     <div className='joinGroupRow'>
-        <div className='col1' onClick={() => props.showUserlist(props.UL, props.name)}>
+        <div className='groupListCol groupName' onClick={() => props.showUserlist(props.UL, props.name)}>
             {props.name}
         </div>
-        <div className='col2'>
+        <div className='groupListCol'>
             {props.desc}
         </div>
-        <div className='col3'>
+        <div className='groupListCol rightCol'>
             <button className='btn btn-outline-primary' onClick={() => props.joinGroup(props.groupId)} >
                 Join
             </button>

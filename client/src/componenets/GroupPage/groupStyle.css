@@ -11,24 +11,31 @@
 
 .joinGroupRow {
     display: flex;
+    flex-wrap: wrap;
+    border: 1px solid lightgray;
+    border-radius: 15px;
+}
+
+.groupName {
+    font-weight: 600;
 }
 
 .joinGroupHeader {
     display: flex;
 }
 
-.col1 {
-    width: 33%;
+.groupListCol {
+    width: 205px;
 }
 
-.col2 {
-    width: 33%;
+.joinGroupFlexContainer {
+    display: flex;
+    justify-content: center;
 }
 
-.col3 {
-    width: 33%;
+.joinGroupContainer {
+    width: 620px;
 }
-
 
 @media only screen and (max-width: 1000px) {
     .scoringContainer {
@@ -41,6 +48,14 @@
 @media only screen and (max-width: 767px) {
     .scoringGroup {
         width: 100%;
+    }
+
+    .groupListCol {
+        width: 100%;
+    }
+
+    .joinGroupRow {
+        display: block;
     }
     
 }
