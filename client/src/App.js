@@ -172,7 +172,6 @@ class App extends Component {
                 render={props =>
                   <UsedPlayers
                     {...props}  //Need to pass down the props spread to have access to the URL
-                    username={this.state.currentUser.username}
                     season={this.state.currentSeason} />
                 }
               />
