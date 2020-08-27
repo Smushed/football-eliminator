@@ -23,7 +23,9 @@ class NoGroup extends Component {
                     <div>Welcome to the eliminator! Let's start with selecting a group <br />
                     </div> :
                     this.state.currentWindow === 'Join Group' ?
-                        <GroupSelect /> :
+                        <GroupSelect
+                            userId={this.props.userId}
+                        /> :
                         <CreateGroup
                             userId={this.props.userId}
                         />}

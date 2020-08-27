@@ -7,16 +7,24 @@ const checkDuplicateUser = async (checkedField, checkField1, checkField2) => {
     let searched;
     //TODO Do something other than log these errors
     switch (checkedField) {
-
         case `username`:
             searched = await db.User.findOne({ UN: checkField1 });
+            if (searched !== null) {
+                result = true;
+            };
             break;
         case `email`:
             searched = await db.User.findOne({ E: checkField1 });
+            if (searched !== null) {
+                result = true;
+            };
             break;
-    }
-    if (searched !== null) {
-        result = true;
+        case `group`:
+            const dbUser = await db.User.findById(checkField1);
+            const alreadyInGroup = await dbUser.GL.filter(groupId => groupId.toString() === checkField2.toString());
+            if (alreadyInGroup.length > 0) {
+                result = true;
+            };
     };
     return result;
 };
@@ -94,14 +102,6 @@ module.exports = {
         });
         return dbResponse;
     },
-    isLoggedIn: (req, res, next) => {
-        // if user is authenticated in the session, carry on 
-        if (req.isAuthenticated()) {
-            return next();
-        }
-        // if they aren't redirect them to the home page
-        res.redirect(`/`);
-    },
     saveNewUser: async (newUser) => {
         if (!checkDuplicateUser(`username`, newUser.UN) || !checkDuplicateUser(`email`, newUser.E)) { return false };
 
@@ -176,5 +176,14 @@ module.exports = {
                 res(`failure, check logs!`);
             };
         })
+    },
+    addGroupToList: async (userId, groupId) => {
+        const isInGroup = await checkDuplicateUser(`group`, userId, groupId);
+        if (isInGroup) {
+            return { status: 409, message: 'Group already added to user!' }
+        } else {
+            await db.User.findByIdAndUpdate([userId], { $push: { GL: groupId } });
+        }
+        return { status: 200, message: 'All Good' };
     }
 };

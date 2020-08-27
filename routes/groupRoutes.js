@@ -5,16 +5,13 @@ const scoringSystem = require(`../constants/scoringSystem`);
 
 module.exports = app => {
 
-    app.put(`/api/addusertogroup`, async (req, res) => {
-        const { userID, groupID, isAdmin } = req.body;
+    app.put(`/api/requestJoinGroup`, async (req, res) => {
+        const { userId, groupId } = req.body;
 
-        if (isAdmin) {
-            const added = await groupHandler.addUser(userID, groupID);
-            res.status(200).send(added);
-        } else {
-            //TODO Need to have some sort of display on the front end 
-            return "You need to be a moderator to add users to the group";
-        };
+        await groupHandler.addUser(userId, groupId);
+        await userHandler.addGroupToList(userId, groupId);
+        res.status(200).send(`Added`);
+        // return "You need to be a moderator to add users to the group";
     });
 
     app.get(`/api/getgroupdata/:groupID`, async (req, res) => {

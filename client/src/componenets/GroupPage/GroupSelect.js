@@ -25,7 +25,12 @@ class GroupSelect extends Component {
     };
 
     joinGroup = async (groupId) => {
-        console.log(groupId)
+        axios.put(`/api/requestJoinGroup`, {
+            userId: this.props.userId,
+            groupId
+        }).then(res => {
+            window.location.reload(false);
+        });
     };
 
     showUserlist = async (userlist, groupName) => {
@@ -45,10 +50,10 @@ class GroupSelect extends Component {
                         <div className='groupListCol'>
                             <div>
                                 Group Name
-                        </div>
+                            </div>
                             <small>
-                                Click for Userlist
-                        </small>
+                                (Click for Userlist)
+                            </small>
                         </div>
                         <div className='groupListCol'>
                             Group Description

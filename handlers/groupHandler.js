@@ -101,7 +101,7 @@ module.exports = {
         //get the user ID, add them to the array userlist within the group
         const groupDetail = await db.Group.findByIdAndUpdate(groupId, { $push: { UL: newUserForGroup } }, { new: true });
         const dbResponse = await db.SeasonAndWeek.find({}).exec();
-        await createUserScore(addedUserID, dbResponse[0].S, groupId)
+        await createUserScore(addedUserID, dbResponse[0].S, groupId);
 
         return groupDetail;
     },

@@ -47,8 +47,8 @@ class CreateGroup extends Component {
             })
             .then(res => {
                 console.log(res.data)
+                window.location.reload(false);
             });
-        window.location.reload(false);
     };
 
     handleChange = e => {
