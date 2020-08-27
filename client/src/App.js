@@ -98,6 +98,7 @@ class App extends Component {
         <Fragment>
           {this.state.authUser &&
             <NavBar
+              noGroup={this.state.noGroup}
               authUser={this.state.authUser}
               groupId={this.state.currentGroup._id}
               userId={this.state.currentUser.userId}

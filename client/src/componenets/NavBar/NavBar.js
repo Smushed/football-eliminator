@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 
 import * as Routes from '../../constants/routes';
@@ -47,24 +47,28 @@ class NavBar extends Component {
                             <img className='navHomeIcon floatLeft' src={ElimLogo} alt={`Home`} />
                         </Link>
                     </div>
-                    <div className='largeViewLinks'>
-                        <Link to={`/roster/${this.props.groupId}/${this.props.userId}`}>
-                            <button className='btn btn-success navButton floatLeft'>Your Roster</button>
-                        </Link>
-                        <Link to={`/usedPlayers/${this.props.groupId}/${this.props.userId}`}>
-                            <button className='btn btn-success navButton floatLeft'>Your Used Players</button>
-                        </Link>
-                    </div>
-                    <div className='smallViewLinks'>
-                        <Link to={`/roster/${this.props.groupId}/${this.props.userId}`}>
-                            <button className='btn btn-success btn-sm navButton floatLeft'>Roster</button>
-                        </Link>
-                        <div className='superSmallHide'>
-                            <Link to={`/usedPlayers/${this.props.groupId}/${this.props.userId}`}>
-                                <button className=' btn btn-success btn-sm navButton floatLeft'>Used Players</button>
-                            </Link>
-                        </div>
-                    </div>
+                    {!this.props.noGroup &&
+                        <Fragment>
+                            <div className='largeViewLinks'>
+                                <Link to={`/roster/${this.props.groupId}/${this.props.userId}`}>
+                                    <button className='btn btn-success navButton floatLeft'>Your Roster</button>
+                                </Link>
+                                <Link to={`/usedPlayers/${this.props.groupId}/${this.props.userId}`}>
+                                    <button className='btn btn-success navButton floatLeft'>Your Used Players</button>
+                                </Link>
+                            </div>
+                            <div className='smallViewLinks'>
+                                <Link to={`/roster/${this.props.groupId}/${this.props.userId}`}>
+                                    <button className='btn btn-success btn-sm navButton floatLeft'>Roster</button>
+                                </Link>
+                                <div className='superSmallHide'>
+                                    <Link to={`/usedPlayers/${this.props.groupId}/${this.props.userId}`}>
+                                        <button className=' btn btn-success btn-sm navButton floatLeft'>Used Players</button>
+                                    </Link>
+                                </div>
+                            </div>
+                        </Fragment>
+                    }
                 </div>
                 <div className='halfWay rightHalf'>
                     <div className='largeViewLinks'>
