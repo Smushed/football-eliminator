@@ -67,9 +67,10 @@ getUsedPlayers = async (userId, season, groupId) => {
     if (currentUser === null) {
         const createdUsedPlayers = createUsedPlayers(userId, season, groupId);
         return createdUsedPlayers.UP;
+    } else {
+        return currentUser.UP;
     };
 
-    return currentUser.UP;
 };
 
 getPlayerScore = async (currentRoster, season, week) => {
