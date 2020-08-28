@@ -14,7 +14,7 @@ import AdminPanel from './componenets/AdminPanel';
 import UpdateWeek from './componenets/AdminPanel/UpdateWeek';
 import UpgradeToAdmin from './componenets/AdminPanel/UpgradeToAdmin';
 import UsedPlayers from './componenets/UsedPlayers';
-import NoGroup from './componenets/GroupPage/NoGroup';
+import GroupPage from './componenets/GroupPage/';
 import FourOFour from './componenets/404/FourOFour';
 
 
@@ -105,7 +105,7 @@ class App extends Component {
             />
           }
           {this.state.noGroup ?
-            <NoGroup
+            <GroupPage
               noGroup={this.state.noGroup}
               userId={this.state.currentUser.userId}
             />

@@ -9,6 +9,30 @@
     min-width: 200px;
 }
 
+.welcomeHeader {
+    font-weight: 600;
+    font-size: 30px;
+}
+
+.welcomeMessage {
+    font-size: 18px;
+}
+
+.groupContainer {
+    display: flex;
+}
+
+.leftToggle {
+    width: 30%;
+    text-align: center;
+    margin-top: 20px;
+    margin-left: 45px;
+}
+
+.rightWindow {
+    width: 800px;
+}
+
 .joinGroupRow {
     display: flex;
     flex-wrap: wrap;
@@ -60,6 +84,19 @@
     }
 
     .joinGroupRow {
+        display: block;
+    }
+
+    .groupContainer {
+        display: block;
+    }
+
+    .leftToggle {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .joinGroupFlexContainer {
         display: block;
     }
     

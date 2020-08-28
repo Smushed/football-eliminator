@@ -192,7 +192,7 @@ class CreateGroup extends Component {
 
         return (
             <Fragment>
-                <div>Creating a group</div>
+                <div className='header'>Creating a group</div>
                 <form onSubmit={this.handleSubmit}>
                     <div className='form-group'>
                         <label>Group Name</label>
