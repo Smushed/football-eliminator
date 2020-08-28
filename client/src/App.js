@@ -32,7 +32,6 @@ class App extends Component {
       currentGroup: {},
       positionOrder: [],
     }
-
   };
 
   componentDidMount() {
@@ -98,6 +97,7 @@ class App extends Component {
         <Fragment>
           {this.state.authUser &&
             <NavBar
+              {...this.props}
               noGroup={this.state.noGroup}
               authUser={this.state.authUser}
               groupId={this.state.currentGroup._id}
