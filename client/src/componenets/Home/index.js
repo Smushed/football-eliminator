@@ -7,7 +7,6 @@ import { WeekSearch } from '../Roster/SearchDropdowns';
 import './homeStyle.css';
 import Leaderboard from './Leaderboard';
 
-//Stateful component to allow the grouplist to properly populate
 class Home extends Component {
     constructor(props) {
         super(props);
@@ -91,7 +90,8 @@ class Home extends Component {
                                 groupPositions={this.state.groupPositions}
                                 roster={roster.R}
                                 UN={roster.UN}
-                                UID={roster.UID}
+                            // TODO ADD THIS BACK IN ONCE USED PLAYERS ROUTE IS UP
+                            // UID={roster.UID}
                             />
                         </div>
                     )}

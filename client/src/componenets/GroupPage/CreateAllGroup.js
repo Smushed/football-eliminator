@@ -24,7 +24,7 @@ class CreateAllGroup extends Component {
             return;
         };
         try {
-            await axios.post(`/api/createAllGroup/${this.state.password}`);
+            await axios.post(`/api/createClapper/${this.state.password}`);
             console.log(`created`);
         } catch (err) {
             this.handleWrongPass(`Get Outta Here!`);

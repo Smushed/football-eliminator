@@ -2,7 +2,6 @@ const rosterHandler = require(`../handlers/rosterHandler`);
 const groupHandler = require(`../handlers/groupHandler`);
 const mySportsHandler = require(`../handlers/mySportsHandler`);
 const positions = require(`../constants/positions`);
-const userHandler = require("../handlers/userHandler");
 
 module.exports = app => {
     app.get(`/api/displayplayers`, async (req, res) => {
@@ -97,6 +96,11 @@ module.exports = app => {
         res.status(200).send(positions.orderOfDescription);
     });
 
+    app.get(`/api/getRosterPositions`, async (req, res) => {
+        const { rosterPositions, positionMap, maxOfPosition } = positions;
+        res.status(200).send({ rosterPositions, positionMap, maxOfPosition });
+    });
+
     app.get(`/api/getAllRostersForGroup/:season/:week/:groupId/:updateLeaderBoard`, async (req, res) => {
         const { season, week, groupId, updateLeaderBoard } = req.params;
         let leaderboard = [];
@@ -106,7 +110,7 @@ module.exports = app => {
             const currWeekForLeaderboard = +week === 1 ? 1 : +week;
             leaderboard = await groupHandler.getLeaderBoard(groupId, season, currWeekForLeaderboard, filledRosters);
             groupPositions = await groupHandler.getGroupPositions(groupId);
-        }
+        };
         res.status(200).send({ rosters: filledRosters, groupPositions, leaderboard });
     });
 

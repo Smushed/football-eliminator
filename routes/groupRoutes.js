@@ -1,33 +1,17 @@
 require(`dotenv`).config();
 const userHandler = require(`../handlers/userHandler`);
 const groupHandler = require(`../handlers/groupHandler`);
+const scoringSystem = require(`../constants/scoringSystem`);
 
 module.exports = app => {
-    app.get(`/api/getuser/`, async (req, res) => {
-        const userProfile = await userHandler.getProfile(req.user._id);
 
-        res.json(userProfile);
-    });
+    app.put(`/api/requestJoinGroup`, async (req, res) => {
+        const { userId, groupId } = req.body;
 
-    app.post(`/api/creategroup`, async (req, res) => {
-        const { groupName, groupDescription, currentUserID } = req.body;
-        //If 500 is returned a group with that name already exists
-        //Else it returns the new group
-        const response = await groupHandler.createGroup(currentUserID, groupName, groupDescription);
-        res.status(200).send(response);
-
-    });
-
-    app.put(`/api/addusertogroup`, async (req, res) => {
-        const { userID, groupID, isAdmin } = req.body;
-
-        if (isAdmin) {
-            const added = await groupHandler.addUser(userID, groupID);
-            res.status(200).send(added);
-        } else {
-            //TODO Need to have some sort of display on the front end 
-            return "You need to be a moderator to add users to the group";
-        };
+        await groupHandler.addUser(userId, groupId);
+        await userHandler.addGroupToList(userId, groupId);
+        res.status(200).send(`Added`);
+        // return "You need to be a moderator to add users to the group";
     });
 
     app.get(`/api/getgroupdata/:groupID`, async (req, res) => {
@@ -44,13 +28,13 @@ module.exports = app => {
         }
     });
 
-    app.post(`/api/createAllGroup/:pass`, async (req, res) => {
+    app.post(`/api/createClapper/:pass`, async (req, res) => {
         const { pass } = req.params;
         if (pass !== process.env.DB_ADMIN_PASS) {
             res.status(401).send(`Get Outta Here!`);
             return;
         };
-        groupHandler.createAllGroup();
+        groupHandler.createClapper();
         userHandler.initSeasonAndWeekInDB();
         console.log(`Group Created`)
         res.sendStatus(200);
@@ -67,5 +51,22 @@ module.exports = app => {
         const positions = await groupHandler.getGroupPositions(groupId);
         const forDisplay = await groupHandler.groupPositionsForDisplay(positions);
         res.status(200).send({ positions, forDisplay });
+    });
+
+    app.get(`/api/getScoring`, async (req, res) => {
+        res.status(200).send(scoringSystem);
+    });
+
+    app.post(`/api/createGroup`, async (req, res) => {
+        const { userId, newGroupScore, groupName, groupDesc, groupPositions } = req.body;
+        const groupResponse = await groupHandler.createGroup(userId, newGroupScore, groupName, groupDesc, groupPositions);
+        const addUserResponse = await groupHandler.addUser(userId, groupResponse._id, true);
+        console.log(addUserResponse)
+        res.status(200).send(addUserResponse);
+    });
+
+    app.get(`/api/getGroupList`, async (req, res) => {
+        const dbResponse = await groupHandler.getGroupList();
+        res.status(200).send(dbResponse);
     });
 };
