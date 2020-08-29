@@ -537,7 +537,7 @@ module.exports = {
         console.log(`Ranking Players for `, season, week, groupScore);
         //Loop through the positions of the players to then rank them
         //We are doing the offense here, since D will be different
-        for (const position of positions.offense) {
+        for (const position of positions.positionArray) {
             console.log(`Pulling ${position} for scoring`);
             const playersByPosition = await db.PlayerData.find({ 'P': position }, { M: 1, N: 1, P: 1 });
             const rankingArray = [];
