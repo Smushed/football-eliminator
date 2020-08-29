@@ -14,7 +14,7 @@ import AdminPanel from './componenets/AdminPanel';
 import UpdateWeek from './componenets/AdminPanel/UpdateWeek';
 import UpgradeToAdmin from './componenets/AdminPanel/UpgradeToAdmin';
 import UsedPlayers from './componenets/UsedPlayers';
-import NoGroup from './componenets/GroupPage/NoGroup';
+import GroupPage from './componenets/GroupPage/';
 import FourOFour from './componenets/404/FourOFour';
 
 
@@ -32,7 +32,6 @@ class App extends Component {
       currentGroup: {},
       positionOrder: [],
     }
-
   };
 
   componentDidMount() {
@@ -98,6 +97,7 @@ class App extends Component {
         <Fragment>
           {this.state.authUser &&
             <NavBar
+              {...this.props}
               noGroup={this.state.noGroup}
               authUser={this.state.authUser}
               groupId={this.state.currentGroup._id}
@@ -105,7 +105,7 @@ class App extends Component {
             />
           }
           {this.state.noGroup ?
-            <NoGroup
+            <GroupPage
               noGroup={this.state.noGroup}
               userId={this.state.currentUser.userId}
             />
@@ -172,7 +172,6 @@ class App extends Component {
                 render={props =>
                   <UsedPlayers
                     {...props}  //Need to pass down the props spread to have access to the URL
-                    username={this.state.currentUser.username}
                     season={this.state.currentSeason} />
                 }
               />

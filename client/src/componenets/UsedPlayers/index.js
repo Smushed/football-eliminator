@@ -32,16 +32,12 @@ class UsedPlayers extends Component {
     };
 
     getCurrentUsername() {
-        if (typeof this.props.username !== `undefined` && this.props.username !== ``) {
-            this.setState({ usernameOfPage: this.props.username })
-        } else {
-            axios.get(`/api/getUserById/${this.props.match.params.userId}`)
-                .then(res => {
-                    this.setState({ usernameOfPage: res.data.UN })
-                }).catch(err => {
-                    console.log(err); //TODO better error handling
-                });
-        };
+        axios.get(`/api/getUserById/${this.props.match.params.userId}`)
+            .then(res => {
+                this.setState({ usernameOfPage: res.data.UN })
+            }).catch(err => {
+                console.log(err); //TODO better error handling
+            });
     };
 
     getGroupPositionsForDisplay = () => {

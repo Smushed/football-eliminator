@@ -192,48 +192,70 @@ class CreateGroup extends Component {
 
         return (
             <Fragment>
-                <div>Creating a group</div>
+                <div className='createGroupHeader'>
+                    Creating a group
+                </div>
                 <form onSubmit={this.handleSubmit}>
-                    <div className='form-group'>
-                        <label>Group Name</label>
-                        <input className='form-control' type='text' name='groupName' placeholder='Dragons of Doom' value={this.state.groupName} onChange={this.handleChange} />
+                    <div className='form-group createGroupFormContainer'>
+                        <div className='formLabel'>
+                            Group Name
+                        </div>
+                        <div className='createGroupInput'>
+                            <input className='form-control' type='text' name='groupName' placeholder='Dragons of Doom' value={this.state.groupName} onChange={this.handleChange} />
+                        </div>
                         <small>Must be at least 6 characters</small>
                     </div>
                     <div className='form-group'>
-                        <label>Group Description</label>
-                        <input className='form-control' type='text' name='groupDesc' placeholder='Burninating the Competition' value={this.state.groupDesc} onChange={this.handleChange} />
-                        <small>Must be at least 6 characters</small>
+                        <div className='form-group createGroupFormContainer'>
+                            <div className='formLabel'>
+                                Group Description
+                            </div>
+                            <div className='createGroupInput'>
+                                <input className='form-control' type='text' name='groupDesc' placeholder='Burninating the Competition' value={this.state.groupDesc} onChange={this.handleChange} />
+                            </div>
+                            <small>Must be at least 6 characters</small>
+                        </div>
                     </div>
                     <div className='form-group'>
-                        <div>
+                        <div className='addRemovePositions'>
                             Add or Remove Roster Spots
                             <div>
-                                <button type='button' onClick={() => this.addPosition()}>
+                                <button type='button' className='btn btn-outline-secondary btn-sm addRemoveButton' onClick={() => this.addPosition()}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z" /></svg>
                                 </button>
-                                <button type='button' onClick={() => this.removePosition()}>
+                                <button type='button' className='btn btn-outline-secondary btn-sm addRemoveButton' onClick={() => this.removePosition()}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 10h24v4h-24z" /></svg>
                                 </button>
                             </div>
                         </div>
-                        {this.state.groupPosChose.map((position, i) => {
-                            return <select className='form-control' onChange={this.handleRosterUpdate} name={i} key={`groupPos-${i}`} value={this.state.groupPosChose[i]}>
-                                {this.state.rosterPositions.map((possiblePos, ii) => <option value={possiblePos.N} key={`possiblePos-${ii}`}>{possiblePos.N}</option>)}
-                            </select>
-                        })}
+                        <div className='positionSelectInput'>
+                            {this.state.groupPosChose.map((position, i) => {
+                                return <div className='positionSelectBox'>
+                                    <select className='form-control' onChange={this.handleRosterUpdate} name={i} key={`groupPos-${i}`} value={this.state.groupPosChose[i]}>
+                                        {this.state.rosterPositions.map((possiblePos, ii) => <option value={possiblePos.N} key={`possiblePos-${ii}`}>{possiblePos.N}</option>)}
+                                    </select>
+                                </div>
+                            })}
+                        </div>
                     </div>
                     <div className='form-group'>
-                        <button type='button' className='btn btn-primary' onClick={() => this.openScore()} disabled={!groupValid}>
-                            Enter Scores
+                        <div className='form-group createGroupFormContainer'>
+                            <button type='button' className='btn btn-primary' onClick={() => this.openScore()} disabled={!groupValid}>
+                                Enter Scores
                         </button>
+                        </div>
                     </div>
                     {this.state.showScore &&
                         <div className='form-group'>
-                            Scores must range from -100 to 100 and cannot go more than two places past the decimal
+                            <div className='createGroupExplain'>
+                                Scores must range from -100 to 100 and cannot go more than two places past the decimal
+                            </div>
                             <div className='scoringContainer'>
                                 {this.state.scoringMap.buckets.map((bucket, i) =>
                                     <div className='scoringGroup' key={bucket}>
-                                        <div>{this.state.scoringMap.bucketDescription[i]}</div>
+                                        <div className='scoringHeader'>
+                                            {this.state.scoringMap.bucketDescription[i]}
+                                        </div>
                                         {this.state.scoringMap[bucket].map((bucketKey, ii) =>
                                             <ScoringRow
                                                 description={this.state.scoringMap[`${bucket}Description`][ii]}
@@ -246,7 +268,9 @@ class CreateGroup extends Component {
                                     </div>
                                 )}
                             </div>
-                            <button className='btn btn-success'>Submit Group!</button>
+                            <div className='fullWidth'>
+                                <button className='btn btn-success'>Create Group!</button>
+                            </div>
                         </div>
                     }
                 </form>
@@ -257,7 +281,7 @@ class CreateGroup extends Component {
 
 
 const ScoringRow = (props) => (
-    <div>
+    <div className='groupScoreRow'>
         <label>{props.description}</label>
         <input className='form-control' type='text' name={`${props.bucket}-${props.bucketKey}`} value={props.val} onChange={props.handleChange} />
     </div>

@@ -90,8 +90,8 @@ class Home extends Component {
                                 groupPositions={this.state.groupPositions}
                                 roster={roster.R}
                                 UN={roster.UN}
-                            // TODO ADD THIS BACK IN ONCE USED PLAYERS ROUTE IS UP
-                            // UID={roster.UID}
+                                GID={this.props.group._id}
+                                UID={roster.UID}
                             />
                         </div>
                     )}

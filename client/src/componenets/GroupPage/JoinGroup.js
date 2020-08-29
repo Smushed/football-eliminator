@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
 import Swal from "sweetalert2";
@@ -8,7 +8,7 @@ import './groupStyle.css';
 
 const Alert = withReactContent(Swal);
 
-class GroupSelect extends Component {
+class JoinGroup extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -95,4 +95,4 @@ const GroupRow = (props) => (
 
 const condition = authUser => !!authUser;
 
-export default withAuthorization(condition)(GroupSelect);
+export default withAuthorization(condition)(JoinGroup);

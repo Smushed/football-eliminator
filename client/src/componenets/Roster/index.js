@@ -452,7 +452,7 @@ const RosterDisplay = (props) => (
         ))}
         {props.UID &&
             <div className='usedPlayerButton'>
-                <Link to={`/usedPlayers/${props.UID}`}>
+                <Link to={`/usedPlayers/${props.GID}/${props.UID}`}>
                     <button className='btn btn-info'>
                         {props.UN}'s used Players
                     </button>

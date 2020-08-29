@@ -5,8 +5,51 @@
 }
 
 .scoringGroup {
-    width: 250px;
-    min-width: 200px;
+    width: 150px;
+}
+
+.scoringHeader {
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 10px;
+    border-bottom: 1px solid lightgray;
+}
+
+.groupScoreRow {
+    width: 150px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid lightgray;
+    text-align: center;
+}
+
+.welcomeHeader {
+    font-weight: 600;
+    font-size: 30px;
+}
+
+.welcomeMessage {
+    font-size: 18px;
+}
+
+.createGroupFormContainer {
+    text-align: center;
+}
+
+.groupContainer {
+    display: flex;
+}
+
+.leftToggle {
+    width: 30%;
+    text-align: center;
+    margin-top: 20px;
+    margin-left: 45px;
+}
+
+.rightWindow {
+    width: 800px;
+    margin-left: 25px;
+    margin-top: 20px;
 }
 
 .joinGroupRow {
@@ -28,8 +71,56 @@
     border-bottom: 1px solid lightgray;
 }
 
+.createGroupExplain {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.createGroupHeader {
+    text-align: center;
+    font-weight: 600;
+    font-size: 22px;
+}
+
+.addRemoveButton {
+    margin-left: 20px;
+}
+
+.addRemovePositions {
+    text-align: center;
+}
+
+.createGroupInput {
+    margin: auto;
+    width: 450px;
+}
+
+.positionSelectInput {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.positionSelectBox {
+    margin-left: 20px;
+    margin-top: 20px;
+    width: 200px;
+}
+
+.formLabel {
+    margin-left: 15px;
+    font-weight: 600;
+}
+
 .groupListCol {
     width: 205px;
+    text-align: center;
+}
+
+.fullWidth {
+    margin-top: 20px;
+    width: 100%;
     text-align: center;
 }
 
@@ -62,6 +153,25 @@
     .joinGroupRow {
         display: block;
     }
+
+    .groupContainer {
+        display: block;
+    }
+
+    .leftToggle {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .joinGroupFlexContainer {
+        display: block;
+    }
     
+    .rightWindow {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 10px;
+    }
+
 }
 
