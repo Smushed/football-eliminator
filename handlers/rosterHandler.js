@@ -65,7 +65,7 @@ sortPlayersByRank = (playerArray) => {
 getUsedPlayers = async (userId, season, groupId) => {
     const currentUser = await db.UsedPlayers.findOne({ U: userId, S: season }).exec();
     if (currentUser === null) {
-        const createdUsedPlayers = createUsedPlayers(userId, season, groupId);
+        const createdUsedPlayers = await createUsedPlayers(userId, season, groupId);
         return createdUsedPlayers.UP;
     } else {
         return currentUser.UP;

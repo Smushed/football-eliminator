@@ -217,7 +217,11 @@ class Roster extends Component {
             .then(res => {
                 const { usedPlayers, positionSelect } = this.state;
                 this.setState({ availablePlayers: res.data });
-                this.setState({ currentPositionUsedPlayers: usedPlayers[positionSelect] })
+                if (!usedPlayers[positionSelect]) {
+                    this.getUsedPlayers();
+                } else {
+                    this.setState({ currentPositionUsedPlayers: usedPlayers[positionSelect] });
+                };
                 this.doneLoading();
             });
     };
