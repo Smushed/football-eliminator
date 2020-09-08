@@ -317,7 +317,7 @@ class Roster extends Component {
                 };
             });
 
-            newRoster.splice(droppedPlayerIndex, 1);
+            newRoster[droppedPlayerIndex] = 0;
             newAvailablePlayers.unshift(droppedPlayer);
 
             this.setState({ availablePlayers: newAvailablePlayers });
