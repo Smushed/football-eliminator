@@ -408,9 +408,9 @@ const CurrentRosterRow = (props) => (
                         {props.player.T}
                     </div>
                 }
-                {props.player.score ?
+                {props.player.S ?
                     <div className='scoreCol'>
-                        {props.player.score}
+                        {props.player.S}
                     </div>
                     :
                     props.addDropPlayer &&

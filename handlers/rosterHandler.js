@@ -243,7 +243,8 @@ module.exports = {
             const forDisplay = [];
             const allRosters = await getAllRostersByGroupAndWeek(season, week, groupId);
             for (const roster of allRosters) {
-                const filledRoster = await mySportsHandler.fillUserRoster(roster.R);
+                const weekUserScore = await mySportsHandler.getUserWeeklyScore(roster.U, groupId, season, week);
+                const filledRoster = await mySportsHandler.fillUserRoster(roster.R, weekUserScore);
                 const user = await userHandler.getUserByID(roster.U);
                 forDisplay.push({ UID: user._id, UN: user.UN, R: filledRoster });
             };

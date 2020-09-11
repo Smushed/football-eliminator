@@ -576,16 +576,20 @@ module.exports = {
         console.log(`Done Ranking`);
         return 200;
     },
-    fillUserRoster: async (playerIdRoster) => {
+    fillUserRoster: async (playerIdRoster, playerScoreArray) => {
         const filledRoster = [];
         for (let i = 0; i < playerIdRoster.length; i++) {
             if (playerIdRoster[i] !== 0) {
                 const { P, T, M, N } = await db.PlayerData.findOne({ M: playerIdRoster[i] }, { P: 1, T: 1, M: 1, N: 1 });
-                filledRoster.push({ P, T, M, N })
+                filledRoster.push({ P, T, M, N, S: playerScoreArray[i] });
             } else {
                 filledRoster.push(0);
             };
         };
         return filledRoster;
+    },
+    getUserWeeklyScore: async (userId, groupId, season, week) => {
+        const { SC } = await db.WeeklyUserScore.findOne({ U: userId, G: groupId, S: season, W: week })
+        return SC;
     },
 };
