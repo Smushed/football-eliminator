@@ -4,6 +4,7 @@ module.exports = {
     UserScores: require(`./UserScores`),
     UsedPlayers: require(`./UsedPlayers`),
     SeasonAndWeek: require(`./SeasonAndWeek`),
+    WeeklyUserScore: require(`./WeeklyUserScore`),
 
     Group: require(`./Group`),
     GroupScore: require(`./GroupScore`),

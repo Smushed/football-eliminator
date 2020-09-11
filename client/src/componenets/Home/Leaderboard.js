@@ -34,10 +34,10 @@ const Leaderboard = (props) => (
                             {user.UN}
                         </div>
                         <div className='secondCol'>
-                            {user.W}
+                            {user.W.toFixed(2)}
                         </div>
                         <div className='thirdCol'>
-                            {user.TS}
+                            {user.TS.toFixed(2)}
                         </div>
                     </div>
                 ))}

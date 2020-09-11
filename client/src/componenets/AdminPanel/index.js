@@ -6,6 +6,7 @@ import axios from 'axios';
 
 import PlayerEditor from './PlayerEditor';
 import UserEditor from './UserEditor';
+import GroupEditor from './GroupEditor';
 
 class AdminPanel extends Component {
     constructor(props) {
@@ -13,6 +14,7 @@ class AdminPanel extends Component {
         this.state = {
             userEditor: false,
             playerEditor: false,
+            groupEditor: false,
             weekSelect: 1,
             seasonSelect: ``
         };
@@ -44,11 +46,15 @@ class AdminPanel extends Component {
     };
 
     showPlayerEditor = () => {
-        this.setState({ playerEditor: true, userEditor: false })
+        this.setState({ playerEditor: true, userEditor: false, groupEditor: false });
     };
 
     showUserEditor = () => {
-        this.setState({ playerEditor: false, userEditor: true })
+        this.setState({ playerEditor: false, userEditor: true, groupEditor: false });
+    };
+
+    showGroupEditor = () => {
+        this.setState({ playerEditor: false, userEditor: false, groupEditor: true });
     };
 
     createAllRosters = async () => {
@@ -64,7 +70,7 @@ class AdminPanel extends Component {
     };
 
     render() {
-        const { playerEditor, userEditor } = this.state;
+        const { playerEditor, userEditor, groupEditor } = this.state;
 
         return (
             this.props.currentUser.isAdmin ?
@@ -104,6 +110,9 @@ class AdminPanel extends Component {
                             <Button color='primary' onClick={this.showUserEditor}>User Editor</Button>
                             <br />
                             <br />
+                            <Button color='primary' onClick={this.showGroupEditor}>Group Editor</Button>
+                            <br />
+                            <br />
                             <Button color='primary' onClick={this.createAllRosters}>Create All Rosters</Button>
                         </Col>
                         <Col sm='12' md='9'>
@@ -112,6 +121,9 @@ class AdminPanel extends Component {
                             }
                             {userEditor &&
                                 <UserEditor week={this.state.weekSelect} season={this.state.seasonSelect} />
+                            }
+                            {groupEditor &&
+                                <GroupEditor week={this.state.weekSelect} season={this.state.seasonSelect} />
                             }
                         </Col>
                     </Row>

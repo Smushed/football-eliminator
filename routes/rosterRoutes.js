@@ -10,12 +10,6 @@ module.exports = app => {
         res.status(200).send(response);
     });
 
-    app.get(`/api/getAllRosters/:season`, async (req, res) => {
-        const { season } = req.params;
-        const dbResponse = await rosterHandler.getAllRosters(season);
-        res.status(200).send(dbResponse);
-    });
-
     app.get(`/api/availablePlayers`, async (req, res) => {
         const { userId, searchedPosition, season, groupId } = req.query;
         const availablePlayers = await rosterHandler.availablePlayers(userId, searchedPosition, season, groupId);
@@ -28,7 +22,8 @@ module.exports = app => {
         if (userId !== `undefined` && week !== 0 && season !== `` && groupId !== `undefined`) { //Checks if this route received the userId before it was ready in react
             //The check already comes in as the string undefined, rather than undefined itself. It comes in as truthly
             const playerIdRoster = await rosterHandler.getUserRoster(userId, week, season, groupId);
-            const userRoster = await mySportsHandler.fillUserRoster(playerIdRoster);
+            const weekUserScore = await mySportsHandler.getUserWeeklyScore(userId, groupId, season, week);
+            const userRoster = await mySportsHandler.fillUserRoster(playerIdRoster, weekUserScore);
             const groupPositions = await groupHandler.getGroupPositions(groupId);
             const groupMap = await groupHandler.mapGroupPositions(groupPositions, positions.positionMap);
             const response = { userRoster, groupPositions, groupMap, positionArray: positions.positionArray };
@@ -56,7 +51,8 @@ module.exports = app => {
         rosterHandler.updateUserRoster(userId, roster, droppedPlayer, addedPlayer, week, season).then(async () => {
             //TODO COMBINE THIS WITH get userRoster above so it's one function
             const playerIdRoster = await rosterHandler.getUserRoster(userId, week, season, groupId);
-            const userRoster = await mySportsHandler.fillUserRoster(playerIdRoster);
+            const weekUserScore = await mySportsHandler.getUserWeeklyScore(userId, groupId, season, week);
+            const userRoster = await mySportsHandler.fillUserRoster(playerIdRoster, weekUserScore);
             const response = userRoster;
 
             res.status(200).send(response);

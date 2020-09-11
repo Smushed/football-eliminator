@@ -45,21 +45,15 @@ module.exports = app => {
         res.status(200).send(userScore);
     });
 
-    app.get(`/api/calculateScore/:season/:week/`, async (req, res) => {
-        const { season, week } = req.params;
+    app.put(`/api/calculateScore/:groupId/:season/:week`, async (req, res) => {
+        const { groupId, season, week } = req.params;
         //TODO Add a loop to iterate over every group in the app
-        const group = `The Eliminator`;
 
-        console.log(`Calculating scores for `, group);
+        const groupRosters = await rosterHandler.pullGroupRostersForScoring(season, week, groupId);
+        const groupScore = await groupHandler.getGroupScore(groupId);
+        const status = await mySportsHandler.calculateWeeklyScore(groupRosters, season, week, groupId, groupScore);
 
-
-        //TODO FIX THIS SHIT
-        // const userRosters = await rosterHandler.getAllRosters(season);
-        const status = await mySportsHandler.calculateWeeklyScore(userRosters, season, week, group);
-
-        console.log(group, ` scores completed`);
-
-        res.sendStatus(status);
+        res.status(200).send(`bazinga`);
     });
 
     app.get(`/api/rankPlayers/:season/:week/:groupId`, async (req, res) => {
