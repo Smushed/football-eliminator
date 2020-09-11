@@ -250,6 +250,12 @@ module.exports = {
             res(forDisplay);
         });
     },
+    pullGroupRostersForScoring: async (season, week, groupId) => {
+        return new Promise(async (res, rej) => {
+            const allRosters = await getAllRostersByGroupAndWeek(season, week, groupId);
+            res(allRosters);
+        });
+    },
     usedPlayersByPosition: async (userId, season, groupId) => {
         const sortedPlayers = { 'QB': [], 'RB': [], 'WR': [], 'TE': [], 'K': [] };
 
