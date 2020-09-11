@@ -345,7 +345,6 @@ const saveUserScore = async (userId, groupId, season, totalScore, scoreArray) =>
     let status = 200;
 
     await db.UserScores.findOne({ 'U': userId, 'G': groupId, 'S': season }, (err, userScore) => {
-        console.log(userScore)
         //First check if the userScore is not in the DB
         if (userScore === null) {
             var newUserScore = new db.UserScores({ U: userId, G: groupId, S: season, TS: totalScore });
@@ -581,7 +580,7 @@ module.exports = {
         for (let i = 0; i < playerIdRoster.length; i++) {
             if (playerIdRoster[i] !== 0) {
                 const { P, T, M, N } = await db.PlayerData.findOne({ M: playerIdRoster[i] }, { P: 1, T: 1, M: 1, N: 1 });
-                filledRoster.push({ P, T, M, N, S: playerScoreArray[i] });
+                filledRoster.push({ P, T, M, N, S: playerScoreArray.SC[i] });
             } else {
                 filledRoster.push(0);
             };
@@ -589,7 +588,19 @@ module.exports = {
         return filledRoster;
     },
     getUserWeeklyScore: async (userId, groupId, season, week) => {
-        const { SC } = await db.WeeklyUserScore.findOne({ U: userId, G: groupId, S: season, W: week })
-        return SC;
+        return new Promise(async (res, rej) => {
+            await db.WeeklyUserScore.findOne({ U: userId, G: groupId, S: season, W: week }, (err, weeklyUserScore) => {
+                if (weeklyUserScore === null) {
+                    var newUserScore = new db.WeeklyUserScore({ U: userId, G: groupId, S: season, W: week, SC: [] });
+                    newUserScore.save(err => {
+                        if (err) {
+                            console.log(err);
+                        };
+                        res(newUserScore);
+                    });
+                };
+                res(weeklyUserScore);
+            });
+        })
     },
 };
