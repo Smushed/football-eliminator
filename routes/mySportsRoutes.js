@@ -27,9 +27,8 @@ module.exports = app => {
 
     //This iterates through all the teams (all 32) and pulls mySportsFeeds for the current rosters
     //It then takes the rosters it gets from mySportsFeeds and updates the players it finds
-    app.get(`/api/updateTeams`, async (req, res) => {
-        //TODO make the season dynamic
-        const season = `2019-2020-regular`;
+    app.get(`/api/updateTeams/:season`, async (req, res) => {
+        const { season } = req.params;
 
         const dbResponse = await mySportsHandler.updateRoster(season);
 
