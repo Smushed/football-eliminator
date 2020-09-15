@@ -62,6 +62,11 @@ class AdminPanel extends Component {
         console.log(dbResponse)
     };
 
+    getMatchups = async () => {
+        const dbResponse = await axios.post(`/api/pullMatchUpsForDB/${this.state.seasonSelect}/${this.state.weekSelect}`);
+        console.log(dbResponse)
+    };
+
     //This is to handle the change for the Input Type in the position search below
     handleChange = (e) => {
         this.setState({
@@ -114,6 +119,9 @@ class AdminPanel extends Component {
                             <br />
                             <br />
                             <Button color='primary' onClick={this.createAllRosters}>Create All Rosters</Button>
+                            <br />
+                            <br />
+                            <Button color='primary' onClick={this.getMatchups}>Get Matchups</Button>
                         </Col>
                         <Col sm='12' md='9'>
                             {playerEditor &&

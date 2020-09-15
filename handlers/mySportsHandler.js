@@ -393,6 +393,25 @@ const saveWeeklyUserScore = async (userId, groupId, week, season, scoreArray) =>
     });
 };
 
+const saveOrUpdateMatchups = async (matchUpArray, season, week) => {
+    const pulledWeek = await db.MatchUps.findOne({ 'W': week, 'S': season });
+    if (pulledWeek === null || pulledWeek === undefined) {
+        db.MatchUps.create({
+            S: season,
+            W: week,
+            M: matchUpArray
+        }, function (err, player) {
+            if (err) {
+                console.log(err);
+            };
+        });
+    } else {
+        pulledWeek.M = matchUpArray;
+        pulledWeek.save();
+    };
+    return true;
+};
+
 module.exports = {
 
     updateRoster: async (season) => {
@@ -602,4 +621,24 @@ module.exports = {
             });
         })
     },
+    pullMatchUpsForDB: async (season, week) => {
+        const search = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${week}/games.json`, {
+            auth: {
+                username: mySportsFeedsAPI,
+                password: `MYSPORTSFEEDS`
+            }
+        });
+        const parsedGames = search.data.games.map(game => {
+            const H = game.schedule.homeTeam.abbreviation;
+            const A = game.schedule.awayTeam.abbreviation;
+            let W = '';
+            if (game.schedule.weather) {
+                W = game.schedule.weather.description;
+            }
+            return { H, A, W }
+        });
+
+        const updated = saveOrUpdateMatchups(parsedGames, season, week);
+        return updated;
+    }
 };

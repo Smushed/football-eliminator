@@ -64,4 +64,10 @@ module.exports = app => {
 
         res.sendStatus(dbResponse);
     });
+
+    app.post(`/api/pullMatchUpsForDB/:season/:week`, async (req, res) => {
+        const { season, week } = req.params;
+        const matchups = await mySportsHandler.pullMatchUpsForDB(season, week);
+        res.status(200).send(matchups)
+    });
 };
