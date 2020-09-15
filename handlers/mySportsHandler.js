@@ -549,7 +549,7 @@ module.exports = {
                 const scoredPlayer = player.toObject();
                 scoredPlayer.score = 0;
                 for (let i = 1; i <= week; i++) {
-                    scoredPlayer.score += await playerScoreHandler(player, season, i, groupScore)
+                    scoredPlayer.score += await playerScoreHandler(player.M, season, i, groupScore)
                 };
                 //Put them in an array to rank them
                 rankingArray.push(scoredPlayer);
@@ -557,7 +557,6 @@ module.exports = {
 
             //Sort the array by score so we can then divide it into the top performers
             rankingArray.sort((a, b) => { return b.score - a.score });
-
             //Get them into 7 different categories, each 10 big until the 7th rank, which is just all the rest
             for (let i = 1; i <= 7; i++) {
                 let currentRank = [];
