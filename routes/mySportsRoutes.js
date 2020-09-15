@@ -65,6 +65,12 @@ module.exports = app => {
         res.sendStatus(dbResponse);
     });
 
+    app.get(`/api/getWeeklyMatchups/:season/:week`, async (req, res) => {
+        const { season, week } = req.params;
+        const matchups = await mySportsHandler.getMatchups(season, week);
+        res.status(200).send(matchups.M);
+    });
+
     app.post(`/api/pullMatchUpsForDB/:season/:week`, async (req, res) => {
         const { season, week } = req.params;
         const matchups = await mySportsHandler.pullMatchUpsForDB(season, week);

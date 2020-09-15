@@ -622,23 +622,35 @@ module.exports = {
         })
     },
     pullMatchUpsForDB: async (season, week) => {
-        const search = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${week}/games.json`, {
-            auth: {
-                username: mySportsFeedsAPI,
-                password: `MYSPORTSFEEDS`
-            }
-        });
-        const parsedGames = search.data.games.map(game => {
-            const H = game.schedule.homeTeam.abbreviation;
-            const A = game.schedule.awayTeam.abbreviation;
-            let W = '';
-            if (game.schedule.weather) {
-                W = game.schedule.weather.description;
-            }
-            return { H, A, W }
-        });
+        return new Promise(async (res, rej) => {
+            const search = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${week}/games.json`, {
+                auth: {
+                    username: mySportsFeedsAPI,
+                    password: `MYSPORTSFEEDS`
+                }
+            });
+            const parsedGames = search.data.games.map(game => {
+                const H = game.schedule.homeTeam.abbreviation;
+                const A = game.schedule.awayTeam.abbreviation;
+                let W = '';
+                if (game.schedule.weather) {
+                    W = game.schedule.weather.description;
+                };
+                return ({ H, A, W });
+            });
 
-        const updated = saveOrUpdateMatchups(parsedGames, season, week);
-        return updated;
+            const updated = saveOrUpdateMatchups(parsedGames, season, week);
+            res(updated);
+        });
+    },
+    getMatchups: async function (season, week) {
+        return new Promise(async (res, rej) => {
+            const pulledWeek = await db.MatchUps.findOne({ 'W': week, 'S': season });
+            if (pulledWeek === null || pulledWeek === undefined) {
+                res(await this.pullMatchUpsForDB(season, week));
+            } else {
+                res(pulledWeek);
+            };
+        });
     }
 };

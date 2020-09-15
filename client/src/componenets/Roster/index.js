@@ -30,7 +30,8 @@ class Roster extends Component {
             positionArray: [],
             usedPlayers: {},
             currentPositionUsedPlayers: [],
-            positionMap: []
+            positionMap: [],
+            weeklyMatchups: []
         };
     };
 
@@ -84,6 +85,14 @@ class Roster extends Component {
         };
     };
 
+    getWeeklyMatchUps = async (week) => {
+        axios.get(`/api/getWeeklyMatchups/${this.props.season}/${week}`)
+            .then(res => {
+                this.setState({ weeklyMatchups: res.data })
+            });
+
+    };
+
     //We define loading and done loading here to have swal pop ups whenever we are pulling in data so the user can't mess with data while it's in a loading state
     loading() {
         Alert.fire({
@@ -108,7 +117,7 @@ class Roster extends Component {
     };
 
     getRosterData = (week) => {
-
+        this.getWeeklyMatchUps(week);
         this.setState({ weekOnPage: week })
         if (this.props.week !== 0 && this.props.season !== ``) {
             this.loading();
@@ -273,7 +282,7 @@ class Roster extends Component {
             newUsedPlayers[addedPlayer.P].push(addedPlayer);
             this.setState({ availablePlayers: newAvailablePlayers, usedPlayers: newUsedPlayers });
         };
-    }
+    };
 
     addDropPlayer = async (mySportsId, addOrDrop) => {
         if (!this.state.currentUser) {
@@ -326,6 +335,22 @@ class Roster extends Component {
         };
     };
 
+    showMatchUps = async () => {
+        const { weeklyMatchups } = this.state;
+        let displayMatchups = `Home   -   Away<br />`;
+        for (let i = 0; i < weeklyMatchups.length; i++) {
+            displayMatchups += `<br/>${weeklyMatchups[i].H}  -  ${weeklyMatchups[i].A}`
+            if (weeklyMatchups[i].W !== ``) {
+                displayMatchups += `<br/>Weather: ${weeklyMatchups[i].W.charAt(0).toUpperCase() + weeklyMatchups[i].W.slice(1)}`
+            };
+            displayMatchups += `<br />`
+        };
+        await Alert.fire({
+            title: `Week ${this.state.weekOnPage} Matchups`,
+            html: displayMatchups,
+        });
+    };
+
     render() {
         return (
             <div>
@@ -375,8 +400,10 @@ class Roster extends Component {
                     </div>
                     <div className='rosterCol largeScreenShow'>
                         <div className='searchRow'>
-                            Player Search
-                            <PlayerSearch playerSearch={this.state.playerSearch} handleChange={this.handleChange} customPlayerSearch={this.customPlayerSearch} />
+                            <br />
+                            <button className='btn btn-primary' onClick={() => this.showMatchUps()}>Match Ups</button>
+                            {/* Player Search
+                            <PlayerSearch playerSearch={this.state.playerSearch} handleChange={this.handleChange} customPlayerSearch={this.customPlayerSearch} /> */}
                         </div>
                         <div className='sectionHeader'>
                             Used Players
