@@ -30,12 +30,7 @@ class PlayerEditor extends Component {
     };
 
     updateNFLRoster = () => {
-        this.loading();
-        axios.get(`/api/updateTeams`).then(response => {
-            this.doneLoading();
-            console.log(response.data);
-        });
-
+        axios.get(`/api/updateTeams/${this.props.season}`)
     };
 
     getMassData = () => {
