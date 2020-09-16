@@ -52,7 +52,7 @@ module.exports = app => {
         const groupScore = await groupHandler.getGroupScore(groupId);
         const status = await mySportsHandler.calculateWeeklyScore(groupRosters, season, week, groupId, groupScore);
 
-        res.status(200).send(`bazinga`);
+        res.status(200).send(status);
     });
 
     app.get(`/api/rankPlayers/:season/:week/:groupId`, async (req, res) => {

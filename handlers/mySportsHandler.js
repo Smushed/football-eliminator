@@ -416,30 +416,30 @@ module.exports = {
 
     updateRoster: async (season) => {
         // This loops through the array of all the teams above and gets the current rosters
-        // for (const team of nflTeams.teams) {
-        // if (team === `UNK`) { continue };
-        // console.log(`Requesting ${team}`);
-        await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
-            auth: {
-                username: mySportsFeedsAPI,
-                password: `MYSPORTSFEEDS`
-            },
-            params: {
-                season: season,
-                team: `HOU`,
-                rosterstatus: `assigned-to-roster`
-            }
-        }).then(async (response) => {
-            // Then parses through the roster and pulls out of all the offensive players and updates their data
-            //This also gets any new players and adds them to the DB but inside this function
-            //Await because I want it to iterate through the whole roster that was provided before moving onto the next one
-            // console.log(`working through ${team}`)
-            await parseRoster(response.data.players, `HOU`);
-        }).catch(err => {
-            //TODO Error handling if the AJAX failed
-            console.log(`ERROR`, err, `GET ERROR`);
-        });
-        // };
+        for (const team of nflTeams.teams) {
+            if (team === `UNK`) { continue };
+            console.log(`Requesting ${team}`);
+            await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
+                auth: {
+                    username: mySportsFeedsAPI,
+                    password: `MYSPORTSFEEDS`
+                },
+                params: {
+                    season: season,
+                    team: team,
+                    rosterstatus: `assigned-to-roster`
+                }
+            }).then(async (response) => {
+                // Then parses through the roster and pulls out of all the offensive players and updates their data
+                //This also gets any new players and adds them to the DB but inside this function
+                //Await because I want it to iterate through the whole roster that was provided before moving onto the next one
+                console.log(`working through ${team}`)
+                await parseRoster(response.data.players, team);
+            }).catch(err => {
+                //TODO Error handling if the AJAX failed
+                console.log(`ERROR`, err, `GET ERROR`);
+            });
+        };
 
         //TODO Better response
         return { text: `Rosters updated!` };
@@ -623,24 +623,27 @@ module.exports = {
     },
     pullMatchUpsForDB: async (season, week) => {
         return new Promise(async (res, rej) => {
-            const search = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${week}/games.json`, {
-                auth: {
-                    username: mySportsFeedsAPI,
-                    password: `MYSPORTSFEEDS`
-                }
-            });
-            const parsedGames = search.data.games.map(game => {
-                const H = game.schedule.homeTeam.abbreviation;
-                const A = game.schedule.awayTeam.abbreviation;
-                let W = '';
-                if (game.schedule.weather) {
-                    W = game.schedule.weather.description;
-                };
-                return ({ H, A, W });
-            });
+            for (let i = 1; i <= week; i++) {
+                console.log(i)
+                const search = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${week}/games.json`, {
+                    auth: {
+                        username: mySportsFeedsAPI,
+                        password: `MYSPORTSFEEDS`
+                    }
+                });
+                const parsedGames = search.data.games.map(game => {
+                    const H = game.schedule.homeTeam.abbreviation;
+                    const A = game.schedule.awayTeam.abbreviation;
+                    let W = '';
+                    if (game.schedule.weather) {
+                        W = game.schedule.weather.description;
+                    };
+                    return ({ H, A, W });
+                });
 
-            const updated = saveOrUpdateMatchups(parsedGames, season, week);
-            res(updated);
+                await saveOrUpdateMatchups(parsedGames, season, i);
+            }
+            res(`Completed`);
         });
     },
     getMatchups: async function (season, week) {
