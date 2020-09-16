@@ -39,7 +39,7 @@ class JoinGroup extends Component {
         await Alert.fire({
             title: `${groupName} userlist`,
             html: userlistForDisplay,
-        })
+        });
     };
 
     render() {

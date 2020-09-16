@@ -8,6 +8,10 @@
     margin-bottom: 30px;
 }
 
+.pointer {
+    cursor: pointer;
+}
+
 .sectionHeader {
     font-size: 20px;
     text-align: center;
@@ -51,6 +55,7 @@
 }
 
 .searchRow {
+    height: 87px;
     text-align: center;
     margin-top: 15px;
 }

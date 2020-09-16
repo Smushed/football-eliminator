@@ -52,7 +52,7 @@ module.exports = app => {
         const groupScore = await groupHandler.getGroupScore(groupId);
         const status = await mySportsHandler.calculateWeeklyScore(groupRosters, season, week, groupId, groupScore);
 
-        res.status(200).send(`bazinga`);
+        res.status(200).send(status);
     });
 
     app.get(`/api/rankPlayers/:season/:week/:groupId`, async (req, res) => {
@@ -63,5 +63,17 @@ module.exports = app => {
         const dbResponse = await mySportsHandler.rankPlayers(season, week, groupScore);
 
         res.sendStatus(dbResponse);
+    });
+
+    app.get(`/api/getWeeklyMatchups/:season/:week`, async (req, res) => {
+        const { season, week } = req.params;
+        const matchups = await mySportsHandler.getMatchups(season, week);
+        res.status(200).send(matchups.M);
+    });
+
+    app.post(`/api/pullMatchUpsForDB/:season/:week`, async (req, res) => {
+        const { season, week } = req.params;
+        const matchups = await mySportsHandler.pullMatchUpsForDB(season, week);
+        res.status(200).send(matchups)
     });
 };

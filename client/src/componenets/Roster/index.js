@@ -30,7 +30,8 @@ class Roster extends Component {
             positionArray: [],
             usedPlayers: {},
             currentPositionUsedPlayers: [],
-            positionMap: []
+            positionMap: [],
+            weeklyMatchups: []
         };
     };
 
@@ -84,6 +85,14 @@ class Roster extends Component {
         };
     };
 
+    getWeeklyMatchUps = async (week) => {
+        axios.get(`/api/getWeeklyMatchups/${this.props.season}/${week}`)
+            .then(res => {
+                this.setState({ weeklyMatchups: res.data })
+            });
+
+    };
+
     //We define loading and done loading here to have swal pop ups whenever we are pulling in data so the user can't mess with data while it's in a loading state
     loading() {
         Alert.fire({
@@ -108,7 +117,7 @@ class Roster extends Component {
     };
 
     getRosterData = (week) => {
-
+        this.getWeeklyMatchUps(week);
         this.setState({ weekOnPage: week })
         if (this.props.week !== 0 && this.props.season !== ``) {
             this.loading();
@@ -273,7 +282,7 @@ class Roster extends Component {
             newUsedPlayers[addedPlayer.P].push(addedPlayer);
             this.setState({ availablePlayers: newAvailablePlayers, usedPlayers: newUsedPlayers });
         };
-    }
+    };
 
     addDropPlayer = async (mySportsId, addOrDrop) => {
         if (!this.state.currentUser) {
@@ -326,6 +335,32 @@ class Roster extends Component {
         };
     };
 
+    showMatchUps = async () => {
+        const { weeklyMatchups } = this.state;
+        let displayMatchups = `Home   -   Away<br />`;
+        for (let i = 0; i < weeklyMatchups.length; i++) {
+            displayMatchups += `<br/>${weeklyMatchups[i].H}  -  ${weeklyMatchups[i].A}`
+        };
+        await Alert.fire({
+            title: `Week ${this.state.weekOnPage} Matchups`,
+            html: displayMatchups,
+        });
+    };
+
+    showSingleMatchUp = async (team) => {
+        const matchup = this.state.weeklyMatchups.find(match => (match.H === team || match.A === team));
+        if (!matchup) {
+            return;
+        } else if (!matchup.H || !matchup.A) {
+            return;
+        };
+        const display = `Home: ${matchup.H}<br />Away:${matchup.A}`
+        await Alert.fire({
+            title: `${team} week ${this.state.weekOnPage} match`,
+            html: display
+        })
+    };
+
     render() {
         return (
             <div>
@@ -339,23 +374,33 @@ class Roster extends Component {
                     </div>
                     <div className='searchRow'>
                         Position Search
-                        <PositionSearch positionSelect={this.state.positionSelect} handleChange={this.handleChange} positionSearch={this.positionSearch} />
+                        <PositionSearch
+                            positionSelect={this.state.positionSelect}
+                            handleChange={this.handleChange}
+                            positionSearch={this.positionSearch} />
                     </div>
                     <div className='searchRow'>
                         Player Search
-                        <PlayerSearch playerSearch={this.state.playerSearch} handleChange={this.handleChange} customPlayerSearch={this.customPlayerSearch} />
+                        <PlayerSearch
+                            playerSearch={this.state.playerSearch}
+                            handleChange={this.handleChange}
+                            customPlayerSearch={this.customPlayerSearch} />
                     </div>
                 </div>
                 <div className='rosterContainer'>
                     <div className='rosterCol'>
                         <div className='searchRow largeScreenShow'>
                             Change Week
-                            <WeekSearch weekSelect={this.state.weekSelect} handleChange={this.handleChange} customSeasonWeekSearch={this.customSeasonWeekSearch} />
+                            <WeekSearch
+                                weekSelect={this.state.weekSelect}
+                                handleChange={this.handleChange}
+                                customSeasonWeekSearch={this.customSeasonWeekSearch} />
                         </div>
                         <div className='sectionHeader'>
                             Week {this.state.weekOnPage} Roster
                         </div>
                         <RosterDisplay
+                            showSingleMatchUp={this.showSingleMatchUp}
                             groupPositions={this.state.groupPositions}
                             addDropPlayer={this.addDropPlayer}
                             roster={this.state.userRoster || {}}
@@ -364,19 +409,28 @@ class Roster extends Component {
                     <div className='rosterCol'>
                         <div className='searchRow largeScreenShow'>
                             Position Search
-                            <PositionSearch positionSelect={this.state.positionSelect} handleChange={this.handleChange} positionSearch={this.positionSearch} />
+                            <PositionSearch
+                                positionSelect={this.state.positionSelect}
+                                handleChange={this.handleChange}
+                                positionSearch={this.positionSearch} />
                         </div>
                         <div className='sectionHeader'>
                             Available Players
                         </div>
                         {this.state.availablePlayers.map((player, i) => (
-                            <PlayerDisplayRow player={player} key={i} addDropPlayer={this.addDropPlayer} evenOrOddRow={i % 2} />
+                            <PlayerDisplayRow
+                                showSingleMatchUp={this.showSingleMatchUp}
+                                player={player} key={i}
+                                addDropPlayer={this.addDropPlayer}
+                                evenOrOddRow={i % 2} />
                         ))}
                     </div>
                     <div className='rosterCol largeScreenShow'>
                         <div className='searchRow'>
-                            Player Search
-                            <PlayerSearch playerSearch={this.state.playerSearch} handleChange={this.handleChange} customPlayerSearch={this.customPlayerSearch} />
+                            <br />
+                            <button className='btn btn-primary' onClick={() => this.showMatchUps()}>Match Ups</button>
+                            {/* Player Search
+                            <PlayerSearch playerSearch={this.state.playerSearch} handleChange={this.handleChange} customPlayerSearch={this.customPlayerSearch} /> */}
                         </div>
                         <div className='sectionHeader'>
                             Used Players
@@ -404,7 +458,7 @@ const CurrentRosterRow = (props) => (
                     </div>
                 }
                 {props.player.T &&
-                    <div className='teamCol'>
+                    <div onClick={() => (props.showSingleMatchUp && props.showSingleMatchUp(props.player.T))} className={`teamCol ${(props.showSingleMatchUp && `pointer`)}`}>
                         {props.player.T}
                     </div>
                 }
@@ -421,7 +475,7 @@ const CurrentRosterRow = (props) => (
             </div>
             : ``
         }
-    </div>
+    </div >
 );
 
 const PlayerDisplayRow = (props) => (
@@ -429,7 +483,7 @@ const PlayerDisplayRow = (props) => (
         <div className='playerCol'>
             {props.player.N && props.player.N}
         </div>
-        <div className='teamCol'>
+        <div onClick={() => (props.showSingleMatchUp && props.showSingleMatchUp(props.player.T))} className={`teamCol ${(props.showSingleMatchUp && `pointer`)}`}>
             {props.player.T && props.player.T}
         </div>
         <div className='posCol'>
@@ -448,6 +502,7 @@ const RosterDisplay = (props) => (
         {props.groupPositions.map((position, i) => (
             <CurrentRosterRow
                 key={i}
+                showSingleMatchUp={props.showSingleMatchUp}
                 position={position.N}
                 player={props.roster[i]}
                 addDropPlayer={props.addDropPlayer}
