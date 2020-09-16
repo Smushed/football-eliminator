@@ -122,7 +122,6 @@ module.exports = {
         const arrayForLeaderBoard = [];
         const weekAccessor = (week === 1 ? 1 : week - 1).toString();
         const userScoreList = await getUserScoreList(groupId, season, weekAccessor);
-        console.log(userScoreList)
         for (const user of userScoreList) {
             const { UN } = filledRosters.find(roster => roster.UID.toString() === user.U.toString());
             const filledOutUser = {
