@@ -15,7 +15,8 @@ const MatchUps = new Schema({
     M: [{
         H: String, //Home
         A: String, //Away
-        W: String  //Weather
+        W: String,  //Weather
+        _id: false
     }]
 });
 

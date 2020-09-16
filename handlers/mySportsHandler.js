@@ -395,6 +395,7 @@ const saveWeeklyUserScore = async (userId, groupId, week, season, scoreArray) =>
 
 const saveOrUpdateMatchups = async (matchUpArray, season, week) => {
     const pulledWeek = await db.MatchUps.findOne({ 'W': week, 'S': season });
+    console.log(pulledWeek)
     if (pulledWeek === null || pulledWeek === undefined) {
         db.MatchUps.create({
             S: season,
@@ -407,7 +408,8 @@ const saveOrUpdateMatchups = async (matchUpArray, season, week) => {
         });
     } else {
         pulledWeek.M = matchUpArray;
-        pulledWeek.save();
+        console.log(pulledWeek)
+        await pulledWeek.save();
     };
     return true;
 };
@@ -625,7 +627,7 @@ module.exports = {
         return new Promise(async (res, rej) => {
             for (let i = 1; i <= week; i++) {
                 console.log(i)
-                const search = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${week}/games.json`, {
+                const search = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${i}/games.json`, {
                     auth: {
                         username: mySportsFeedsAPI,
                         password: `MYSPORTSFEEDS`
