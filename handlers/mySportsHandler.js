@@ -2,7 +2,8 @@ const db = require(`../models`);
 const axios = require(`axios`);
 const nflTeams = require(`../constants/nflTeams`);
 const positions = require(`../constants/positions`);
-const scoringSystem = require(`../constants/scoringSystem`)
+const scoringSystem = require(`../constants/scoringSystem`);
+const rosterHandler = require(`./rosterHandler`);
 require(`dotenv`).config();
 
 const mySportsFeedsAPI = process.env.MY_SPORTS_FEEDS_API;
@@ -341,15 +342,14 @@ const updatePlayerTeam = async (mySportsId, team) => {
     await db.PlayerData.findOneAndUpdate({ 'M': mySportsId }, { 'T': team, 'A': true });
 };
 
-const saveUserScore = async (userId, groupId, season, totalScore, scoreArray) => {
+const saveUserScore = async (userId, groupId, season, week, weekScore) => {
     let status = 200;
-
     await db.UserScores.findOne({ 'U': userId, 'G': groupId, 'S': season }, (err, userScore) => {
         //First check if the userScore is not in the DB
         if (userScore === null) {
-            var newUserScore = new db.UserScores({ U: userId, G: groupId, S: season, TS: totalScore });
+            let newUserScore = new db.UserScores({ U: userId, G: groupId, S: season, TS: totalScore });
             for (let i = 0; scoreArray.length; i++) {
-                newUserScore[i + 1] = scoreArray[i]
+                newUserScore[week] = weekScore
             };
             newUserScore.save(err => {
                 if (err) {
@@ -358,11 +358,12 @@ const saveUserScore = async (userId, groupId, season, totalScore, scoreArray) =>
                 return;
             });
         };
-        userScore.TS = totalScore;
-        for (let i = 0; i < scoreArray.length; i++) {
-            console.log(userScore[i + 1])
-            userScore[i + 1] = scoreArray[i];
+        userScore[week] = weekScore;
+        let totalScore = 0;
+        for (let i = 1; i <= week; i++) {
+            totalScore += userScore[i];
         };
+        userScore.TS = totalScore;
         userScore.save(err => {
             if (err) {
                 console.log(err);
@@ -395,7 +396,6 @@ const saveWeeklyUserScore = async (userId, groupId, week, season, scoreArray) =>
 
 const saveOrUpdateMatchups = async (matchUpArray, season, week) => {
     const pulledWeek = await db.MatchUps.findOne({ 'W': week, 'S': season });
-    console.log(pulledWeek)
     if (pulledWeek === null || pulledWeek === undefined) {
         db.MatchUps.create({
             S: season,
@@ -408,7 +408,6 @@ const saveOrUpdateMatchups = async (matchUpArray, season, week) => {
         });
     } else {
         pulledWeek.M = matchUpArray;
-        console.log(pulledWeek)
         await pulledWeek.save();
     };
     return true;
@@ -516,26 +515,20 @@ module.exports = {
         return response;
     },
     getAndSaveUserScore: async function (userRoster, season, week, userId, groupScore, groupId) {
-        //Starting at 1 because we always start with week one
-        let totalScore = 0;
-        const scoreForWeek = [];
-        for (let i = 1; i <= week; i++) {
-            scoreForWeek[i - 1] = 0;
-            //Now I need to parse through this roster and every player that isn't marked with a 0 I need to query the DB
-            let weeklyRosterScore = [];
-            for (let ii = 0; ii <= userRoster.length - 1; ii++) {
-                const currentScore = await this.getPlayerWeeklyScore(userRoster[ii], season, i, groupScore);
-                const currentScoreNum = +currentScore.toFixed(2);
-                scoreForWeek[i - 1] += currentScoreNum;
-                weeklyRosterScore[ii] = currentScoreNum;
-                totalScore += currentScoreNum;
-            };
-            saveWeeklyUserScore(userId, groupId, week, season, weeklyRosterScore);
+        let weeklyRosterScore = [];
+        let weekScore = 0;
+        for (let ii = 0; ii < userRoster.length; ii++) {
+            const currentScore = await this.getPlayerWeeklyScore(userRoster[ii], season, week, groupScore);
+            const currentScoreNum = +currentScore.toFixed(2);
+            weekScore += currentScoreNum;
+            weeklyRosterScore[ii] = currentScoreNum;
         };
-        saveUserScore(userId, groupId, season, totalScore, scoreForWeek);
-        return totalScore;
+        saveWeeklyUserScore(userId, groupId, week, season, weeklyRosterScore);
+        saveUserScore(userId, groupId, season, week, weekScore);
+        return;
     },
     calculateWeeklyScore: async function (groupList, season, week, groupId, groupScore) {
+
         for (const user of groupList) {
             await this.getAndSaveUserScore(user.R, season, week, user.U, groupScore, groupId);
         };
@@ -548,11 +541,7 @@ module.exports = {
                 res(0);
             };
             let weeklyScore = 0
-            try {
-                weeklyScore = await playerScoreHandler(playerId, season, week, groupScore);
-            } catch (err) {
-                console.log(err, `Id:`, playerId);
-            };
+            weeklyScore = await playerScoreHandler(playerId, season, week, groupScore);
             res(weeklyScore);
         });
     },

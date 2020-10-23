@@ -47,12 +47,13 @@ module.exports = app => {
     app.put(`/api/calculateScore/:groupId/:season/:week`, async (req, res) => {
         const { groupId, season, week } = req.params;
         //TODO Add a loop to iterate over every group in the app
-
-        const groupRosters = await rosterHandler.pullGroupRostersForScoring(season, week, groupId);
-        const groupScore = await groupHandler.getGroupScore(groupId);
-        const status = await mySportsHandler.calculateWeeklyScore(groupRosters, season, week, groupId, groupScore);
-
-        res.status(200).send(status);
+        for (let i = 1; i <= week; i++) {
+            const groupRosters = await rosterHandler.pullGroupRostersForScoring(season, i, groupId);
+            const groupScore = await groupHandler.getGroupScore(groupId);
+            await mySportsHandler.calculateWeeklyScore(groupRosters, season, i, groupId, groupScore);
+            console.log(`done scoring week ${i}`)
+        };
+        res.status(200).send('working');
     });
 
     app.get(`/api/rankPlayers/:season/:week/:groupId`, async (req, res) => {
