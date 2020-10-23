@@ -3,7 +3,6 @@ const axios = require(`axios`);
 const nflTeams = require(`../constants/nflTeams`);
 const positions = require(`../constants/positions`);
 const scoringSystem = require(`../constants/scoringSystem`);
-const rosterHandler = require(`./rosterHandler`);
 require(`dotenv`).config();
 
 const mySportsFeedsAPI = process.env.MY_SPORTS_FEEDS_API;

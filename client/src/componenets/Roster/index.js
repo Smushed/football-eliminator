@@ -350,6 +350,9 @@ class Roster extends Component {
     showSingleMatchUp = async (team) => {
         const matchup = this.state.weeklyMatchups.find(match => (match.H === team || match.A === team));
         if (!matchup) {
+            await Alert.fire({
+                title: `${team} is on bye!`,
+            });
             return;
         } else if (!matchup.H || !matchup.A) {
             return;

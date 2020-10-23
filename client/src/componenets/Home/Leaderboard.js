@@ -21,9 +21,12 @@ const Leaderboard = (props) => (
                     Username
                 </div>
                 <div className='secondCol'>
-                    Last Week's Score
+                    Last Week Score
                 </div>
                 <div className='thirdCol'>
+                    Curr Week Score
+                </div>
+                <div className='fourthCol'>
                     Total Score
                 </div>
             </div>
@@ -37,6 +40,9 @@ const Leaderboard = (props) => (
                             {user.W.toFixed(2)}
                         </div>
                         <div className='thirdCol'>
+                            {user.CW.toFixed(2)}
+                        </div>
+                        <div className='fourthCol'>
                             {user.TS.toFixed(2)}
                         </div>
                     </div>

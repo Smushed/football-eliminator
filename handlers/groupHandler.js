@@ -45,8 +45,8 @@ const checkDuplicate = async (checkedField, groupToSearch, userID) => {
     return result;
 };
 
-const getUserScoreList = async (groupId, season, week) => {
-    return await db.UserScores.find({ G: groupId, S: season }, `U ${week} TS`).exec();
+const getUserScoreList = async (groupId, season, prevWeek, week) => {
+    return await db.UserScores.find({ G: groupId, S: season }, `U ${prevWeek} ${week} TS`).exec();
 };
 
 const createGroupRoster = async (groupId, rosterSpots) => {
@@ -121,13 +121,14 @@ module.exports = {
     getLeaderBoard: async (groupId, season, week, filledRosters) => {
         const arrayForLeaderBoard = [];
         const weekAccessor = (week === 1 ? 1 : week - 1).toString();
-        const userScoreList = await getUserScoreList(groupId, season, weekAccessor);
+        const userScoreList = await getUserScoreList(groupId, season, weekAccessor, week);
         for (const user of userScoreList) {
             const { UN } = filledRosters.find(roster => roster.UID.toString() === user.U.toString());
             const filledOutUser = {
                 UID: user.U,
                 TS: user.TS,
                 UN,
+                CW: user[week],
                 W: user[weekAccessor]
             };
             arrayForLeaderBoard.push(filledOutUser);
