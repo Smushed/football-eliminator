@@ -523,7 +523,6 @@ module.exports = {
             weekScore += currentScoreNum;
             weeklyRosterScore[ii] = currentScoreNum;
         };
-        console.log(weeklyRosterScore, weekScore)
         saveWeeklyUserScore(userId, groupId, week, season, weeklyRosterScore);
         saveUserScore(userId, groupId, season, week, weekScore);
         return;
