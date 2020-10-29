@@ -279,7 +279,7 @@ const parseRoster = async (playerArray, team) => {
         const position = playerArray[i].player.primaryPosition || playerArray[i].player.position;
         if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
             let mySportsId = await findPlayerInDB(playerArray[i].player.id);
-            if (mySportsId === null || mySportsId === undefined) {
+            if (mySportsId === false || mySportsId === undefined || mySportsId === null) {
                 mySportsId = await addPlayerData(playerArray[i].player, team);
             } else {
 
