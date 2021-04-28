@@ -16,6 +16,7 @@ import UpgradeToAdmin from './componenets/AdminPanel/UpgradeToAdmin';
 import UsedPlayers from './componenets/UsedPlayers';
 import GroupPage from './componenets/GroupPage/';
 import FourOFour from './componenets/404/FourOFour';
+import SidePanel from './componenets/SidePanel';
 
 
 class App extends Component {
@@ -31,6 +32,7 @@ class App extends Component {
       groupList: [],
       currentGroup: {},
       positionOrder: [],
+      showSideBar: false
     }
   };
 
@@ -89,19 +91,28 @@ class App extends Component {
 
   userHasGroup = (user) => (user.GL.length > 0);
 
+  showHideSideBar = () => this.setState({ showSideBar: !this.state.showSideBar });
+
+  hardSetSideBar = (toggle) => this.setState({ showSideBar: toggle });
+
   render() {
 
     return (
 
       <BrowserRouter>
         <Fragment>
+          <SidePanel
+            showSideBar={this.state.showSideBar}
+            noGroup={this.state.noGroup}
+            authUser={this.state.authUser}
+            groupId={this.state.currentGroup._id}
+            userId={this.state.currentUser.userId}
+            showHideSideBar={this.showHideSideBar}
+            hardSetSideBar={this.hardSetSideBar}
+          />
           {this.state.authUser &&
             <NavBar
-              {...this.props}
-              noGroup={this.state.noGroup}
-              authUser={this.state.authUser}
-              groupId={this.state.currentGroup._id}
-              userId={this.state.currentUser.userId}
+              showHideSideBar={this.showHideSideBar}
             />
           }
           {this.state.noGroup ?

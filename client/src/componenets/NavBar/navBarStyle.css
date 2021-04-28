@@ -1,3 +1,9 @@
+.menuButton {
+    margin-top: 20px;
+    margin-left: 20px;
+    cursor: pointer;
+}
+
 .navHeader {
     height: 80px;
     display: flex;
@@ -25,11 +31,7 @@
     width: 93px;
 }
 
-.signoutIcon {
-    margin: 5px;
-    height: 45px;
-    width: 45px;
-}
+
 
 .floatLeft {
     float: left;
@@ -43,20 +45,6 @@
     min-width: 150px;
     margin-left: 5%;
     transform: translateY(50%);
-}
-
-.signOut {
-    transform: translateY(13%);
-    width: 137px;
-    float: right;
-    margin-right: 20px;
-    cursor: pointer;
-    padding: 3px;
-    padding-right: 7px;
-    border-radius: 5px;
-    border: 1px solid lightgray;
-    font-weight: 600;
-    background-color: rgb(247, 247, 247);
 }
 
 .notifications {
