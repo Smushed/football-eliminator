@@ -115,6 +115,7 @@ class App extends Component {
               showHideSideBar={this.showHideSideBar}
             />
           }
+
           {this.state.noGroup ?
             <GroupPage
               noGroup={this.state.noGroup}
@@ -131,6 +132,7 @@ class App extends Component {
                     group={this.state.currentGroup}
                     week={this.state.currentWeek}
                     positionOrder={this.state.positionOrder}
+                    userId={this.state.currentUser.userId}
                   />}
               />
               <Route

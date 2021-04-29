@@ -2,17 +2,17 @@
     z-index: 1;
     display: flex;
     justify-content: center;
-    height: 350px;
-    max-height: 350px;
-    overflow-y: scroll;
-    overflow: auto;
+    width: 50%;
+    height: 100%;
+    margin-top: 45px;
 }
 
 .leaderboard {
     border: 1px solid lightgray;
     border-radius:15px;
-    width: 45%;
     margin-bottom: 25px;
+    padding-bottom: 25px;
+    width: 85%;
 }
 
 .leaderboardHeader {
@@ -26,21 +26,21 @@
 .leaderboardTitle {
     width: 33%;
     padding-left: 20px;
-    font-size: 24px;
+    font-size: 32px;
     font-weight: 600;
     z-index: 2;
 }
 
 .leftHeader {
-    padding-left: 20px;
+    padding-left: 80px;
 }
 
 .rightHeader {
-    padding-right: 50px;
+    padding-right: 70px;
 }
 
 .headerText {
-    font-size: 20px;
+    font-size: 28px;
     font-weight: 600;
     align-self: flex-end;
 }
@@ -53,11 +53,13 @@
     justify-content: space-between;
     border-bottom: 1px solid lightgray;
     padding-top: 5px;
+    font-size: 20px;
 }
 
 .firstCol {
     width: 25%;
     justify-self: flex-start;
+    padding-left: 50px;
 }
 
 .secondCol {

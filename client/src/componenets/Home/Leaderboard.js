@@ -37,13 +37,13 @@ const Leaderboard = (props) => (
                             {user.UN}
                         </div>
                         <div className='secondCol'>
-                            {user.W.toFixed(2)}
+                            {user.LW.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
                         </div>
                         <div className='thirdCol'>
-                            {user.CW.toFixed(2)}
+                            {user.CW.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
                         </div>
                         <div className='fourthCol'>
-                            {user.TS.toFixed(2)}
+                            {user.TS.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
                         </div>
                     </div>
                 ))}

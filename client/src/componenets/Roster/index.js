@@ -121,8 +121,7 @@ class Roster extends Component {
         this.setState({ weekOnPage: week })
         if (this.props.week !== 0 && this.props.season !== ``) {
             this.loading();
-            axios.get(`/api/userRoster/${this.props.match.params.groupId}/${this.props.match.params.userId}`,
-                { params: { week, season: this.props.season } })
+            axios.get(`/api/userRoster/${this.props.season}/${week}/${this.props.match.params.groupId}/${this.props.match.params.userId}`)
                 .then(res => {
                     this.setState({ userRoster: res.data.userRoster, groupPositions: res.data.groupPositions, positionMap: res.data.groupMap, positionArray: res.data.positionArray });
                     this.doneLoading();
@@ -500,23 +499,23 @@ const PlayerDisplayRow = (props) => (
     </div>
 );
 
-const RosterDisplay = (props) => (
+const RosterDisplay = ({ groupPositions, showSingleMatchUp, roster, addDropPlayer, GID, UID, UN }) => (
     <Fragment>
-        {props.groupPositions.map((position, i) => (
+        {groupPositions.map((position, i) => (
             <CurrentRosterRow
                 key={i}
-                showSingleMatchUp={props.showSingleMatchUp}
+                showSingleMatchUp={showSingleMatchUp}
                 position={position.N}
-                player={props.roster[i]}
-                addDropPlayer={props.addDropPlayer}
+                player={roster[i]}
+                addDropPlayer={addDropPlayer}
                 evenOrOddRow={i % 2}
             />
         ))}
-        {props.UID &&
+        {UID &&
             <div className='usedPlayerButton'>
-                <Link to={`/usedPlayers/${props.GID}/${props.UID}`}>
+                <Link to={`/usedPlayers/${GID}/${UID}`}>
                     <button className='btn btn-info'>
-                        {props.UN}'s used Players
+                        {UN}'s used Players
                     </button>
                 </Link>
             </div>
