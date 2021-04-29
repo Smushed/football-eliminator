@@ -145,6 +145,11 @@ class App extends Component {
                     groupId={this.state.currentGroup._id} />}
               />
               <Route
+                path={Routes.groupPage}
+                render={() =>
+                  <GroupPage />}
+              />
+              <Route
                 path={Routes.signin}
                 render={() =>
                   <SignInOut />}

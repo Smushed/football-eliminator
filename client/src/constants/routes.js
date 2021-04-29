@@ -11,6 +11,7 @@ export const createAllGroup = '/createAllGroup';
 export const updateWeek = '/updateWeek';
 export const createGroup = '/createGroup';
 export const groupSelect = '/groupSelect';
+export const groupPage = '/groups';
 export const fourOFour = '/*';
 
 
