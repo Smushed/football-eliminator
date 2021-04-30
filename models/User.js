@@ -17,6 +17,10 @@ const UserSchema = new Schema({
         type: Boolean,
         default: false
     },
+    MT: { //Main Team
+        type: String,
+        default: 'CHI'
+    },
     MG: mongoose.Types.ObjectId //Main Group
 });
 

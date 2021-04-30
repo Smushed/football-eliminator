@@ -1,0 +1,12 @@
+.userProfileWrapper {
+    display: flex;
+}
+
+.userProfileLeft {
+    margin-left: 300px;
+    width: 20%;
+}
+
+.userProfileRight {
+    width: 45%;
+}

@@ -2,9 +2,12 @@ import React, { useEffect } from 'react';
 import { withFirebase } from '../Firebase';
 import { Link } from 'react-router-dom';
 import { slide as Menu } from 'react-burger-menu';
+
+// SVGs are from Flatiron
 import RankingSVG from './ranking.svg';
 import ListSVG from './list.svg';
 import PlayerSVG from './player.svg';
+import GroupSVG from './group.svg';
 
 import * as Routes from '../../constants/routes';
 
@@ -69,6 +72,14 @@ const SidePanel = ({ firebase, authUser, userId, groupId, showHideSideBar, showS
                     <img className='sidebarSVG' src={PlayerSVG} alt='Used Players Logo' />
                     <div className='sideBarItem'>
                         Used Players
+                    </div>
+                </div>
+            </Link>
+            <Link to={Routes.groupPage} onClick={() => showHideSideBar()}>
+                <div className='sidebarItemWrapper'>
+                    <img className='sidebarSVG' src={GroupSVG} alt='Group Logo' />
+                    <div className='sideBarItem'>
+                        Group Page
                     </div>
                 </div>
             </Link>

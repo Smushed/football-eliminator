@@ -470,8 +470,9 @@ module.exports = {
         //This gets a specific week's worth of games and iterates through the list of players to come up with an array
         //The array has player id, names, positions and stats in it. It then should feed an update a database
         console.log(`requesting week ${week} data`)
+        let search;
         try {
-            const search = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${week}/player_gamelogs.json`, {
+            search = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${week}/player_gamelogs.json`, {
                 auth: {
                     username: mySportsFeedsAPI,
                     password: `MYSPORTSFEEDS`

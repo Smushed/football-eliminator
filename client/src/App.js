@@ -7,7 +7,7 @@ import axios from 'axios';
 import SignInOut from './componenets/SignInOut';
 import NavBar from './componenets/NavBar/NavBar';
 import Home from './componenets/Home';
-import UserProfile from './componenets/UserProfile/UserProfile';
+import UserProfile from './componenets/UserProfile';
 import SeasonLongScore from './componenets/SeasonLongScore';
 import Roster from './componenets/Roster';
 import AdminPanel from './componenets/AdminPanel';
@@ -162,7 +162,9 @@ class App extends Component {
               <Route
                 path={Routes.userProfile}
                 render={() =>
-                  <UserProfile />}
+                  <UserProfile
+                    currentUser={this.state.currentUser}
+                    groupList={this.state.groupList} />}
               />
               <Route
                 path={Routes.seasonLongScore}
