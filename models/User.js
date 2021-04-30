@@ -17,7 +17,7 @@ const UserSchema = new Schema({
         type: Boolean,
         default: false
     },
-    MT: { //Main Team
+    FT: { //Favorite Team
         type: String,
         default: 'CHI'
     },

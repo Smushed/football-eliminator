@@ -64,10 +64,12 @@ class App extends Component {
   };
 
   setCurrentUser = (user) => {
+    console.log(user);
     const currentUser = {
       username: user.UN,
       userId: user._id,
       isAdmin: user.A,
+      FT: user.FT
     };
     this.setState({ currentUser })
   }
@@ -104,7 +106,6 @@ class App extends Component {
           <SidePanel
             showSideBar={this.state.showSideBar}
             noGroup={this.state.noGroup}
-            authUser={this.state.authUser}
             groupId={this.state.currentGroup._id}
             userId={this.state.currentUser.userId}
             showHideSideBar={this.showHideSideBar}
@@ -163,6 +164,7 @@ class App extends Component {
                 path={Routes.userProfile}
                 render={() =>
                   <UserProfile
+                    authUser={this.state.authUser}
                     currentUser={this.state.currentUser}
                     groupList={this.state.groupList} />}
               />

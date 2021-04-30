@@ -10,3 +10,17 @@
 .userProfileRight {
     width: 45%;
 }
+
+.editField {
+    font-size: 22px;
+}
+
+.profileName {
+    font-size: 28px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.favoriteTeamPicture {
+    text-align: center;
+}

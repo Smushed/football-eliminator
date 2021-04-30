@@ -15,7 +15,7 @@ import SignOutIcon from './SignOut.png';
 import ElimLogo from './ElimLogo.png';
 import './sidePanelStyle.css';
 
-const SidePanel = ({ firebase, authUser, userId, groupId, showHideSideBar, showSideBar, hardSetSideBar }) => {
+const SidePanel = ({ firebase, userId, groupId, showHideSideBar, showSideBar, hardSetSideBar }) => {
 
     useEffect(() => {
     }, [showSideBar]);
@@ -25,26 +25,7 @@ const SidePanel = ({ firebase, authUser, userId, groupId, showHideSideBar, showS
         hardSetSideBar(false);
     };
 
-    const sendAuthEmail = (authUser) => {
-        authUser.sendEmailVerification();
-        this.setState({ emailSent: true });
-    };
 
-    const VerifyEmailButton = ({ authUser }) =>
-        <div className='verifyEmailDiv floatRight notifications'>
-            Please Verify your Email
-        <br />
-            <button className='btn btn-info' onClick={() => this.sendAuthEmail(authUser)}>Send Verification Email</button>
-        </div>;
-
-    const SentVerifyEmail = () => <div className='sentEmail floatRight notifications'>Email has been sent</div>;
-
-    const SmallVerifyEmailButton = ({ authUser }) =>
-        <div className='verifyEmailDiv floatRight notifications smallVerifyEmailBtn'>
-            <button className='btn btn-info btn-sm' onClick={() => this.sendAuthEmail(authUser)}>Verifiy Email</button>
-        </div>;
-
-    const SmallSentVerifyEmail = () => <div className='sentEmail smallSentEmail floatRight notifications'>Sent!</div>;
 
     return (
         <Menu onClose={() => hardSetSideBar(false)} className='sideBarHeight' isOpen={showSideBar} disableAutoFocus>
