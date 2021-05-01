@@ -8,6 +8,7 @@ import RankingSVG from './ranking.svg';
 import ListSVG from './list.svg';
 import PlayerSVG from './player.svg';
 import GroupSVG from './group.svg';
+import UserSVG from './user.svg';
 
 import * as Routes from '../../constants/routes';
 
@@ -61,6 +62,14 @@ const SidePanel = ({ firebase, userId, groupId, showHideSideBar, showSideBar, ha
                     <img className='sidebarSVG' src={GroupSVG} alt='Group Logo' />
                     <div className='sideBarItem'>
                         Group Page
+                    </div>
+                </div>
+            </Link>
+            <Link to={Routes.userProfile} onClick={() => showHideSideBar()}>
+                <div className='sidebarItemWrapper'>
+                    <img className='sidebarSVG' src={UserSVG} alt='User Logo' />
+                    <div className='sideBarItem'>
+                        Profile Page
                     </div>
                 </div>
             </Link>

@@ -11,8 +11,23 @@
     width: 45%;
 }
 
+.fieldDescription {
+    width: 120px;
+}
+
 .editField {
+    display: flex;
     font-size: 22px;
+    margin-bottom: 15px;
+}
+
+.editFieldTitle {
+    margin-right: 10px;
+}
+
+.largeCheckbox {
+    height: 23px;
+    width: 23px;
 }
 
 .profileName {
@@ -22,5 +37,9 @@
 }
 
 .favoriteTeamPicture {
+    text-align: center;
+}
+
+.submitButtonWrapper {
     text-align: center;
 }

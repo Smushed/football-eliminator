@@ -56,27 +56,58 @@ const UserProfile = ({ currentUser, groupList }) => {
             </div>
             <div className='userProfileRight'>
                 <div className='editField'>
-                    Edit Username:
-                    <input name='username' value={username} onChange={handleChange} />
+                    <div className='input-group input-group-lg'>
+                        <div className='input-group-prepend'>
+                            <span className='input-group-text fieldDescription'>
+                                Username:
+                            </span>
+                        </div>
+                        <input className='form-control' name='username' value={username} onChange={handleChange} placeholder={currentUser.username} />
+                    </div>
                 </div>
                 <div className='editField'>
-                    Edit Password:
-                    <input name='password' value={password} type={showPassword} onChange={handleChange} />
-                    <input type='checkbox' value={showPassword} name='togglePassword' onChange={handleChange} />
+                    <div className='input-group input-group-lg'>
+                        <div className='input-group-prepend'>
+                            <span className='input-group-text fieldDescription'>
+                                Password:
+                            </span>
+                        </div>
+                        <input className='form-control' name='password' value={password} type={showPassword} onChange={handleChange} placeholder='Password' />
+                        <div className='input-group-append'>
+                            <div className='input-group-text'>
+                                <input className='largeCheckbox' type='checkbox' value={showPassword} name='togglePassword' onChange={handleChange} />
+                            </div>
+                            <div className='input-group-text'>
+                                <span>
+                                    Show Password
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className='editField'>
+                    <div className='input-group input-group-lg'>
+                        <div className='input-group-prepend'>
+                            <span className='input-group-text fieldDescription'>
+                                Email:
+                            </span>
+                        </div>
+                        <input className='form-control' name='email' value={email} onChange={handleChange} placeholder={currentUser.email} />
+                    </div>
                 </div>
                 <div className='editField'>
-                    Edit Email:
-                    <input name='email' value={email} onChange={handleChange} />
-                </div>
-                <div className='editField'>
-                    Select Favorite Team:
+                    Favorite Team:
                 <select name='favoriteTeam' value={favoriteTeam} onChange={handleChange}>
                         {teamList.map(team => <option key={team} value={team}>{team}</option>)}
                     </select>
                 </div>
+                <div className='submitButtonWrapper'>
+                    <button className='btn btn-primary'>Submit</button>
+                </div>
                 <div className='editField'>
                     <div>
-                        Group List:
+                        Joined Groups:
                     </div>
                     {groupList.map((group) => <div key={group.N}>{group.N} {group.D} {group._id}</div>)}
                 </div>
