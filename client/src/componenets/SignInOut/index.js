@@ -272,6 +272,7 @@ class SignInFormBase extends Component {
                 .then(() => Alert.fire(`Password reset email sent to ${email}`));
         };
     };
+
     render() {
         return (
             <div className='formContainer'>
@@ -312,10 +313,7 @@ class SignInFormBase extends Component {
             </div>
         );
     }
-}
-
-
-
+};
 
 const SignUpForm = compose(withRouter, withFirebase)(SignUpFormBase);
 const SignInForm = compose(withRouter, withFirebase)(SignInFormBase);
