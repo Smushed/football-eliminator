@@ -5,7 +5,7 @@ import { withFirebase } from './componenets/Firebase';
 import axios from 'axios';
 
 import SignInOut from './componenets/SignInOut';
-import NavBar from './componenets/NavBar/NavBar';
+import NavBar from './componenets/NavBar/';
 import Home from './componenets/Home';
 import UserProfile from './componenets/UserProfile';
 import SeasonLongScore from './componenets/SeasonLongScore';

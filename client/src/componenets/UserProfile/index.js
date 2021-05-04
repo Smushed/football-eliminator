@@ -52,9 +52,9 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
     };
 
     const handleSubmit = () => {
-        if (changedFields.length < 1) {
-            return;
-        };
+        // if (changedFields.length < 1) {
+        //     return;
+        // };
 
         setModal(!modalOpen);
 
@@ -143,24 +143,27 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
 
 const ReAuth = ({ firebase, updatedFields }) => {
 
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [showPassword, toggleShowPassword] = useState('password');
+    const [email, setEmail] = useState(``);
+    const [password, setPassword] = useState(``);
+    const [showPassword, toggleShowPassword] = useState(`password`);
+    const [loginErr, addLoginErr] = useState(``);
 
     const handleUpdate = () => {
-
+        console.log(updatedFields);
     };
 
     const handleReAuth = () => {
-        firebase.doSignInWithEmailAndPassword(email, password).then(res => {
-            if (res.credential !== null) {
-                firebase.auth.currentUser.reauthenticateWithCredential(res.credential)
-                    .then((res) => console.log(`res`, res))
-                    .catch(err => console.log(`err`, err))
-            } else {
-
-            }
-        });
+        firebase.doSignInWithEmailAndPassword(email, password)
+            .then(res => {
+                if (res.credential !== null) {
+                    firebase.auth.currentUser.reauthenticateWithCredential(res.credential)
+                        .then((res) => handleUpdate())
+                        .catch(err => console.log(`err`, err));
+                } else {
+                    handleUpdate();
+                };
+            })
+            .catch(err => addLoginErr(err.message));
     };
 
     const handleChange = (e) => {
@@ -172,9 +175,15 @@ const ReAuth = ({ firebase, updatedFields }) => {
         };
     };
 
+    const fillInfo = () => {
+        setEmail('smushedcode@gmail.com');
+        setPassword('123456');
+    };
+
     return (
         <Fragment>
             <div>To update profile, please enter your login information</div>
+            <div>{loginErr}</div>
             <EmailInput
                 handleChange={handleChange}
                 email={email}
@@ -184,6 +193,7 @@ const ReAuth = ({ firebase, updatedFields }) => {
                 password={password}
                 showPassword={showPassword}
             />
+            <button onClick={fillInfo}>Fill Info</button>
             <button onClick={handleReAuth} >Re-Login</button>
         </Fragment>
     );
