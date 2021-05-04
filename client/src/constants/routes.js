@@ -1,7 +1,7 @@
 export const home = '/';
 export const signup = '/signup';
 export const signin = '/signin';
-export const userProfile = '/userProfile';
+export const userProfile = '/profile';
 export const passwordChange = '/passwordChange';
 export const roster = '/roster/:groupId/:userId';
 export const adminPanel = '/adminPanel/';
@@ -11,6 +11,7 @@ export const createAllGroup = '/createAllGroup';
 export const updateWeek = '/updateWeek';
 export const createGroup = '/createGroup';
 export const groupSelect = '/groupSelect';
+export const groupPage = '/groups';
 export const fourOFour = '/*';
 
 

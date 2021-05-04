@@ -43,7 +43,8 @@ const fillOutUserForFrontEnd = async (user) => {
         UN: user.UN,
         _id: user._id,
         A: user.A,
-        GL: groupList
+        GL: groupList,
+        FT: user.FT || 'UNK'
     };
 
     return filledUser;

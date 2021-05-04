@@ -16,9 +16,8 @@ module.exports = app => {
         res.status(200).send(availablePlayers);
     });
 
-    app.get(`/api/userRoster/:groupId/:userId`, async (req, res) => {
-        const { groupId, userId } = req.params;
-        const { week, season } = req.query;
+    app.get(`/api/userRoster/:season/:week/:groupId/:userId`, async (req, res) => {
+        const { groupId, userId, week, season } = req.params;
         if (userId !== `undefined` && week !== 0 && season !== `` && groupId !== `undefined`) { //Checks if this route received the userId before it was ready in react
             //The check already comes in as the string undefined, rather than undefined itself. It comes in as truthly
             const playerIdRoster = await rosterHandler.getUserRoster(userId, week, season, groupId);
@@ -97,17 +96,5 @@ module.exports = app => {
         res.status(200).send({ rosterPositions, positionMap, maxOfPosition });
     });
 
-    app.get(`/api/getAllRostersForGroup/:season/:week/:groupId/:updateLeaderBoard`, async (req, res) => {
-        const { season, week, groupId, updateLeaderBoard } = req.params;
-        let leaderboard = [];
-        let groupPositions = [];
-        const filledRosters = await rosterHandler.getAllRostersForGroup(season, week, groupId);
-        if (updateLeaderBoard === `true`) {
-            const currWeekForLeaderboard = +week === 1 ? 1 : +week;
-            leaderboard = await groupHandler.getLeaderBoard(groupId, season, currWeekForLeaderboard, filledRosters);
-            groupPositions = await groupHandler.getGroupPositions(groupId);
-        };
-        res.status(200).send({ rosters: filledRosters, groupPositions, leaderboard });
-    });
 
 };

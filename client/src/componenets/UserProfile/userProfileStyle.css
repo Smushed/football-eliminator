@@ -1,0 +1,99 @@
+.userProfileWrapper {
+    display: flex;
+}
+
+.greyBackdrop {
+    opacity: 35%;
+}
+
+.reAuthModal {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%); 
+    height: 350px;
+    width: 700px;
+    background-color: red;
+    border-radius: 5px;
+    border: 1px lightgray solid;
+    padding: 10px 50px;
+}
+
+.ReactModal__Overlay {
+    opacity: 0;
+    animation: pop-in 0.15s;
+    -webkit-animation: pop-in 0.15s;
+    -moz-animation: pop-in 0.15s;
+    -ms-animation: pop-in 0.15s;
+}
+
+.ReactModal__Overlay--after-open{
+    opacity: 1;
+}
+
+.ReactModal__Overlay--before-close{
+    opacity: 0;
+}
+
+.modalOverlay {
+    position:fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.userProfileLeft {
+    margin-left: 300px;
+    width: 20%;
+}
+
+.userProfileRight {
+    width: 45%;
+}
+
+.fieldDescription {
+    width: 120px;
+}
+
+.editField {
+    display: flex;
+    font-size: 22px;
+    margin-bottom: 15px;
+}
+
+.editFieldTitle {
+    margin-right: 10px;
+}
+
+.largeCheckbox {
+    height: 23px;
+    width: 23px;
+}
+
+.profileName {
+    font-size: 28px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.favoriteTeamPicture {
+    text-align: center;
+}
+
+.submitButtonWrapper {
+    text-align: center;
+}
+
+@-webkit-keyframes pop-in {
+    0% { opacity: 0; -webkit-transform: scale(0.5); }
+    100% { opacity: 1; -webkit-transform: scale(1); }
+    }
+    @-moz-keyframes pop-in {
+    0% { opacity: 0; -moz-transform: scale(0.5); }
+    100% { opacity: 1; -moz-transform: scale(1); }
+    }
+    @keyframes pop-in {
+    0% { opacity: 0; transform: scale(0.5); }
+    100% { opacity: 1; transform: scale(1); }
+    }

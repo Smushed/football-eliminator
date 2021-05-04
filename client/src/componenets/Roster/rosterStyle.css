@@ -1,3 +1,24 @@
+.rosterPageContainer {
+    display: flex;
+}
+
+.hideRoster {
+    display: none;
+}
+
+.thirtyTransparent {
+    opacity: 30%;
+}
+
+.adjustRosterSpacing {
+    margin-left: 30%;
+    margin-right: 50px;
+}
+
+.leftSearchRow {
+    margin-left: 5%;
+}
+
 .searchDropdown {
     text-align: center;
     margin-bottom: 0;
@@ -70,11 +91,15 @@
 
 .rosterContainer {
     display: flex;
+    width: 100%;
     justify-content: space-evenly;
+    margin-right: 15%;
 }
 
 .rosterCol {
     width: 30%;
+    min-width: 400px;
+    transition: 1s;
 }
 
 .smallSearchContainer {

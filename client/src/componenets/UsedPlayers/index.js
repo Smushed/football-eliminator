@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { PlayerDisplayRow } from '../Roster';
+import { withAuthorization } from '../Session';
 
 import './usedPlayerStyle.css';
 
@@ -85,4 +86,6 @@ class UsedPlayers extends Component {
     }
 }
 
-export default UsedPlayers;
+const condition = authUser => !!authUser;
+
+export default withAuthorization(condition)(UsedPlayers);

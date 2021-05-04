@@ -2,6 +2,8 @@ const mySportsHandler = require(`../handlers/mySportsHandler`);
 const rosterHandler = require(`../handlers/rosterHandler`);
 const groupHandler = require("../handlers/groupHandler");
 
+const nflTeams = require(`../constants/nflTeams`);
+
 module.exports = app => {
 
     app.get(`/api/updatePlayers/:season/:week`, async (req, res) => {
@@ -76,5 +78,9 @@ module.exports = app => {
         const { season, week } = req.params;
         const matchups = await mySportsHandler.pullMatchUpsForDB(season, week);
         res.status(200).send(matchups)
+    });
+
+    app.get(`/api/getTeamList`, async (req, res) => {
+        res.status(200).send(nflTeams.teams);
     });
 };

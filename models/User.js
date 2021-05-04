@@ -17,6 +17,10 @@ const UserSchema = new Schema({
         type: Boolean,
         default: false
     },
+    FT: { //Favorite Team
+        type: String,
+        default: 'UNK'
+    },
     MG: mongoose.Types.ObjectId //Main Group
 });
 

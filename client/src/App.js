@@ -5,9 +5,9 @@ import { withFirebase } from './componenets/Firebase';
 import axios from 'axios';
 
 import SignInOut from './componenets/SignInOut';
-import NavBar from './componenets/NavBar/NavBar';
+import NavBar from './componenets/NavBar/';
 import Home from './componenets/Home';
-import UserProfile from './componenets/UserProfile/UserProfile';
+import UserProfile from './componenets/UserProfile';
 import SeasonLongScore from './componenets/SeasonLongScore';
 import Roster from './componenets/Roster';
 import AdminPanel from './componenets/AdminPanel';
@@ -64,10 +64,12 @@ class App extends Component {
   };
 
   setCurrentUser = (user) => {
+    console.log(user);
     const currentUser = {
       username: user.UN,
       userId: user._id,
       isAdmin: user.A,
+      FT: user.FT
     };
     this.setState({ currentUser })
   }
@@ -104,7 +106,6 @@ class App extends Component {
           <SidePanel
             showSideBar={this.state.showSideBar}
             noGroup={this.state.noGroup}
-            authUser={this.state.authUser}
             groupId={this.state.currentGroup._id}
             userId={this.state.currentUser.userId}
             showHideSideBar={this.showHideSideBar}
@@ -115,6 +116,7 @@ class App extends Component {
               showHideSideBar={this.showHideSideBar}
             />
           }
+
           {this.state.noGroup ?
             <GroupPage
               noGroup={this.state.noGroup}
@@ -131,6 +133,7 @@ class App extends Component {
                     group={this.state.currentGroup}
                     week={this.state.currentWeek}
                     positionOrder={this.state.positionOrder}
+                    userId={this.state.currentUser.userId}
                   />}
               />
               <Route
@@ -141,6 +144,11 @@ class App extends Component {
                     week={this.state.currentWeek}
                     season={this.state.currentSeason}
                     groupId={this.state.currentGroup._id} />}
+              />
+              <Route
+                path={Routes.groupPage}
+                render={() =>
+                  <GroupPage />}
               />
               <Route
                 path={Routes.signin}
@@ -155,7 +163,10 @@ class App extends Component {
               <Route
                 path={Routes.userProfile}
                 render={() =>
-                  <UserProfile />}
+                  <UserProfile
+                    authUser={this.state.authUser}
+                    currentUser={this.state.currentUser}
+                    groupList={this.state.groupList} />}
               />
               <Route
                 path={Routes.seasonLongScore}

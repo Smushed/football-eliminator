@@ -3,7 +3,7 @@ const userHandler = require(`../handlers/userHandler`);
 const rosterHandler = require(`../handlers/rosterHandler`);
 
 module.exports = app => {
-    app.put(`/api/updateuser`, async (req, res) => {
+    app.put(`/api/updateUser`, async (req, res) => {
         const { userId, value, request } = req.body;
 
         //Pass the user to change's field, their updated value and what field they would like to change

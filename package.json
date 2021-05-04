@@ -30,8 +30,9 @@
         "dotenv": "^6.2.0",
         "express": "^4.17.1",
         "if-env": "^1.0.4",
-        "mongoose": "^5.12.3",
+        "mongoose": "^5.12.7",
         "react-burger-menu": "^3.0.6",
+        "react-modal": "^3.13.1",
         "react-navbar-dropdown": "^1.4.2",
         "uuid": "^3.3.3"
     },

@@ -2,10 +2,10 @@ import React from 'react';
 import { Input } from 'reactstrap';
 
 
-const WeekSearch = (props) => (
+const WeekSearch = ({ weekSelect, handleChange, customSeasonWeekSearch, disabled }) => (
     <div className='selectContainer'>
         <div className='inputLength'>
-            <Input value={props.weekSelect} type='select' name='weekSelect' id='weekSelect' className='searchDropdown' onChange={props.handleChange}>
+            <Input value={weekSelect} type='select' name='weekSelect' id='weekSelect' className='searchDropdown' onChange={handleChange}>
                 <option>1</option>
                 <option>2</option>
                 <option>3</option>
@@ -25,16 +25,16 @@ const WeekSearch = (props) => (
                 <option>17</option>
             </Input>
         </div>
-        <button className='btn btn-primary submitButton' onClick={props.customSeasonWeekSearch} >
+        <button className='btn btn-success submitButton' onClick={customSeasonWeekSearch} disabled={disabled} >
             Search
     </button>
     </div>
 );
 
-const TeamSearch = (props) => (
+const TeamSearch = ({ teamSelect, handleChange, searchByTeam }) => (
     <div className='selectContainer'>
         <div className='inputContainer inputLength'>
-            <Input value={props.teamSelect} type='select' name='teamSelect' className='searchDropdown' onChange={props.handleChange}>
+            <Input value={teamSelect} type='select' name='teamSelect' className='searchDropdown' onChange={handleChange}>
                 <option>ARI</option>
                 <option>ATL</option>
                 <option>BAL</option>
@@ -69,16 +69,16 @@ const TeamSearch = (props) => (
                 <option>WAS</option>
             </Input>
         </div>
-        <button className='btn btn-primary submitButton' onClick={props.searchByTeam} >
+        <button className='btn btn-success submitButton' onClick={searchByTeam} >
             Search
         </button>
     </div>
 );
 
-const PositionSearch = (props) => (
+const PositionSearch = ({ positionSelect, handleChange, disabled, positionSearch }) => (
     <div className='selectContainer'>
         <div className='inputLength'>
-            <Input value={props.positionSelect} type='select' name='positionSelect' className='searchDropdown' onChange={props.handleChange}>
+            <Input value={positionSelect} type='select' name='positionSelect' className='searchDropdown' onChange={handleChange}>
                 <option>QB</option>
                 <option>RB</option>
                 <option>WR</option>
@@ -86,22 +86,10 @@ const PositionSearch = (props) => (
                 <option>K</option>
             </Input>
         </div>
-        <button className='btn btn-primary submitButton' onClick={props.positionSearch} >
+        <button className='btn btn-success submitButton' onClick={positionSearch} disabled={disabled}>
             Search
     </button>
     </div>
 );
 
-const PlayerSearch = (props) => (
-    <div className='selectContainer'>
-        <div className='inputLength'>
-            <Input value={'COMING SOON'} type='text' name='playerSearch' className='searchDropdown' readOnly />
-        </div>
-        <button className='btn btn-primary submitButton' onClick={() => { }}>
-            Search
-        </button>
-    </div >
-)
-
-
-export { PositionSearch, TeamSearch, WeekSearch, PlayerSearch };
+export { PositionSearch, TeamSearch, WeekSearch };

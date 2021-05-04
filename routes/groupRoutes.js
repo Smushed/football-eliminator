@@ -69,4 +69,11 @@ module.exports = app => {
         const dbResponse = await groupHandler.getGroupList();
         res.status(200).send(dbResponse);
     });
+
+    app.get(`/api/getLeaderboard/:season/:week/:groupId`, async (req, res) => {
+        const { season, week, groupId } = req.params;
+        const currWeekForLeaderboard = +week === 1 ? 1 : +week;
+        const leaderboard = await groupHandler.getLeaderBoard(groupId, season, currWeekForLeaderboard);
+        res.status(200).send({ leaderboard });
+    });
 };
