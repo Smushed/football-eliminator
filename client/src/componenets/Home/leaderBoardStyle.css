@@ -23,6 +23,8 @@
     margin-bottom: 5px;
     border-bottom: 1px solid lightgray;
     background-color: rgb(166, 241, 166);
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
 }
 
 .leaderboardTitle {

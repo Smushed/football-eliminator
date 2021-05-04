@@ -2,6 +2,19 @@
     display: flex;
 }
 
+.hideRoster {
+    display: none;
+}
+
+.thirtyTransparent {
+    opacity: 30%;
+}
+
+.adjustRosterSpacing {
+    margin-left: 30%;
+    margin-right: 50px;
+}
+
 .leftSearchRow {
     margin-left: 5%;
 }
@@ -86,6 +99,7 @@
 .rosterCol {
     width: 30%;
     min-width: 400px;
+    transition: 1s;
 }
 
 .smallSearchContainer {
