@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component, useState, useEffect, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
@@ -12,89 +12,67 @@ import { WeekSearch, PositionSearch, PlayerSearch } from './SearchDropdowns';
 
 const Alert = withReactContent(Swal);
 
-class Roster extends Component {
-    constructor(props) {
-        super(props);
-        //Must set state hard here to ensure that it is loaded properly when the component unmounts and remounts±
-        this.handleChange = this.handleChange.bind(this);
-        this.state = {
-            userRoster: [],
-            availablePlayers: [],
-            positionSelect: `QB`, //This is the default value for the position search
-            playerSearch: ``,
-            weekSelect: 0,
-            weekOnPage: 0, //The week and season are here when the player searches for their roster. This updates ONLY when the player actually refreshes their roster
-            currentUser: false,
-            usernameOfPage: '',
-            groupPositions: [],
-            positionArray: [],
-            usedPlayers: {},
-            currentPositionUsedPlayers: [],
-            positionMap: [],
-            weeklyMatchups: []
+const Roster = ({ week, season, match, userId }) => {
+    const [userRoster, updateUserRoster] = useState([]);
+    const [availablePlayers, updateAvaliablePlayers] = useState([]);
+    const [positionSelect, updatePositionSelect] = useState(`QB`); //This is the default value for the position search
+    const [weekSelect, updateWeekSelect] = useState(0);
+    const [weekOnPage, updateWeekOnPage] = useState(0); //The week and season are here when the player searches for their roster. This updates ONLY when the player actually refreshes their roster
+    const [currentUser, updateCurrentUser] = useState(false);
+    const [usernameOfPage, updateUsernameOfPage] = useState('');
+    const [groupPositions, updateGroupPositions] = useState([]);
+    const [positionArray, updatePositionArray] = useState([]);
+    const [usedPlayers, updateUsedPlayers] = useState({});
+    const [currentPositionUsedPlayers, updateCurrentPositionUsedPlayers] = useState([]);
+    const [positionMap, updatePositionMap] = useState([])
+    const [weeklyMatchups, updateWeeklyMatchups] = useState([]);
+
+    useEffect(() => {
+        if (week !== 0 && season !== '') {
+            updateWeekSelect(week);
+            getRosterData(week);
+            getUsedPlayers();
+            checkCurrentUser();
+            getCurrentUsername();
         };
-    };
+    }, [week, season])
 
-    componentDidMount() {
-        if (this.props.week !== 0 && this.props.season !== '') {
-            this.setState({ weekSelect: this.props.week });
-            this.getRosterData(this.props.week);
-            this.getUsedPlayers();
-            this.checkCurrentUser();
-            this.getCurrentUsername();
-        };
-    };
-
-    componentDidUpdate(prevProps) {
-        if (this.props.season !== prevProps.season) { // season here because it's the last prop we pass in. Probably not the best way
-            this.setState({ weekSelect: this.props.week });
-            this.getRosterData(this.props.week);
-            this.getUsedPlayers();
-            this.checkCurrentUser();
-            this.getCurrentUsername();
-        };
-    };
-
-    componentWillUnmount() {
-        this.doneLoading();
-    };
-
-    getUsedPlayers() {
-        axios.get(`/api/getUsedPlayers/${this.props.match.params.userId}/${this.props.season}/${this.props.match.params.groupId}`)
+    const getUsedPlayers = () => {
+        axios.get(`/api/getUsedPlayers/${match.params.userId}/${season}/${match.params.groupId}`)
             .then(res => {
-                this.setState({ usedPlayers: res.data })
+                updateUsedPlayers(res.data);
             }).catch(err => {
                 console.log(err); //TODO better error handling
             });
     };
 
-    getCurrentUsername() {
-        axios.get(`/api/getUserById/${this.props.match.params.userId}`)
+    const getCurrentUsername = () => {
+        axios.get(`/api/getUserById/${match.params.userId}`)
             .then(res => {
-                this.setState({ usernameOfPage: res.data.UN })
+                updateUsernameOfPage(res.data.UN);
             }).catch(err => {
                 console.log(err); //TODO better error handling
             });
     };
 
-    checkCurrentUser() {
-        if (this.props.userId === this.props.match.params.userId) {
-            this.setState({ currentUser: true });
+    const checkCurrentUser = () => {
+        if (userId === match.params.userId) {
+            updateCurrentUser(true);
         } else {
-            this.setState({ currentUser: false });
+            updateCurrentUser(false);
         };
     };
 
-    getWeeklyMatchUps = async (week) => {
-        axios.get(`/api/getWeeklyMatchups/${this.props.season}/${week}`)
+    const getWeeklyMatchUps = async (weekInput) => {
+        axios.get(`/api/getWeeklyMatchups/${season}/${weekInput}`)
             .then(res => {
-                this.setState({ weeklyMatchups: res.data })
+                updateWeeklyMatchups(res.data);
             });
 
     };
 
     //We define loading and done loading here to have swal pop ups whenever we are pulling in data so the user can't mess with data while it's in a loading state
-    loading() {
+    const loading = () => {
         Alert.fire({
             title: 'Loading',
             text: 'Loading available players',
@@ -107,38 +85,42 @@ class Roster extends Component {
         });
     };
 
-    doneLoading() {
+    const doneLoading = () => {
         Alert.close()
     };
 
-    clearPlayers = () => {
+    const clearPlayers = () => {
         //Gets rid of all the players that are sitting in state when the user goes to another week
         this.setState({ userRoster: [] });
     };
 
-    getRosterData = (week) => {
-        this.getWeeklyMatchUps(week);
-        this.setState({ weekOnPage: week })
-        if (this.props.week !== 0 && this.props.season !== ``) {
-            this.loading();
-            axios.get(`/api/userRoster/${this.props.season}/${week}/${this.props.match.params.groupId}/${this.props.match.params.userId}`)
+    const getRosterData = (weekInput) => {
+        getWeeklyMatchUps(weekInput);
+        updateWeekOnPage(weekInput);
+        if (week !== 0 && season !== ``) {
+            loading();
+            axios.get(`/api/userRoster/${season}/${weekInput}/${match.params.groupId}/${match.params.userId}`)
                 .then(res => {
-                    this.setState({ userRoster: res.data.userRoster, groupPositions: res.data.groupPositions, positionMap: res.data.groupMap, positionArray: res.data.positionArray });
-                    this.doneLoading();
+                    const { userRoster, groupPositions, groupMap, positionArray } = res.data;
+                    updateUserRoster(userRoster);
+                    updateGroupPositions(groupPositions);
+                    updatePositionMap(groupMap);
+                    updatePositionArray(positionArray);
+                    doneLoading();
                 }).catch(err => {
                     console.log(`roster data error`, err); //TODO better error handling
                 });
         };
     };
 
-    tooManyPlayers = async (currentRoster, allowedMap, addedPlayer) => {
+    const tooManyPlayers = async (currentRoster, allowedMap, addedPlayer) => {
         const possibleDrops = [];
-        for (let i = 0; i < allowedMap.length; i++) {
+        for (let i = 0; i < allowedMap.length; i++) { //Allowed Map is an array of bool which will map to the rosters to be able to pick players
             if (allowedMap[i]) {
                 possibleDrops.push(currentRoster[i]);
             };
         };
-        possibleDrops.push(addedPlayer)
+        possibleDrops.push(addedPlayer);
         const playersForSwal = {};
 
         for (const player of possibleDrops) {
@@ -164,106 +146,94 @@ class Roster extends Component {
         if (droppedPlayer) {
             let availDroppedPlayerIndex = -1;
 
-            const availablePlayers = this.state.availablePlayers.slice(0);
-            availablePlayers.find((player, i) => {
+            const availablePlayersCopy = [...availablePlayers];
+            availablePlayersCopy.find((player, i) => {
                 if (+player.M === +addedPlayer.M) {
                     availDroppedPlayerIndex = i;
                 };
             });
             if (availDroppedPlayerIndex >= 0) {
-                availablePlayers.splice(availDroppedPlayerIndex, 1);
+                availablePlayersCopy.splice(availDroppedPlayerIndex, 1);
             };
-            if (droppedPlayer.P === this.state.positionSelect) {
-                availablePlayers.unshift(droppedPlayer);
+            if (droppedPlayer.P === positionSelect) {
+                availablePlayersCopy.unshift(droppedPlayer);
             };
             currentRoster[droppedPlayerIndex] = { P: addedPlayer.P, M: addedPlayer.M, N: addedPlayer.N, T: addedPlayer.T };
 
-            const usedPlayers = this.state.currentPositionUsedPlayers.filter(player => player.M !== droppedPlayer.M)
+            const usedPlayers = currentPositionUsedPlayers.filter(player => player.M !== droppedPlayer.M)
             usedPlayers.push(addedPlayer);
 
-            this.saveRosterToDb(currentRoster, droppedPlayer.M, addedPlayer.M);
-            this.setState({ availablePlayers, currentPositionUsedPlayers: usedPlayers })
+            saveRosterToDb(currentRoster, droppedPlayer.M, addedPlayer.M);
+            updateAvaliablePlayers(availablePlayersCopy)
+            updateCurrentPositionUsedPlayers(usedPlayers)
         } else {
             //The user has selected the player who is not on their team            
-            this.setState({ userRoster: currentRoster });
+            updateUserRoster(currentRoster)
         };
     };
 
-    saveRosterToDb = async (roster, droppedPlayer, addedPlayer) => {
-        this.loading()
+    const saveRosterToDb = async (roster, droppedPlayer, addedPlayer) => {
+        loading()
         axios.put(`/api/updateUserRoster`,
-            { userId: this.props.userId, roster, droppedPlayer, addedPlayer, week: this.state.weekSelect, season: this.props.season, groupId: this.props.match.params.groupId })
+            { userId: userId, roster, droppedPlayer, addedPlayer, week: weekSelect, season: season, groupId: match.params.groupId })
             .then(res => {
-                this.doneLoading();
-                this.setState({ userRoster: res.data })
+                doneLoading();
+                updateUserRoster(res.data);
                 return;
             }).catch(err => {
                 console.log(err)//TODO Better error handling
             });
     };
 
-    checkLockPeriod = async () => {
+    const checkLockPeriod = async () => {
         const response = await axios.get(`/api/checkLockPeriod`);
         if (response.data.LW === 0) {
             return true;
         };
-
         if (this.state.weekOnPage <= response.data.LW) {
             return false;
         };
-
         return true;
     };
 
-    positionSearch = (e) => {
+    const positionSearch = (e) => {
         e.preventDefault();
 
-        this.loading();
-        const userId = this.props.userId;
+        loading();
         axios.get(`/api/availablePlayers`,
-            { params: { userId, searchedPosition: this.state.positionSelect, season: this.props.season, groupId: this.props.match.params.groupId } })
+            { params: { userId, searchedPosition: positionSelect, season: season, groupId: match.params.groupId } })
             .then(res => {
-                const { usedPlayers, positionSelect } = this.state;
-                this.setState({ availablePlayers: res.data });
+                updateAvaliablePlayers(res.data);
                 if (!usedPlayers[positionSelect]) {
                     this.getUsedPlayers();
                 } else {
-                    this.setState({ currentPositionUsedPlayers: usedPlayers[positionSelect] });
+                    updateCurrentPositionUsedPlayers(usedPlayers[positionSelect])
                 };
-                this.doneLoading();
+                doneLoading();
             });
     };
 
-    customPlayerSearch = (e) => {
+    const customSeasonWeekSearch = (e) => {
         e.preventDefault();
-
-        console.log(this.state.playerSearch);
+        updateUserRoster([]); //Blank it out before searching and pulling again
+        getRosterData(weekSelect, season);
     };
 
-    customSeasonWeekSearch = (e) => {
-        e.preventDefault();
-        const userRoster = [];
-        this.setState({ userRoster })
-        this.getRosterData(this.state.weekSelect, this.props.season);
+    const handleChange = (e) => {
+        e.target.name === 'weekSelect' && updateWeekSelect(e.target.value);
+        e.target.name === 'positionSelect' && updatePositionSelect(e.target.value);
     };
 
-    handleChange(e) {
-        this.setState({
-            [e.target.name]: e.target.value
-        });
-    };
-
-    addPlayerToRoster = async (newRoster, addedPlayer, newAvailablePlayers) => {
-        let sortedUpdatedRoster = newRoster.slice(0);
-        const { positionMap } = this.state;
-        const playerIndex = this.state.positionArray.indexOf(addedPlayer.P);
+    const addPlayerToRoster = async (newRoster, addedPlayer, newAvailablePlayers) => {
+        let sortedUpdatedRoster = [...newRoster];
+        const playerPosition = positionArray.indexOf(addedPlayer.P);
         const allowedMap = [];
         let added = false;
         for (let i = 0; i < positionMap.length; i++) {
-            if (positionMap[i].includes(playerIndex)) {
+            if (positionMap[i].includes(playerPosition)) { //Checks the roster for how many spots the player is allowed to go into
                 allowedMap[i] = true;
                 if (!added) { //If they are not already added, add them. If they are ignore this
-                    if (sortedUpdatedRoster[i] === 0) {
+                    if (sortedUpdatedRoster[i] === 0) { //If there is an open spot add the player
                         sortedUpdatedRoster[i] = addedPlayer;
                         added = true;
                     };
@@ -274,35 +244,36 @@ class Roster extends Component {
         };
         //Checks if we added a player without dropping one
         if (!added) {
-            this.tooManyPlayers(sortedUpdatedRoster, allowedMap, addedPlayer);
+            tooManyPlayers(sortedUpdatedRoster, allowedMap, addedPlayer);
         } else {
-            this.saveRosterToDb(sortedUpdatedRoster, 0, addedPlayer.M);
-            const newUsedPlayers = { ...this.state.usedPlayers };
+            saveRosterToDb(sortedUpdatedRoster, 0, addedPlayer.M);
+            const newUsedPlayers = { ...usedPlayers };
             newUsedPlayers[addedPlayer.P].push(addedPlayer);
-            this.setState({ availablePlayers: newAvailablePlayers, usedPlayers: newUsedPlayers });
+            updateAvaliablePlayers(newAvailablePlayers);
+            updateUsedPlayers(newUsedPlayers);
         };
     };
 
-    addDropPlayer = async (mySportsId, addOrDrop) => {
-        if (!this.state.currentUser) {
+    const addDropPlayer = async (mySportsId, addOrDrop) => {
+        if (!currentUser) {
             Alert.fire({
                 title: `Not your roster!`,
                 type: `warning`,
             });
             return;
         };
-        const isLocked = await this.checkLockPeriod();
+        const isLocked = await checkLockPeriod();
         if (!isLocked) {
             Alert.fire({
                 title: `Peroid is locked!`,
                 type: `warning`,
-                text: `Week ${this.state.weekOnPage} is locked. Please search a different week`,
+                text: `Week ${weekOnPage} is locked. Please search a different week`,
             });
             return;
         };
 
-        const newAvailablePlayers = this.state.availablePlayers.slice(0);
-        let newRoster = this.state.userRoster.slice(0);
+        const newAvailablePlayers = [...availablePlayers];
+        let newRoster = [...userRoster];
 
         if (addOrDrop === `add`) {
             let addedPlayerIndex = 0;
@@ -315,7 +286,7 @@ class Roster extends Component {
             });
 
             newAvailablePlayers.splice(addedPlayerIndex, 1);
-            this.addPlayerToRoster(newRoster, addedPlayer, newAvailablePlayers);
+            addPlayerToRoster(newRoster, addedPlayer, newAvailablePlayers);
         } else if (addOrDrop === `drop`) {
             let droppedPlayerIndex = 0;
             const droppedPlayer = newRoster.find((player, i) => {
@@ -328,26 +299,24 @@ class Roster extends Component {
             newRoster[droppedPlayerIndex] = 0;
             newAvailablePlayers.unshift(droppedPlayer);
 
-            this.setState({ availablePlayers: newAvailablePlayers });
-            this.saveRosterToDb(newRoster, mySportsId, false);
-
+            updateAvaliablePlayers(newAvailablePlayers);
+            saveRosterToDb(newRoster, mySportsId, false);
         };
     };
 
-    showMatchUps = async () => {
-        const { weeklyMatchups } = this.state;
+    const showMatchUps = async () => {
         let displayMatchups = `Home   -   Away<br />`;
         for (let i = 0; i < weeklyMatchups.length; i++) {
             displayMatchups += `<br/>${weeklyMatchups[i].H}  -  ${weeklyMatchups[i].A}`
         };
         await Alert.fire({
-            title: `Week ${this.state.weekOnPage} Matchups`,
+            title: `Week ${weekOnPage} Matchups`,
             html: displayMatchups,
         });
     };
 
-    showSingleMatchUp = async (team) => {
-        const matchup = this.state.weeklyMatchups.find(match => (match.H === team || match.A === team));
+    const showSingleMatchUp = async (team) => {
+        const matchup = weeklyMatchups.find(match => (match.H === team || match.A === team));
         if (!matchup) {
             await Alert.fire({
                 title: `${team} is on bye!`,
@@ -358,119 +327,101 @@ class Roster extends Component {
         };
         const display = `Home: ${matchup.H}<br />Away:${matchup.A}`
         await Alert.fire({
-            title: `${team} week ${this.state.weekOnPage} match`,
+            title: `${team} week ${weekOnPage} match`,
             html: display
         })
     };
 
-    render() {
-        return (
-            <div>
-                <div className='centerText headerFont userNameRow'>
-                    {this.state.usernameOfPage}'s Roster
+    return (
+        <div>
+            <div className='centerText headerFont userNameRow'>
+                {usernameOfPage}'s Roster
                 </div>
-                <div className='smallSearchContainer'>
+            <div className='rosterPageContainer'>
+                <div className='leftSearchRow'>
                     <div className='searchRow'>
                         Change Week
-                        <WeekSearch weekSelect={this.state.weekSelect} handleChange={this.handleChange} customSeasonWeekSearch={this.customSeasonWeekSearch} />
+                            <WeekSearch
+                            weekSelect={weekSelect}
+                            handleChange={handleChange}
+                            customSeasonWeekSearch={customSeasonWeekSearch} />
                     </div>
-                    <div className='searchRow'>
+                    <div className='searchRow largeScreenShow'>
                         Position Search
-                        <PositionSearch
-                            positionSelect={this.state.positionSelect}
-                            handleChange={this.handleChange}
-                            positionSearch={this.positionSearch} />
+                            <PositionSearch
+                            positionSelect={positionSelect}
+                            handleChange={handleChange}
+                            positionSearch={positionSearch} />
                     </div>
-                    <div className='searchRow'>
-                        Player Search
-                        <PlayerSearch
-                            playerSearch={this.state.playerSearch}
-                            handleChange={this.handleChange}
-                            customPlayerSearch={this.customPlayerSearch} />
+                    <div className='searchRow largeScreenShow'>
+                        <button className='btn btn-success' onClick={() => showMatchUps()}>Match Ups</button>
                     </div>
                 </div>
                 <div className='rosterContainer'>
                     <div className='rosterCol'>
+                        {/* CHANGE WEEK SEARCH CONTAINER
                         <div className='searchRow largeScreenShow'>
                             Change Week
                             <WeekSearch
                                 weekSelect={this.state.weekSelect}
                                 handleChange={this.handleChange}
                                 customSeasonWeekSearch={this.customSeasonWeekSearch} />
-                        </div>
+                        </div> */}
                         <div className='sectionHeader'>
-                            Week {this.state.weekOnPage} Roster
-                        </div>
+                            Week {weekOnPage} Roster
+                            </div>
                         <RosterDisplay
-                            showSingleMatchUp={this.showSingleMatchUp}
-                            groupPositions={this.state.groupPositions}
-                            addDropPlayer={this.addDropPlayer}
-                            roster={this.state.userRoster || {}}
+                            showSingleMatchUp={showSingleMatchUp}
+                            groupPositions={groupPositions}
+                            addDropPlayer={addDropPlayer}
+                            roster={userRoster || {}}
                         />
                     </div>
                     <div className='rosterCol'>
-                        <div className='searchRow largeScreenShow'>
-                            Position Search
-                            <PositionSearch
-                                positionSelect={this.state.positionSelect}
-                                handleChange={this.handleChange}
-                                positionSearch={this.positionSearch} />
-                        </div>
+                        {/* CHANGE POSITION SEARCH CONTAINER 
+                         */}
                         <div className='sectionHeader'>
                             Available Players
-                        </div>
-                        {this.state.availablePlayers.map((player, i) => (
+                            </div>
+                        {availablePlayers.map((player, i) => (
                             <PlayerDisplayRow
-                                showSingleMatchUp={this.showSingleMatchUp}
+                                showSingleMatchUp={showSingleMatchUp}
                                 player={player} key={i}
-                                addDropPlayer={this.addDropPlayer}
+                                addDropPlayer={addDropPlayer}
                                 evenOrOddRow={i % 2} />
-                        ))}
-                    </div>
-                    <div className='rosterCol largeScreenShow'>
-                        <div className='searchRow'>
-                            <br />
-                            <button className='btn btn-primary' onClick={() => this.showMatchUps()}>Match Ups</button>
-                            {/* Player Search
-                            <PlayerSearch playerSearch={this.state.playerSearch} handleChange={this.handleChange} customPlayerSearch={this.customPlayerSearch} /> */}
-                        </div>
-                        <div className='sectionHeader'>
-                            Used Players
-                        </div>
-                        {this.state.currentPositionUsedPlayers.map((player, i) => (
-                            <PlayerDisplayRow player={player} key={i} evenOrOddRow={i % 2} />
                         ))}
                     </div>
                 </div>
             </div>
-        );
-    };
+        </div>
+
+    );
 };
 
-const CurrentRosterRow = (props) => (
-    <div className={props.evenOrOddRow === 0 ? 'playerRow' : 'playerRow oddRow'}>
+const CurrentRosterRow = ({ evenOrOddRow, player, position, showSingleMatchUp, addDropPlayer }) => (
+    <div className={evenOrOddRow === 0 ? 'playerRow' : 'playerRow oddRow'}>
         <div className='positionBox'>
-            {props.position}
+            {position}
         </div>
-        {props.player ?
+        {player ?
             <div className='playerContainer'>
-                {props.player.N &&
+                {player.N &&
                     <div className='playerCol'>
-                        {props.player.N}
+                        {player.N}
                     </div>
                 }
-                {props.player.T &&
-                    <div onClick={() => (props.showSingleMatchUp && props.showSingleMatchUp(props.player.T))} className={`teamCol ${(props.showSingleMatchUp && `pointer`)}`}>
-                        {props.player.T}
+                {player.T &&
+                    <div onClick={() => (showSingleMatchUp && showSingleMatchUp(player.T))} className={`teamCol ${(showSingleMatchUp && `pointer`)}`}>
+                        {player.T}
                     </div>
                 }
-                {props.player.S ?
+                {player.S ?
                     <div className='scoreCol'>
-                        {props.player.S}
+                        {player.S}
                     </div>
                     :
-                    props.addDropPlayer &&
-                    <button className='addDropButton btn btn-outline-success btn-sm' onClick={() => props.addDropPlayer(props.player.M, 'drop')}>
+                    addDropPlayer &&
+                    <button className='addDropButton btn btn-outline-info btn-sm' onClick={() => addDropPlayer(player.M, 'drop')}>
                         Drop
                     </button>
                 }
@@ -480,19 +431,19 @@ const CurrentRosterRow = (props) => (
     </div >
 );
 
-const PlayerDisplayRow = (props) => (
-    <div className={props.evenOrOddRow === 0 ? 'playerRow playerContainer' : 'playerRow playerContainer oddRow'}>
+const PlayerDisplayRow = ({ evenOrOddRow, player, showSingleMatchUp, addDropPlayer }) => (
+    <div className={evenOrOddRow === 0 ? 'playerRow playerContainer' : 'playerRow playerContainer oddRow'}>
         <div className='playerCol'>
-            {props.player.N && props.player.N}
+            {player.N && player.N}
         </div>
-        <div onClick={() => (props.showSingleMatchUp && props.showSingleMatchUp(props.player.T))} className={`teamCol ${(props.showSingleMatchUp && `pointer`)}`}>
-            {props.player.T && props.player.T}
+        <div onClick={() => (showSingleMatchUp && showSingleMatchUp(player.T))} className={`teamCol ${(showSingleMatchUp && `pointer`)}`}>
+            {player.T && player.T}
         </div>
         <div className='posCol'>
-            {props.player.P && props.player.P}
+            {player.P && player.P}
         </div>
-        {props.addDropPlayer &&
-            <button className='addDropButton btn btn-outline-success btn-sm' onClick={() => props.addDropPlayer(props.player.M, 'add')}>
+        {addDropPlayer &&
+            <button className='addDropButton btn btn-outline-info btn-sm' onClick={() => addDropPlayer(player.M, 'add')}>
                 Add
             </button>
         }
@@ -528,3 +479,37 @@ const condition = authUser => !!authUser;
 
 export default withAuthorization(condition)(Roster);
 export { RosterDisplay, PlayerDisplayRow };
+
+        //             {/* <div className='rosterCol largeScreenShow'>
+        //                 <div className='searchRow'>
+        //                     <br />
+        //                     
+        //                 </div>
+        //                 <div className='sectionHeader'>
+        //                     Used Players
+        //                 </div>
+        //                 {this.state.currentPositionUsedPlayers.map((player, i) => (
+        //                     <PlayerDisplayRow player={player} key={i} evenOrOddRow={i % 2} />
+        //                 ))}
+        //             </div> */}
+        // {/*SMALL SCREEN COMMENTED OUT FOR NOW
+        //         <div className='smallSearchContainer'>
+        //             <div className='searchRow'>
+        //                 Change Week
+        //                 <WeekSearch weekSelect={this.state.weekSelect} handleChange={this.handleChange} customSeasonWeekSearch={this.customSeasonWeekSearch} />
+        //             </div>
+        //             <div className='searchRow'>
+        //                 Position Search
+        //                 <PositionSearch
+        //                     positionSelect={this.state.positionSelect}
+        //                     handleChange={this.handleChange}
+        //                     positionSearch={this.positionSearch} />
+        //             </div>
+        //             <div className='searchRow'>
+        //                 Player Search
+        //                 <PlayerSearch
+        //                     playerSearch={this.state.playerSearch}
+        //                     handleChange={this.handleChange}
+        //                     customPlayerSearch={this.customPlayerSearch} />
+        //             </div>
+        //         </div> */}

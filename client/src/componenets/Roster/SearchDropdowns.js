@@ -25,7 +25,7 @@ const WeekSearch = (props) => (
                 <option>17</option>
             </Input>
         </div>
-        <button className='btn btn-primary submitButton' onClick={props.customSeasonWeekSearch} >
+        <button className='btn btn-success submitButton' onClick={props.customSeasonWeekSearch} >
             Search
     </button>
     </div>
@@ -69,7 +69,7 @@ const TeamSearch = (props) => (
                 <option>WAS</option>
             </Input>
         </div>
-        <button className='btn btn-primary submitButton' onClick={props.searchByTeam} >
+        <button className='btn btn-success submitButton' onClick={props.searchByTeam} >
             Search
         </button>
     </div>
@@ -86,7 +86,7 @@ const PositionSearch = (props) => (
                 <option>K</option>
             </Input>
         </div>
-        <button className='btn btn-primary submitButton' onClick={props.positionSearch} >
+        <button className='btn btn-success submitButton' onClick={props.positionSearch} >
             Search
     </button>
     </div>

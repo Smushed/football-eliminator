@@ -1,3 +1,11 @@
+.rosterPageContainer {
+    display: flex;
+}
+
+.leftSearchRow {
+    margin-left: 5%;
+}
+
 .searchDropdown {
     text-align: center;
     margin-bottom: 0;
@@ -70,11 +78,14 @@
 
 .rosterContainer {
     display: flex;
+    width: 100%;
     justify-content: space-evenly;
+    margin-right: 15%;
 }
 
 .rosterCol {
     width: 30%;
+    min-width: 400px;
 }
 
 .smallSearchContainer {
