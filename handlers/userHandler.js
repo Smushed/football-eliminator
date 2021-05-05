@@ -145,6 +145,10 @@ module.exports = {
         const response = await fillOutUserForFrontEnd(foundUser);
         return response;
     },
+    findUserByUsername: async (username) => {
+        const user = await db.User.findOne({ UN: username });
+        return user;
+    },
     initSeasonAndWeekInDB: async () => {
         db.SeasonAndWeek.create({});
     },

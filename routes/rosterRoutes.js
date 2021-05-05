@@ -2,6 +2,7 @@ const rosterHandler = require(`../handlers/rosterHandler`);
 const groupHandler = require(`../handlers/groupHandler`);
 const mySportsHandler = require(`../handlers/mySportsHandler`);
 const positions = require(`../constants/positions`);
+const userHandler = require("../handlers/userHandler");
 
 module.exports = app => {
     app.get(`/api/displayplayers`, async (req, res) => {
@@ -16,20 +17,28 @@ module.exports = app => {
         res.status(200).send(availablePlayers);
     });
 
-    app.get(`/api/userRoster/:season/:week/:groupId/:userId`, async (req, res) => {
-        const { groupId, userId, week, season } = req.params;
-        if (userId !== `undefined` && week !== 0 && season !== `` && groupId !== `undefined`) { //Checks if this route received the userId before it was ready in react
+    app.get(`/api/userRoster/:season/:week/:groupname/:username`, (req, res) => {
+        const { groupname, username, week, season } = req.params;
+        if (username !== `undefined` && week !== 0 && season !== `` && groupname !== `undefined`) { //Checks if this route received the userId before it was ready in react
             //The check already comes in as the string undefined, rather than undefined itself. It comes in as truthly
-            const playerIdRoster = await rosterHandler.getUserRoster(userId, week, season, groupId);
-            const weekUserScore = await mySportsHandler.getUserWeeklyScore(userId, groupId, season, week);
-            const userRoster = await mySportsHandler.fillUserRoster(playerIdRoster, weekUserScore);
-            const groupPositions = await groupHandler.getGroupPositions(groupId);
-            const groupMap = await groupHandler.mapGroupPositions(groupPositions, positions.positionMap);
-            const response = { userRoster, groupPositions, groupMap, positionArray: positions.positionArray };
-            res.status(200).send(response);
+
+            //This can be broken out into sets, where one set is needed for the next set
+            //Rather than making this all await calls we can batch together calls that can go at the same time. Speeding up the process considerably
+            Promise.all([groupHandler.findGroupIdByName(groupname), userHandler.findUserByUsername(username)])
+                .then(([groupId, user]) => {
+                    Promise.all([rosterHandler.getUserRoster(user._id, week, season, groupId), mySportsHandler.getUserWeeklyScore(user._id, groupId, season, week), groupHandler.getGroupPositions(groupId)])
+                        .then(([playerIdRoster, weekUserScore, groupPositions]) => {
+                            Promise.all([groupHandler.mapGroupPositions(groupPositions, positions.positionMap), mySportsHandler.fillUserRoster(playerIdRoster, weekUserScore)])
+                                .then(([groupMap, userRoster]) => {
+                                    const response = { userRoster, groupPositions, groupMap, positionArray: positions.positionArray };
+                                    res.status(200).send(response);
+                                }).catch(err => console.log(`Layer 3`, err))
+
+                        }).catch(err => console.log(`Layer 2`, err))
+                }).catch(err => console.log(`Layer 1`, err));
         } else {
             //TODO Do something with this error
-            res.status(400).send(`userId is undefined. Try refreshing if this persists`);
+            res.status(400).send(`Bad URL. Try refreshing or going home and coming back if this persists`);
         };
     });
 
@@ -65,11 +74,13 @@ module.exports = app => {
         res.status(200).send(lockPeriod);
     });
 
-    app.get(`/api/getUsedPlayers/:userId/:season/:groupId`, async (req, res) => {
-        const { userId, season, groupId } = req.params;
-
-        const usedPlayers = await rosterHandler.usedPlayersByPosition(userId, season, groupId);
-        res.status(200).send(usedPlayers);
+    app.get(`/api/getUsedPlayers/:username/:season/:groupname`, async (req, res) => {
+        const { username, season, groupname } = req.params;
+        Promise.all([groupHandler.findGroupIdByName(groupname), userHandler.findUserByUsername(username)])
+            .then(async ([groupId, user]) => {
+                const usedPlayers = await rosterHandler.usedPlayersByPosition(user._id, season, groupId);
+                res.status(200).send(usedPlayers);
+            });
     });
 
     app.get(`/api/getPlayersByTeam/:groupId/:userId/:team/:season`, async (req, res) => {

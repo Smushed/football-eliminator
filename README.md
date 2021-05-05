@@ -14,7 +14,9 @@ My dad, uncle and I are avvid fantasy football players and we played this game w
 When I graduated from my bootcamp I decided to pick up the mantle of designing this game into a reality. In my head, this will always be a labor of love, something I never plan on monetizing. This is a game I plan on keeping local and playing with family and friends.
 
 ### Current Status
-This project is currently on version 0.2. Since the first year of use I have redesigned the database and structured it so it will be faster going forward.
+This project is currently on version 0.3.
+In version 0.2 which is what was used during the 2020-2021 season I redesigned the database and structured it so it will be faster going forward.
+In version 0.3 my focus is on useability and making the website appealing to use.
 
 Some key features are listed below:
 

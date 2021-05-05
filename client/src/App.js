@@ -106,8 +106,8 @@ class App extends Component {
           <SidePanel
             showSideBar={this.state.showSideBar}
             noGroup={this.state.noGroup}
-            groupId={this.state.currentGroup._id}
-            userId={this.state.currentUser.userId}
+            groupId={this.state.currentGroup.N}
+            userId={this.state.currentUser.username}
             showHideSideBar={this.showHideSideBar}
             hardSetSideBar={this.hardSetSideBar}
           />
