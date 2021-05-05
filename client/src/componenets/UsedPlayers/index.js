@@ -19,40 +19,20 @@ class UsedPlayers extends Component {
     componentDidMount() {
         if (this.props.season !== '') {
             this.getUsedPlayers();
-            this.getGroupPositionsForDisplay();
-            this.getCurrentUsername();
+            this.setState({ usernameOfPage: this.props.match.params.username })
         };
     };
 
     componentDidUpdate(prevProps) {
         if (this.props.season !== prevProps.season) {
             this.getUsedPlayers();
-            this.getGroupPositionsForDisplay();
-            this.getCurrentUsername();
+            this.setState({ usernameOfPage: this.props.match.params.username })
         };
-    };
-
-    getCurrentUsername() {
-        axios.get(`/api/getUserById/${this.props.match.params.userId}`)
-            .then(res => {
-                this.setState({ usernameOfPage: res.data.UN })
-            }).catch(err => {
-                console.log(err); //TODO better error handling
-            });
-    };
-
-    getGroupPositionsForDisplay = () => {
-        axios.get(`/api/getGroupPositionsForDisplay/${this.props.match.params.groupId}`)
-            .then(res => {
-                this.setState({ displayPositions: res.data.forDisplay });
-            }).catch(err => {
-                console.log(err); //TODO better error handling
-            });
     };
 
     getUsedPlayers = () => {
         this.setState({ loading: true });
-        axios.get(`/api/getUsedPlayers/${this.props.match.params.userId}/${this.props.season}/${this.props.match.params.groupId}`)
+        axios.get(`/api/getUsedPlayers/${this.props.match.params.username}/${this.props.season}/${this.props.match.params.groupname}`)
             .then(res => {
                 this.setState({ usedPlayers: res.data, loading: false });
             }).catch(err => {
@@ -61,7 +41,7 @@ class UsedPlayers extends Component {
     };
 
     render() {
-        const positions = [`QB`, `RB`, `WR`, `TE`, `K`, `D`]
+        const positions = [`QB`, `RB`, `WR`, `TE`, `K`, `D`];
         return (
             <div>
                 <div className='centerText titleMargin headerFont'>

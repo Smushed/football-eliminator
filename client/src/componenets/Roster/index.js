@@ -18,7 +18,7 @@ const Roster = ({ week, season, match, userId }) => {
     const [weekSelect, updateWeekSelect] = useState(0);
     const [weekOnPage, updateWeekOnPage] = useState(0); //The week and season are here when the player searches for their roster. This updates ONLY when the player actually refreshes their roster
     const [currentUser, updateCurrentUser] = useState(false);
-    const [usernameOfPage, updateUsernameOfPage] = useState('');
+    const [usernameOfPage, updateusernameOfPage] = useState('');
     const [groupPositions, updateGroupPositions] = useState([]);
     const [positionArray, updatePositionArray] = useState([]);
     const [usedPlayers, updateUsedPlayers] = useState({});
@@ -32,26 +32,17 @@ const Roster = ({ week, season, match, userId }) => {
     useEffect(() => {
         if (week !== 0 && season !== '') {
             updateWeekSelect(week);
+            updateusernameOfPage(match.params.username);
             getRosterData(week);
             getUsedPlayers();
             checkCurrentUser();
-            getCurrentUsername();
         };
     }, [week, season])
 
     const getUsedPlayers = () => {
-        axios.get(`/api/getUsedPlayers/${match.params.userId}/${season}/${match.params.groupId}`)
+        axios.get(`/api/getUsedPlayers/${match.params.username}/${season}/${match.params.groupname}`)
             .then(res => {
                 updateUsedPlayers(res.data);
-            }).catch(err => {
-                console.log(err); //TODO better error handling
-            });
-    };
-
-    const getCurrentUsername = () => {
-        axios.get(`/api/getUserById/${match.params.userId}`)
-            .then(res => {
-                updateUsernameOfPage(res.data.UN);
             }).catch(err => {
                 console.log(err); //TODO better error handling
             });
@@ -96,7 +87,7 @@ const Roster = ({ week, season, match, userId }) => {
         updateWeekOnPage(weekInput);
         if (week !== 0 && season !== ``) {
             loading();
-            axios.get(`/api/userRoster/${season}/${weekInput}/${match.params.groupId}/${match.params.userId}`)
+            axios.get(`/api/userRoster/${season}/${weekInput}/${match.params.groupname}/${match.params.username}`)
                 .then(res => {
                     const { userRoster, groupPositions, groupMap, positionArray } = res.data;
                     updateUserRoster(userRoster);
@@ -332,7 +323,7 @@ const Roster = ({ week, season, match, userId }) => {
 
     return (
         <div>
-            <div className='centerText headerFont userNameRow'>
+            <div className='centerText headerFont usernameRow'>
                 {usernameOfPage}'s Roster
                 </div>
             <div className='rosterPageContainer'>
