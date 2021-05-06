@@ -147,10 +147,8 @@ module.exports = {
         this.createGroupScore(clapperFromDB._id);
         return `working`;
     },
-
-    findGroupIdByName: async (groupName) => {
-        const foundGroup = await db.Group.findOne({ N: groupName });
-
+    findGroupIdByName: async (groupname) => {
+        const foundGroup = await db.Group.findOne({ N: groupname });
         return foundGroup._id;
     },
     createGeneralGroupRoster: async (groupId) => {

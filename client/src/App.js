@@ -127,7 +127,7 @@ const App = ({ firebase }) => {
                   group={currentGroup}
                   week={currentWeek}
                   positionOrder={positionOrder}
-                  userId={currentUser.userId}
+                  username={currentUser.username}
                 />}
             />
             <Route
@@ -173,6 +173,7 @@ const App = ({ firebase }) => {
               render={props =>
                 <Roster
                   {...props}
+                  username={currentUser.username}
                   userId={currentUser.userId}
                   week={currentWeek}
                   season={currentSeason} />

@@ -11,7 +11,7 @@ import { WeekSearch, PositionSearch } from './SearchDropdowns';
 
 const Alert = withReactContent(Swal);
 
-const Roster = ({ week, season, match, userId }) => {
+const Roster = ({ week, season, match, username, userId }) => {
     const [userRoster, updateUserRoster] = useState([]);
     const [availablePlayers, updateAvaliablePlayers] = useState([]);
     const [positionSelect, updatePositionSelect] = useState(`QB`); //This is the default value for the position search
@@ -49,7 +49,7 @@ const Roster = ({ week, season, match, userId }) => {
     };
 
     const checkCurrentUser = () => {
-        if (userId === match.params.userId) {
+        if (username === match.params.username) {
             updateCurrentUser(true);
         } else {
             updateCurrentUser(false);
@@ -159,8 +159,9 @@ const Roster = ({ week, season, match, userId }) => {
     const saveRosterToDb = async (roster, droppedPlayer, addedPlayer) => {
         loading()
         axios.put(`/api/updateUserRoster`,
-            { userId: userId, roster, droppedPlayer, addedPlayer, week: weekSelect, season: season, groupId: match.params.groupId })
+            { userId: userId, roster, droppedPlayer, addedPlayer, week: weekSelect, season: season, groupname: match.params.groupname })
             .then(res => {
+                console.log(res.data)
                 doneLoading();
                 updateUserRoster(res.data);
                 return;
