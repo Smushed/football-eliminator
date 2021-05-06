@@ -2,18 +2,18 @@ import React from 'react';
 
 import './leaderBoardStyle.css'
 
-const Leaderboard = (props) => (
+const Leaderboard = ({ groupName, week, leaderboard }) => (
     <div className='leaderboardContainter'>
         <div className='leaderboard'>
             <div className='leaderboardHeader'>
                 <span className='headerText leftHeader'>
-                    {props.groupName}
+                    {groupName}
                 </span>
                 <span className='leaderboardTitle'>
                     Leaderboard
                 </span>
                 <span className='headerText rightHeader'>
-                    Week {props.week}
+                    Week {week}
                 </span>
             </div>
             <div className='leaderboardRow'>
@@ -30,8 +30,8 @@ const Leaderboard = (props) => (
                     Total Score
                 </div>
             </div>
-            {props.leaderboard &&
-                props.leaderboard.map((user, i) => (
+            {leaderboard &&
+                leaderboard.map((user, i) => (
                     <div className={i % 2 ? 'leaderboardRow' : 'leaderboardRow oddRow'} key={user.UN}>
                         <div className='firstCol'>
                             {user.UN}

@@ -33,6 +33,28 @@
     cursor: pointer;
 }
 
+.custom-button {
+    text-align: center;
+    vertical-align: middle;
+    user-select: none;
+    background-color: transparent;
+    border: 1px solid transparent;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    height: 25px;
+    font-size: 14px;
+    border-radius: 0.2rem;
+    cursor: pointer;
+    color: #17a2b8;
+    border-color: #17a2b8;
+    margin-top: 4px;
+}
+
+.custom-button:hover {
+    color: #fff;
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+
 .sectionHeader {
     font-size: 20px;
     text-align: center;

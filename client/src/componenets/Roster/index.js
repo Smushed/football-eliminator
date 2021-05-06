@@ -404,7 +404,7 @@ const CurrentRosterRow = ({ evenOrOddRow, player, position, showSingleMatchUp, a
                         {player.S.toFixed(2)}
                     </div> :
                     addDropPlayer &&
-                    <button className='addDropButton btn btn-outline-info btn-sm' onClick={() => addDropPlayer(player.M, 'drop')}>
+                    <button className='addDropButton custom-button' onClick={() => addDropPlayer(player.M, 'drop')}>
                         Drop
                     </button>
                 }
@@ -426,7 +426,7 @@ const PlayerDisplayRow = ({ evenOrOddRow, player, showSingleMatchUp, addDropPlay
             {player.P && player.P}
         </div>
         {addDropPlayer &&
-            <button className='addDropButton btn btn-outline-info btn-sm' onClick={() => addDropPlayer(player.M, 'add')}>
+            <button className='addDropButton custom-button' onClick={() => addDropPlayer(player.M, 'add')}>
                 Add
             </button>
         }

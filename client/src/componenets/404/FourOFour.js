@@ -2,7 +2,7 @@ import React from 'react';
 import './404style.css';
 import PoorBaby from './Champs.jpg'
 
-const FourOFour = (props) => {
+const FourOFour = () => {
     return (
         <div className='fourOFour' >
             <div className='fourOFourText'>404 - Not Found</div>
