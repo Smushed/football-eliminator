@@ -1,4 +1,4 @@
-import React, { Fragment, Component } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import * as Routes from './constants/routes';
 import { Route, BrowserRouter, Switch } from 'react-router-dom';
 import { withFirebase } from './componenets/Firebase';
@@ -19,199 +19,192 @@ import FourOFour from './componenets/404/FourOFour';
 import SidePanel from './componenets/SidePanel';
 
 
-class App extends Component {
-  constructor(props) {
-    super(props);
+const App = ({ firebase }) => {
 
-    this.state = {
-      noGroup: false,
-      authUser: null,
-      currentUser: {},
-      currentWeek: 0,
-      currentSeason: ``,
-      groupList: [],
-      currentGroup: {},
-      positionOrder: [],
-      showSideBar: false
-    }
-  };
+  const [noGroup, updateNoGroup] = useState(false);
+  const [authUser, updateAuthUser] = useState(null);
+  const [currentUser, updateCurrentUser] = useState({});
+  const [currentWeek, updateCurrentWeek] = useState(0);
+  const [currentSeason, updateCurrentSeason] = useState(``);
+  const [groupList, updateGroupList] = useState([]);
+  const [currentGroup, updateCurrentGroup] = useState({});
+  const [positionOrder, updatePositionOrder] = useState([]);
+  const [showSideBar, updateShowSideBar] = useState(false);
 
-  componentDidMount() {
-    this.listener = this.props.firebase.auth.onAuthStateChanged(authUser => {
+  let listener;
+
+  useEffect(() => {
+    listener = firebase.auth.onAuthStateChanged(authUser => {
       if (authUser) {
-        this.setState({ authUser });
-        this.isSignedIn(authUser.email);
+        updateAuthUser(authUser);
+        isSignedIn(authUser.email);
       } else {
-        this.setState({ authUser: null, currentUser: {} });
-      }
+        updateAuthUser(null);
+        updateCurrentUser({});
+      };
+      return function cleanup() {
+        listener();
+      };
     });
-  }
+  }, [firebase]);
 
-  componentWillUnmount() {
-    this.listener();
-  };
-
-  isSignedIn = async (email) => {
+  const isSignedIn = async (email) => {
     const dbResponse = await axios.get(`/api/getUser/${email}`);
 
-    this.setCurrentUser(dbResponse.data)
+    setCurrentUser(dbResponse.data)
 
-    if (this.userHasGroup(dbResponse.data)) {
-      this.getGroupAndPositions(dbResponse.data);
+    if (userHasGroup(dbResponse.data)) {
+      getGroupAndPositions(dbResponse.data);
     } else {
-      this.setState({ noGroup: true });
+      updateNoGroup(true);
     };
   };
 
-  setCurrentUser = (user) => {
-    console.log(user);
+  const setCurrentUser = (user) => {
     const currentUser = {
       username: user.UN,
       userId: user._id,
       isAdmin: user.A,
       FT: user.FT
     };
-    this.setState({ currentUser })
+    updateCurrentUser(currentUser);
   }
 
-  getGroupAndPositions = async (user) => {
+  const getGroupAndPositions = async (user) => {
+    updateNoGroup(false);
+    updateGroupList(user.GL);
+    updateCurrentGroup({ N: user.GL[0].N, _id: user.GL[0]._id });
 
     const playerPositions = await axios.get(`/api/getPositionData`);
-    this.setState({
-      noGroup: false,
-      groupList: user.GL,
-      currentGroup: { N: user.GL[0].N, _id: user.GL[0]._id },
-      positionOrder: playerPositions.data
-    });
-    this.getSeasonAndWeek();
+    updatePositionOrder(playerPositions.data)
+
+    getSeasonAndWeek();
   };
 
-  getSeasonAndWeek = async () => {
+  const getSeasonAndWeek = async () => {
     const seasonAndWeek = await axios.get(`/api/currentSeasonAndWeek`);
-    this.setState({ currentSeason: seasonAndWeek.data.season, currentWeek: seasonAndWeek.data.week })
+    updateCurrentSeason(seasonAndWeek.data.season);
+    updateCurrentWeek(seasonAndWeek.data.week);
   };
 
-  userHasGroup = (user) => (user.GL.length > 0);
+  const userHasGroup = (user) => (user.GL.length > 0);
 
-  showHideSideBar = () => this.setState({ showSideBar: !this.state.showSideBar });
+  const showHideSideBar = () => updateShowSideBar(!showSideBar);
 
-  hardSetSideBar = (toggle) => this.setState({ showSideBar: toggle });
+  const hardSetSideBar = (toggle) => updateShowSideBar(toggle);
 
-  render() {
+  return (
 
-    return (
-
-      <BrowserRouter>
-        <Fragment>
-          <SidePanel
-            showSideBar={this.state.showSideBar}
-            noGroup={this.state.noGroup}
-            groupId={this.state.currentGroup.N}
-            userId={this.state.currentUser.username}
-            showHideSideBar={this.showHideSideBar}
-            hardSetSideBar={this.hardSetSideBar}
+    <BrowserRouter>
+      <Fragment>
+        <SidePanel
+          showSideBar={showSideBar}
+          noGroup={noGroup}
+          groupname={currentGroup.N}
+          username={currentUser.username}
+          showHideSideBar={showHideSideBar}
+          hardSetSideBar={hardSetSideBar}
+        />
+        {authUser &&
+          <NavBar
+            showHideSideBar={showHideSideBar}
           />
-          {this.state.authUser &&
-            <NavBar
-              showHideSideBar={this.showHideSideBar}
-            />
-          }
+        }
 
-          {this.state.noGroup ?
-            <GroupPage
-              noGroup={this.state.noGroup}
-              userId={this.state.currentUser.userId}
+        {noGroup ?
+          <GroupPage
+            noGroup={noGroup}
+            userId={currentUser.userId}
+          />
+          :
+          <Switch>
+            <Route
+              exact path={Routes.home}
+              render={() =>
+                <Home
+                  isAdmin={currentUser.isAdmin}
+                  season={currentSeason}
+                  group={currentGroup}
+                  week={currentWeek}
+                  positionOrder={positionOrder}
+                  userId={currentUser.userId}
+                />}
             />
-            :
-            <Switch>
-              <Route
-                exact path={Routes.home}
-                render={() =>
-                  <Home
-                    isAdmin={this.state.currentUser.isAdmin}
-                    season={this.state.currentSeason}
-                    group={this.state.currentGroup}
-                    week={this.state.currentWeek}
-                    positionOrder={this.state.positionOrder}
-                    userId={this.state.currentUser.userId}
-                  />}
-              />
-              <Route
-                path={Routes.adminPanel}
-                render={() =>
-                  <AdminPanel
-                    currentUser={this.state.currentUser}
-                    week={this.state.currentWeek}
-                    season={this.state.currentSeason}
-                    groupId={this.state.currentGroup._id} />}
-              />
-              <Route
-                path={Routes.groupPage}
-                render={() =>
-                  <GroupPage />}
-              />
-              <Route
-                path={Routes.signin}
-                render={() =>
-                  <SignInOut />}
-              />
-              <Route
-                path={Routes.signup}
-                render={() =>
-                  <SignInOut />}
-              />
-              <Route
-                path={Routes.userProfile}
-                render={() =>
-                  <UserProfile
-                    authUser={this.state.authUser}
-                    currentUser={this.state.currentUser}
-                    groupList={this.state.groupList} />}
-              />
-              <Route
-                path={Routes.seasonLongScore}
-                render={() =>
-                  <SeasonLongScore
-                    season={this.state.currentSeason} />}
-              />
-              <Route
-                path={Routes.roster}
-                render={props =>
-                  <Roster
-                    {...props}
-                    userId={this.state.currentUser.userId}
-                    week={this.state.currentWeek}
-                    season={this.state.currentSeason} />
-                }
-              />
-              <Route
-                path={Routes.upgradeToAdmin}
-                render={() =>
-                  <UpgradeToAdmin />}
-              />
-              <Route
-                path={Routes.usedPlayers}
-                render={props =>
-                  <UsedPlayers
-                    {...props}  //Need to pass down the props spread to have access to the URL
-                    season={this.state.currentSeason} />
-                }
-              />
-              <Route
-                path={Routes.updateWeek}
-                render={() =>
-                  <UpdateWeek />}
-              />
-              <Route
-                render={() =>
-                  <FourOFour />
-                } />
-            </Switch>
-          }
-        </Fragment>
-      </BrowserRouter>
-    );
-  }
+            <Route
+              path={Routes.adminPanel}
+              render={() =>
+                <AdminPanel
+                  currentUser={currentUser}
+                  week={currentWeek}
+                  season={currentSeason}
+                  groupId={currentGroup._id} />}
+            />
+            <Route
+              path={Routes.groupPage}
+              render={() =>
+                <GroupPage />}
+            />
+            <Route
+              path={Routes.signin}
+              render={() =>
+                <SignInOut />}
+            />
+            <Route
+              path={Routes.signup}
+              render={() =>
+                <SignInOut />}
+            />
+            <Route
+              path={Routes.userProfile}
+              render={() =>
+                <UserProfile
+                  authUser={authUser}
+                  currentUser={currentUser}
+                  groupList={groupList} />}
+            />
+            <Route
+              path={Routes.seasonLongScore}
+              render={() =>
+                <SeasonLongScore
+                  season={currentSeason} />}
+            />
+            <Route
+              path={Routes.roster}
+              render={props =>
+                <Roster
+                  {...props}
+                  userId={currentUser.userId}
+                  week={currentWeek}
+                  season={currentSeason} />
+              }
+            />
+            <Route
+              path={Routes.upgradeToAdmin}
+              render={() =>
+                <UpgradeToAdmin />}
+            />
+            <Route
+              path={Routes.usedPlayers}
+              render={props =>
+                <UsedPlayers
+                  {...props}  //Need to pass down the props spread to have access to the URL
+                  season={currentSeason} />
+              }
+            />
+            <Route
+              path={Routes.updateWeek}
+              render={() =>
+                <UpdateWeek />}
+            />
+            <Route
+              render={() =>
+                <FourOFour />
+              } />
+          </Switch>
+        }
+      </Fragment>
+    </BrowserRouter>
+  );
 }
 
 export default withFirebase(App);

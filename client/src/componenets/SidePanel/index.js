@@ -16,7 +16,7 @@ import SignOutIcon from './SignOut.png';
 import ElimLogo from './ElimLogo.png';
 import './sidePanelStyle.css';
 
-const SidePanel = ({ firebase, userId, groupId, showHideSideBar, showSideBar, hardSetSideBar }) => {
+const SidePanel = ({ firebase, username, groupname, showHideSideBar, showSideBar, hardSetSideBar }) => {
 
     useEffect(() => {
     }, [showSideBar]);
@@ -25,8 +25,6 @@ const SidePanel = ({ firebase, userId, groupId, showHideSideBar, showSideBar, ha
         firebase.doSignOut();
         hardSetSideBar(false);
     };
-
-
 
     return (
         <Menu onClose={() => hardSetSideBar(false)} className='sideBarHeight' isOpen={showSideBar} disableAutoFocus>
@@ -41,7 +39,7 @@ const SidePanel = ({ firebase, userId, groupId, showHideSideBar, showSideBar, ha
                     </div>
                 </div>
             </Link>
-            <Link to={`/roster/${groupId}/${userId}`} onClick={() => showHideSideBar()}>
+            <Link to={`/roster/${groupname}/${username}`} onClick={() => showHideSideBar()}>
                 <div className='sidebarItemWrapper'>
                     <img className='sidebarSVG' src={ListSVG} alt='Roster Logo' />
                     <div className='sideBarItem'>
@@ -49,7 +47,7 @@ const SidePanel = ({ firebase, userId, groupId, showHideSideBar, showSideBar, ha
                     </div>
                 </div>
             </Link>
-            <Link to={`/usedPlayers/${groupId}/${userId}`} onClick={() => showHideSideBar()}>
+            <Link to={`/usedPlayers/${groupname}/${username}`} onClick={() => showHideSideBar()}>
                 <div className='sidebarItemWrapper'>
                     <img className='sidebarSVG' src={PlayerSVG} alt='Used Players Logo' />
                     <div className='sideBarItem'>
