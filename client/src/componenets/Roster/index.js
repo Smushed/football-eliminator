@@ -350,11 +350,11 @@ const Roster = ({ week, season, match, username, userId }) => {
                             positionSearch={positionSearch}
                             disabled={mustDrop} />
                     </div>
-                    <div className='searchRow largeScreenShow'>
-                        <button className='btn btn-success' onClick={() => showMatchUps()}>Match Ups</button>
-                    </div>
                     <div className='searchRow largeScreenShow noMargin'>
                         <button className='btn btn-success' disabled={mustDrop} onClick={() => toggleShowUsedPlayers()}>Show Used Players</button>
+                    </div>
+                    <div className='searchRow largeScreenShow'>
+                        <button className='btn btn-success' onClick={() => showMatchUps()}>Match Ups</button>
                     </div>
                 </div>
                 <div className='rosterContainer'>
@@ -406,30 +406,32 @@ const CurrentRosterRow = ({ evenOrOddRow, player, position, showSingleMatchUp, a
         <div className='positionBox'>
             {position}
         </div>
-        {player ?
-            <div className='playerContainer'>
-                {player.N &&
-                    <div className='playerCol'>
-                        {player.N}
-                    </div>
-                }
-                {player.T &&
-                    <div onClick={() => (showSingleMatchUp && showSingleMatchUp(player.T))} className={`teamCol ${(showSingleMatchUp && `pointer`)}`}>
-                        {player.T}
-                    </div>
-                }
-                {player.S !== undefined ?
-                    <div className='scoreCol'>
-                        {player.S.toFixed(2)}
-                    </div> :
-                    addDropPlayer &&
-                    <button className='addDropButton custom-button' onClick={() => addDropPlayer(player.M, 'drop')}>
-                        Drop
+        <div className='playerContainer'>
+            {player ?
+                <div className='hasPlayerContainer'>
+                    {player.N &&
+                        <div className='playerCol'>
+                            {player.N}
+                        </div>
+                    }
+                    {player.T &&
+                        <div onClick={() => (showSingleMatchUp && showSingleMatchUp(player.T))} className={`teamCol ${(showSingleMatchUp && `pointer`)}`}>
+                            {player.T}
+                        </div>
+                    }
+                    {player.S !== undefined ?
+                        <div className='scoreCol'>
+                            {player.S.toFixed(2)}
+                        </div> :
+                        addDropPlayer &&
+                        <button className='addDropButton custom-button' onClick={() => addDropPlayer(player.M, 'drop')}>
+                            Drop
                     </button>
-                }
-            </div>
-            : ``
-        }
+                    }
+                </div>
+                : ``
+            }
+        </div>
     </div >
 );
 
