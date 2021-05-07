@@ -22,6 +22,7 @@ const Roster = ({ week, season, match, username, userId }) => {
     const [groupPositions, updateGroupPositions] = useState([]);
     const [positionArray, updatePositionArray] = useState([]);
     const [usedPlayers, updateUsedPlayers] = useState({});
+    const [showUsedPlayers, updateShowUsedPlayers] = useState(false);
     const [currentPositionUsedPlayers, updateCurrentPositionUsedPlayers] = useState([]);
     const [positionMap, updatePositionMap] = useState([])
     const [weeklyMatchups, updateWeeklyMatchups] = useState([]);
@@ -204,6 +205,10 @@ const Roster = ({ week, season, match, username, userId }) => {
         getRosterData(weekSelect, season);
     };
 
+    const toggleShowUsedPlayers = () => {
+        updateShowUsedPlayers(!showUsedPlayers);
+    };
+
     const handleChange = (e) => {
         e.target.name === 'weekSelect' && updateWeekSelect(e.target.value);
         e.target.name === 'positionSelect' && updatePositionSelect(e.target.value);
@@ -348,21 +353,33 @@ const Roster = ({ week, season, match, username, userId }) => {
                     <div className='searchRow largeScreenShow'>
                         <button className='btn btn-success' onClick={() => showMatchUps()}>Match Ups</button>
                     </div>
+                    <div className='searchRow largeScreenShow noMargin'>
+                        <button className='btn btn-success' disabled={mustDrop} onClick={() => toggleShowUsedPlayers()}>Show Used Players</button>
+                    </div>
                 </div>
                 <div className='rosterContainer'>
                     <div className={`rosterCol ${mustDrop && `adjustRosterSpacing`}`}>
-                        <Fragment>
+                        <div className='sectionHeader'>
+                            {mustDrop ? `Too Many Players, drop one` : `Week ${weekOnPage} Roster`}
+                        </div>
+                        <RosterDisplay
+                            showSingleMatchUp={showSingleMatchUp}
+                            groupPositions={groupPositions}
+                            addDropPlayer={addDropPlayer}
+                            roster={mustDrop ? possiblePlayers : userRoster}
+                            mustDrop={mustDrop}
+                        />
+                        <div className={`usedPlayerCol ${mustDrop && `rosterHide`} ${!showUsedPlayers && ` zeroTransparent`}`}>
                             <div className='sectionHeader'>
-                                {mustDrop ? `Too Many Players, drop one` : `Week ${weekOnPage} Roster`}
+                                Used Players
                             </div>
-                            <RosterDisplay
-                                showSingleMatchUp={showSingleMatchUp}
-                                groupPositions={groupPositions}
-                                addDropPlayer={addDropPlayer}
-                                roster={mustDrop ? possiblePlayers : userRoster}
-                                mustDrop={mustDrop}
-                            />
-                        </Fragment>
+                            {currentPositionUsedPlayers.map((player, i) => (
+                                <PlayerDisplayRow
+                                    showSingleMatchUp={showUsedPlayers && showSingleMatchUp}
+                                    player={player} key={i}
+                                    evenOrOddRow={i % 2} />
+                            ))}
+                        </div>
                     </div>
                     <div className={`rosterCol ${mustDrop && `thirtyTransparent`}`}>
                         <div className='sectionHeader'>
@@ -376,6 +393,7 @@ const Roster = ({ week, season, match, username, userId }) => {
                                 evenOrOddRow={i % 2} />
                         ))}
                     </div>
+
                 </div>
             </div>
         </div>
