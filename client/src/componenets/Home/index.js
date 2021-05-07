@@ -6,7 +6,7 @@ import { RosterDisplay } from '../Roster';
 import './homeStyle.css';
 import Leaderboard from './Leaderboard';
 
-const Home = ({ isAdmin, season, group, week, positionOrder, userId }) => {
+const Home = ({ isAdmin, season, group, week, positionOrder, username }) => {
 
     const [leaderboard, setLeaderboard] = useState([]);
     const [roster, setRoster] = useState([]);
@@ -14,9 +14,9 @@ const Home = ({ isAdmin, season, group, week, positionOrder, userId }) => {
     useEffect(() => {
         if (week && season) {
             getLeaderBoard(season, week, group._id);
-            getRoster(season, week, group._id, userId);
+            getRoster(season, week, group.N, username);
         };
-    }, [week, season, userId])
+    }, [week, season, username])
 
     const getLeaderBoard = (season, week, groupId) => {
         axios.get(`/api/getLeaderBoard/${season}/${week}/${groupId}`)
@@ -26,9 +26,8 @@ const Home = ({ isAdmin, season, group, week, positionOrder, userId }) => {
             });
     };
 
-    const getRoster = (season, week, groupId, userId) => {
-        console.log(userId)
-        axios.get(`/api/userRoster/${season}/${week}/${groupId}/${userId}`)
+    const getRoster = (season, week, groupname, username) => {
+        axios.get(`/api/userRoster/${season}/${week}/${groupname}/${username}`)
             .then(res => {
                 console.log(res);
                 return;

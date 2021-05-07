@@ -24,17 +24,27 @@ module.exports = app => {
 
             //This can be broken out into sets, where one set is needed for the next set
             //Rather than making this all await calls we can batch together calls that can go at the same time. Speeding up the process considerably
-            Promise.all([groupHandler.findGroupIdByName(groupname), userHandler.findUserByUsername(username)])
+            Promise.all([
+                groupHandler.findGroupIdByName(groupname),
+                userHandler.findUserByUsername(username)
+            ])
                 .then(([groupId, user]) => {
-                    Promise.all([rosterHandler.getUserRoster(user._id, week, season, groupId), mySportsHandler.getUserWeeklyScore(user._id, groupId, season, week), groupHandler.getGroupPositions(groupId)])
+                    Promise.all([
+                        rosterHandler.getUserRoster(user._id, week, season, groupId),
+                        mySportsHandler.getUserWeeklyScore(user._id, groupId, season, week),
+                        groupHandler.getGroupPositions(groupId)
+                    ])
                         .then(([playerIdRoster, weekUserScore, groupPositions]) => {
-                            Promise.all([groupHandler.mapGroupPositions(groupPositions, positions.positionMap), mySportsHandler.fillUserRoster(playerIdRoster, weekUserScore)])
+                            Promise.all([
+                                groupHandler.mapGroupPositions(groupPositions, positions.positionMap),
+                                mySportsHandler.fillUserRoster(playerIdRoster, weekUserScore)
+                            ])
                                 .then(([groupMap, userRoster]) => {
                                     const response = { userRoster, groupPositions, groupMap, positionArray: positions.positionArray };
                                     res.status(200).send(response);
-                                }).catch(err => console.log(`Layer 3`, err))
+                                }).catch(err => console.log(`Layer 3`, err));
 
-                        }).catch(err => console.log(`Layer 2`, err))
+                        }).catch(err => console.log(`Layer 2`, err));
                 }).catch(err => console.log(`Layer 1`, err));
         } else {
             //TODO Do something with this error
@@ -53,19 +63,17 @@ module.exports = app => {
         res.status(200).send(dbResponse);
     });
 
-    app.put(`/api/updateUserRoster/`, (req, res) => {
-        const { userId, roster, droppedPlayer, addedPlayer, week, season, groupId } = req.body;
-
-        rosterHandler.updateUserRoster(userId, roster, droppedPlayer, addedPlayer, week, season).then(async () => {
-            //TODO COMBINE THIS WITH get userRoster above so it's one function
-            const playerIdRoster = await rosterHandler.getUserRoster(userId, week, season, groupId);
-            const weekUserScore = await mySportsHandler.getUserWeeklyScore(userId, groupId, season, week);
-            const userRoster = await mySportsHandler.fillUserRoster(playerIdRoster, weekUserScore);
-            const response = userRoster;
-
-            res.status(200).send(response);
-        });
-
+    app.put(`/api/updateUserRoster/`, async (req, res) => {
+        const { userId, roster, droppedPlayer, addedPlayer, week, season, groupname } = req.body;
+        const groupId = await groupHandler.findGroupIdByName(groupname);
+        Promise.all([
+            rosterHandler.updateUserRoster(userId, roster, droppedPlayer, addedPlayer, week, season),
+            mySportsHandler.getUserWeeklyScore(userId, groupId, season, week)
+        ])
+            .then(async ([updatedRoster, weekUserScore]) => {
+                const response = await mySportsHandler.fillUserRoster(updatedRoster, weekUserScore);
+                res.status(200).send(response);
+            }).catch(err => console.log(`Update User Roster Error`, err))
     });
 
     app.get(`/api/checkLockPeriod`, async (req, res) => {

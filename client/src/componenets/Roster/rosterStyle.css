@@ -2,12 +2,20 @@
     display: flex;
 }
 
-.hideRoster {
-    display: none;
-}
-
 .thirtyTransparent {
     opacity: 30%;
+}
+
+.zeroTransparent {
+    opacity: 0;
+}
+
+.rosterHide {
+    opacity: 0;
+}
+
+.noXScale {
+    transform: scaleX(0);
 }
 
 .adjustRosterSpacing {
@@ -83,7 +91,6 @@
     border: 1px solid lightgrey;
     border-radius: 2px;
     min-height: 250px;
-
     display: flex;
     flex-direction: column;
 }
@@ -101,6 +108,10 @@
     height: 87px;
     text-align: center;
     margin-top: 15px;
+}
+
+.noMargin {
+    margin: 0;
 }
 
 .searchLabel {
@@ -122,6 +133,11 @@
     width: 30%;
     min-width: 400px;
     transition: 1s;
+}
+
+.usedPlayerCol {
+    margin-top: 65px;
+    transition: 0.5s;
 }
 
 .smallSearchContainer {

@@ -11,7 +11,7 @@ import { WeekSearch, PositionSearch } from './SearchDropdowns';
 
 const Alert = withReactContent(Swal);
 
-const Roster = ({ week, season, match, userId }) => {
+const Roster = ({ week, season, match, username, userId }) => {
     const [userRoster, updateUserRoster] = useState([]);
     const [availablePlayers, updateAvaliablePlayers] = useState([]);
     const [positionSelect, updatePositionSelect] = useState(`QB`); //This is the default value for the position search
@@ -22,6 +22,7 @@ const Roster = ({ week, season, match, userId }) => {
     const [groupPositions, updateGroupPositions] = useState([]);
     const [positionArray, updatePositionArray] = useState([]);
     const [usedPlayers, updateUsedPlayers] = useState({});
+    const [showUsedPlayers, updateShowUsedPlayers] = useState(false);
     const [currentPositionUsedPlayers, updateCurrentPositionUsedPlayers] = useState([]);
     const [positionMap, updatePositionMap] = useState([])
     const [weeklyMatchups, updateWeeklyMatchups] = useState([]);
@@ -49,7 +50,7 @@ const Roster = ({ week, season, match, userId }) => {
     };
 
     const checkCurrentUser = () => {
-        if (userId === match.params.userId) {
+        if (username === match.params.username) {
             updateCurrentUser(true);
         } else {
             updateCurrentUser(false);
@@ -159,8 +160,9 @@ const Roster = ({ week, season, match, userId }) => {
     const saveRosterToDb = async (roster, droppedPlayer, addedPlayer) => {
         loading()
         axios.put(`/api/updateUserRoster`,
-            { userId: userId, roster, droppedPlayer, addedPlayer, week: weekSelect, season: season, groupId: match.params.groupId })
+            { userId: userId, roster, droppedPlayer, addedPlayer, week: weekSelect, season: season, groupname: match.params.groupname })
             .then(res => {
+                console.log(res.data)
                 doneLoading();
                 updateUserRoster(res.data);
                 return;
@@ -201,6 +203,10 @@ const Roster = ({ week, season, match, userId }) => {
         e.preventDefault();
         updateUserRoster([]); //Blank it out before searching and pulling again
         getRosterData(weekSelect, season);
+    };
+
+    const toggleShowUsedPlayers = () => {
+        updateShowUsedPlayers(!showUsedPlayers);
     };
 
     const handleChange = (e) => {
@@ -347,21 +353,33 @@ const Roster = ({ week, season, match, userId }) => {
                     <div className='searchRow largeScreenShow'>
                         <button className='btn btn-success' onClick={() => showMatchUps()}>Match Ups</button>
                     </div>
+                    <div className='searchRow largeScreenShow noMargin'>
+                        <button className='btn btn-success' disabled={mustDrop} onClick={() => toggleShowUsedPlayers()}>Show Used Players</button>
+                    </div>
                 </div>
                 <div className='rosterContainer'>
                     <div className={`rosterCol ${mustDrop && `adjustRosterSpacing`}`}>
-                        <Fragment>
+                        <div className='sectionHeader'>
+                            {mustDrop ? `Too Many Players, drop one` : `Week ${weekOnPage} Roster`}
+                        </div>
+                        <RosterDisplay
+                            showSingleMatchUp={showSingleMatchUp}
+                            groupPositions={groupPositions}
+                            addDropPlayer={addDropPlayer}
+                            roster={mustDrop ? possiblePlayers : userRoster}
+                            mustDrop={mustDrop}
+                        />
+                        <div className={`usedPlayerCol ${mustDrop && `rosterHide`} ${!showUsedPlayers && ` zeroTransparent`}`}>
                             <div className='sectionHeader'>
-                                {mustDrop ? `Too Many Players, drop one` : `Week ${weekOnPage} Roster`}
+                                Used Players
                             </div>
-                            <RosterDisplay
-                                showSingleMatchUp={showSingleMatchUp}
-                                groupPositions={groupPositions}
-                                addDropPlayer={addDropPlayer}
-                                roster={mustDrop ? possiblePlayers : userRoster}
-                                mustDrop={mustDrop}
-                            />
-                        </Fragment>
+                            {currentPositionUsedPlayers.map((player, i) => (
+                                <PlayerDisplayRow
+                                    showSingleMatchUp={showUsedPlayers && showSingleMatchUp}
+                                    player={player} key={i}
+                                    evenOrOddRow={i % 2} />
+                            ))}
+                        </div>
                     </div>
                     <div className={`rosterCol ${mustDrop && `thirtyTransparent`}`}>
                         <div className='sectionHeader'>
@@ -375,6 +393,7 @@ const Roster = ({ week, season, match, userId }) => {
                                 evenOrOddRow={i % 2} />
                         ))}
                     </div>
+
                 </div>
             </div>
         </div>
