@@ -16,7 +16,7 @@ const Home = ({ isAdmin, season, group, week, positionOrder, username }) => {
             getLeaderBoard(season, week, group._id);
             getRoster(season, week, group.N, username);
         };
-    }, [week, season, username])
+    }, [week, season, username, group])
 
     const getLeaderBoard = (season, week, groupId) => {
         axios.get(`/api/getLeaderBoard/${season}/${week}/${groupId}`)

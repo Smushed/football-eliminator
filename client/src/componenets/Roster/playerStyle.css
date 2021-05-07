@@ -1,12 +1,13 @@
 .playerRow {
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-around;
     border-bottom: 1px solid lightgrey;
     border-radius: 2px;
     background-color: transparent;
     width: 100%;
     height: 36px;
     font-weight: 500;
+    padding-left: 15px;
 }
 
 .usedPlayerButton {
@@ -21,17 +22,22 @@
 
 .positionBox {
     display: flex;
-    justify-content: center;
     padding-top: 8px;
     min-width: 70px;
-    border-radius: 50%;
 }
 
+.hasPlayerContainer {
+    display: flex;
+}
 
 .playerContainer {
-    width: 100%;
-    padding-left: 15px;
     display: flex;
+    width: 100%;
+}
+
+.fullWidth {
+    display: flex;
+    width: 100%;
 }
 
 .addDropButton {
