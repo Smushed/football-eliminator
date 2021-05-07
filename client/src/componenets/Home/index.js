@@ -8,8 +8,9 @@ import Leaderboard from './Leaderboard';
 
 const Home = ({ isAdmin, season, group, week, positionOrder, username }) => {
 
-    const [leaderboard, setLeaderboard] = useState([]);
-    const [roster, setRoster] = useState([]);
+    const [leaderboard, updateLeaderboard] = useState([]);
+    const [roster, updateRoster] = useState([]);
+    const [groupPositions, updateGroupPositions] = useState([]);
 
     useEffect(() => {
         if (week && season) {
@@ -21,7 +22,7 @@ const Home = ({ isAdmin, season, group, week, positionOrder, username }) => {
     const getLeaderBoard = (season, week, groupId) => {
         axios.get(`/api/getLeaderBoard/${season}/${week}/${groupId}`)
             .then(res => {
-                setLeaderboard(res.data.leaderboard);
+                updateLeaderboard(res.data.leaderboard);
                 return;
             });
     };
@@ -29,7 +30,9 @@ const Home = ({ isAdmin, season, group, week, positionOrder, username }) => {
     const getRoster = (season, week, groupname, username) => {
         axios.get(`/api/userRoster/${season}/${week}/${groupname}/${username}`)
             .then(res => {
-                console.log(res);
+                console.log(res.data)
+                updateRoster(res.data.userRoster);
+                updateGroupPositions(res.data.groupPositions)
                 return;
             });
     }
@@ -43,13 +46,12 @@ const Home = ({ isAdmin, season, group, week, positionOrder, username }) => {
                 leaderboard={leaderboard}
                 groupName={group.N}
             />
-            {/* <RosterDisplay
-                groupPositions={this.state.groupPositions}
-                roster={roster.R}
-                UN={roster.UN}
-                GID={group._id}
-                UID={roster.UID}
-            /> */}
+            <div className='userRosterHomePage'> //TODO START HERE MAKING THE userRosterHomePage CSS CLASS
+                <RosterDisplay
+                    groupPositions={groupPositions}
+                    roster={roster}
+                />
+            </div>
             {/* <div>
                 {this.state.groupRosters.map(roster =>
                     <div key={roster.UID} className='homePageRoster'>

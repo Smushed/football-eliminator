@@ -1,7 +1,6 @@
 .leaderboardContainter {
     z-index: 1;
     display: flex;
-    justify-content: center;
     width: 50%;
     height: 100%;
     margin-top: 45px;
@@ -9,7 +8,7 @@
 
 .leaderboard {
     border: 1px solid lightgray;
-    border-radius:15px;
+    border-radius: 15px;
     margin-bottom: 25px;
     padding-bottom: 25px;
     width: 85%;
@@ -20,6 +19,7 @@
     width: 100%;
     justify-content: space-between;
     position: relative;
+    padding: 5px 0;
     margin-bottom: 5px;
     border-bottom: 1px solid lightgray;
     background-color: rgb(166, 241, 166);
