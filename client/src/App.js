@@ -24,7 +24,7 @@ const App = ({ firebase }) => {
   const [noGroup, updateNoGroup] = useState(false);
   const [authUser, updateAuthUser] = useState(null);
   const [currentUser, updateCurrentUser] = useState({});
-  const [currentWeek, updateCurrentWeek] = useState(0);
+  const [currentWeek, updateCurrentWeek] = useState(1);
   const [currentSeason, updateCurrentSeason] = useState(``);
   const [groupList, updateGroupList] = useState([]);
   const [currentGroup, updateCurrentGroup] = useState({});

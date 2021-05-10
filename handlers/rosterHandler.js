@@ -107,7 +107,7 @@ createWeeklyRoster = async (userId, week, season, groupId) => {
     const groupRoster = await db.GroupRoster.findOne({ G: groupId });
     //The roster on the UserRoster Schema is an array of MySportsPlayerIDs
 
-    const userRoster = groupRoster.P.map(position => 0);
+    const userRoster = groupRoster.P.map(position => ({ M: 0, S: 0 }));
     const weeksRoster = { U: userId, W: week, S: season, G: groupId, R: userRoster };
     return await db.UserRoster.create(weeksRoster);
 };
@@ -215,7 +215,7 @@ module.exports = {
 
         return availablePlayers;
     },
-    updateUserRoster: async (userId, roster, droppedPlayer, addedPlayer, week, season) => {
+    updateUserRoster: async (userId, groupId, roster, droppedPlayer, addedPlayer, week, season) => {
         return new Promise(async (res, rej) => {
             const usedPlayers = await db.UsedPlayers.findOne({ U: userId });
             let newUsedPlayers = [];
@@ -228,10 +228,10 @@ module.exports = {
             usedPlayers.UP = newUsedPlayers;
             await usedPlayers.save();
 
-            const currentRoster = await db.UserRoster.findOne({ U: userId, W: week, S: season });
+            const currentRoster = await db.UserRoster.findOne({ U: userId, G: groupId, W: week, S: season });
             const newRoster = [];
             for (const player of roster) {
-                newRoster.push(+player.M || 0);
+                newRoster.push({ M: +player.M, S: 0 } || 0);
             };
             currentRoster.R = newRoster;
             await currentRoster.save();
@@ -243,8 +243,7 @@ module.exports = {
             const forDisplay = [];
             const allRosters = await getAllRostersByGroupAndWeek(season, week, groupId);
             for (const roster of allRosters) {
-                const weekUserScore = await mySportsHandler.getUserWeeklyScore(roster.U, groupId, season, week);
-                const filledRoster = await mySportsHandler.fillUserRoster(roster.R, weekUserScore);
+                const filledRoster = await mySportsHandler.fillUserRoster(roster.R);
                 const user = await userHandler.getUserByID(roster.U);
                 forDisplay.push({ UID: user._id, UN: user.UN, R: filledRoster });
             };
@@ -324,8 +323,7 @@ module.exports = {
         if (roster === null) {
             roster = await createWeeklyRoster(userId, week, season, groupId);
         };
-        const filledRoster = (roster.R);
-        return filledRoster;
+        return roster.R;
     },
     checkLockPeriod: async () => {
         const lockPeroid = await db.SeasonAndWeek.findOne();

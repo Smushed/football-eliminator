@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import axios from 'axios';
 import { withAuthorization } from '../Session';
 
@@ -39,28 +39,36 @@ const Home = ({ isAdmin, season, group, week, positionOrder, username }) => {
 
     const weekForLeaderboard = week === 0 ? 1 : week;
     return (
-        <div className='wrapper'>
-            <Leaderboard
-                week={weekForLeaderboard}
-                season={season}
-                leaderboard={leaderboard}
-                groupName={group.N}
-            />
-            <div className='userRosterHomePage'> //TODO START HERE MAKING THE userRosterHomePage CSS CLASS
-                <RosterDisplay
-                    groupPositions={groupPositions}
-                    roster={roster}
+        <Fragment>
+            <div className='wrapper'>
+                <Leaderboard
+                    week={weekForLeaderboard}
+                    season={season}
+                    leaderboard={leaderboard}
+                    groupName={group.N}
                 />
+                <div className='userRosterHomePage'>
+                    <div className='rosterHomePageTitle'>
+                        Your Week {weekForLeaderboard} Roster
+                </div>
+                    <RosterDisplay
+                        groupPositions={groupPositions}
+                        roster={roster}
+                    />
+                </div>
             </div>
-            {/* <div>
-                {this.state.groupRosters.map(roster =>
-                    <div key={roster.UID} className='homePageRoster'>
-                        <div className='userNameOnRoster'>{roster.UN}</div>
-
-                    </div>
-                )}
-            </div> */}
-        </div>
+            <div className='wrapper'>
+                <div>
+                    Best roster from last week
+                </div>
+                <div>
+                    Ideal Roster from last week
+                </div>
+                <div>
+                    Current Leader Roster
+                </div>
+            </div>
+        </Fragment>
     );
 };
 

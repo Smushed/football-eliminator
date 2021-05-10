@@ -11,6 +11,7 @@ import { WeekSearch, PositionSearch } from './SearchDropdowns';
 
 const Alert = withReactContent(Swal);
 
+
 const Roster = ({ week, season, match, username, userId }) => {
     const [userRoster, updateUserRoster] = useState([]);
     const [availablePlayers, updateAvaliablePlayers] = useState([]);
@@ -18,7 +19,7 @@ const Roster = ({ week, season, match, username, userId }) => {
     const [weekSelect, updateWeekSelect] = useState(0);
     const [weekOnPage, updateWeekOnPage] = useState(0); //The week and season are here when the player searches for their roster. This updates ONLY when the player actually refreshes their roster
     const [currentUser, updateCurrentUser] = useState(false);
-    const [usernameOfPage, updateusernameOfPage] = useState('');
+    const [usernameOfPage, updateUsernameOfPage] = useState('');
     const [groupPositions, updateGroupPositions] = useState([]);
     const [positionArray, updatePositionArray] = useState([]);
     const [usedPlayers, updateUsedPlayers] = useState({});
@@ -33,12 +34,13 @@ const Roster = ({ week, season, match, username, userId }) => {
     useEffect(() => {
         if (week !== 0 && season !== '') {
             updateWeekSelect(week);
-            updateusernameOfPage(match.params.username);
+            updateUsernameOfPage(match.params.username);
             getRosterData(week);
             getUsedPlayers();
             checkCurrentUser();
         };
-    }, [week, season])
+    }, [week, season, match.params])
+
 
     const getUsedPlayers = () => {
         axios.get(`/api/getUsedPlayers/${match.params.username}/${season}/${match.params.groupname}`)
@@ -103,6 +105,7 @@ const Roster = ({ week, season, match, username, userId }) => {
     };
 
     const tooManyPlayers = async (currentRoster, allowedMap, addedPlayer) => {
+        console.log(`tooManyPlayers`, currentRoster, allowedMap, addedPlayer)
         const possibleDrops = [];
         for (let i = 0; i < allowedMap.length; i++) { //Allowed Map is an array of bool which will map to the rosters to be able to pick players
             if (allowedMap[i]) {
@@ -158,6 +161,7 @@ const Roster = ({ week, season, match, username, userId }) => {
     };
 
     const saveRosterToDb = async (roster, droppedPlayer, addedPlayer) => {
+        console.log(`saveRoster`, roster, droppedPlayer, addedPlayer)
         loading()
         axios.put(`/api/updateUserRoster`,
             { userId: userId, roster, droppedPlayer, addedPlayer, week: weekSelect, season: season, groupname: match.params.groupname })
@@ -223,7 +227,7 @@ const Roster = ({ week, season, match, username, userId }) => {
             if (positionMap[i].includes(playerPosition)) { //Checks the roster for how many spots the player is allowed to go into
                 allowedMap[i] = true;
                 if (!added) { //If they are not already added, add them. If they are ignore this
-                    if (sortedUpdatedRoster[i] === 0) { //If there is an open spot add the player
+                    if (sortedUpdatedRoster[i].M === 0) { //If there is an open spot add the player
                         sortedUpdatedRoster[i] = addedPlayer;
                         added = true;
                     };
@@ -291,7 +295,7 @@ const Roster = ({ week, season, match, username, userId }) => {
                 };
             });
 
-            newRoster[droppedPlayerIndex] = 0;
+            newRoster[droppedPlayerIndex] = { M: 0, S: 0 };
             newAvailablePlayers.unshift(droppedPlayer);
 
             updateAvaliablePlayers(newAvailablePlayers);
@@ -419,9 +423,9 @@ const CurrentRosterRow = ({ evenOrOddRow, player, position, showSingleMatchUp, a
                             {player.T}
                         </div>
                     }
-                    {player.S !== undefined ?
+                    {player.SC !== undefined ?
                         <div className='scoreCol'>
-                            {player.S.toFixed(2)}
+                            {player.SC.toFixed(2)}
                         </div> :
                         addDropPlayer &&
                         <button className='addDropButton custom-button' onClick={() => addDropPlayer(player.M, 'drop')}>

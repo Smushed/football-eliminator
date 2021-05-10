@@ -1,7 +1,8 @@
 .wrapper {
     width: 100%;
     display: flex;
-    justify-content: space-evenly;
+    margin-top: 30px;
+    margin-left: 10%;
 }
 
 .weekSearchInputOnHome {
@@ -56,6 +57,23 @@
 .weekDisplay {
     width: 200px;
     font-size: 20px;
+}
+
+.userRosterHomePage {
+    border: 1px solid lightgray;
+    border-radius: 15px;
+    width: 525px;
+    padding:  10px 25px;
+}
+
+.rosterHomePageTitle {
+    font-size: 26px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.variousRosterContainers {
+    flex-grow: 3;
 }
 
 /* FOR SMARTPHONES */
