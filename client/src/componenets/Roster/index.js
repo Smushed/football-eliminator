@@ -12,7 +12,7 @@ import { WeekSearch, PositionSearch } from './SearchDropdowns';
 const Alert = withReactContent(Swal);
 
 
-const Roster = ({ week, season, match, username, userId }) => {
+const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, username, userId }) => {
     const [userRoster, updateUserRoster] = useState([]);
     const [availablePlayers, updateAvaliablePlayers] = useState([]);
     const [positionSelect, updatePositionSelect] = useState(`QB`); //This is the default value for the position search
@@ -39,7 +39,7 @@ const Roster = ({ week, season, match, username, userId }) => {
             getUsedPlayers();
             checkCurrentUser();
         };
-    }, [week, season, match.params])
+    }, [week, season, match.params.username])
 
 
     const getUsedPlayers = () => {
@@ -177,6 +177,7 @@ const Roster = ({ week, season, match, username, userId }) => {
 
     const checkLockPeriod = async () => {
         const response = await axios.get(`/api/checkLockPeriod`);
+        updateLockWeekOnPull(response.data.LW);
         if (response.data.LW === 0) {
             return true;
         };
@@ -367,6 +368,7 @@ const Roster = ({ week, season, match, username, userId }) => {
                             {mustDrop ? `Too Many Players, drop one` : `Week ${weekOnPage} Roster`}
                         </div>
                         <RosterDisplay
+                            pastLockWeek={latestLockWeek >= weekOnPage}
                             showSingleMatchUp={showSingleMatchUp}
                             groupPositions={groupPositions}
                             addDropPlayer={addDropPlayer}
@@ -405,7 +407,7 @@ const Roster = ({ week, season, match, username, userId }) => {
     );
 };
 
-const CurrentRosterRow = ({ evenOrOddRow, player, position, showSingleMatchUp, addDropPlayer }) => (
+const CurrentRosterRow = ({ evenOrOddRow, player, position, showSingleMatchUp, addDropPlayer, pastLockWeek }) => (
     <div className={evenOrOddRow === 0 ? 'playerRow' : 'playerRow oddRow'}>
         <div className='positionBox'>
             {position}
@@ -423,7 +425,7 @@ const CurrentRosterRow = ({ evenOrOddRow, player, position, showSingleMatchUp, a
                             {player.T}
                         </div>
                     }
-                    {player.SC !== undefined ?
+                    {pastLockWeek === true ?
                         <div className='scoreCol'>
                             {player.SC.toFixed(2)}
                         </div> :
@@ -458,7 +460,7 @@ const PlayerDisplayRow = ({ evenOrOddRow, player, showSingleMatchUp, addDropPlay
     </div>
 );
 
-const RosterDisplay = ({ groupPositions, showSingleMatchUp, roster, addDropPlayer, mustDrop }) =>
+const RosterDisplay = ({ groupPositions, showSingleMatchUp, roster, addDropPlayer, mustDrop, pastLockWeek }) =>
     mustDrop ?
         roster.map((player, i) =>
             <CurrentRosterRow
@@ -472,6 +474,7 @@ const RosterDisplay = ({ groupPositions, showSingleMatchUp, roster, addDropPlaye
         groupPositions.map((position, i) => (
             <CurrentRosterRow
                 key={i}
+                pastLockWeek={pastLockWeek}
                 showSingleMatchUp={showSingleMatchUp}
                 position={position.N}
                 player={roster[i]}

@@ -30,6 +30,7 @@ const App = ({ firebase }) => {
   const [currentGroup, updateCurrentGroup] = useState({});
   const [positionOrder, updatePositionOrder] = useState([]);
   const [showSideBar, updateShowSideBar] = useState(false);
+  const [latestLockWeek, updateLockWeek] = useState(0);
 
   let listener;
 
@@ -85,6 +86,11 @@ const App = ({ firebase }) => {
     const seasonAndWeek = await axios.get(`/api/currentSeasonAndWeek`);
     updateCurrentSeason(seasonAndWeek.data.season);
     updateCurrentWeek(seasonAndWeek.data.week);
+    updateLockWeek(seasonAndWeek.data.lockWeek)
+  };
+
+  const updateLockWeekOnPull = (pulledLockWeek) => {
+    updateLockWeek(pulledLockWeek);
   };
 
   const userHasGroup = (user) => (user.GL.length > 0);
@@ -173,6 +179,8 @@ const App = ({ firebase }) => {
               render={props =>
                 <Roster
                   {...props}
+                  latestLockWeek={latestLockWeek}
+                  updateLockWeekOnPull={updateLockWeekOnPull}
                   username={currentUser.username}
                   userId={currentUser.userId}
                   week={currentWeek}
