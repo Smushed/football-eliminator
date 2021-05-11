@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import axios from 'axios';
 import { withAuthorization } from '../Session';
 
@@ -8,8 +8,9 @@ import Leaderboard from './Leaderboard';
 
 const Home = ({ isAdmin, season, group, week, positionOrder, username }) => {
 
-    const [leaderboard, setLeaderboard] = useState([]);
-    const [roster, setRoster] = useState([]);
+    const [leaderboard, updateLeaderboard] = useState([]);
+    const [roster, updateRoster] = useState([]);
+    const [groupPositions, updateGroupPositions] = useState([]);
 
     useEffect(() => {
         if (week && season) {
@@ -21,7 +22,7 @@ const Home = ({ isAdmin, season, group, week, positionOrder, username }) => {
     const getLeaderBoard = (season, week, groupId) => {
         axios.get(`/api/getLeaderBoard/${season}/${week}/${groupId}`)
             .then(res => {
-                setLeaderboard(res.data.leaderboard);
+                updateLeaderboard(res.data.leaderboard);
                 return;
             });
     };
@@ -29,36 +30,45 @@ const Home = ({ isAdmin, season, group, week, positionOrder, username }) => {
     const getRoster = (season, week, groupname, username) => {
         axios.get(`/api/userRoster/${season}/${week}/${groupname}/${username}`)
             .then(res => {
-                console.log(res);
+                console.log(res.data)
+                updateRoster(res.data.userRoster);
+                updateGroupPositions(res.data.groupPositions)
                 return;
             });
     }
 
     const weekForLeaderboard = week === 0 ? 1 : week;
     return (
-        <div className='wrapper'>
-            <Leaderboard
-                week={weekForLeaderboard}
-                season={season}
-                leaderboard={leaderboard}
-                groupName={group.N}
-            />
-            {/* <RosterDisplay
-                groupPositions={this.state.groupPositions}
-                roster={roster.R}
-                UN={roster.UN}
-                GID={group._id}
-                UID={roster.UID}
-            /> */}
-            {/* <div>
-                {this.state.groupRosters.map(roster =>
-                    <div key={roster.UID} className='homePageRoster'>
-                        <div className='userNameOnRoster'>{roster.UN}</div>
-
-                    </div>
-                )}
-            </div> */}
-        </div>
+        <Fragment>
+            <div className='wrapper'>
+                <Leaderboard
+                    week={weekForLeaderboard}
+                    season={season}
+                    leaderboard={leaderboard}
+                    groupName={group.N}
+                />
+                <div className='userRosterHomePage'>
+                    <div className='rosterHomePageTitle'>
+                        Your Week {weekForLeaderboard} Roster
+                </div>
+                    <RosterDisplay
+                        groupPositions={groupPositions}
+                        roster={roster}
+                    />
+                </div>
+            </div>
+            <div className='wrapper'>
+                <div>
+                    Best roster from last week
+                </div>
+                <div>
+                    Ideal Roster from last week
+                </div>
+                <div>
+                    Current Leader Roster
+                </div>
+            </div>
+        </Fragment>
     );
 };
 

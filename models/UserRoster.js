@@ -21,7 +21,21 @@ const UserRosterSchema = new Schema({
         type: String,
         required: true,
     },
-    R: [Number] //Roster
+    R: [ //Roster
+        {
+            M: { //MySportsId
+                type: Number,
+                required: true,
+                default: 0
+            },
+            SC: { //Score
+                type: Number,
+                required: true,
+                default: 0
+            },
+            _id: false
+        }
+    ]
 });
 
 

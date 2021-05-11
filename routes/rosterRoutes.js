@@ -31,21 +31,20 @@ module.exports = app => {
                 .then(([groupId, user]) => {
                     Promise.all([
                         rosterHandler.getUserRoster(user._id, week, season, groupId),
-                        mySportsHandler.getUserWeeklyScore(user._id, groupId, season, week),
                         groupHandler.getGroupPositions(groupId)
                     ])
-                        .then(([playerIdRoster, weekUserScore, groupPositions]) => {
+                        .then(([playerIdRoster, groupPositions]) => {
                             Promise.all([
                                 groupHandler.mapGroupPositions(groupPositions, positions.positionMap),
-                                mySportsHandler.fillUserRoster(playerIdRoster, weekUserScore)
+                                mySportsHandler.fillUserRoster(playerIdRoster)
                             ])
                                 .then(([groupMap, userRoster]) => {
                                     const response = { userRoster, groupPositions, groupMap, positionArray: positions.positionArray };
                                     res.status(200).send(response);
-                                }).catch(err => console.log(`Layer 3`, err));
+                                }).catch(err => console.log(`User Roster Layer 3`, err));
 
-                        }).catch(err => console.log(`Layer 2`, err));
-                }).catch(err => console.log(`Layer 1`, err));
+                        }).catch(err => console.log(`User Roster Layer 2`, err));
+                }).catch(err => console.log(`User Roster Layer 1`, err));
         } else {
             //TODO Do something with this error
             res.status(400).send(`Bad URL. Try refreshing or going home and coming back if this persists`);
@@ -66,14 +65,9 @@ module.exports = app => {
     app.put(`/api/updateUserRoster/`, async (req, res) => {
         const { userId, roster, droppedPlayer, addedPlayer, week, season, groupname } = req.body;
         const groupId = await groupHandler.findGroupIdByName(groupname);
-        Promise.all([
-            rosterHandler.updateUserRoster(userId, roster, droppedPlayer, addedPlayer, week, season),
-            mySportsHandler.getUserWeeklyScore(userId, groupId, season, week)
-        ])
-            .then(async ([updatedRoster, weekUserScore]) => {
-                const response = await mySportsHandler.fillUserRoster(updatedRoster, weekUserScore);
-                res.status(200).send(response);
-            }).catch(err => console.log(`Update User Roster Error`, err))
+        const updatedRoster = await rosterHandler.updateUserRoster(userId, groupId, roster, droppedPlayer, addedPlayer, week, season);
+        const response = await mySportsHandler.fillUserRoster(updatedRoster);
+        res.status(200).send(response);
     });
 
     app.get(`/api/checkLockPeriod`, async (req, res) => {

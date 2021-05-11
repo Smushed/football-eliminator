@@ -374,21 +374,12 @@ const saveUserScore = async (userId, groupId, season, week, weekScore) => {
 };
 
 const saveWeeklyUserScore = async (userId, groupId, week, season, scoreArray) => {
-    await db.WeeklyUserScore.findOne({ 'U': userId, 'G': groupId, 'W': week, 'S': season }, (err, weeklyScore) => {
-        if (weeklyScore === null) {
-            var newWeeklyScore = new db.WeeklyUserScore({ U: userId, G: groupId, W: week, S: season, SC: scoreArray });
-            newWeeklyScore.save(err => {
-                if (err) {
-                    console.log(err)
-                };
-            });
-            return;
+    await db.UserRoster.findOne({ 'U': userId, 'G': groupId, 'W': week, 'S': season }, (err, weeklyUser) => {
+        for (let i = 0; i < weeklyUser.R.length; i++) {
+            weeklyUser.R[i].SC = scoreArray[i];
         };
-        weeklyScore.SC = scoreArray;
-        weeklyScore.save(err => {
-            if (err) {
-                console.log(err);
-            };
+        weeklyUser.save(err => {
+            err && console.log(err);
         });
     });
 };
@@ -521,11 +512,11 @@ module.exports = {
     getAndSaveUserScore: async function (userRoster, season, week, userId, groupScore, groupId) {
         let weeklyRosterScore = [];
         let weekScore = 0;
-        for (let ii = 0; ii < userRoster.length; ii++) {
-            const currentScore = await this.getPlayerWeeklyScore(userRoster[ii], season, week, groupScore);
+        for (let i = 0; i < userRoster.length; i++) {
+            const currentScore = await this.getPlayerWeeklyScore(userRoster[i].M, season, week, groupScore);
             const currentScoreNum = +currentScore.toFixed(2);
             weekScore += currentScoreNum;
-            weeklyRosterScore[ii] = currentScoreNum;
+            weeklyRosterScore[i] = currentScoreNum;
         };
         saveWeeklyUserScore(userId, groupId, week, season, weeklyRosterScore);
         saveUserScore(userId, groupId, season, week, weekScore);
@@ -588,38 +579,21 @@ module.exports = {
         console.log(`Done Ranking`);
         return 200;
     },
-    fillUserRoster: async (playerIdRoster, playerScoreArray) => {
+    fillUserRoster: async (playerIdRoster) => {
         const filledRoster = [];
         for (let i = 0; i < playerIdRoster.length; i++) {
-            if (playerIdRoster[i] !== 0) {
-                const { P, T, M, N } = await db.PlayerData.findOne({ M: playerIdRoster[i] }, { P: 1, T: 1, M: 1, N: 1 });
-                filledRoster.push({ P, T, M, N, S: playerScoreArray.SC[i] });
+            if (playerIdRoster[i].M !== 0) {
+                const { P, T, M, N } = await db.PlayerData.findOne({ M: playerIdRoster[i].M }, { P: 1, T: 1, M: 1, N: 1 });
+                filledRoster.push({ P, T, M, N, SC: playerIdRoster[i].SC });
             } else {
-                filledRoster.push(0);
+                filledRoster.push({ M: 0, SC: 0 });
             };
         };
         return filledRoster;
     },
-    getUserWeeklyScore: async (userId, groupId, season, week) => {
-        return new Promise(async (res, rej) => {
-            await db.WeeklyUserScore.findOne({ U: userId, G: groupId, S: season, W: week }, (err, weeklyUserScore) => {
-                if (weeklyUserScore === null) {
-                    var newUserScore = new db.WeeklyUserScore({ U: userId, G: groupId, S: season, W: week, SC: [] });
-                    newUserScore.save(err => {
-                        if (err) {
-                            console.log(err);
-                        };
-                        res(newUserScore);
-                    });
-                };
-                res(weeklyUserScore);
-            });
-        })
-    },
     pullMatchUpsForDB: async (season, week) => {
         return new Promise(async (res, rej) => {
             for (let i = 1; i <= week; i++) {
-                console.log(i)
                 const search = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${i}/games.json`, {
                     auth: {
                         username: mySportsFeedsAPI,

@@ -14,7 +14,7 @@ module.exports = app => {
         // return "You need to be a moderator to add users to the group";
     });
 
-    app.get(`/api/getgroupdata/:groupID`, async (req, res) => {
+    app.get(`/api/getGroupData/:groupID`, async (req, res) => {
         try {
             const groupID = req.params.groupID;
             const groupData = await groupHandler.getGroupData(groupID);

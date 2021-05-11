@@ -23,6 +23,7 @@ class AdminPanel extends Component {
     componentDidUpdate(prevProps) {
         if (this.props.season !== prevProps.season) { // season here because it's the last prop we pass in. Probably not the best way
             this.checkAdminStatus(this.props.currentUser)
+            console.log(this.props.week)
             this.setState({ weekSelect: this.props.week, seasonSelect: this.props.season });
         };
     };
@@ -32,6 +33,7 @@ class AdminPanel extends Component {
             this.setState({ seasonSelect: this.props.season });
         };
         if (typeof this.props.week !== `undefined`) {
+            console.log(this.props.week)
             this.setState({ weekSelect: this.props.week });
         };
         if (typeof this.props.currentUser !== `undefined`) {
