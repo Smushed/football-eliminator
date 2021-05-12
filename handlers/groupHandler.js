@@ -1,4 +1,5 @@
 const db = require(`../models`);
+const positions = require(`../constants/positions`);
 
 const checkDuplicate = async (checkedField, groupToSearch, userID) => {
     let result = false;
@@ -218,5 +219,16 @@ module.exports = {
             };
         };
         return filledData;
+    },
+    getIdealRoster: async function (groupId, season, week) {
+        const idealRosterResponse = await db.IdealRoster.findOne({ G: groupId, S: season, W: week });
+        if (idealRosterResponse === null) {
+            // let newIdealRoster = new db.IdealRoster({ G: groupId, S: season, W: week });
+            const groupScore = await this.getGroupScore(groupId);
+            console.log(groupScore)
+        } else {
+            return idealRosterResponse;
+        }
+        return `working`;
     }
 };

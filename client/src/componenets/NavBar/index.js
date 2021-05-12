@@ -1,5 +1,5 @@
 import React from 'react';
-
+import PropTypes from 'prop-types';
 
 import './navBarStyle.css';
 
@@ -14,5 +14,8 @@ const NavBar = ({ showHideSideBar }) =>
         </div>
     </div>
 
+NavBar.propTypes = {
+    showHideSideBar: PropTypes.func
+}
 
 export default NavBar;

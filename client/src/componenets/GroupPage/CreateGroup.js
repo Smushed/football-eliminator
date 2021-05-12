@@ -1,8 +1,15 @@
 import React, { Component, Fragment } from 'react';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
+import PropTypes from 'prop-types';
 
 import './groupStyle.css';
+
+CreateGroup.propTypes = {
+    userId: PropTypes.string,
+    week: PropTypes.number,
+    groupId: PropTypes.string
+};
 
 class CreateGroup extends Component {
     constructor(props) {
@@ -23,11 +30,11 @@ class CreateGroup extends Component {
             scoringMap: {},
             enteredScore: {},
         };
-    };
+    }
 
     componentDidMount() {
         this.getRosterPositions();
-    };
+    }
 
     getRosterPositions = async () => {
         const dbResponse = await axios.get(`/api/getRosterPositions`);
@@ -68,8 +75,9 @@ class CreateGroup extends Component {
             maxLength = 6
         } else {
             maxLength = 4;
-        };
+        }
         if (value === `-`) {
+            return;
         } else if (isNaN(+value)) {
             return;
         } else if (value > 100) {
@@ -78,7 +86,7 @@ class CreateGroup extends Component {
             return;
         } else if (value.length > maxLength) {
             return;
-        };
+        }
         const [bucket, bucketKey] = name.split(`-`);
         const updatedScore = { ...this.state.enteredScore };
         updatedScore[bucket][bucketKey] = value;
@@ -97,7 +105,7 @@ class CreateGroup extends Component {
         const dbReadyPositions = groupPositions.slice(0);
         for (let i = 0; i < groupPositions.length; i++) {
             dbReadyPositions[i] = this.state.rosterPositions.find(position => position.N === groupPositions[i]);
-        };
+        }
         this.setState({ dbReadyGroupPos: dbReadyPositions },
             () => this.validateForm('groupPos', dbReadyPositions));
 
@@ -107,25 +115,29 @@ class CreateGroup extends Component {
         let validCheck;
 
         switch (fieldName) {
-            case `groupName`:
+            case `groupName`: {
                 validCheck = (value.length >= 6) ? true : false;
                 this.setState({ groupNameValid: validCheck });
                 break;
-            case `groupDesc`:
+            }
+            case `groupDesc`: {
                 validCheck = (value.length >= 6) ? true : false;
                 this.setState({ groupDescValid: validCheck });
                 break;
-            case `groupPos`:
+            }
+            case `groupPos`: {
                 const groupPosMap = [];
                 for (const groupPos of value) {
                     groupPosMap.push(this.state.positionMap[groupPos.I]);
-                };
+                }
                 validCheck = this.countPositions(groupPosMap);
                 this.setState({ groupPosValid: validCheck });
                 break;
-            default:
+            }
+            default: {
                 break;
-        };
+            }
+        }
     };
 
     countPositions = (groupPosMap) => {
@@ -134,18 +146,18 @@ class CreateGroup extends Component {
         for (let i = 0; i < groupPosMap.length; i++) {
             for (let ii = 0; ii < groupPosMap[i].length; ii++) {
                 positionCount[groupPosMap[i][ii]]++
-            };
-        };
+            }
+        }
         for (let iii = 0; iii < positionCount.length; iii++) {
             if (positionCount[iii] > this.state.maxOfPosition[iii]) {
                 tooMany.push(this.state.rosterPositions[iii].N)
-            };
-        };
+            }
+        }
         if (tooMany.length > 0) {
             let errorMessage = '';
             for (let iiii = 0; iiii < tooMany.length; iiii++) {
                 errorMessage += ` ${tooMany[iiii]}`;
-            };
+            }
             this.setState({ errorPositions: errorMessage })
             return false;
         } else {
@@ -168,7 +180,7 @@ class CreateGroup extends Component {
             groupPositions.pop();
             this.setState({ groupPosChose: groupPositions },
                 () => this.convertForDB(groupPositions));
-        };
+        }
     };
 
     openScore = async () => {
@@ -181,8 +193,8 @@ class CreateGroup extends Component {
             newGroupScore[bucket] = {};
             for (const key of dbResponse.data[bucket]) {
                 newGroupScore[bucket][key] = dbResponse.data.defaultScores[bucket][key];
-            };
-        };
+            }
+        }
 
         this.setState({ showScore: true, enteredScore: newGroupScore });
     };
@@ -230,7 +242,7 @@ class CreateGroup extends Component {
                         </div>
                         <div className='positionSelectInput'>
                             {this.state.groupPosChose.map((position, i) => {
-                                return <div className='positionSelectBox'>
+                                return <div className='positionSelectBox' key={`groupPosWrapper-${i}`}>
                                     <select className='form-control' onChange={this.handleRosterUpdate} name={i} key={`groupPos-${i}`} value={this.state.groupPosChose[i]}>
                                         {this.state.rosterPositions.map((possiblePos, ii) => <option value={possiblePos.N} key={`possiblePos-${ii}`}>{possiblePos.N}</option>)}
                                     </select>
@@ -276,16 +288,24 @@ class CreateGroup extends Component {
                 </form>
             </Fragment>
         );
-    };
-};
+    }
+}
 
 
-const ScoringRow = (props) => (
+const ScoringRow = ({ description, bucket, bucketKey, val, handleChange }) => (
     <div className='groupScoreRow'>
-        <label>{props.description}</label>
-        <input className='form-control' type='text' name={`${props.bucket}-${props.bucketKey}`} value={props.val} onChange={props.handleChange} />
+        <label>{description}</label>
+        <input className='form-control' type='text' name={`${bucket}-${bucketKey}`} value={val} onChange={handleChange} />
     </div>
 );
+
+ScoringRow.propTypes = {
+    description: PropTypes.string,
+    bucket: PropTypes.string,
+    bucketKey: PropTypes.string,
+    val: PropTypes.string,
+    handleChange: PropTypes.func
+}
 
 const condition = authUser => !!authUser;
 

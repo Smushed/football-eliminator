@@ -11,11 +11,11 @@ import { WeekSearch, PositionSearch } from './SearchDropdowns';
 
 const Alert = withReactContent(Swal);
 
-
 const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, username, userId }) => {
     const [userRoster, updateUserRoster] = useState([]);
     const [availablePlayers, updateAvaliablePlayers] = useState([]);
     const [positionSelect, updatePositionSelect] = useState(`QB`); //This is the default value for the position search
+    const [lastPosSearch, updateLastPosSearch] = useState(``);
     const [weekSelect, updateWeekSelect] = useState(0);
     const [weekOnPage, updateWeekOnPage] = useState(0); //The week and season are here when the player searches for their roster. This updates ONLY when the player actually refreshes their roster
     const [currentUser, updateCurrentUser] = useState(false);
@@ -161,7 +161,6 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
     };
 
     const saveRosterToDb = async (roster, droppedPlayer, addedPlayer) => {
-        console.log(`saveRoster`, roster, droppedPlayer, addedPlayer)
         loading()
         axios.put(`/api/updateUserRoster`,
             { userId: userId, roster, droppedPlayer, addedPlayer, week: weekSelect, season: season, groupname: match.params.groupname })
@@ -177,11 +176,12 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
 
     const checkLockPeriod = async () => {
         const response = await axios.get(`/api/checkLockPeriod`);
+        console.log(response.data)
         updateLockWeekOnPull(response.data.LW);
         if (response.data.LW === 0) {
             return true;
         };
-        if (this.state.weekOnPage <= response.data.LW) {
+        if (weekOnPage <= response.data.LW) {
             return false;
         };
         return true;
@@ -194,9 +194,10 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
         axios.get(`/api/availablePlayers`,
             { params: { userId, searchedPosition: positionSelect, season: season, groupId: match.params.groupId } })
             .then(res => {
+                updateLastPosSearch(positionSelect);
                 updateAvaliablePlayers(res.data);
                 if (!usedPlayers[positionSelect]) {
-                    this.getUsedPlayers();
+                    getUsedPlayers();
                 } else {
                     updateCurrentPositionUsedPlayers(usedPlayers[positionSelect])
                 };
@@ -243,6 +244,9 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
         } else {
             saveRosterToDb(sortedUpdatedRoster, 0, addedPlayer.M);
             const newUsedPlayers = { ...usedPlayers };
+            if (!newUsedPlayers[addedPlayer.P]) {
+                newUsedPlayers[addedPlayer.P] = [];
+            };
             newUsedPlayers[addedPlayer.P].push(addedPlayer);
             updateAvaliablePlayers(newAvailablePlayers);
             updateUsedPlayers(newUsedPlayers);
@@ -356,7 +360,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                             disabled={mustDrop} />
                     </div>
                     <div className='searchRow largeScreenShow noMargin'>
-                        <button className='btn btn-success' disabled={mustDrop} onClick={() => toggleShowUsedPlayers()}>Show Used Players</button>
+                        <button className='btn btn-success' disabled={mustDrop || lastPosSearch === ``} onClick={() => toggleShowUsedPlayers()}>Show Used Players</button>
                     </div>
                     <div className='searchRow largeScreenShow'>
                         <button className='btn btn-success' onClick={() => showMatchUps()}>Match Ups</button>
@@ -377,7 +381,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                         />
                         <div className={`usedPlayerCol ${mustDrop && `rosterHide`} ${!showUsedPlayers && ` zeroTransparent`}`}>
                             <div className='sectionHeader'>
-                                Used Players
+                                Used {lastPosSearch}s
                             </div>
                             {currentPositionUsedPlayers.map((player, i) => (
                                 <PlayerDisplayRow
@@ -413,7 +417,7 @@ const CurrentRosterRow = ({ evenOrOddRow, player, position, showSingleMatchUp, a
             {position}
         </div>
         <div className='playerContainer'>
-            {player ?
+            {player.M !== 0 ?
                 <div className='hasPlayerContainer'>
                     {player.N &&
                         <div className='playerCol'>
@@ -442,7 +446,7 @@ const CurrentRosterRow = ({ evenOrOddRow, player, position, showSingleMatchUp, a
 );
 
 const PlayerDisplayRow = ({ evenOrOddRow, player, showSingleMatchUp, addDropPlayer }) => (
-    <div className={evenOrOddRow === 0 ? 'playerRow playerContainer' : 'playerRow playerContainer oddRow'}>
+    <div className={evenOrOddRow === 0 ? 'playerRow' : 'playerRow oddRow'}>
         <div className='playerCol'>
             {player.N && player.N}
         </div>

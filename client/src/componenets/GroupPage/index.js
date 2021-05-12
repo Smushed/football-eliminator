@@ -2,6 +2,11 @@ import React, { Component, Fragment } from 'react';
 import { withAuthorization } from '../Session';
 import GroupSelect from './JoinGroup';
 import CreateGroup from './CreateGroup';
+import PropTypes from 'prop-types';
+
+NoGroup.propTypes = {
+    userId: PropTypes.string,
+};
 
 class NoGroup extends Component {
     constructor(props) {
@@ -9,7 +14,7 @@ class NoGroup extends Component {
         this.state = {
             currentWindow: 'Join Group'
         };
-    };
+    }
 
     changeWindow = (newWindow) => {
         this.setState({ currentWindow: newWindow })
@@ -50,15 +55,20 @@ class NoGroup extends Component {
                 </div>
             </div>
         )
-    };
-};
+    }
+}
 
-const ChangeWindowButtons = (props) => (
+const ChangeWindowButtons = ({ currentWindow, changeWindow }) => (
     <Fragment>
-        {props.currentWindow !== 'Join Group' && <button className='btn btn-info' onClick={() => props.changeWindow('Join Group')}>Join a Group</button>}
-        {props.currentWindow !== 'Create Group' && <button className='btn btn-info' onClick={() => props.changeWindow('Create Group')}>Create a Group</button>}
+        {currentWindow !== 'Join Group' && <button className='btn btn-info' onClick={() => changeWindow('Join Group')}>Join a Group</button>}
+        {currentWindow !== 'Create Group' && <button className='btn btn-info' onClick={() => changeWindow('Create Group')}>Create a Group</button>}
     </Fragment>
 )
+
+ChangeWindowButtons.propTypes = {
+    currentWindow: PropTypes.string,
+    changeWindow: PropTypes.func
+}
 
 const condition = authUser => !!authUser;
 

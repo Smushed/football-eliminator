@@ -3,8 +3,14 @@ import { withAuthorization } from '../Session';
 import axios from 'axios';
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import PropTypes from 'prop-types';
 
 const Alert = withReactContent(Swal);
+
+GroupEditor.propTypes = {
+    season: PropTypes.string,
+    week: PropTypes.number
+}
 
 class GroupEditor extends Component {
     constructor(props) {
@@ -13,7 +19,7 @@ class GroupEditor extends Component {
             groupList: [],
             selectedGroup: ''
         };
-    };
+    }
 
     loading() {
         Alert.fire({
@@ -26,14 +32,15 @@ class GroupEditor extends Component {
             showConfirmButton: false,
             showCancelButton: false
         });
-    };
+    }
+
     doneLoading() {
         Alert.close()
-    };
+    }
 
     componentDidMount() {
         this.pullGroupList();
-    };
+    }
 
     pullGroupList = async () => {
         try {
@@ -41,7 +48,7 @@ class GroupEditor extends Component {
             this.setState({ groupList: dbResponse.data });
         } catch (err) {
             console.log(err);
-        };
+        }
     };
 
     selectGroup = async (groupId) => {
@@ -51,7 +58,7 @@ class GroupEditor extends Component {
     getScoresForGroup = async () => {
         if (this.state.selectedGroup === '') {
             return;
-        };
+        }
         const dbResponse = await axios.put(`/api/calculateScore/${this.state.selectedGroup}/${this.props.season}/${this.props.week}`);
         console.log(dbResponse.data);
     };
@@ -62,18 +69,15 @@ class GroupEditor extends Component {
                 {this.state.selectedGroup}
                 <br />
                 <br />
-                <button class='btn btn-success' onClick={() => this.getScoresForGroup()}>Pull Scores</button>
-                {this.state.groupList.map(group => {
-                    return <div>
-                        {group.N}  <button class='btn btn-info' onClick={() => this.selectGroup(group.id)}>Select</button>
-                    </div>
-                })}
+                <button className='btn btn-success' onClick={() => this.getScoresForGroup()}>Pull Scores</button>
+                {this.state.groupList.map(group => <div key={group.id}>
+                    {group.N}  <button className='btn btn-info' onClick={() => this.selectGroup(group.id)}>Select</button>
+                </div>
+                )}
             </div>
-        );
-    };
-
-
-};
+        )
+    }
+}
 
 const condition = authUser => !!authUser;
 

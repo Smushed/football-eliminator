@@ -72,8 +72,16 @@ module.exports = app => {
 
     app.get(`/api/getLeaderboard/:season/:week/:groupId`, async (req, res) => {
         const { season, week, groupId } = req.params;
-        const currWeekForLeaderboard = +week === 1 ? 1 : +week;
-        const leaderboard = await groupHandler.getLeaderBoard(groupId, season, currWeekForLeaderboard);
+        // const currWeekForLeaderboard = +week === 1 ? 1 : +week;
+        const leaderboard = await groupHandler.getLeaderBoard(groupId, season, +week);
         res.status(200).send({ leaderboard });
     });
+
+    app.get(`/api/getIdealRoster/:season/:week/:groupId`, async (req, res) => {
+        const { season, week, groupId } = req.params;
+        // const currWeekForLeaderboard = +week === 1 ? 1 : +week;
+        const idealRoster = await groupHandler.getIdealRoster(groupId, season, +week);
+
+        res.status(200).send(idealRoster);
+    })
 };

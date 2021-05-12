@@ -1,13 +1,13 @@
 .playerRow {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-evenly;
     border-bottom: 1px solid lightgrey;
     border-radius: 2px;
     background-color: transparent;
     width: 100%;
     height: 36px;
     font-weight: 500;
-    padding-left: 15px;
+    padding-left: 45px;
 }
 
 .usedPlayerButton {
@@ -27,12 +27,14 @@
 }
 
 .hasPlayerContainer {
+    width: 90%;
     display: flex;
+    justify-content: space-around;
 }
 
 .playerContainer {
     display: flex;
-    width: 100%;
+    width: 80%;
 }
 
 .fullWidth {

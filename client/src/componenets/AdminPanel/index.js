@@ -3,10 +3,19 @@ import { withAuthorization } from '../Session';
 import { Label, Input, Container, Button, Row, Col } from 'reactstrap';
 import * as Routes from '../../constants/routes';
 import axios from 'axios';
+import PropTypes from 'prop-types';
 
 import PlayerEditor from './PlayerEditor';
 import UserEditor from './UserEditor';
 import GroupEditor from './GroupEditor';
+
+AdminPanel.propTypes = {
+    season: PropTypes.string,
+    week: PropTypes.number,
+    currentUser: PropTypes.object,
+    history: PropTypes.any,
+    groupId: PropTypes.string
+}
 
 class AdminPanel extends Component {
     constructor(props) {
@@ -18,33 +27,33 @@ class AdminPanel extends Component {
             weekSelect: 1,
             seasonSelect: ``
         };
-    };
+    }
 
     componentDidUpdate(prevProps) {
         if (this.props.season !== prevProps.season) { // season here because it's the last prop we pass in. Probably not the best way
             this.checkAdminStatus(this.props.currentUser)
             console.log(this.props.week)
             this.setState({ weekSelect: this.props.week, seasonSelect: this.props.season });
-        };
-    };
+        }
+    }
 
     componentDidMount() {
         if (typeof this.props.season !== `undefined`) {
             this.setState({ seasonSelect: this.props.season });
-        };
+        }
         if (typeof this.props.week !== `undefined`) {
             console.log(this.props.week)
             this.setState({ weekSelect: this.props.week });
-        };
+        }
         if (typeof this.props.currentUser !== `undefined`) {
             this.checkAdminStatus(this.props.currentUser);
-        };
-    };
+        }
+    }
 
     checkAdminStatus = (currentUser) => {
         if (currentUser.isAdmin === false) {
             this.props.history.push(Routes.home);
-        };
+        }
     };
 
     showPlayerEditor = () => {

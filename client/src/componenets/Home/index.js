@@ -5,19 +5,24 @@ import { withAuthorization } from '../Session';
 import { RosterDisplay } from '../Roster';
 import './homeStyle.css';
 import Leaderboard from './Leaderboard';
+import PropTypes from 'prop-types';
 
-const Home = ({ isAdmin, season, group, week, positionOrder, username }) => {
+const Home = ({ season, group, week, currentUser }) => {
 
     const [leaderboard, updateLeaderboard] = useState([]);
     const [roster, updateRoster] = useState([]);
+    // const [idealRoster, updateIdealRoster] = useState([]);
     const [groupPositions, updateGroupPositions] = useState([]);
 
     useEffect(() => {
-        if (week && season) {
-            getLeaderBoard(season, week, group._id);
-            getRoster(season, week, group.N, username);
-        };
-    }, [week, season, username, group])
+        if (week !== 0 && season !== ``) {
+            if (currentUser.GL.length > 0) {
+                getLeaderBoard(season, week, group._id);
+                getRoster(season, week, group.N, currentUser.username);
+                getIdealRoster(season, week, group._id);
+            }
+        }
+    }, [week, season, currentUser.username, group])
 
     const getLeaderBoard = (season, week, groupId) => {
         axios.get(`/api/getLeaderBoard/${season}/${week}/${groupId}`)
@@ -30,12 +35,16 @@ const Home = ({ isAdmin, season, group, week, positionOrder, username }) => {
     const getRoster = (season, week, groupname, username) => {
         axios.get(`/api/userRoster/${season}/${week}/${groupname}/${username}`)
             .then(res => {
-                console.log(res.data)
                 updateRoster(res.data.userRoster);
                 updateGroupPositions(res.data.groupPositions)
                 return;
             });
-    }
+    };
+
+    const getIdealRoster = (season, week, groupId) => {
+        axios.get(`/api/getIdealRoster/${season}/${week}/${groupId}`)
+            .then(res => console.log(res));
+    };
 
     const weekForLeaderboard = week === 0 ? 1 : week;
     return (
@@ -54,23 +63,54 @@ const Home = ({ isAdmin, season, group, week, positionOrder, username }) => {
                     <RosterDisplay
                         groupPositions={groupPositions}
                         roster={roster}
+                        pastLockWeek={true} //This sets it so the score will show
                     />
                 </div>
             </div>
-            <div className='wrapper'>
-                <div>
-                    Best roster from last week
+            <div className='secondRowWrapper'>
+                <div className='userRosterHomePage'>
+                    <div className='rosterHomePageTitle'>
+                        Best roster from week {weekForLeaderboard}
+                    </div>
+                    <RosterDisplay
+                        groupPositions={groupPositions}
+                        roster={roster}
+                        pastLockWeek={true}
+                    />
                 </div>
                 <div>
-                    Ideal Roster from last week
+                    <div className='userRosterHomePage'>
+                        <div className='rosterHomePageTitle'>
+                            Ideal Roster from last week
+                        </div>
+                        <RosterDisplay
+                            groupPositions={groupPositions}
+                            roster={roster}
+                            pastLockWeek={true}
+                        />
+                    </div>
                 </div>
-                <div>
-                    Current Leader Roster
+                <div className='userRosterHomePage'>
+                    <div className='rosterHomePageTitle'>
+                        Current Leader {weekForLeaderboard} Roster
+                    </div>
+                    <RosterDisplay
+                        groupPositions={groupPositions}
+                        roster={roster}
+                        pastLockWeek={true}
+                    />
                 </div>
             </div>
         </Fragment>
     );
 };
+
+Home.propTypes = {
+    season: PropTypes.string,
+    group: PropTypes.object,
+    week: PropTypes.number,
+    currentUser: PropTypes.object
+}
 
 
 // import { WeekSearch } from '../Roster/SearchDropdowns';
