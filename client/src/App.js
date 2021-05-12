@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState, useRef, } from 'react';
 import * as Routes from './constants/routes';
 import { Route, BrowserRouter, Switch } from 'react-router-dom';
 import { withFirebase } from './componenets/Firebase';
@@ -31,10 +31,10 @@ const App = ({ firebase }) => {
   const [showSideBar, updateShowSideBar] = useState(false);
   const [latestLockWeek, updateLockWeek] = useState(0);
 
-  let listener;
+  const listener = useRef(null);
 
   useEffect(() => {
-    listener = firebase.auth.onAuthStateChanged(authUser => {
+    listener.current = firebase.auth.onAuthStateChanged(authUser => {
       if (authUser) {
         updateAuthUser(authUser);
         isSignedIn(authUser.email);
