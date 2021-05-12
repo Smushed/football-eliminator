@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { withFirebase } from '../Firebase';
 import { Link } from 'react-router-dom';
 import { slide as Menu } from 'react-burger-menu';
+import PropTypes from 'prop-types';
 
 // SVGs are from Flatiron
 import RankingSVG from './ranking.svg';
@@ -88,7 +89,14 @@ const SidePanel = ({ firebase, username, groupname, showHideSideBar, showSideBar
     );
 };
 
-
+SidePanel.propTypes = {
+    firebase: PropTypes.any,
+    username: PropTypes.string,
+    groupname: PropTypes.string,
+    showHideSideBar: PropTypes.func,
+    showSideBar: PropTypes.bool,
+    hardSetSideBar: PropTypes.func
+}
 
 
 export default withFirebase(SidePanel);

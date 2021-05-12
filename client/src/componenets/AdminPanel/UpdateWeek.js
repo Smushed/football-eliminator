@@ -10,10 +10,6 @@ import withReactContent from "sweetalert2-react-content";
 
 const Alert = withReactContent(Swal);
 
-UpdateWeek.propTypes = {
-    history: PropTypes.any
-}
-
 class UpdateWeek extends Component {
     constructor(props) {
         super(props);
@@ -124,5 +120,8 @@ class UpdateWeek extends Component {
     }
 }
 
+UpdateWeek.propTypes = {
+    history: PropTypes.any
+};
 
 export default compose(withRouter)(UpdateWeek);

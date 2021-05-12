@@ -9,11 +9,6 @@ import './groupStyle.css';
 
 const Alert = withReactContent(Swal);
 
-JoinGroup.propTypes = {
-    userId: PropTypes.string,
-    groupId: PropTypes.string
-};
-
 class JoinGroup extends Component {
     constructor(props) {
         super(props);
@@ -107,7 +102,12 @@ GroupRow.propTypes = {
     desc: PropTypes.string,
     showUserlist: PropTypes.func,
     joinGroup: PropTypes.func
-}
+};
+
+JoinGroup.propTypes = {
+    userId: PropTypes.string,
+    groupId: PropTypes.string
+};
 
 const condition = authUser => !!authUser;
 

@@ -5,12 +5,6 @@ import PropTypes from 'prop-types';
 
 import './groupStyle.css';
 
-CreateGroup.propTypes = {
-    userId: PropTypes.string,
-    week: PropTypes.number,
-    groupId: PropTypes.string
-};
-
 class CreateGroup extends Component {
     constructor(props) {
         super(props);
@@ -305,7 +299,13 @@ ScoringRow.propTypes = {
     bucketKey: PropTypes.string,
     val: PropTypes.string,
     handleChange: PropTypes.func
-}
+};
+
+CreateGroup.propTypes = {
+    userId: PropTypes.string,
+    week: PropTypes.number,
+    groupId: PropTypes.string
+};
 
 const condition = authUser => !!authUser;
 

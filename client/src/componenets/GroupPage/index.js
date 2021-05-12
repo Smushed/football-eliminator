@@ -4,10 +4,6 @@ import GroupSelect from './JoinGroup';
 import CreateGroup from './CreateGroup';
 import PropTypes from 'prop-types';
 
-NoGroup.propTypes = {
-    userId: PropTypes.string,
-};
-
 class NoGroup extends Component {
     constructor(props) {
         super(props);
@@ -65,10 +61,14 @@ const ChangeWindowButtons = ({ currentWindow, changeWindow }) => (
     </Fragment>
 )
 
+NoGroup.propTypes = {
+    userId: PropTypes.string,
+};
+
 ChangeWindowButtons.propTypes = {
     currentWindow: PropTypes.string,
     changeWindow: PropTypes.func
-}
+};
 
 const condition = authUser => !!authUser;
 

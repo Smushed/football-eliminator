@@ -1,6 +1,6 @@
 import React from 'react';
 import { Input } from 'reactstrap';
-
+import PropTypes from 'prop-types';
 
 const WeekSearch = ({ weekSelect, handleChange, customSeasonWeekSearch, disabled }) => (
     <div className='selectContainer'>
@@ -91,5 +91,25 @@ const PositionSearch = ({ positionSelect, handleChange, disabled, positionSearch
     </button>
     </div>
 );
+
+WeekSearch.propTypes = {
+    weekSelect: PropTypes.string,
+    handleChange: PropTypes.func,
+    customSeasonWeekSearch: PropTypes.func,
+    disabled: PropTypes.bool
+}
+
+TeamSearch.propTypes = {
+    teamSelect: PropTypes.string,
+    handleChange: PropTypes.func,
+    searchByTeam: PropTypes.func
+}
+
+PositionSearch.propTypes = {
+    positionSelect: PropTypes.string,
+    handleChange: PropTypes.func,
+    disabled: PropTypes.bool,
+    positionSearch: PropTypes.func
+}
 
 export { PositionSearch, TeamSearch, WeekSearch };

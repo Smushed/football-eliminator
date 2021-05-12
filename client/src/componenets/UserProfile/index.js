@@ -3,6 +3,7 @@ import axios from 'axios';
 import { withAuthorization } from '../Session';
 import Modal from 'react-modal';
 import { withFirebase } from '../Firebase';
+import PropTypes from 'prop-types';
 
 import * as Logos from '../../constants/logos';
 import './userProfileStyle.css';
@@ -10,7 +11,7 @@ import './userProfileStyle.css';
 const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
 
     const [teamList, setTeamList] = useState([]);
-    const [changedFields, updateChangedFields] = useState([]);
+    // const [changedFields, updateChangedFields] = useState([]);
     const [showPassword, toggleShowPassword] = useState('password');
     const [modalOpen, setModal] = useState(false);
     const [updatedFields, changeUpdatedFields] = useState({});
@@ -20,10 +21,10 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
             .then(res => setTeamList(res.data));
     }, [currentUser]);
 
-    const sendAuthEmail = (authUser) => {
-        authUser.sendEmailVerification();
-        this.setState({ emailSent: true });
-    };
+    // const sendAuthEmail = (authUser) => {
+    //     authUser.sendEmailVerification();
+    //     this.setState({ emailSent: true });
+    // };
 
     const openCloseModal = () => {
         setModal(!modalOpen);
@@ -34,14 +35,14 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
         if (e.target.name === `togglePassword`) {
             e.target.value === `password` ? toggleShowPassword(`text`) : toggleShowPassword(`password`);
             return;
-        };
+        }
 
         if (e.target.value === ``) {
             const copyUpdated = { ...updatedFields };
             delete copyUpdated[e.target.name];
             changeUpdatedFields(copyUpdated);
             return;
-        };
+        }
 
         if (e.target.value === currentUser.FT) {
             const copyUpdated = { ...updatedFields };
@@ -70,7 +71,7 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
             <div className={'userProfileWrapper ' + (modalOpen && 'greyBackdrop')}>
                 <div className='userProfileLeft'>
                     <div className='profileName'>
-                        {currentUser.username}'s Profile
+                        {currentUser.username}&apos;s Profile
                 </div>
                     <div className='favoriteTeamPicture'>
                         <img src={Logos[updatedFields.favoriteTeam] || Logos[currentUser.FT]} />
@@ -157,11 +158,11 @@ const ReAuth = ({ firebase, updatedFields }) => {
             .then(res => {
                 if (res.credential !== null) {
                     firebase.auth.currentUser.reauthenticateWithCredential(res.credential)
-                        .then((res) => handleUpdate())
+                        .then(() => handleUpdate())
                         .catch(err => console.log(`err`, err));
                 } else {
                     handleUpdate();
-                };
+                }
             })
             .catch(err => addLoginErr(err.message));
     };
@@ -172,7 +173,7 @@ const ReAuth = ({ firebase, updatedFields }) => {
         if (e.target.name === `togglePassword`) {
             e.target.value === `password` ? toggleShowPassword(`text`) : toggleShowPassword(`password`);
             return;
-        };
+        }
     };
 
     const fillInfo = () => {
@@ -232,6 +233,31 @@ const EmailInput = ({ email, handleChange, authUser }) =>
             <input className='form-control' name='email' value={email} onChange={handleChange} placeholder={authUser ? authUser.email : 'Email'} />
         </div>
     </div>
+
+
+UserProfile.propTypes = {
+    authUser: PropTypes.any,
+    currentUser: PropTypes.object,
+    groupList: PropTypes.array,
+    firebase: PropTypes.any
+};
+
+EmailInput.propTypes = {
+    email: PropTypes.string,
+    handleChange: PropTypes.func,
+    authUser: PropTypes.any
+};
+
+PasswordInput.propTypes = {
+    handleChange: PropTypes.func,
+    password: PropTypes.string,
+    showPassword: PropTypes.string
+};
+
+ReAuth.propTypes = {
+    firebase: PropTypes.any,
+    updatedFields: PropTypes.array
+};
 
 //REAUTH a user in order for them to update any of these
 //Username - Password - Email

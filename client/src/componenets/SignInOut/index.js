@@ -4,6 +4,7 @@ import { compose } from 'recompose';
 import { withFirebase } from '../Firebase';
 import * as Routes from '../../constants/routes';
 import axios from 'axios';
+import PropTypes from 'prop-types';
 
 import './signInOutStyle.css';
 import ElimLogo from './EliminatorSignInLogo.png';
@@ -13,6 +14,18 @@ import withReactContent from "sweetalert2-react-content";
 
 const Alert = withReactContent(Swal);
 
+const signUpState = {
+    username: '',
+    password: '',
+    confirmPassword: '',
+    email: '',
+    redirectTo: null,
+    error: null,
+    emailValid: false,
+    passwordValid: false,
+    usernameValid: false,
+    validMessage: []
+};
 
 class SignInOut extends Component {
     constructor(props) {
@@ -20,7 +33,8 @@ class SignInOut extends Component {
         this.state = {
             showSignIn: true,
         };
-    };
+    }
+
     switchView = () => {
         this.setState({ showSignIn: !this.state.showSignIn });
     };
@@ -39,21 +53,8 @@ class SignInOut extends Component {
                 }
             </div>
         );
-    };
-};
-
-const signUpState = {
-    username: '',
-    password: '',
-    confirmPassword: '',
-    email: '',
-    redirectTo: null,
-    error: null,
-    emailValid: false,
-    passwordValid: false,
-    usernameValid: false,
-    validMessage: []
-};
+    }
+}
 
 class SignUpFormBase extends Component {
     constructor(props) {
@@ -61,7 +62,7 @@ class SignUpFormBase extends Component {
         this.state = {
             signUpState
         };
-    };
+    }
 
     handleSubmit = async event => {
         event.preventDefault();
@@ -76,7 +77,7 @@ class SignUpFormBase extends Component {
             if (dbResponse.status === 200) {
                 return this.props.firebase
                     .doCreateUserWithEmailAndPassword(email, password)
-                    .then(authUser => {
+                    .then(() => {
                         //The User has been successfully authenticated, clear this component state and redirect them to the home page
                         this.setState({ ...signUpState });
                         this.props.history.push(Routes.home);
@@ -85,8 +86,8 @@ class SignUpFormBase extends Component {
                         console.log(error)
                         this.setState({ error });
                     });
-            };
-        };
+            }
+        }
     };
 
     handleChange = event => {
@@ -105,47 +106,51 @@ class SignUpFormBase extends Component {
         if (!this.state.emailValid) {
             invalidInputs++;
             invalidMessages.push(`Email entered is invalid`);
-        };
+        }
         if (!this.state.usernameValid) {
             invalidInputs++;
             invalidMessages.push(`Please ensure username is at least 3 characters, no more than 16 and only contains letters, numbers, underscores and dashes`);
-        };
+        }
         if (!this.state.passwordValid) {
             invalidInputs++;
             invalidMessages.push(`Password must be at least 6 characters in length and contain no spaces`)
-        };
+        }
         if (invalidInputs > 0) {
             this.setState({ validMessage: invalidMessages });
             return false;
         } else {
             return true;
-        };
+        }
     };
 
     validateForm = (fieldName, value) => {
         let validCheck;
 
         switch (fieldName) {
-            case `email`:
+            case `email`: {
                 let checkEmail = value.match(/^(([^<>()\]\\.,;:\s@']+(\.[^<>()\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
                 validCheck = checkEmail ? true : false;
                 this.setState({ emailValid: validCheck });
                 break;
-            case `password`:
+            }
+            case `password`: {
                 let checkPassword = value.length >= 6;
                 let noSpacesInPassword = value.match(/^\S*$/);
                 validCheck = checkPassword && noSpacesInPassword ? true : false;
                 this.setState({ passwordValid: validCheck });
                 break;
-            case `username`:
+            }
+            case `username`: {
                 let checkUsername = value.match(/^([a-z0-9-_])+$/i);
                 let usernameLength = value.length >= 3 && value.length <= 16;
                 validCheck = checkUsername && usernameLength ? true : false;
                 this.setState({ usernameValid: validCheck });
                 break;
-            default:
+            }
+            default: {
                 break;
-        };
+            }
+        }
     };
 
     render() {
@@ -212,8 +217,8 @@ class SignUpFormBase extends Component {
                 </div>
             </div>
         )
-    };
-};
+    }
+}
 
 class SignInFormBase extends Component {
     constructor(props) {
@@ -223,7 +228,7 @@ class SignInFormBase extends Component {
             password: '',
             error: null
         };
-    };
+    }
 
     handleChange = event => {
         this.setState({
@@ -270,7 +275,7 @@ class SignInFormBase extends Component {
         } else {
             this.props.firebase.doPasswordReset(email)
                 .then(() => Alert.fire(`Password reset email sent to ${email}`));
-        };
+        }
     };
 
     render() {
@@ -313,7 +318,20 @@ class SignInFormBase extends Component {
             </div>
         );
     }
-};
+}
+
+SignInFormBase.propTypes = {
+    firebase: PropTypes.any,
+    history: PropTypes.any,
+    switchView: PropTypes.func
+}
+
+SignUpFormBase.propTypes = {
+    firebase: PropTypes.any,
+    history: PropTypes.any,
+    switchView: PropTypes.func
+}
+
 
 const SignUpForm = compose(withRouter, withFirebase)(SignUpFormBase);
 const SignInForm = compose(withRouter, withFirebase)(SignInFormBase);

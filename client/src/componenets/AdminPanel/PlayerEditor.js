@@ -8,12 +8,6 @@ import PropTypes from 'prop-types';
 
 const Alert = withReactContent(Swal);
 
-PlayerEditor.propTypes = {
-    season: PropTypes.string,
-    week: PropTypes.number,
-    groupId: PropTypes.string
-};
-
 class PlayerEditor extends Component {
     constructor(props) {
         super(props);
@@ -105,6 +99,12 @@ class PlayerEditor extends Component {
         );
     }
 }
+
+PlayerEditor.propTypes = {
+    season: PropTypes.string,
+    week: PropTypes.number,
+    groupId: PropTypes.string
+};
 
 const condition = authUser => !!authUser;
 

@@ -9,14 +9,6 @@ import PlayerEditor from './PlayerEditor';
 import UserEditor from './UserEditor';
 import GroupEditor from './GroupEditor';
 
-AdminPanel.propTypes = {
-    season: PropTypes.string,
-    week: PropTypes.number,
-    currentUser: PropTypes.object,
-    history: PropTypes.any,
-    groupId: PropTypes.string
-}
-
 class AdminPanel extends Component {
     constructor(props) {
         super(props);
@@ -154,6 +146,14 @@ class AdminPanel extends Component {
         )
     }
 }
+
+AdminPanel.propTypes = {
+    season: PropTypes.string,
+    week: PropTypes.number,
+    currentUser: PropTypes.object,
+    history: PropTypes.any,
+    groupId: PropTypes.string
+};
 
 const condition = authUser => !!authUser;
 

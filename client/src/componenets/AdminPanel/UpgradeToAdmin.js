@@ -13,12 +13,6 @@ import withReactContent from "sweetalert2-react-content";
 //Using Swal to display messages when add book button is hit
 const Alert = withReactContent(Swal);
 
-UpgradeToAdmin.propTypes = {
-    season: PropTypes.string,
-    week: PropTypes.number,
-    history: PropTypes.any
-}
-
 class UpgradeToAdmin extends Component {
     constructor(props) {
         super(props);
@@ -79,6 +73,12 @@ class UpgradeToAdmin extends Component {
         );
     }
 }
+
+UpgradeToAdmin.propTypes = {
+    season: PropTypes.string,
+    week: PropTypes.number,
+    history: PropTypes.any
+};
 
 const condition = authUser => !!authUser;
 

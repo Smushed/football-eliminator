@@ -10,11 +10,6 @@ import './userEditorStyle.css';
 
 const Alert = withReactContent(Swal);
 
-UserEditor.propTypes = {
-    season: PropTypes.string,
-    week: PropTypes.number,
-}
-
 class UserEditor extends Component {
     constructor(props) {
         super(props);
@@ -240,13 +235,18 @@ function SelectedUserComponent({ selectedUser }) {
     )
 }
 
+UserEditor.propTypes = {
+    season: PropTypes.string,
+    week: PropTypes.number,
+};
+
 SelectedUserComponent.propTypes = {
     selectedUser: PropTypes.any
-}
+};
 
 SelectedUserComponent.defaultProps = {
     selectedUser: null
-}
+};
 
 
 

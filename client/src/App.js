@@ -19,10 +19,6 @@ import GroupPage from './componenets/GroupPage/';
 import FourOFour from './componenets/404/FourOFour';
 import SidePanel from './componenets/SidePanel';
 
-App.propTypes = {
-  firebase: PropTypes.any
-};
-
 const App = ({ firebase }) => {
 
   const [noGroup, updateNoGroup] = useState(false);
@@ -214,5 +210,9 @@ const App = ({ firebase }) => {
     </BrowserRouter>
   );
 }
+
+App.propTypes = {
+  firebase: PropTypes.any
+};
 
 export default withFirebase(App);

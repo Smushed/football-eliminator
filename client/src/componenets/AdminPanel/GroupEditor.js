@@ -7,11 +7,6 @@ import PropTypes from 'prop-types';
 
 const Alert = withReactContent(Swal);
 
-GroupEditor.propTypes = {
-    season: PropTypes.string,
-    week: PropTypes.number
-}
-
 class GroupEditor extends Component {
     constructor(props) {
         super(props);
@@ -78,6 +73,11 @@ class GroupEditor extends Component {
         )
     }
 }
+
+GroupEditor.propTypes = {
+    season: PropTypes.string,
+    week: PropTypes.number
+};
 
 const condition = authUser => !!authUser;
 

@@ -1,6 +1,7 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useState, useEffect } from 'react';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
+import PropTypes from 'prop-types';
 
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -38,7 +39,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
             getRosterData(week);
             getUsedPlayers();
             checkCurrentUser();
-        };
+        }
     }, [week, season, match.params.username])
 
 
@@ -56,7 +57,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
             updateCurrentUser(true);
         } else {
             updateCurrentUser(false);
-        };
+        }
     };
 
     const getWeeklyMatchUps = async (weekInput) => {
@@ -101,7 +102,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                 }).catch(err => {
                     console.log(`roster data error`, err); //TODO better error handling
                 });
-        };
+        }
     };
 
     const tooManyPlayers = async (currentRoster, allowedMap, addedPlayer) => {
@@ -110,8 +111,8 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
         for (let i = 0; i < allowedMap.length; i++) { //Allowed Map is an array of bool which will map to the rosters to be able to pick players
             if (allowedMap[i]) {
                 possibleDrops.push(currentRoster[i]);
-            };
-        };
+            }
+        }
         possibleDrops.push(addedPlayer);
 
         updateMustDrop(true);
@@ -127,7 +128,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
             if (+player.M === +chosenPlayer) {
                 droppedPlayerIndex = i;
                 return player;
-            };
+            }
         });
         if (droppedPlayer) {
             let availDroppedPlayerIndex = -1;
@@ -136,14 +137,14 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
             availablePlayersCopy.find((player, i) => {
                 if (+player.M === +possiblePlayer.M) {
                     availDroppedPlayerIndex = i;
-                };
+                }
             });
             if (availDroppedPlayerIndex >= 0) {
                 availablePlayersCopy.splice(availDroppedPlayerIndex, 1);
-            };
+            }
             if (droppedPlayer.P === positionSelect) {
                 availablePlayersCopy.unshift(droppedPlayer);
-            };
+            }
             currentRoster[droppedPlayerIndex] = { P: possiblePlayer.P, M: possiblePlayer.M, N: possiblePlayer.N, T: possiblePlayer.T };
 
             const usedPlayers = currentPositionUsedPlayers.filter(player => player.M !== droppedPlayer.M)
@@ -157,7 +158,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
             //The user has selected the player who is not on their team            
             updateUserRoster(currentRoster);
             updateMustDrop(false);
-        };
+        }
     };
 
     const saveRosterToDb = async (roster, droppedPlayer, addedPlayer) => {
@@ -180,10 +181,10 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
         updateLockWeekOnPull(response.data.LW);
         if (response.data.LW === 0) {
             return true;
-        };
+        }
         if (weekOnPage <= response.data.LW) {
             return false;
-        };
+        }
         return true;
     };
 
@@ -200,7 +201,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                     getUsedPlayers();
                 } else {
                     updateCurrentPositionUsedPlayers(usedPlayers[positionSelect])
-                };
+                }
                 doneLoading();
             });
     };
@@ -232,12 +233,12 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                     if (sortedUpdatedRoster[i].M === 0) { //If there is an open spot add the player
                         sortedUpdatedRoster[i] = addedPlayer;
                         added = true;
-                    };
-                };
+                    }
+                }
             } else {
                 allowedMap[i] = false;
-            };
-        };
+            }
+        }
         //Checks if we added a player without dropping one
         if (!added) {
             tooManyPlayers(sortedUpdatedRoster, allowedMap, addedPlayer);
@@ -246,11 +247,11 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
             const newUsedPlayers = { ...usedPlayers };
             if (!newUsedPlayers[addedPlayer.P]) {
                 newUsedPlayers[addedPlayer.P] = [];
-            };
+            }
             newUsedPlayers[addedPlayer.P].push(addedPlayer);
             updateAvaliablePlayers(newAvailablePlayers);
             updateUsedPlayers(newUsedPlayers);
-        };
+        }
     };
 
     const addDropPlayer = async (mySportsId, addOrDrop) => {
@@ -260,7 +261,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                 type: `warning`,
             });
             return;
-        };
+        }
         const isLocked = await checkLockPeriod();
         if (!isLocked) {
             Alert.fire({
@@ -269,12 +270,12 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                 text: `Week ${weekOnPage} is locked. Please search a different week`,
             });
             return;
-        };
+        }
 
         if (mustDrop) { //User has too many players on their roster, they are dropping to make room
             chosePlayerForRoster(mySportsId);
             return;
-        };
+        }
 
         const newAvailablePlayers = [...availablePlayers];
         let newRoster = [...userRoster];
@@ -286,7 +287,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                 if (player.M === mySportsId) {
                     addedPlayerIndex = i;
                     return player;
-                };
+                }
             });
 
             newAvailablePlayers.splice(addedPlayerIndex, 1);
@@ -297,7 +298,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                 if (player.M === mySportsId) {
                     droppedPlayerIndex = i;
                     return player;
-                };
+                }
             });
 
             newRoster[droppedPlayerIndex] = { M: 0, S: 0 };
@@ -305,14 +306,14 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
 
             updateAvaliablePlayers(newAvailablePlayers);
             saveRosterToDb(newRoster, mySportsId, false);
-        };
+        }
     };
 
     const showMatchUps = async () => {
         let displayMatchups = `Home   -   Away<br />`;
         for (let i = 0; i < weeklyMatchups.length; i++) {
             displayMatchups += `<br/>${weeklyMatchups[i].H}  -  ${weeklyMatchups[i].A}`
-        };
+        }
         await Alert.fire({
             title: `Week ${weekOnPage} Matchups`,
             html: displayMatchups,
@@ -328,7 +329,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
             return;
         } else if (!matchup.H || !matchup.A) {
             return;
-        };
+        }
         const display = `Home: ${matchup.H}<br />Away:${matchup.A}`
         await Alert.fire({
             title: `${team} week ${weekOnPage} match`,
@@ -339,7 +340,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
     return (
         <div>
             <div className='centerText headerFont usernameRow'>
-                {usernameOfPage}'s Roster
+                {usernameOfPage}&apos;s Roster
                 </div>
             <div className='rosterPageContainer'>
                 <div className='leftSearchRow'>
@@ -487,6 +488,41 @@ const RosterDisplay = ({ groupPositions, showSingleMatchUp, roster, addDropPlaye
             />
         ));
 
+
+Roster.propTypes = {
+    latestLockWeek: PropTypes.number,
+    updateLockWeekOnPull: PropTypes.func,
+    week: PropTypes.number,
+    season: PropTypes.string,
+    match: PropTypes.any,
+    username: PropTypes.string,
+    userId: PropTypes.string
+};
+
+CurrentRosterRow.propTypes = {
+    evenOrOddRow: PropTypes.number,
+    player: PropTypes.object,
+    position: PropTypes.string,
+    showSingleMatchUp: PropTypes.func,
+    addDropPlayer: PropTypes.func,
+    pastLockWeek: PropTypes.bool
+};
+
+PlayerDisplayRow.propTypes = {
+    evenOrOddRow: PropTypes.number,
+    player: PropTypes.object,
+    showSingleMatchUp: PropTypes.func,
+    addDropPlayer: PropTypes.func
+};
+
+RosterDisplay.propTypes = {
+    groupPositions: PropTypes.array,
+    showSingleMatchUp: PropTypes.func,
+    roster: PropTypes.array,
+    addDropPlayer: PropTypes.func,
+    mustDrop: PropTypes.bool,
+    pastLockWeek: PropTypes.bool
+};
 
 const condition = authUser => !!authUser;
 
