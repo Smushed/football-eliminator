@@ -81,7 +81,8 @@ module.exports = app => {
         const { season, week, groupId } = req.params;
         const previousWeek = +week - 1;
         if (previousWeek === 0) {
-            res.status(200).send([]);
+            const blankRoster = await groupHandler.getBlankRoster(groupId);
+            res.status(200).send(blankRoster);
             return;
         }
         const idealRoster = await groupHandler.getIdealRoster(groupId, season, +previousWeek);
@@ -93,7 +94,7 @@ module.exports = app => {
         const { season, week, groupId } = req.params;
         const userScores = await groupHandler.getCurrAndLastWeekScores(groupId, season, week)
         // const bestRoster = await groupHandler.getBestRoster(groupId, season, week);
-        console.log(userScores)
+        // console.log(userScores)
         res.status(200).send(userScores);
     });
 };

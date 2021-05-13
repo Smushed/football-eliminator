@@ -254,6 +254,13 @@ module.exports = {
             return idealRosterResponse;
         };
     },
+    getBlankRoster: async function (groupId) {
+        //This is for providing a blank roster when any roster of week 0 for the home page is requested
+        //IE Best roster from last week during week 1
+        const groupPositions = await this.getGroupPositions(groupId);
+        const blankRoster = groupPositions.map(position => ({ M: 0, P: position.N }))
+        return blankRoster;
+    },
     getBestRoster: async function (groupId, season, week) {
         console.log(groupId, season, week);
         return `boner`

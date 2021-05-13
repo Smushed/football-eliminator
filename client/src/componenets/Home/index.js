@@ -40,6 +40,7 @@ const Home = ({ season, group, week, currentUser }) => {
     const getRoster = (season, week, groupname, username) => {
         axios.get(`/api/userRoster/${season}/${week}/${groupname}/${username}`)
             .then(res => {
+                console.log(res.data.userRoster)
                 updateRoster(res.data.userRoster);
                 updateGroupPositions(res.data.groupPositions)
                 return;
