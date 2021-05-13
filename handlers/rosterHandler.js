@@ -195,7 +195,7 @@ module.exports = {
         for (const player of rosterArray) {
             if (player !== 0) {
                 //Go through the object that was given to us
-                const response = await db.PlayerStats.findOne({ M: player }, { M: 1, N: 1, P: 1, R: 1, T: 1 });
+                const response = await db.PlayerStats.findOne({ M: player }, { M: 1, N: 1, P: 1, R: 1, T: 1 }).exec();
                 responseRoster.push(response);
             };
         };
@@ -228,7 +228,7 @@ module.exports = {
             usedPlayers.UP = newUsedPlayers;
             await usedPlayers.save();
 
-            const currentRoster = await db.UserRoster.findOne({ U: userId, G: groupId, W: week, S: season });
+            const currentRoster = await db.UserRoster.findOne({ U: userId, G: groupId, W: week, S: season }).exec();
             const newRoster = [];
             for (const player of roster) {
                 newRoster.push({ M: +player.M, S: 0 } || 0);

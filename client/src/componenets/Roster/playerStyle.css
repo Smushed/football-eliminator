@@ -4,10 +4,11 @@
     border-bottom: 1px solid lightgrey;
     border-radius: 2px;
     background-color: transparent;
-    width: 100%;
+    width: 93%;
     height: 36px;
     font-weight: 500;
     padding-left: 45px;
+    overflow: hidden;
 }
 
 .usedPlayerButton {

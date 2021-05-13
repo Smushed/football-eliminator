@@ -34,7 +34,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
 
     useEffect(() => {
         if (week !== 0 && season !== '') {
-            updateWeekSelect(week);
+            updateWeekSelect(+week);
             updateUsernameOfPage(match.params.username);
             getRosterData(week);
             getUsedPlayers();
@@ -418,30 +418,31 @@ const CurrentRosterRow = ({ evenOrOddRow, player, position, showSingleMatchUp, a
             {position}
         </div>
         <div className='playerContainer'>
-            {player.M !== 0 ?
-                <div className='hasPlayerContainer'>
-                    {player.N &&
-                        <div className='playerCol'>
-                            {player.N}
-                        </div>
-                    }
-                    {player.T &&
-                        <div onClick={() => (showSingleMatchUp && showSingleMatchUp(player.T))} className={`teamCol ${(showSingleMatchUp && `pointer`)}`}>
-                            {player.T}
-                        </div>
-                    }
-                    {pastLockWeek === true ?
-                        <div className='scoreCol'>
-                            {player.SC.toFixed(2)}
-                        </div> :
-                        addDropPlayer &&
-                        <button className='addDropButton custom-button' onClick={() => addDropPlayer(player.M, 'drop')}>
-                            Drop
+            {player &&
+                (player.M !== 0 ?
+                    <div className='hasPlayerContainer'>
+                        {player.N &&
+                            <div className='playerCol'>
+                                {player.N}
+                            </div>
+                        }
+                        {player.T &&
+                            <div onClick={() => (showSingleMatchUp && showSingleMatchUp(player.T))} className={`teamCol ${(showSingleMatchUp && `pointer`)}`}>
+                                {player.T}
+                            </div>
+                        }
+                        {pastLockWeek === true ?
+                            <div className='scoreCol'>
+                                {player.SC.toFixed(2)}
+                            </div> :
+                            addDropPlayer &&
+                            <button className='addDropButton custom-button' onClick={() => addDropPlayer(player.M, 'drop')}>
+                                Drop
                     </button>
-                    }
-                </div>
-                : ``
-            }
+                        }
+                    </div>
+                    : ``
+                )}
         </div>
     </div >
 );
@@ -511,7 +512,10 @@ CurrentRosterRow.propTypes = {
 PlayerDisplayRow.propTypes = {
     evenOrOddRow: PropTypes.number,
     player: PropTypes.object,
-    showSingleMatchUp: PropTypes.func,
+    showSingleMatchUp: PropTypes.oneOfType([
+        PropTypes.bool,
+        PropTypes.func
+    ]),
     addDropPlayer: PropTypes.func
 };
 

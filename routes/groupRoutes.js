@@ -73,16 +73,27 @@ module.exports = app => {
 
     app.get(`/api/getLeaderboard/:season/:week/:groupId`, async (req, res) => {
         const { season, week, groupId } = req.params;
-        // const currWeekForLeaderboard = +week === 1 ? 1 : +week;
         const leaderboard = await groupHandler.getLeaderBoard(groupId, season, +week);
         res.status(200).send({ leaderboard });
     });
 
     app.get(`/api/getIdealRoster/:season/:week/:groupId`, async (req, res) => {
         const { season, week, groupId } = req.params;
-        // const currWeekForLeaderboard = +week === 1 ? 1 : +week;
-        const idealRoster = await groupHandler.getIdealRoster(groupId, season, +week);
+        const previousWeek = +week - 1;
+        if (previousWeek === 0) {
+            res.status(200).send([]);
+            return;
+        }
+        const idealRoster = await groupHandler.getIdealRoster(groupId, season, +previousWeek);
         const response = await mySportsHandler.fillUserRoster(idealRoster.R);
         res.status(200).send(response);
-    })
+    });
+
+    app.get(`/api/getBestCurrLeadRoster/:season/:week/:groupId`, async (req, res) => {
+        const { season, week, groupId } = req.params;
+        const userScores = await groupHandler.getCurrAndLastWeekScores(groupId, season, week)
+        // const bestRoster = await groupHandler.getBestRoster(groupId, season, week);
+        console.log(userScores)
+        res.status(200).send(userScores);
+    });
 };

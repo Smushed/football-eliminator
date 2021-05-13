@@ -253,5 +253,15 @@ module.exports = {
         } else {
             return idealRosterResponse;
         };
+    },
+    getBestRoster: async function (groupId, season, week) {
+        console.log(groupId, season, week);
+        return `boner`
+        const weekAccessor = (week === 1 ? 1 : week - 1).toString();
+        const userScoreList = await getUserScoreList(groupId, season, weekAccessor, week);
+    },
+    getCurrAndLastWeekScores: async (groupId, season, week) => {
+        const weekAccessor = (week === 1 ? 1 : week - 1).toString();
+        return await getUserScoreList(groupId, season, weekAccessor, week);
     }
 };

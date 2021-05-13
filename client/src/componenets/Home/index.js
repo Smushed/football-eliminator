@@ -16,13 +16,18 @@ const Home = ({ season, group, week, currentUser }) => {
 
     useEffect(() => {
         if (week !== 0 && season !== ``) {
-            if (currentUser.GL.length > 0) {
-                getLeaderBoard(season, week, group._id);
+            if (currentUser) {
+                getRostersForHome(season, week, group._id)
                 getRoster(season, week, group.N, currentUser.username);
-                getIdealRoster(season, week, group._id);
             }
         }
     }, [week, season, currentUser.username, group])
+
+    const getRostersForHome = (season, week, groupId) => {
+        getLeaderBoard(season, week, groupId);
+        getIdealRoster(season, week, groupId);
+        getBestCurrLeadRoster(season, week, groupId);
+    };
 
     const getLeaderBoard = (season, week, groupId) => {
         axios.get(`/api/getLeaderBoard/${season}/${week}/${groupId}`)
@@ -46,6 +51,14 @@ const Home = ({ season, group, week, currentUser }) => {
             .then(res => {
                 updateIdealRoster(res.data)
             });
+    };
+
+    const getBestCurrLeadRoster = (season, week, groupId) => {
+        //This gets both the best roster from the previous week as well as the current leader's roster for the current week
+        axios.get(`/api/getBestCurrLeadRoster/${season}/${week}/${groupId}`)
+            .then(res => {
+                console.log(res)
+            })
     };
 
     const weekForLeaderboard = week === 0 ? 1 : week;
@@ -98,7 +111,7 @@ const Home = ({ season, group, week, currentUser }) => {
                 </div>
                 <div className='userRosterHomePage'>
                     <div className='rosterHomePageTitle'>
-                        Current Leader {weekForLeaderboard} Roster
+                        Current Leader&apos;s Week {weekForLeaderboard} Roster
                     </div>
                     <RosterDisplay
                         groupPositions={groupPositions}
