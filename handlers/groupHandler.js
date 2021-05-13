@@ -1,4 +1,5 @@
 const db = require(`../models`);
+const mySportsHandler = require("./mySportsHandler");
 const positions = require(`../constants/positions`);
 
 const checkDuplicate = async (checkedField, groupToSearch, userID) => {
@@ -223,12 +224,34 @@ module.exports = {
     getIdealRoster: async function (groupId, season, week) {
         const idealRosterResponse = await db.IdealRoster.findOne({ G: groupId, S: season, W: week });
         if (idealRosterResponse === null) {
-            // let newIdealRoster = new db.IdealRoster({ G: groupId, S: season, W: week });
-            const groupScore = await this.getGroupScore(groupId);
-            console.log(groupScore)
+            let newIdealRoster = new db.IdealRoster({ G: groupId, S: season, W: week });
+            Promise.all([
+                this.getGroupScore(groupId),
+                this.getGroupPositions(groupId)
+            ]).then(async ([groupScore, groupPositions]) => {
+                Promise.all([
+                    mySportsHandler.rankPlayers(season, week, groupScore),
+                    this.mapGroupPositions(groupPositions, positions.positionMap)
+                ]).then(([rankedPlayers, groupPositionMap]) => {
+                    for (const possiblePositions of groupPositionMap) {
+                        const highScorers = [];
+                        for (const positionVal of possiblePositions) {
+                            const topScorer = rankedPlayers[positions.positionArray[positionVal]].shift()
+                            highScorers.push(topScorer);
+                        }
+                        if (highScorers.length === 1) {
+                            newIdealRoster.R.push({ M: highScorers[0].M, SC: highScorers[0].score });
+                        } else {
+                            highScorers.sort((a, b) => { return b.score - a.score });
+                            newIdealRoster.R.push({ M: highScorers[0].M, SC: highScorers[0].score });
+                        }
+                    }
+                    newIdealRoster.save(err => console.log(err));
+                    return newIdealRoster;
+                })
+            })
         } else {
             return idealRosterResponse;
-        }
-        return `working`;
+        };
     }
 };

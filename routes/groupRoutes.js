@@ -1,6 +1,7 @@
 require(`dotenv`).config();
 const userHandler = require(`../handlers/userHandler`);
 const groupHandler = require(`../handlers/groupHandler`);
+const mySportsHandler = require(`../handlers/mySportsHandler`);
 const scoringSystem = require(`../constants/scoringSystem`);
 
 module.exports = app => {
@@ -81,7 +82,7 @@ module.exports = app => {
         const { season, week, groupId } = req.params;
         // const currWeekForLeaderboard = +week === 1 ? 1 : +week;
         const idealRoster = await groupHandler.getIdealRoster(groupId, season, +week);
-
-        res.status(200).send(idealRoster);
+        const response = await mySportsHandler.fillUserRoster(idealRoster.R);
+        res.status(200).send(response);
     })
 };

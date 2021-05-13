@@ -11,7 +11,7 @@ const Home = ({ season, group, week, currentUser }) => {
 
     const [leaderboard, updateLeaderboard] = useState([]);
     const [roster, updateRoster] = useState([]);
-    // const [idealRoster, updateIdealRoster] = useState([]);
+    const [idealRoster, updateIdealRoster] = useState([]);
     const [groupPositions, updateGroupPositions] = useState([]);
 
     useEffect(() => {
@@ -43,7 +43,9 @@ const Home = ({ season, group, week, currentUser }) => {
 
     const getIdealRoster = (season, week, groupId) => {
         axios.get(`/api/getIdealRoster/${season}/${week}/${groupId}`)
-            .then(res => console.log(res));
+            .then(res => {
+                updateIdealRoster(res.data)
+            });
     };
 
     const weekForLeaderboard = week === 0 ? 1 : week;
@@ -60,11 +62,13 @@ const Home = ({ season, group, week, currentUser }) => {
                     <div className='rosterHomePageTitle'>
                         Your Week {weekForLeaderboard} Roster
                 </div>
-                    <RosterDisplay
-                        groupPositions={groupPositions}
-                        roster={roster}
-                        pastLockWeek={true} //This sets it so the score will show
-                    />
+                    {roster.length > 0 &&
+                        <RosterDisplay
+                            groupPositions={groupPositions}
+                            roster={roster}
+                            pastLockWeek={true} //This sets it so the score will show
+                        />
+                    }
                 </div>
             </div>
             <div className='secondRowWrapper'>
@@ -83,11 +87,13 @@ const Home = ({ season, group, week, currentUser }) => {
                         <div className='rosterHomePageTitle'>
                             Ideal Roster from last week
                         </div>
-                        <RosterDisplay
-                            groupPositions={groupPositions}
-                            roster={roster}
-                            pastLockWeek={true}
-                        />
+                        {idealRoster.length > 0 &&
+                            <RosterDisplay
+                                groupPositions={groupPositions}
+                                roster={idealRoster}
+                                pastLockWeek={true}
+                            />
+                        }
                     </div>
                 </div>
                 <div className='userRosterHomePage'>

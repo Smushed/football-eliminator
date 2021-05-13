@@ -541,7 +541,7 @@ module.exports = {
         });
     },
     rankPlayers: async function (season, week, groupScore) {
-        console.log(`Ranking Players for `, season, week, groupScore);
+        console.log(`Ranking Players for `, season, week);
         //Loop through the positions of the players to then rank them
         //We are doing the offense here, since D will be different
         const rankedPlayersByPosition = {};
@@ -561,12 +561,11 @@ module.exports = {
                 //Put them in an array to rank them
                 rankingArray.push(scoredPlayer);
             };
-
             //Sort the array by score so we can then divide it into the top performers
             rankingArray.sort((a, b) => { return b.score - a.score });
+            rankedPlayersByPosition[position] = rankingArray;
         };
 
-        console.log(`Done Ranking`);
         return rankedPlayersByPosition;
     }, savePlayerRank: async (rankedPlayersByPosition) => {
         //Get them into 7 different categories, each 10 big until the 7th rank, which is just all the rest
@@ -584,6 +583,7 @@ module.exports = {
                 };
             };
         };
+        console.log(`Done Ranking`);
         return `Ranked Players Saved`;
     },
     fillUserRoster: async (playerIdRoster) => {
