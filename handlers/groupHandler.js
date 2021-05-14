@@ -1,6 +1,7 @@
 const db = require(`../models`);
-const mySportsHandler = require("./mySportsHandler");
+const mySportsHandler = require('./mySportsHandler');
 const positions = require(`../constants/positions`);
+const userHandler = require('./userHandler');
 
 const checkDuplicate = async (checkedField, groupToSearch, userID) => {
     let result = false;
@@ -255,17 +256,19 @@ module.exports = {
         };
     },
     getBlankRoster: async function (groupId) {
-        //This is for providing a blank roster when any roster of week 0 for the home page is requested
-        //IE Best roster from last week during week 1
         const groupPositions = await this.getGroupPositions(groupId);
         const blankRoster = groupPositions.map(position => ({ M: 0, P: position.N }))
         return blankRoster;
     },
-    getBestRoster: async function (groupId, season, week) {
-        console.log(groupId, season, week);
-        return `boner`
-        const weekAccessor = (week === 1 ? 1 : week - 1).toString();
-        const userScoreList = await getUserScoreList(groupId, season, weekAccessor, week);
+    getBestRoster: async function (groupId, season, week, userScores) {
+        const lastWeek = (week - 1).toString();
+        userScores.sort((a, b) => b[lastWeek] - a[lastWeek]);
+        const topWeekScore = userScores.shift();
+        //Doing this here because rosterHandler.js doesn't want to be exported to any other file for some reason
+        let topUserRoster = await db.UserRoster.findOne({ U: topWeekScore.U, W: lastWeek, S: season, G: groupId }, { R: 1 }).exec();
+        const foundUser = await db.User.findById(topWeekScore.U, { UN: 1 }).exec();
+        const R = await mySportsHandler.fillUserRoster(topUserRoster.R);
+        return { R, U: foundUser.UN }; //Short hand for roster and user
     },
     getCurrAndLastWeekScores: async (groupId, season, week) => {
         const weekAccessor = (week === 1 ? 1 : week - 1).toString();

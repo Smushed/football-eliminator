@@ -12,6 +12,9 @@ const Home = ({ season, group, week, currentUser }) => {
     const [leaderboard, updateLeaderboard] = useState([]);
     const [roster, updateRoster] = useState([]);
     const [idealRoster, updateIdealRoster] = useState([]);
+    const [bestRoster, updateBestRoster] = useState([]);
+    const [bestRosterUser, updateBestRosterUser] = useState(``);
+    // const [leaderRoster, updateLeaderRoster] = useState([]);
     const [groupPositions, updateGroupPositions] = useState([]);
 
     useEffect(() => {
@@ -40,7 +43,6 @@ const Home = ({ season, group, week, currentUser }) => {
     const getRoster = (season, week, groupname, username) => {
         axios.get(`/api/userRoster/${season}/${week}/${groupname}/${username}`)
             .then(res => {
-                console.log(res.data.userRoster)
                 updateRoster(res.data.userRoster);
                 updateGroupPositions(res.data.groupPositions)
                 return;
@@ -58,8 +60,11 @@ const Home = ({ season, group, week, currentUser }) => {
         //This gets both the best roster from the previous week as well as the current leader's roster for the current week
         axios.get(`/api/getBestCurrLeadRoster/${season}/${week}/${groupId}`)
             .then(res => {
-                console.log(res)
-            })
+                console.log(res.data.bestRoster)
+                updateBestRosterUser(res.data.bestRoster.U);
+                updateBestRoster(res.data.bestRoster.R);
+                // updateLeaderRoster(res.data.leaderRoster);
+            });
     };
 
     const weekForLeaderboard = week === 0 ? 1 : week;
@@ -88,18 +93,18 @@ const Home = ({ season, group, week, currentUser }) => {
             <div className='secondRowWrapper'>
                 <div className='userRosterHomePage'>
                     <div className='rosterHomePageTitle'>
-                        Best roster from week {weekForLeaderboard}
+                        Best Roster from Week {weekForLeaderboard - 1} {bestRosterUser}
                     </div>
                     <RosterDisplay
                         groupPositions={groupPositions}
-                        roster={roster}
+                        roster={bestRoster}
                         pastLockWeek={true}
                     />
                 </div>
                 <div>
                     <div className='userRosterHomePage'>
                         <div className='rosterHomePageTitle'>
-                            Ideal Roster from last week
+                            Last Week&apos;s Ideal Roster
                         </div>
                         {idealRoster.length > 0 &&
                             <RosterDisplay
@@ -114,11 +119,11 @@ const Home = ({ season, group, week, currentUser }) => {
                     <div className='rosterHomePageTitle'>
                         Current Leader&apos;s Week {weekForLeaderboard} Roster
                     </div>
-                    <RosterDisplay
+                    {/* <RosterDisplay
                         groupPositions={groupPositions}
-                        roster={roster}
+                        roster={leaderRoster}
                         pastLockWeek={true}
-                    />
+                    /> */}
                 </div>
             </div>
         </Fragment>

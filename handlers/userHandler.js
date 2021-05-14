@@ -50,8 +50,6 @@ const fillOutUserForFrontEnd = async (user) => {
     return filledUser;
 };
 
-//This is for updating the user profile once created
-//The user only has access to the local profile
 module.exports = {
     getUserList: async () => {
         const userlist = await db.User.find({});

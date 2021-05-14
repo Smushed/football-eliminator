@@ -4,22 +4,7 @@ const userHandler = require(`./userHandler`);
 const mySportsHandler = require("./mySportsHandler");
 require(`dotenv`).config();
 
-//This is here for when a user adds or drops a player. It fills out the object of the current week with 0s
-fillOutRoster = async (rosterFromDB) => {
-    const filledOutRoster = [];
-    //TODO DO THIS NEXT. FILL OUT ROSTER WITH PLAYERS
-    for (let i = 0; i < rosterFromDB.length; i++) {
-        if (rosterFromDB[i] === 0) {
-            filledOutRoster.push({});
-        } else {
-            const player = await db.PlayerData.find({ M: rosterFromDB[i] });
-            filledOutRoster.push(player);
-        };
-    };
-    return filledOutRoster;
-};
-
-checkDuplicateRoster = async (checkedField, userId, groupId, season, week) => {
+const checkDuplicateRoster = async (checkedField, userId, groupId, season, week) => {
     let result = false;
     let searched;
     switch (checkedField) {
@@ -47,7 +32,7 @@ checkDuplicateRoster = async (checkedField, userId, groupId, season, week) => {
     return result;
 };
 
-checkForAvailablePlayers = (usedPlayers, searchedPlayers) => {
+const checkForAvailablePlayers = (usedPlayers, searchedPlayers) => {
     const usedPlayerSet = new Set(usedPlayers);
 
     const availablePlayerArray = searchedPlayers.filter((player) => !usedPlayerSet.has(player.M));
@@ -57,12 +42,12 @@ checkForAvailablePlayers = (usedPlayers, searchedPlayers) => {
     return sortedPlayerArray;
 };
 
-sortPlayersByRank = (playerArray) => {
+const sortPlayersByRank = (playerArray) => {
     playerArray.sort((a, b) => { return a.R - b.R });
     return playerArray;
 };
 
-getUsedPlayers = async (userId, season, groupId) => {
+const getUsedPlayers = async (userId, season, groupId) => {
     const currentUser = await db.UsedPlayers.findOne({ U: userId, S: season }).exec();
     if (currentUser === null) {
         const createdUsedPlayers = await createUsedPlayers(userId, season, groupId);
@@ -73,26 +58,7 @@ getUsedPlayers = async (userId, season, groupId) => {
 
 };
 
-getPlayerScore = async (currentRoster, season, week) => {
-    //Goes through the roster of players and pulls in their full data to then display
-    currentRoster = currentRoster.roster[season][week].toObject();
-
-    rosterArray = Object.values(currentRoster);
-
-    const responseRoster = [];
-    for (const player of rosterArray) {
-        if (player !== 0) {
-            //Go through the object that was given to us
-            const response = await db.FantasyStats.findOne({ mySportsId: player }, { mySportsId: 1, full_name: 1, position: 1, rank: 1, team: 1 })
-            responseRoster.push(response)
-        };
-    };
-
-    //We also return the array so the drag & drop component can populate this without having to pull it again
-    return responseRoster;
-};
-
-createUsedPlayers = (userId, season, groupId) => {
+const createUsedPlayers = (userId, season, groupId) => {
     return new Promise(async (res, rej) => {
         const isDupe = await checkDuplicateRoster(`usedPlayers`, userId, groupId, season, null);
         let newRecord;
@@ -103,7 +69,7 @@ createUsedPlayers = (userId, season, groupId) => {
     })
 };
 
-createWeeklyRoster = async (userId, week, season, groupId) => {
+const createWeeklyRoster = async (userId, week, season, groupId) => {
     const groupRoster = await db.GroupRoster.findOne({ G: groupId });
     //The roster on the UserRoster Schema is an array of MySportsPlayerIDs
 
@@ -112,7 +78,7 @@ createWeeklyRoster = async (userId, week, season, groupId) => {
     return await db.UserRoster.create(weeksRoster);
 };
 
-getAllRostersByGroupAndWeek = async (season, week, groupId) => {
+const getAllRostersByGroupAndWeek = async (season, week, groupId) => {
     return new Promise(async (res, rej) => {
         const group = await db.Group.findById([groupId]).exec();
         const userRosters = await db.UserRoster.find({ S: season, W: week, G: groupId }).exec();
@@ -136,9 +102,9 @@ getAllRostersByGroupAndWeek = async (season, week, groupId) => {
 
 module.exports = {
     byRoster: async () => {
-        const players = await db.FantasyStats.find({ 'team': 'CHI' })
+        const players = await db.FantasyStats.find({ 'team': 'CHI' });
 
-        return players
+        return players;
     },
     dummyRoster: async (userId, groupId, week, season, dummyRoster) => { //Brute force updating a user's roster
         return new Promise((res, rej) => {
