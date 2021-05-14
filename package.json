@@ -1,10 +1,10 @@
 {
     "name": "footballeliminator",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "Fantasy Football Eliminator",
     "main": "server.js",
     "engines": {
-        "node": "10.X.X"
+        "node": "14.16.1"
     },
     "scripts": {
         "start:testings": "if-env NODE_ENV=production && npm run start:prod || npm run start:dev",
@@ -19,6 +19,9 @@
     "license": "ISC",
     "devDependencies": {
         "concurrently": "^5.3.0",
+        "eslint": "^7.26.0",
+        "eslint-plugin-react": "^7.23.2",
+        "eslint-plugin-react-hooks": "^4.2.0",
         "nodemon": "^2.0.7"
     },
     "dependencies": {
@@ -30,10 +33,7 @@
         "dotenv": "^6.2.0",
         "express": "^4.17.1",
         "if-env": "^1.0.4",
-        "mongoose": "^5.12.7",
-        "react-burger-menu": "^3.0.6",
-        "react-modal": "^3.13.1",
-        "react-navbar-dropdown": "^1.4.2",
+        "mongoose": "^5.12.8",
         "uuid": "^3.3.3"
     },
     "repository": {

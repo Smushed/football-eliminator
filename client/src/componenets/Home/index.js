@@ -5,19 +5,32 @@ import { withAuthorization } from '../Session';
 import { RosterDisplay } from '../Roster';
 import './homeStyle.css';
 import Leaderboard from './Leaderboard';
+import PropTypes from 'prop-types';
 
-const Home = ({ isAdmin, season, group, week, positionOrder, username }) => {
+const Home = ({ season, group, week, currentUser }) => {
 
     const [leaderboard, updateLeaderboard] = useState([]);
     const [roster, updateRoster] = useState([]);
+    const [idealRoster, updateIdealRoster] = useState([]);
+    const [bestRoster, updateBestRoster] = useState([]);
+    const [bestRosterUser, updateBestRosterUser] = useState(``);
+    const [leaderRoster, updateLeaderRoster] = useState([]);
     const [groupPositions, updateGroupPositions] = useState([]);
 
     useEffect(() => {
-        if (week && season) {
-            getLeaderBoard(season, week, group._id);
-            getRoster(season, week, group.N, username);
-        };
-    }, [week, season, username, group])
+        if (week !== 0 && season !== ``) {
+            if (currentUser) {
+                getRostersForHome(season, week, group._id)
+                getRoster(season, week, group.N, currentUser.username);
+            }
+        }
+    }, [week, season, currentUser.username, group])
+
+    const getRostersForHome = (season, week, groupId) => {
+        getLeaderBoard(season, week, groupId);
+        getIdealRoster(season, week, groupId);
+        getBestCurrLeadRoster(season, week, groupId);
+    };
 
     const getLeaderBoard = (season, week, groupId) => {
         axios.get(`/api/getLeaderBoard/${season}/${week}/${groupId}`)
@@ -30,12 +43,28 @@ const Home = ({ isAdmin, season, group, week, positionOrder, username }) => {
     const getRoster = (season, week, groupname, username) => {
         axios.get(`/api/userRoster/${season}/${week}/${groupname}/${username}`)
             .then(res => {
-                console.log(res.data)
                 updateRoster(res.data.userRoster);
                 updateGroupPositions(res.data.groupPositions)
                 return;
             });
-    }
+    };
+
+    const getIdealRoster = (season, week, groupId) => {
+        axios.get(`/api/getIdealRoster/${season}/${week}/${groupId}`)
+            .then(res => {
+                updateIdealRoster(res.data)
+            });
+    };
+
+    const getBestCurrLeadRoster = (season, week, groupId) => {
+        //This gets both the best roster from the previous week as well as the current leader's roster for the current week
+        axios.get(`/api/getBestCurrLeadRoster/${season}/${week}/${groupId}`)
+            .then(res => {
+                updateBestRosterUser(res.data.bestRoster.U);
+                updateBestRoster(res.data.bestRoster.R);
+                updateLeaderRoster(res.data.leaderRoster); //No need to set username here, already have it with leaderboard
+            });
+    };
 
     const weekForLeaderboard = week === 0 ? 1 : week;
     return (
@@ -51,26 +80,63 @@ const Home = ({ isAdmin, season, group, week, positionOrder, username }) => {
                     <div className='rosterHomePageTitle'>
                         Your Week {weekForLeaderboard} Roster
                 </div>
-                    <RosterDisplay
-                        groupPositions={groupPositions}
-                        roster={roster}
-                    />
+                    {roster.length > 0 &&
+                        <RosterDisplay
+                            groupPositions={groupPositions}
+                            roster={roster}
+                            pastLockWeek={true} //This sets it so the score will show
+                        />
+                    }
                 </div>
             </div>
-            <div className='wrapper'>
-                <div>
-                    Best roster from last week
+            <div className='secondRowWrapper'>
+                <div className='userRosterHomePage'>
+                    <div className='rosterHomePageTitle'>
+                        Best from Week {weekForLeaderboard - 1} - {bestRosterUser}
+                    </div>
+                    <RosterDisplay
+                        groupPositions={groupPositions}
+                        roster={bestRoster}
+                        pastLockWeek={true}
+                    />
                 </div>
                 <div>
-                    Ideal Roster from last week
+                    <div className='userRosterHomePage'>
+                        <div className='rosterHomePageTitle'>
+                            Last Week&apos;s Ideal
+                        </div>
+                        {idealRoster.length > 0 &&
+                            <RosterDisplay
+                                groupPositions={groupPositions}
+                                roster={idealRoster}
+                                pastLockWeek={true}
+                            />
+                        }
+                    </div>
                 </div>
-                <div>
-                    Current Leader Roster
+                <div className='userRosterHomePage'>
+                    <div className='rosterHomePageTitle'>
+                        Current Lead Week {weekForLeaderboard} {leaderboard[0] && leaderboard[0].UN}
+                    </div>
+                    {leaderRoster.length > 0 &&
+                        <RosterDisplay
+                            groupPositions={groupPositions}
+                            roster={leaderRoster}
+                            pastLockWeek={true}
+                        />
+                    }
                 </div>
             </div>
         </Fragment>
     );
 };
+
+Home.propTypes = {
+    season: PropTypes.string,
+    group: PropTypes.object,
+    week: PropTypes.number,
+    currentUser: PropTypes.object
+}
 
 
 // import { WeekSearch } from '../Roster/SearchDropdowns';

@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Button, Row, Col } from 'reactstrap';
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import PropTypes from 'prop-types';
 
 const Alert = withReactContent(Swal);
 
@@ -11,7 +12,7 @@ class PlayerEditor extends Component {
     constructor(props) {
         super(props);
         this.state = {};
-    };
+    }
 
     loading() {
         Alert.fire({
@@ -24,14 +25,15 @@ class PlayerEditor extends Component {
             showConfirmButton: false,
             showCancelButton: false
         });
-    };
+    }
+
     doneLoading() {
         Alert.close()
-    };
+    }
 
     updateNFLRoster = () => {
         axios.get(`/api/updateTeams/${this.props.season}`)
-    };
+    }
 
     getMassData = () => {
         Alert.fire({
@@ -46,9 +48,9 @@ class PlayerEditor extends Component {
                 const response = await axios.get(`/api/massPlayerUpdate/${this.props.season}/`);
                 this.doneLoading();
                 console.log(response);
-            };
+            }
         });
-    };
+    }
 
     getWeeklyData = async () => {
         this.loading();
@@ -58,7 +60,7 @@ class PlayerEditor extends Component {
             this.doneLoading();
         } catch (err) {
             console.log(err)
-        };
+        }
         this.doneLoading();
     };
 
@@ -67,7 +69,7 @@ class PlayerEditor extends Component {
             await axios.get(`/api/rankPlayers/${this.props.season}/${this.props.week}/${this.props.groupId}`)
         } catch (err) {
             console.log(err);
-        };
+        }
     };
 
     render() {
@@ -95,9 +97,13 @@ class PlayerEditor extends Component {
                 </Col>
             </Row>
         );
-    };
+    }
+}
 
-
+PlayerEditor.propTypes = {
+    season: PropTypes.string,
+    week: PropTypes.number,
+    groupId: PropTypes.string
 };
 
 const condition = authUser => !!authUser;

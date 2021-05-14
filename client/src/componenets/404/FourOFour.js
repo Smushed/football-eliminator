@@ -7,7 +7,7 @@ const FourOFour = () => {
         <div className='fourOFour' >
             <div className='fourOFourText'>404 - Not Found</div>
             <div className='gloat'>
-                Hope you didn't get here like Rogers did
+                Hope you didn&apos;t get here like Rogers did
                 <br />
                 <br />
                 <img className='ripGod' src={PoorBaby} alt='Sore Losers' />

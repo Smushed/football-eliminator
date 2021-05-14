@@ -1,11 +1,12 @@
 import React from 'react';
-import { Input } from 'reactstrap';
+import PropTypes from 'prop-types';
 
+import './rosterStyle.css';
 
 const WeekSearch = ({ weekSelect, handleChange, customSeasonWeekSearch, disabled }) => (
     <div className='selectContainer'>
         <div className='inputLength'>
-            <Input value={weekSelect} type='select' name='weekSelect' id='weekSelect' className='searchDropdown' onChange={handleChange}>
+            <select value={weekSelect} type='select' name='weekSelect' id='weekSelect' className='form-select searchDropdown' onChange={handleChange}>
                 <option>1</option>
                 <option>2</option>
                 <option>3</option>
@@ -23,7 +24,7 @@ const WeekSearch = ({ weekSelect, handleChange, customSeasonWeekSearch, disabled
                 <option>15</option>
                 <option>16</option>
                 <option>17</option>
-            </Input>
+            </select>
         </div>
         <button className='btn btn-success submitButton' onClick={customSeasonWeekSearch} disabled={disabled} >
             Search
@@ -34,7 +35,7 @@ const WeekSearch = ({ weekSelect, handleChange, customSeasonWeekSearch, disabled
 const TeamSearch = ({ teamSelect, handleChange, searchByTeam }) => (
     <div className='selectContainer'>
         <div className='inputContainer inputLength'>
-            <Input value={teamSelect} type='select' name='teamSelect' className='searchDropdown' onChange={handleChange}>
+            <select value={teamSelect} type='select' name='teamSelect' className='form-select searchDropdown' onChange={handleChange}>
                 <option>ARI</option>
                 <option>ATL</option>
                 <option>BAL</option>
@@ -67,7 +68,7 @@ const TeamSearch = ({ teamSelect, handleChange, searchByTeam }) => (
                 <option>TB</option>
                 <option>TEN</option>
                 <option>WAS</option>
-            </Input>
+            </select>
         </div>
         <button className='btn btn-success submitButton' onClick={searchByTeam} >
             Search
@@ -78,18 +79,41 @@ const TeamSearch = ({ teamSelect, handleChange, searchByTeam }) => (
 const PositionSearch = ({ positionSelect, handleChange, disabled, positionSearch }) => (
     <div className='selectContainer'>
         <div className='inputLength'>
-            <Input value={positionSelect} type='select' name='positionSelect' className='searchDropdown' onChange={handleChange}>
+            <select value={positionSelect} type='select' name='positionSelect' className='form-select searchDropdown' onChange={handleChange}>
                 <option>QB</option>
                 <option>RB</option>
                 <option>WR</option>
                 <option>TE</option>
                 <option>K</option>
-            </Input>
+            </select>
         </div>
         <button className='btn btn-success submitButton' onClick={positionSearch} disabled={disabled}>
             Search
     </button>
     </div>
 );
+
+WeekSearch.propTypes = {
+    weekSelect: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+    ]),
+    handleChange: PropTypes.func,
+    customSeasonWeekSearch: PropTypes.func,
+    disabled: PropTypes.bool
+}
+
+TeamSearch.propTypes = {
+    teamSelect: PropTypes.string,
+    handleChange: PropTypes.func,
+    searchByTeam: PropTypes.func
+}
+
+PositionSearch.propTypes = {
+    positionSelect: PropTypes.string,
+    handleChange: PropTypes.func,
+    disabled: PropTypes.bool,
+    positionSearch: PropTypes.func
+}
 
 export { PositionSearch, TeamSearch, WeekSearch };

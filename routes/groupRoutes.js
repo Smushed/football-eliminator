@@ -1,6 +1,7 @@
 require(`dotenv`).config();
 const userHandler = require(`../handlers/userHandler`);
 const groupHandler = require(`../handlers/groupHandler`);
+const mySportsHandler = require(`../handlers/mySportsHandler`);
 const scoringSystem = require(`../constants/scoringSystem`);
 
 module.exports = app => {
@@ -72,8 +73,37 @@ module.exports = app => {
 
     app.get(`/api/getLeaderboard/:season/:week/:groupId`, async (req, res) => {
         const { season, week, groupId } = req.params;
-        const currWeekForLeaderboard = +week === 1 ? 1 : +week;
-        const leaderboard = await groupHandler.getLeaderBoard(groupId, season, currWeekForLeaderboard);
+        const leaderboard = await groupHandler.getLeaderBoard(groupId, season, +week);
         res.status(200).send({ leaderboard });
+    });
+
+    app.get(`/api/getIdealRoster/:season/:week/:groupId`, async (req, res) => {
+        const { season, week, groupId } = req.params;
+        const previousWeek = +week - 1;
+        if (previousWeek === 0) {
+            const blankRoster = await groupHandler.getBlankRoster(groupId);
+            res.status(200).send(blankRoster);
+            return;
+        }
+        const idealRoster = await groupHandler.getIdealRoster(groupId, season, +previousWeek);
+        const response = await mySportsHandler.fillUserRoster(idealRoster.R);
+        res.status(200).send(response);
+    });
+
+    app.get(`/api/getBestCurrLeadRoster/:season/:week/:groupId`, async (req, res) => {
+        const { season, week, groupId } = req.params;
+        if (+week === 1) {
+            //Setting this blank roster if we are currently in week 1 there is no previous week to compare
+            const blankRoster = await groupHandler.getBlankRoster(groupId);
+            res.status(200).send({ bestRoster: blankRoster, currentLeader: blankRoster });
+            return;
+        } else {
+            const userScores = await groupHandler.getCurrAndLastWeekScores(groupId, season, +week);
+            const bestRoster = await groupHandler.getBestRoster(groupId, season, +week, userScores);
+            const leaderRoster = await groupHandler.getLeaderRoster(userScores, groupId, week, season);
+            console.log(`lead`, leaderRoster)
+            res.status(200).send({ bestRoster, leaderRoster });
+        }
+        // console.log(userScores)
     });
 };

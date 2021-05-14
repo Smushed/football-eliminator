@@ -1,4 +1,7 @@
 const db = require(`../models`);
+const mySportsHandler = require('./mySportsHandler');
+const positions = require(`../constants/positions`);
+const userHandler = require('./userHandler');
 
 const checkDuplicate = async (checkedField, groupToSearch, userID) => {
     let result = false;
@@ -66,6 +69,26 @@ const createUserScore = async (userId, season, groupId) => {
     };
     return;
 };
+
+const getTopScorerForWeek = (userScores, week) => {
+    userScores.sort((a, b) => b[week] - a[week]);
+    const topWeekScore = userScores.shift();
+    return topWeekScore;
+};
+
+const getTopOverallLeadRosterForWeek = (userScores) => {
+    userScores.sort((a, b) => b.TS - a.TS);
+    const topWeekScore = userScores.shift();
+    return topWeekScore;
+};
+
+const findOneRoster = (userId, week, season, groupId) => {
+    return db.UserRoster.findOne({ U: userId, W: week, S: season, G: groupId }, { R: 1 }).exec();
+};
+
+const findOneUserById = (userId) => {
+    return db.User.findById(userId, { UN: 1 }).exec();
+}
 
 module.exports = {
     createGroup: async (userId, newGroupScore, groupName, groupDesc, groupPositions) => {
@@ -218,5 +241,67 @@ module.exports = {
             };
         };
         return filledData;
+    },
+    getIdealRoster: async function (groupId, season, week) {
+        const idealRosterResponse = await db.IdealRoster.findOne({ G: groupId, S: season, W: week });
+        if (idealRosterResponse === null) {
+            let newIdealRoster = new db.IdealRoster({ G: groupId, S: season, W: week });
+            Promise.all([
+                this.getGroupScore(groupId),
+                this.getGroupPositions(groupId)
+            ]).then(async ([groupScore, groupPositions]) => {
+                Promise.all([
+                    mySportsHandler.rankPlayers(season, week, groupScore),
+                    this.mapGroupPositions(groupPositions, positions.positionMap)
+                ]).then(([rankedPlayers, groupPositionMap]) => {
+                    for (const possiblePositions of groupPositionMap) {
+                        const highScorers = [];
+                        for (const positionVal of possiblePositions) {
+                            const topScorer = rankedPlayers[positions.positionArray[positionVal]].shift()
+                            highScorers.push(topScorer);
+                        }
+                        if (highScorers.length === 1) {
+                            newIdealRoster.R.push({ M: highScorers[0].M, SC: highScorers[0].score });
+                        } else {
+                            highScorers.sort((a, b) => { return b.score - a.score });
+                            newIdealRoster.R.push({ M: highScorers[0].M, SC: highScorers[0].score });
+                        }
+                    }
+                    newIdealRoster.save(err => console.log(err));
+                    return newIdealRoster;
+                })
+            })
+        } else {
+            return idealRosterResponse;
+        };
+    },
+    getBlankRoster: async function (groupId) {
+        const groupPositions = await this.getGroupPositions(groupId);
+        const blankRoster = groupPositions.map(position => ({ M: 0, P: position.N }))
+        return blankRoster;
+    },
+    getBestRoster: async function (groupId, season, week, userScores) {
+        const lastWeek = (week - 1).toString();
+        const scoresCopy = [...userScores];
+        const topWeekScore = await getTopScorerForWeek(scoresCopy, lastWeek);
+        //Doing this here because rosterHandler.js doesn't want to be exported to any other file for some reason
+        let topUserRoster = await findOneRoster(topWeekScore.U, lastWeek, season, groupId);
+        const foundUser = await findOneUserById(topWeekScore.U);
+        const R = await mySportsHandler.fillUserRoster(topUserRoster.R);
+        return { R, U: foundUser.UN }; //Short hand for roster and user
+    },
+    getCurrAndLastWeekScores: async (groupId, season, week) => {
+        const weekAccessor = (week === 1 ? 1 : week - 1).toString();
+        return await getUserScoreList(groupId, season, weekAccessor, week);
+    },
+    getLeaderRoster: async function (userScores, groupId, week, season) {
+        const scoresCopy = [...userScores];
+        const topWeekScore = await getTopOverallLeadRosterForWeek(scoresCopy);
+        let topUserRoster = await findOneRoster(topWeekScore.U, week, season, groupId);
+        if (topUserRoster === null) {
+            return this.getBlankRoster(groupId);
+        };
+        const R = await mySportsHandler.fillUserRoster(topUserRoster.R);
+        return R; //Don't need to get user here because the front end already has the leader and the username. Avoid the extra DB call
     }
 };

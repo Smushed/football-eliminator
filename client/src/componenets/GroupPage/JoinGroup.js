@@ -3,6 +3,7 @@ import { withAuthorization } from '../Session';
 import axios from 'axios';
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import PropTypes from 'prop-types';
 
 import './groupStyle.css';
 
@@ -14,10 +15,11 @@ class JoinGroup extends Component {
         this.state = {
             groupList: [],
         };
-    };
+    }
+
     componentDidMount() {
         this.getGroupList()
-    };
+    }
 
     getGroupList = async () => {
         const groupList = await axios.get(`/api/getGroupList`);
@@ -28,7 +30,7 @@ class JoinGroup extends Component {
         axios.put(`/api/requestJoinGroup`, {
             userId: this.props.userId,
             groupId
-        }).then(res => {
+        }).then(() => {
             window.location.reload(false);
         });
     };
@@ -74,24 +76,38 @@ class JoinGroup extends Component {
                 </div>
             </div>
         )
-    };
-};
+    }
+}
 
-const GroupRow = (props) => (
+const GroupRow = ({ name, UL, showUserlist, joinGroup, desc, groupId }) => (
     <div className='joinGroupRow'>
-        <div className='groupListCol groupName' onClick={() => props.showUserlist(props.UL, props.name)}>
-            {props.name}
+        <div className='groupListCol groupName' onClick={() => showUserlist(UL, name)}>
+            {name}
         </div>
         <div className='groupListCol'>
-            {props.desc}
+            {desc}
         </div>
         <div className='groupListCol rightCol'>
-            <button className='btn btn-outline-primary' onClick={() => props.joinGroup(props.groupId)} >
+            <button className='btn btn-outline-primary' onClick={() => joinGroup(groupId)} >
                 Join
             </button>
         </div>
     </div>
 );
+
+GroupRow.propTypes = {
+    UL: PropTypes.array,
+    groupId: PropTypes.string,
+    name: PropTypes.string,
+    desc: PropTypes.string,
+    showUserlist: PropTypes.func,
+    joinGroup: PropTypes.func
+};
+
+JoinGroup.propTypes = {
+    userId: PropTypes.string,
+    groupId: PropTypes.string
+};
 
 const condition = authUser => !!authUser;
 

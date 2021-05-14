@@ -4,12 +4,12 @@ module.exports = {
     UserScores: require(`./UserScores`),
     UsedPlayers: require(`./UsedPlayers`),
     SeasonAndWeek: require(`./SeasonAndWeek`),
-    WeeklyUserScore: require(`./WeeklyUserScore`),
     MatchUps: require(`./MatchUps`),
 
     Group: require(`./Group`),
     GroupScore: require(`./GroupScore`),
     GroupRoster: require(`./GroupRoster`),
+    IdealRoster: require(`./IdealRoster`),
 
     PlayerData: require(`./PlayerData`),
     PlayerStats: require(`./PlayerStats`)

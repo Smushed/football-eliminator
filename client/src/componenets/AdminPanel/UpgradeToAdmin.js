@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
 import { Button } from 'reactstrap';
-import { UserTable, SelectedUser } from './UserEditor';
 import * as Routes from '../../constants/routes';
+import PropTypes from 'prop-types';
 
 import './upgradeToAdmin.css';
 
@@ -22,13 +22,13 @@ class UpgradeToAdmin extends Component {
             loading: true,
             dbPass: ``
         };
-    };
+    }
 
     componentDidMount() {
         axios.get(`/api/getAllUsers`).then(res => {
             this.setState({ loading: false, userArray: res.data });
         });
-    };
+    }
 
     selectUser = (id) => {
         this.setState({ selectedUser: id })
@@ -44,7 +44,7 @@ class UpgradeToAdmin extends Component {
             });
         } catch (err) {
             this.handleWrongPass(`Get Outta Here!`);
-        };
+        }
     };
 
     handleChange = event => {
@@ -60,18 +60,24 @@ class UpgradeToAdmin extends Component {
             cancelButtonText: 'X'
         });
         this.props.history.push(Routes.home);
-    };
+    }
 
     render() {
         return (
             <div className='upgradeCol'>
-                <SelectedUser selectedUser={this.state.selectedUser} />
+                {/* <SelectedUser selectedUser={this.state.selectedUser} /> */}
                 <input type='text' name='dbPass' value={this.state.dbPass} onChange={this.handleChange} />
                 <Button className='adminButton' onClick={this.upgradeToAdmin} disabled={!this.state.selectedUser} >Upgrade to Admin</Button>
-                <UserTable userArray={this.state.userArray} loading={this.state.loading} selectUser={this.selectUser} />
+                {/* <UserTable userArray={this.state.userArray} loading={this.state.loading} selectUser={this.selectUser} /> */}
             </div>
         );
-    };
+    }
+}
+
+UpgradeToAdmin.propTypes = {
+    season: PropTypes.string,
+    week: PropTypes.number,
+    history: PropTypes.any
 };
 
 const condition = authUser => !!authUser;

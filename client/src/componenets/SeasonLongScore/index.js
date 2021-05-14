@@ -5,9 +5,9 @@ import { Container, Row, Col } from 'reactstrap';
 import { RosterDisplay } from '../Roster';
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import PropTypes from 'prop-types';
 
 import './seasonLongScoreStyle.css';
-
 
 const Alert = withReactContent(Swal);
 
@@ -17,18 +17,17 @@ class SeasonLongScore extends Component {
         this.state = {
             displayReadyRosters: []
         };
-    };
+    }
 
     componentDidUpdate(prevProps) {
         if (this.props.season !== prevProps.season) {
             this.seasonData(this.props.match.params.userId, this.props.season);
-        };
-    };
+        }
+    }
 
     componentDidMount() {
         if (this.props.season !== `` && this.props.match.params.userId !== ``) {
             this.seasonData(this.props.match.params.userId, this.props.season);
-
         }
     }
 
@@ -41,15 +40,15 @@ class SeasonLongScore extends Component {
             }).catch(err => {
                 console.log(`roster data error`, err); //TODO better error handling
             });
-    };
+    }
 
     sortRoster(seasonRostersArray) {
         const displayReadyRosters = [];
         for (let i = 0; i < seasonRostersArray.length; i++) {
             displayReadyRosters[i] = this.sortWeek(seasonRostersArray[i]);
-        };
+        }
         this.setState({ displayReadyRosters });
-    };
+    }
 
     sortWeek(weekArray) {
         const displayReadyRoster = {}; //It's saved as an object in the database
@@ -77,16 +76,15 @@ class SeasonLongScore extends Component {
                     displayReadyRoster.WR2 = player;
                 } else if (!displayReadyRoster.Flex) {
                     displayReadyRoster.Flex = player;
-                };
+                }
             } else if (position === `TE`) {
                 displayReadyRoster.TE = player;
             } else if (position === `K`) {
                 displayReadyRoster.K = player;
-            };
-        };
-
+            }
+        }
         return displayReadyRoster;
-    };
+    }
 
     loading() {
         Alert.fire({
@@ -99,11 +97,11 @@ class SeasonLongScore extends Component {
             showConfirmButton: false,
             showCancelButton: false
         });
-    };
+    }
 
     doneLoading() {
         Alert.close()
-    };
+    }
 
 
     render() {
@@ -122,8 +120,8 @@ class SeasonLongScore extends Component {
                 </Container>
             </div >
         );
-    };
-};
+    }
+}
 
 const WeekDisplay = (props) => (
     <Col xs='3'>
@@ -135,6 +133,17 @@ const WeekDisplay = (props) => (
         <RosterDisplay rosterPlayers={props.rosterPlayers} addDropPlayer={false} currentRoster={props.weekRoster} nameCol={'9'} scoreCol={'3'} />
     </Col>
 );
+
+SeasonLongScore.propTypes = {
+    season: PropTypes.string,
+    match: PropTypes.any
+};
+
+WeekDisplay.propTypes = {
+    week: PropTypes.number,
+    rosterPlayers: PropTypes.array,
+    weekRoster: PropTypes.array
+}
 
 const condition = authUser => !!authUser;
 

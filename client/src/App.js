@@ -1,8 +1,9 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState, useRef, } from 'react';
 import * as Routes from './constants/routes';
 import { Route, BrowserRouter, Switch } from 'react-router-dom';
 import { withFirebase } from './componenets/Firebase';
 import axios from 'axios';
+import PropTypes from 'prop-types';
 
 import SignInOut from './componenets/SignInOut';
 import NavBar from './componenets/NavBar/';
@@ -18,31 +19,29 @@ import GroupPage from './componenets/GroupPage/';
 import FourOFour from './componenets/404/FourOFour';
 import SidePanel from './componenets/SidePanel';
 
-
 const App = ({ firebase }) => {
 
   const [noGroup, updateNoGroup] = useState(false);
   const [authUser, updateAuthUser] = useState(null);
   const [currentUser, updateCurrentUser] = useState({});
-  const [currentWeek, updateCurrentWeek] = useState(1);
+  const [currentWeek, updateCurrentWeek] = useState(0);
   const [currentSeason, updateCurrentSeason] = useState(``);
   const [groupList, updateGroupList] = useState([]);
   const [currentGroup, updateCurrentGroup] = useState({});
-  const [positionOrder, updatePositionOrder] = useState([]);
   const [showSideBar, updateShowSideBar] = useState(false);
   const [latestLockWeek, updateLockWeek] = useState(0);
 
-  let listener;
+  const listener = useRef(null);
 
   useEffect(() => {
-    listener = firebase.auth.onAuthStateChanged(authUser => {
+    listener.current = firebase.auth.onAuthStateChanged(authUser => {
       if (authUser) {
         updateAuthUser(authUser);
         isSignedIn(authUser.email);
       } else {
         updateAuthUser(null);
         updateCurrentUser({});
-      };
+      }
       return function cleanup() {
         listener();
       };
@@ -58,7 +57,7 @@ const App = ({ firebase }) => {
       getGroupAndPositions(dbResponse.data);
     } else {
       updateNoGroup(true);
-    };
+    }
   };
 
   const setCurrentUser = (user) => {
@@ -66,7 +65,8 @@ const App = ({ firebase }) => {
       username: user.UN,
       userId: user._id,
       isAdmin: user.A,
-      FT: user.FT
+      FT: user.FT,
+      GL: user.GL
     };
     updateCurrentUser(currentUser);
   }
@@ -75,9 +75,6 @@ const App = ({ firebase }) => {
     updateNoGroup(false);
     updateGroupList(user.GL);
     updateCurrentGroup({ N: user.GL[0].N, _id: user.GL[0]._id });
-
-    const playerPositions = await axios.get(`/api/getPositionData`);
-    updatePositionOrder(playerPositions.data)
 
     getSeasonAndWeek();
   };
@@ -128,12 +125,10 @@ const App = ({ firebase }) => {
               exact path={Routes.home}
               render={() =>
                 <Home
-                  isAdmin={currentUser.isAdmin}
                   season={currentSeason}
                   group={currentGroup}
                   week={currentWeek}
-                  positionOrder={positionOrder}
-                  username={currentUser.username}
+                  currentUser={currentUser}
                 />}
             />
             <Route
@@ -215,5 +210,9 @@ const App = ({ firebase }) => {
     </BrowserRouter>
   );
 }
+
+App.propTypes = {
+  firebase: PropTypes.any
+};
 
 export default withFirebase(App);

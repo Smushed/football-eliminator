@@ -3,6 +3,7 @@ import { withRouter } from 'react-router-dom';
 import axios from 'axios';
 import * as Routes from '../../constants/routes';
 import { compose } from 'recompose';
+import PropTypes from 'prop-types';
 
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -18,19 +19,19 @@ class UpdateWeek extends Component {
             lockWeek: 0,
             season: `2020-2021-regular`
         };
-    };
+    }
 
     updateWeekSeason = async () => {
         if (this.state.dbPass === ``) {
             this.handleWrongPass(`No!`);
             return;
-        };
+        }
         try {
             const response = await axios.put(`/api/updateWeekSeason/${this.state.dbPass}/${this.state.season}/${this.state.currentWeek}/${this.state.lockWeek}`);
             await Alert.fire(response.data)
         } catch (err) {
             this.handleWrongPass(`Get Outta Here!`);
-        };
+        }
         this.setState({ dbPass: `` });
     };
 
@@ -43,7 +44,7 @@ class UpdateWeek extends Component {
             cancelButtonText: 'X'
         });
         this.props.history.push(Routes.home);
-    };
+    }
 
     handleChange = (e) => {
         this.setState({
@@ -54,7 +55,7 @@ class UpdateWeek extends Component {
     render() {
         return (
             <div>
-                Don't enter this if you don't know!
+                Don&apos;t enter this if you don&apos;t know!
                 <div>
                     Current Week
                     <select value={this.state.week} onChange={this.handleChange} name='currentWeek'>
@@ -119,5 +120,8 @@ class UpdateWeek extends Component {
     }
 }
 
+UpdateWeek.propTypes = {
+    history: PropTypes.any
+};
 
 export default compose(withRouter)(UpdateWeek);

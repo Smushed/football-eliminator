@@ -4,9 +4,8 @@ import axios from 'axios';
 import { Input, Form, FormGroup, Button, Row, Col } from 'reactstrap';
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import ReactTable from 'react-table-v6';
+import PropTypes from 'prop-types';
 
-import 'react-table-v6/react-table.css';
 import './userEditorStyle.css';
 
 const Alert = withReactContent(Swal);
@@ -31,13 +30,13 @@ class UserEditor extends Component {
             TE: 0,
             K: 0
         };
-    };
+    }
 
     componentDidMount() {
         axios.get(`/api/getAllUsers`).then(res => {
             this.setState({ loading: false, userArray: res.data });
         });
-    };
+    }
 
     loading() {
         Alert.fire({
@@ -50,10 +49,10 @@ class UserEditor extends Component {
             showConfirmButton: false,
             showCancelButton: false
         });
-    };
+    }
     doneLoading() {
         Alert.close()
-    };
+    }
 
     dummyRoster = async () => {
         const dummyRoster = [
@@ -112,7 +111,7 @@ class UserEditor extends Component {
             <div>
                 <Row>
                     <Col xs='6'>
-                        <SelectedUser selectedUser={this.state.selectedUser} />
+                        <SelectedUserComponent selectedUser={this.state.selectedUser} />
                     </Col>
                     <Col xs='6'>
                         {this.state.isSelected &&
@@ -222,48 +221,33 @@ class UserEditor extends Component {
                         </Form>
                     </Col>
                 </Row>
-                <UserTable userArray={this.state.userArray} loading={this.state.loading} selectUser={this.selectUser} />
+                {/* TODO BUILD A USER TABLE */}
             </div>
         );
-    };
-};
+    }
+}
 
-const SelectedUser = (props) => {
+function SelectedUserComponent({ selectedUser }) {
     return (
         <div className='selectedUser'>
-            Selected User: <input value={props.selectedUser.username} type='text' disabled />
+            Selected User: <input value={selectedUser.username} type='text' disabled />
         </div>
-    );
+    )
+}
+
+UserEditor.propTypes = {
+    season: PropTypes.string,
+    week: PropTypes.number,
 };
 
-const UserTable = (props) => {
-    return (
-        <Row>
-            <Col xs='12'>
-                <ReactTable
-                    data={props.userArray}
-                    columns={[
-                        { Header: 'Username', accessor: 'username', show: true },
-                        { Header: 'email', accessor: 'email', show: true },
-                        { Header: 'Id', accessor: '_id', show: true }
-                    ]}
-                    loading={props.loading}
-                    filterable
-                    defaultPageSize={20}
-                    className="-highlight"
-                    getTdProps={(state, rowInfo) => {
-                        return {
-                            onClick: () => {
-                                if (!rowInfo) { return };
-                                props.selectUser(rowInfo.original);
-                            }
-                        };
-                    }}
-                />
-            </Col>
-        </Row>
-    );
+SelectedUserComponent.propTypes = {
+    selectedUser: PropTypes.any
 };
+
+SelectedUserComponent.defaultProps = {
+    selectedUser: null
+};
+
 
 
 const condition = authUser => !!authUser;
@@ -271,4 +255,4 @@ const condition = authUser => !!authUser;
 export default withAuthorization(condition)(UserEditor);
 
 //These should really be taken together since they're used together
-export { UserTable, SelectedUser };
+export { SelectedUserComponent };

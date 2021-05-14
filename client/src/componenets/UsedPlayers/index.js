@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import { PlayerDisplayRow } from '../Roster';
 import { withAuthorization } from '../Session';
+import PropTypes from 'prop-types';
 
 import './usedPlayerStyle.css';
 
@@ -14,21 +15,21 @@ class UsedPlayers extends Component {
             usernameOfPage: '',
             displayPositions: [] //Figure out if we need to display them with a boolean
         };
-    };
+    }
 
     componentDidMount() {
         if (this.props.season !== '') {
             this.getUsedPlayers();
             this.setState({ usernameOfPage: this.props.match.params.username })
-        };
-    };
+        }
+    }
 
     componentDidUpdate(prevProps) {
         if (this.props.season !== prevProps.season) {
             this.getUsedPlayers();
             this.setState({ usernameOfPage: this.props.match.params.username })
-        };
-    };
+        }
+    }
 
     getUsedPlayers = () => {
         this.setState({ loading: true });
@@ -45,7 +46,7 @@ class UsedPlayers extends Component {
         return (
             <div>
                 <div className='centerText titleMargin headerFont'>
-                    {this.state.usernameOfPage}'s Used Players
+                    {this.state.usernameOfPage}&apos;s Used Players
                 </div>
                 {positions.map(position => (
                     <div key={position}>
@@ -65,6 +66,11 @@ class UsedPlayers extends Component {
         )
     }
 }
+
+UsedPlayers.propTypes = {
+    match: PropTypes.any,
+    season: PropTypes.string,
+};
 
 const condition = authUser => !!authUser;
 

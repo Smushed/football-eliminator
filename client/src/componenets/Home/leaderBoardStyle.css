@@ -1,7 +1,8 @@
 .leaderboardContainter {
     z-index: 1;
     display: flex;
-    width: 50%;
+    width: 55%;
+    min-width: 800px;
 }
 
 .leaderboard {

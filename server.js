@@ -19,7 +19,6 @@ app.use(cookieParser());
 
 let MONGODB_URI = ``;
 
-// Serve up static assets (usually on heroku)
 if (process.env.NODE_ENV === `production`) {
   app.use(express.static(path.join(__dirname, `./client/build`)));
   MONGODB_URI = process.env.MONGO_ATLUS;
@@ -45,4 +44,4 @@ app.get(`*`, (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`🌎 ==> API server now on port ${PORT}!`);
-}); 
+});

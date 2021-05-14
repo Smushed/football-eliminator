@@ -1,8 +1,14 @@
 .wrapper {
-    width: 100%;
     display: flex;
-    margin-top: 30px;
+    margin-top: 50px;
     margin-left: 10%;
+}
+
+.secondRowWrapper {
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 55px;
+    margin-left: 0;
 }
 
 .weekSearchInputOnHome {

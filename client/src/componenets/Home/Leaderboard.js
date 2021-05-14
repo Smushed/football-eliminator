@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import './leaderBoardStyle.css'
 
@@ -50,6 +51,13 @@ const Leaderboard = ({ groupName, week, leaderboard }) => (
         </div>
     </div>
 )
+
+Leaderboard.propTypes = {
+    user: PropTypes.object,
+    groupName: PropTypes.string,
+    leaderboard: PropTypes.array,
+    week: PropTypes.number
+}
 
 
 export default Leaderboard;

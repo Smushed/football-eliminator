@@ -34,6 +34,6 @@ class Firebase {
         const user = app.auth().currentUser;
         return user.updatePassword(password);
     };
-};
+}
 
 export default Firebase;
