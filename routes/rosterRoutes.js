@@ -109,5 +109,9 @@ module.exports = app => {
         res.status(200).send({ rosterPositions, positionMap, maxOfPosition });
     });
 
-
+    app.get(`/api/getAllRostersForGroup/:season/:week/:groupId`, async (req, res) => {
+        const { season, week, groupId } = req.params;
+        const allRosters = await rosterHandler.getAllRostersForGroup(season, week, groupId);
+        res.status(200).send(allRosters)
+    });
 };

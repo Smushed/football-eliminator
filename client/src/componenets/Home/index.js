@@ -15,6 +15,7 @@ const Home = ({ season, group, week, currentUser }) => {
     const [bestRoster, updateBestRoster] = useState([]);
     const [bestRosterUser, updateBestRosterUser] = useState(``);
     const [leaderRoster, updateLeaderRoster] = useState([]);
+    const [weeklyGroupRosters, updateWeeklyGroupRosters] = useState([]);
     const [groupPositions, updateGroupPositions] = useState([]);
 
     useEffect(() => {
@@ -30,6 +31,7 @@ const Home = ({ season, group, week, currentUser }) => {
         getLeaderBoard(season, week, groupId);
         getIdealRoster(season, week, groupId);
         getBestCurrLeadRoster(season, week, groupId);
+        getAllRostersForWeek(season, week, groupId);
     };
 
     const getLeaderBoard = (season, week, groupId) => {
@@ -43,6 +45,7 @@ const Home = ({ season, group, week, currentUser }) => {
     const getRoster = (season, week, groupname, username) => {
         axios.get(`/api/userRoster/${season}/${week}/${groupname}/${username}`)
             .then(res => {
+                console.log(`userRoster`, res.data)
                 updateRoster(res.data.userRoster);
                 updateGroupPositions(res.data.groupPositions)
                 return;
@@ -60,9 +63,17 @@ const Home = ({ season, group, week, currentUser }) => {
         //This gets both the best roster from the previous week as well as the current leader's roster for the current week
         axios.get(`/api/getBestCurrLeadRoster/${season}/${week}/${groupId}`)
             .then(res => {
+                console.log(res)
                 updateBestRosterUser(res.data.bestRoster.U);
                 updateBestRoster(res.data.bestRoster.R);
                 updateLeaderRoster(res.data.leaderRoster); //No need to set username here, already have it with leaderboard
+            });
+    };
+
+    const getAllRostersForWeek = (season, week, groupId) => {
+        axios.get(`/api/getAllRostersForGroup/${season}/${week}/${groupId}`)
+            .then(res => {
+                updateWeeklyGroupRosters(res.data);
             });
     };
 
@@ -79,7 +90,7 @@ const Home = ({ season, group, week, currentUser }) => {
                 <div className='userRosterHomePage'>
                     <div className='rosterHomePageTitle'>
                         Your Week {weekForLeaderboard} Roster
-                </div>
+                    </div>
                     {roster.length > 0 &&
                         <RosterDisplay
                             groupPositions={groupPositions}
@@ -126,6 +137,22 @@ const Home = ({ season, group, week, currentUser }) => {
                         />
                     }
                 </div>
+            </div>
+            <div className='secondRowWrapper'>
+                {weeklyGroupRosters.map(inGroupRoster =>
+                    <div className='topBottomMargin' key={inGroupRoster.UN}>
+                        <div className='userRosterHomePage'>
+                            <div className='rosterHomePageTitle'>
+                                {inGroupRoster.UN} Roster
+                            </div>
+                            <RosterDisplay
+                                groupPositions={groupPositions}
+                                roster={inGroupRoster.R}
+                                pastLockWeek={true}
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
         </Fragment>
     );

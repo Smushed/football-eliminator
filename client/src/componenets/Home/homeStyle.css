@@ -11,6 +11,11 @@
     margin-left: 0;
 }
 
+.topBottomMargin {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
 .weekSearchInputOnHome {
     justify-self: start;
 }
@@ -69,7 +74,7 @@
     border: 1px solid lightgray;
     border-radius: 15px;
     width: 525px;
-    padding:  10px 25px;
+    padding:  10px 0 15px 30px;
 }
 
 .rosterHomePageTitle {

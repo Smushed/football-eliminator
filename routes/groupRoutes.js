@@ -95,7 +95,8 @@ module.exports = app => {
         if (+week === 1) {
             //Setting this blank roster if we are currently in week 1 there is no previous week to compare
             const blankRoster = await groupHandler.getBlankRoster(groupId);
-            res.status(200).send({ bestRoster: blankRoster, currentLeader: blankRoster });
+            const bestRoster = { R: blankRoster, U: `` }; //Filling out dummy data for the front end to display
+            res.status(200).send({ bestRoster, leaderRoster: blankRoster });
             return;
         } else {
             const userScores = await groupHandler.getCurrAndLastWeekScores(groupId, season, +week);
