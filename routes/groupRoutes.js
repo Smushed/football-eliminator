@@ -101,9 +101,7 @@ module.exports = app => {
             const userScores = await groupHandler.getCurrAndLastWeekScores(groupId, season, +week);
             const bestRoster = await groupHandler.getBestRoster(groupId, season, +week, userScores);
             const leaderRoster = await groupHandler.getLeaderRoster(userScores, groupId, week, season);
-            console.log(`lead`, leaderRoster)
             res.status(200).send({ bestRoster, leaderRoster });
         }
-        // console.log(userScores)
     });
 };
