@@ -92,8 +92,6 @@ module.exports = app => {
 
     app.get(`/api/getBestCurrLeadRoster/:season/:week/:groupId`, async (req, res) => {
         const { season, week, groupId } = req.params;
-        let bestRoster;
-        let currentLeader;
         if (+week === 1) {
             //Setting this blank roster if we are currently in week 1 there is no previous week to compare
             const blankRoster = await groupHandler.getBlankRoster(groupId);
@@ -102,9 +100,9 @@ module.exports = app => {
         } else {
             const userScores = await groupHandler.getCurrAndLastWeekScores(groupId, season, +week);
             const bestRoster = await groupHandler.getBestRoster(groupId, season, +week, userScores);
-            // const currentLeader = await groupHandler(userScores, groupId)
-            console.log(`best roster`, bestRoster)
-            res.status(200).send({ bestRoster });
+            const leaderRoster = await groupHandler.getLeaderRoster(userScores, groupId, week, season);
+            console.log(`lead`, leaderRoster)
+            res.status(200).send({ bestRoster, leaderRoster });
         }
         // console.log(userScores)
     });

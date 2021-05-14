@@ -70,6 +70,26 @@ const createUserScore = async (userId, season, groupId) => {
     return;
 };
 
+const getTopScorerForWeek = (userScores, week) => {
+    userScores.sort((a, b) => b[week] - a[week]);
+    const topWeekScore = userScores.shift();
+    return topWeekScore;
+};
+
+const getTopOverallLeadRosterForWeek = (userScores) => {
+    userScores.sort((a, b) => b.TS - a.TS);
+    const topWeekScore = userScores.shift();
+    return topWeekScore;
+};
+
+const findOneRoster = (userId, week, season, groupId) => {
+    return db.UserRoster.findOne({ U: userId, W: week, S: season, G: groupId }, { R: 1 }).exec();
+};
+
+const findOneUserById = (userId) => {
+    return db.User.findById(userId, { UN: 1 }).exec();
+}
+
 module.exports = {
     createGroup: async (userId, newGroupScore, groupName, groupDesc, groupPositions) => {
         if (!checkDuplicate('group', groupName)) { return false };
@@ -262,16 +282,26 @@ module.exports = {
     },
     getBestRoster: async function (groupId, season, week, userScores) {
         const lastWeek = (week - 1).toString();
-        userScores.sort((a, b) => b[lastWeek] - a[lastWeek]);
-        const topWeekScore = userScores.shift();
+        const scoresCopy = [...userScores];
+        const topWeekScore = await getTopScorerForWeek(scoresCopy, lastWeek);
         //Doing this here because rosterHandler.js doesn't want to be exported to any other file for some reason
-        let topUserRoster = await db.UserRoster.findOne({ U: topWeekScore.U, W: lastWeek, S: season, G: groupId }, { R: 1 }).exec();
-        const foundUser = await db.User.findById(topWeekScore.U, { UN: 1 }).exec();
+        let topUserRoster = await findOneRoster(topWeekScore.U, lastWeek, season, groupId);
+        const foundUser = await findOneUserById(topWeekScore.U);
         const R = await mySportsHandler.fillUserRoster(topUserRoster.R);
         return { R, U: foundUser.UN }; //Short hand for roster and user
     },
     getCurrAndLastWeekScores: async (groupId, season, week) => {
         const weekAccessor = (week === 1 ? 1 : week - 1).toString();
         return await getUserScoreList(groupId, season, weekAccessor, week);
+    },
+    getLeaderRoster: async function (userScores, groupId, week, season) {
+        const scoresCopy = [...userScores];
+        const topWeekScore = await getTopOverallLeadRosterForWeek(scoresCopy);
+        let topUserRoster = await findOneRoster(topWeekScore.U, week, season, groupId);
+        if (topUserRoster === null) {
+            return this.getBlankRoster(groupId);
+        };
+        const R = await mySportsHandler.fillUserRoster(topUserRoster.R);
+        return R; //Don't need to get user here because the front end already has the leader and the username. Avoid the extra DB call
     }
 };
