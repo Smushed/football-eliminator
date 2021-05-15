@@ -101,11 +101,13 @@ const Home = ({ season, group, week, currentUser }) => {
                     }
                 </div>
             </div>
-            <div className='rosterGroupHeader'>
-                Header for the Second Row
-                <button onClick={() => updateSecondRowOpen(!secondRowOpen)}>
-                    Collapse Button
-                </button>
+            <div className='rosterGroupHeaderWrapper'>
+                <div className='rosterGroupHeader'>
+                    Top Rosters
+                    <button className='collapseButton btn btn-outline-info' onClick={() => updateSecondRowOpen(!secondRowOpen)}>
+                        Collapse
+                    </button>
+                </div>
             </div>
             <Collapse isOpened={secondRowOpen}>
                 <div className='rosterRowWrapper'>
@@ -123,7 +125,7 @@ const Home = ({ season, group, week, currentUser }) => {
                         <div className='userRosterHomePage'>
                             <div className='rosterHomePageTitle'>
                                 Last Week&apos;s Ideal
-                        </div>
+                            </div>
                             {idealRoster.length > 0 &&
                                 <RosterDisplay
                                     groupPositions={groupPositions}
@@ -147,16 +149,18 @@ const Home = ({ season, group, week, currentUser }) => {
                     </div>
                 </div>
             </Collapse>
-            <div className='rosterGroupHeader'>
-                Header for the Group Rosters
-                <button onClick={() => updateGroupRostersOpen(!groupRostersOpen)}>
-                    Collapse Button
-                </button>
+            <div className='rosterGroupHeaderWrapper'>
+                <div className='rosterGroupHeader'>
+                    {group.N} Rosters
+                    <button className='collapseButton btn btn-outline-info' onClick={() => updateGroupRostersOpen(!groupRostersOpen)}>
+                        Collapse
+                    </button>
+                </div>
             </div>
             <Collapse isOpened={groupRostersOpen}>
                 <div className='rosterRowWrapper'>
                     {weeklyGroupRosters.map(inGroupRoster =>
-                        <div className='topBottomMargin' key={inGroupRoster.UN}>
+                        <div className='bottomMargin' key={inGroupRoster.UN}>
                             <div className='userRosterHomePage'>
                                 <div className='rosterHomePageTitle'>
                                     {inGroupRoster.UN} Roster
@@ -181,17 +185,6 @@ Home.propTypes = {
     week: PropTypes.number,
     currentUser: PropTypes.object
 }
-
-
-// import { WeekSearch } from '../Roster/SearchDropdowns';
-// <div className='weekSearchOnHome'>
-// <div className='weekDisplay'>
-//     Week Shown: {this.state.weekDisplay}
-// </div>
-// <div className='weekSearchInputOnHome'>
-//     <WeekSearch handleChange={this.handleChange} customSeasonWeekSearch={this.customSeasonWeekSearch} weekSelect={this.state.weekSelect} />
-// </div>
-// </div>
 
 const condition = authUser => !!authUser;
 
