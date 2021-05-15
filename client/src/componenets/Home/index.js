@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import axios from 'axios';
 import { withAuthorization } from '../Session';
+import { Collapse } from 'react-collapse';
 
 import { RosterDisplay } from '../Roster';
 import './homeStyle.css';
@@ -17,6 +18,8 @@ const Home = ({ season, group, week, currentUser }) => {
     const [leaderRoster, updateLeaderRoster] = useState([]);
     const [weeklyGroupRosters, updateWeeklyGroupRosters] = useState([]);
     const [groupPositions, updateGroupPositions] = useState([]);
+    const [groupRostersOpen, updateGroupRostersOpen] = useState(true);
+    const [secondRowOpen, updateSecondRowOpen] = useState(true);
 
     useEffect(() => {
         if (week !== 0 && season !== ``) {
@@ -45,7 +48,6 @@ const Home = ({ season, group, week, currentUser }) => {
     const getRoster = (season, week, groupname, username) => {
         axios.get(`/api/userRoster/${season}/${week}/${groupname}/${username}`)
             .then(res => {
-                console.log(`userRoster`, res.data)
                 updateRoster(res.data.userRoster);
                 updateGroupPositions(res.data.groupPositions)
                 return;
@@ -63,7 +65,6 @@ const Home = ({ season, group, week, currentUser }) => {
         //This gets both the best roster from the previous week as well as the current leader's roster for the current week
         axios.get(`/api/getBestCurrLeadRoster/${season}/${week}/${groupId}`)
             .then(res => {
-                console.log(res)
                 updateBestRosterUser(res.data.bestRoster.U);
                 updateBestRoster(res.data.bestRoster.R);
                 updateLeaderRoster(res.data.leaderRoster); //No need to set username here, already have it with leaderboard
@@ -100,60 +101,76 @@ const Home = ({ season, group, week, currentUser }) => {
                     }
                 </div>
             </div>
-            <div className='secondRowWrapper'>
-                <div className='userRosterHomePage'>
-                    <div className='rosterHomePageTitle'>
-                        Best from Week {weekForLeaderboard - 1} - {bestRosterUser}
-                    </div>
-                    <RosterDisplay
-                        groupPositions={groupPositions}
-                        roster={bestRoster}
-                        pastLockWeek={true}
-                    />
-                </div>
-                <div>
+            <div className='rosterGroupHeader'>
+                Header for the Second Row
+                <button onClick={() => updateSecondRowOpen(!secondRowOpen)}>
+                    Collapse Button
+                </button>
+            </div>
+            <Collapse isOpened={secondRowOpen}>
+                <div className='rosterRowWrapper'>
                     <div className='userRosterHomePage'>
                         <div className='rosterHomePageTitle'>
-                            Last Week&apos;s Ideal
+                            Best from Week {weekForLeaderboard - 1} - {bestRosterUser}
                         </div>
-                        {idealRoster.length > 0 &&
+                        <RosterDisplay
+                            groupPositions={groupPositions}
+                            roster={bestRoster}
+                            pastLockWeek={true}
+                        />
+                    </div>
+                    <div>
+                        <div className='userRosterHomePage'>
+                            <div className='rosterHomePageTitle'>
+                                Last Week&apos;s Ideal
+                        </div>
+                            {idealRoster.length > 0 &&
+                                <RosterDisplay
+                                    groupPositions={groupPositions}
+                                    roster={idealRoster}
+                                    pastLockWeek={true}
+                                />
+                            }
+                        </div>
+                    </div>
+                    <div className='userRosterHomePage'>
+                        <div className='rosterHomePageTitle'>
+                            Current Lead Week {weekForLeaderboard} {leaderboard[0] && leaderboard[0].UN}
+                        </div>
+                        {leaderRoster.length > 0 &&
                             <RosterDisplay
                                 groupPositions={groupPositions}
-                                roster={idealRoster}
+                                roster={leaderRoster}
                                 pastLockWeek={true}
                             />
                         }
                     </div>
                 </div>
-                <div className='userRosterHomePage'>
-                    <div className='rosterHomePageTitle'>
-                        Current Lead Week {weekForLeaderboard} {leaderboard[0] && leaderboard[0].UN}
-                    </div>
-                    {leaderRoster.length > 0 &&
-                        <RosterDisplay
-                            groupPositions={groupPositions}
-                            roster={leaderRoster}
-                            pastLockWeek={true}
-                        />
-                    }
-                </div>
+            </Collapse>
+            <div className='rosterGroupHeader'>
+                Header for the Group Rosters
+                <button onClick={() => updateGroupRostersOpen(!groupRostersOpen)}>
+                    Collapse Button
+                </button>
             </div>
-            <div className='secondRowWrapper'>
-                {weeklyGroupRosters.map(inGroupRoster =>
-                    <div className='topBottomMargin' key={inGroupRoster.UN}>
-                        <div className='userRosterHomePage'>
-                            <div className='rosterHomePageTitle'>
-                                {inGroupRoster.UN} Roster
+            <Collapse isOpened={groupRostersOpen}>
+                <div className='rosterRowWrapper'>
+                    {weeklyGroupRosters.map(inGroupRoster =>
+                        <div className='topBottomMargin' key={inGroupRoster.UN}>
+                            <div className='userRosterHomePage'>
+                                <div className='rosterHomePageTitle'>
+                                    {inGroupRoster.UN} Roster
+                                </div>
+                                <RosterDisplay
+                                    groupPositions={groupPositions}
+                                    roster={inGroupRoster.R}
+                                    pastLockWeek={true}
+                                />
                             </div>
-                            <RosterDisplay
-                                groupPositions={groupPositions}
-                                roster={inGroupRoster.R}
-                                pastLockWeek={true}
-                            />
                         </div>
-                    </div>
-                )}
-            </div>
+                    )}
+                </div>
+            </Collapse>
         </Fragment>
     );
 };
