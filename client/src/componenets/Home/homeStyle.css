@@ -3,12 +3,43 @@
     margin-top: 50px;
     margin-left: 10%;
 }
-
-.secondRowWrapper {
+ 
+.rosterRowWrapper {
     display: flex;
     justify-content: space-evenly;
-    margin-top: 55px;
+    flex-flow: wrap;
+    margin-top: 15px;
     margin-left: 0;
+}
+
+.ReactCollapse--collapse {
+    transition: height 500ms;
+}
+
+.noOpacity {
+    opacity: 0;
+}
+
+.rosterGroupHeaderWrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.rosterGroupHeader {
+    width: 30%;
+    margin-top: 30px;
+    font-size: 26px;
+    font-weight: 600;
+    border-radius: 15px;
+    border: 1px solid lightgray;
+    text-align: center;
+    background-color: rgb(228, 255, 228);
+    height: 40px;
+}
+
+.bottomMargin {
+    margin-bottom: 15px;
 }
 
 .weekSearchInputOnHome {
@@ -69,7 +100,7 @@
     border: 1px solid lightgray;
     border-radius: 15px;
     width: 525px;
-    padding:  10px 25px;
+    padding:  10px 0 15px 30px;
 }
 
 .rosterHomePageTitle {
@@ -80,6 +111,11 @@
 
 .variousRosterContainers {
     flex-grow: 3;
+}
+
+.collapseButton {
+    margin-left: 15px;
+    margin-top: -9px;
 }
 
 /* FOR SMARTPHONES */
