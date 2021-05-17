@@ -151,7 +151,7 @@ const Home = ({ season, group, week, currentUser }) => {
             </Collapse>
             <div className='rosterGroupHeaderWrapper'>
                 <div className='rosterGroupHeader'>
-                    {group.N} Rosters
+                    {group.N} Group Rosters
                     <button className='collapseButton btn btn-outline-info' onClick={() => updateGroupRostersOpen(!groupRostersOpen)}>
                         Collapse
                     </button>
