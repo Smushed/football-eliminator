@@ -7,7 +7,6 @@ export const roster = '/roster/:groupname/:username';
 export const adminPanel = '/adminPanel/';
 export const usedPlayers = '/usedPlayers/:groupname/:username';
 export const seasonLongScore = '/seasonLongScore/:userId';
-export const createAllGroup = '/createAllGroup';
 export const updateWeek = '/updateWeek';
 export const createGroup = '/createGroup';
 export const groupSelect = '/groupSelect';

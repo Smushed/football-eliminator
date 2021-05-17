@@ -1,57 +1,51 @@
-import React, { Component, Fragment } from 'react';
+import React, { useState, Fragment } from 'react';
 import { withAuthorization } from '../Session';
 import GroupSelect from './JoinGroup';
 import CreateGroup from './CreateGroup';
 import PropTypes from 'prop-types';
 
-class NoGroup extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            currentWindow: 'Join Group'
-        };
-    }
+const NoGroup = ({ userId }) => {
 
-    changeWindow = (newWindow) => {
-        this.setState({ currentWindow: newWindow })
+    const [currentWindow, updateCurrentWindow] = useState(`Join Group`)
+
+    const changeWindow = (newWindow) => {
+        updateCurrentWindow(newWindow);
     };
 
-    render() {
-        return (
-            <div className='groupContainer'>
-                <div className='leftToggle'>
-                    <div className='welcomeHeader'>
-                        Welcome to the eliminator!
-                        </div>
+    return (
+        <div className='groupContainer'>
+            <div className='leftToggle'>
+                <div className='welcomeHeader'>
+                    Welcome to the Eliminator!
+                </div>
+                <br />
+                <div className='welcomeMessage'>
+                    Here we play fantasy football but with a spin on the rules:
                     <br />
-                    <div className='welcomeMessage'>
-                        Here we play fantasy football but with a spin on the rules:
-                        <br />
-                        <br />
-                        Every user sets a lineup each week by having access to every offensive player in the NFL. But you can only play each player one time.
-                        <br />
-                        <br />
-                        You compete against everyone else in your group and play for total points at the end of the year. Join a group or create one on the left to begin filling out your roster!
-                        <br />
-                        <br />
-                        Please feel free to email or text me if you find any bugs, have any questions or have any issues.
-                        <br />
-                        <br />
-                    </div>
-                    <ChangeWindowButtons changeWindow={this.changeWindow} currentWindow={this.state.currentWindow} />
+                    <br />
+                    Every user sets a lineup each week by having access to every offensive player in the NFL. But you can only play each player one time.
+                    <br />
+                    <br />
+                    You compete against everyone else in your group and play for total points at the end of the year. Join a group or create one to begin filling out your roster!
+                    <br />
+                    <br />
+                    Please feel free to email or text me if you find any bugs, have any questions or have any issues.
+                    <br />
+                    <br />
                 </div>
-                <div className='rightWindow'>
-                    {this.state.currentWindow === 'Join Group' ?
-                        <GroupSelect
-                            userId={this.props.userId}
-                        /> :
-                        <CreateGroup
-                            userId={this.props.userId}
-                        />}
-                </div>
+                <ChangeWindowButtons changeWindow={changeWindow} currentWindow={currentWindow} />
             </div>
-        )
-    }
+            <div className='rightWindow'>
+                {currentWindow === 'Join Group' ?
+                    <GroupSelect
+                        userId={userId}
+                    /> :
+                    <CreateGroup
+                        userId={userId}
+                    />}
+            </div>
+        </div>
+    )
 }
 
 const ChangeWindowButtons = ({ currentWindow, changeWindow }) => (

@@ -72,7 +72,7 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
                 <div className='userProfileLeft'>
                     <div className='profileName'>
                         {currentUser.username}&apos;s Profile
-                </div>
+                    </div>
                     <div className='favoriteTeamPicture'>
                         <img src={Logos[updatedFields.favoriteTeam] || Logos[currentUser.FT]} />
                     </div>
@@ -80,11 +80,9 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
                 <div className='userProfileRight'>
                     <div className='editField'>
                         <div className='input-group input-group-lg'>
-                            <div className='input-group-prepend'>
-                                <span className='input-group-text fieldDescription'>
-                                    Username:
+                            <span className='input-group-text fieldDescription'>
+                                Username:
                             </span>
-                            </div>
                             <input className='form-control' name='username' value={updatedFields.username} onChange={handleChange} placeholder={currentUser.username} />
                         </div>
                     </div>
@@ -100,12 +98,10 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
                     />
                     <div className='editField'>
                         <div className='input-group input-group-lg'>
-                            <div className='input-group-prepend'>
-                                <span className='input-group-text fieldDescription'>
-                                    Your Team:
+                            <span className='input-group-text fieldDescription'>
+                                Your Team:
                             </span>
-                            </div>
-                            <select className='form-control' name='favoriteTeam' value={updatedFields.favoriteTeam || currentUser.FT} onChange={handleChange}>
+                            <select className='form-control form-control-sm' name='favoriteTeam' value={updatedFields.favoriteTeam || currentUser.FT} onChange={handleChange}>
                                 {teamList.map(team => <option key={team} value={team}>{team}</option>)}
                             </select>
                         </div>
@@ -113,12 +109,12 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
                     <div className='submitButtonWrapper'>
                         <button className='btn btn-primary btn-lg' onClick={() => handleSubmit()}>
                             Submit
-                    </button>
+                        </button>
                     </div>
                     <div className='editField'>
                         <div>
                             Joined Groups:
-                    </div>
+                        </div>
                         {groupList.map((group) => <div key={group.N}>{group.N} {group.D} {group._id}</div>)}
                     </div>
                 </div>
@@ -203,33 +199,23 @@ const ReAuth = ({ firebase, updatedFields }) => {
 const PasswordInput = ({ handleChange, password, showPassword }) =>
     <div className='editField'>
         <div className='input-group input-group-lg'>
-            <div className='input-group-prepend'>
-                <span className='input-group-text fieldDescription'>
-                    Password:
+            <span className='input-group-text fieldDescription'>
+                Password:
                     </span>
-            </div>
             <input className='form-control' name='password' value={password} type={showPassword} onChange={handleChange} placeholder='Password' />
-            <div className='input-group-append'>
-                <div className='input-group-text'>
-                    <input className='largeCheckbox' type='checkbox' value={showPassword} name='togglePassword' onChange={handleChange} />
-                </div>
-                <div className='input-group-text'>
-                    <span>
-                        Show Password
-                        </span>
-                </div>
-            </div>
+            <span className='input-group-text fieldDescription'>
+                <input className='largeCheckbox input-group-text fieldDescription' type='checkbox' value={showPassword} name='togglePassword' onChange={handleChange} />
+                &nbsp;Show
+            </span>
         </div>
     </div>
 
 const EmailInput = ({ email, handleChange, authUser }) =>
     <div className='editField'>
         <div className='input-group input-group-lg'>
-            <div className='input-group-prepend'>
-                <span className='input-group-text fieldDescription'>
-                    Email:
-                </span>
-            </div>
+            <span className='input-group-text fieldDescription'>
+                Email:
+            </span>
             <input className='form-control' name='email' value={email} onChange={handleChange} placeholder={authUser ? authUser.email : 'Email'} />
         </div>
     </div>
@@ -256,7 +242,7 @@ PasswordInput.propTypes = {
 
 ReAuth.propTypes = {
     firebase: PropTypes.any,
-    updatedFields: PropTypes.array
+    updatedFields: PropTypes.object
 };
 
 //REAUTH a user in order for them to update any of these
