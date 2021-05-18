@@ -57,38 +57,41 @@ module.exports = {
 
         return filteredList;
     },
-    updateProfile: (userId, updatedValue, request) => {
+    updateProfile: async (userId, request) => {
         //Switch statement here to decide on what the user is updating
         //They can only update one part of their profile at a time
-        let updatedField = ``;
-        switch (request) {
-            case `username`:
-                //TODO Add something to display if the username was already taken
-                //Verify that the username isn't taken manually, in addition to having the protection in the database
-                //The manual verification should not be case sensitive
-                //Mongoose won't let them save a duplicate username but currently won't tell them
-                updatedField = `local.username`;
-                break;
-            case `firstname`:
-                updatedField = `local.firstname`;
-                break;
-            case `lastname`:
-                updatedField = `local.lastname`;
-                break;
-            case `email`:
-                //TODO Add something to display if the email was already taken
-                //Sweet Alert 2 handles email validation
-                updatedField = `local.email`;
-                break;
-        };
+        if (request.UN) {
+            const dupeUser = await checkDuplicateUser(`username`, request.UN);
+            if (dupeUser) {
+                return { status: 409, message: `Username is in use` };
+            }
+            db.User.updateOne({ _id: userId }, { $set: { UN: request.UN } }, (err, data) => {
+                if (err) {
+                    return err;
+                };
+            });
+        }
+        if (request.E) {
+            const dupeUser = await checkDuplicateUser(`email`, request.E);
+            if (dupeUser) {
+                return { status: 409, message: `Email is in use` }
+            }
+            db.User.updateOne({ _id: userId }, { $set: { E: request.E } }, (err, data) => {
+                if (err) {
+                    return err;
+                };
+            });
+        }
+        return { status: 200, message: `Updated` }
+
         //TODO Check for duplicates
-        db.User.updateOne({ _id: userId }, { $set: { [updatedField]: updatedValue } }, (err, data) => {
-            if (err) {
-                return err;
-            } else {
-                return "Updated Successfully";
-            };
-        });
+        // db.User.updateOne({ _id: userId }, { $set: { [updatedField]: updatedValue } }, (err, data) => {
+        //     if (err) {
+        //         return err;
+        //     } else {
+        //         return "Updated Successfully";
+        //     };
+        // });
     },
     updateToAdmin: async (userId) => {
         let dbResponse = ``;

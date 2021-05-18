@@ -12,9 +12,9 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
 
     const [teamList, setTeamList] = useState([]);
     // const [changedFields, updateChangedFields] = useState([]);
-    const [showPassword, toggleShowPassword] = useState('password');
-    const [modalOpen, setModal] = useState(false);
-    const [updatedFields, changeUpdatedFields] = useState({});
+    const [showPassword, updateShowPassword] = useState(`password`);
+    const [modalOpen, updateModal] = useState(false);
+    const [updatedFields, changeUpdatedFields] = useState({ email: ``, password: ``, username: `` });
 
     useEffect(() => {
         axios.get(`/api/getTeamList`)
@@ -27,27 +27,13 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
     // };
 
     const openCloseModal = () => {
-        setModal(!modalOpen);
+        updateModal(!modalOpen);
     };
 
     const handleChange = (e) => {
         changeUpdatedFields({ ...updatedFields, [e.target.name]: e.target.value })
         if (e.target.name === `togglePassword`) {
-            e.target.value === `password` ? toggleShowPassword(`text`) : toggleShowPassword(`password`);
-            return;
-        }
-
-        if (e.target.value === ``) {
-            const copyUpdated = { ...updatedFields };
-            delete copyUpdated[e.target.name];
-            changeUpdatedFields(copyUpdated);
-            return;
-        }
-
-        if (e.target.value === currentUser.FT) {
-            const copyUpdated = { ...updatedFields };
-            delete copyUpdated[e.target.name];
-            changeUpdatedFields(copyUpdated);
+            e.target.value === `password` ? updateShowPassword(`text`) : updateShowPassword(`password`);
             return;
         }
     };
@@ -57,10 +43,11 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
         //     return;
         // };
 
-        setModal(!modalOpen);
+        updateModal(!modalOpen);
 
-        // authUser.reauthenticateWithCredential().then(() => {
 
+        // authUser.reauthenticateWithCredential(cred).then(res => {
+        //     console.log(`reauth`, res)
         // }).catch(err => {
         //     console.log(err);
         // });
@@ -78,14 +65,11 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
                     </div>
                 </div>
                 <div className='userProfileRight'>
-                    <div className='editField'>
-                        <div className='input-group input-group-lg'>
-                            <span className='input-group-text fieldDescription'>
-                                Username:
-                            </span>
-                            <input className='form-control' name='username' value={updatedFields.username} onChange={handleChange} placeholder={currentUser.username} />
-                        </div>
-                    </div>
+                    <UsernameInput
+                        handleChange={handleChange}
+                        username={updatedFields.username}
+                        currentUser={currentUser}
+                    />
                     <PasswordInput
                         handleChange={handleChange}
                         password={updatedFields.password}
@@ -99,11 +83,11 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
                     <div className='editField'>
                         <div className='input-group input-group-lg'>
                             <span className='input-group-text fieldDescription'>
-                                Your Team:
+                                Avatar:
                             </span>
-                            <select className='form-control form-control-sm' name='favoriteTeam' value={updatedFields.favoriteTeam || currentUser.FT} onChange={handleChange}>
+                            {/* <select className='form-control form-control-sm' name='favoriteTeam' value={updatedFields.favoriteTeam || currentUser.FT} onChange={handleChange}>
                                 {teamList.map(team => <option key={team} value={team}>{team}</option>)}
-                            </select>
+                            </select> */}
                         </div>
                     </div>
                     <div className='submitButtonWrapper'>
@@ -127,8 +111,11 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
                 overlayClassName='modalOverlay'
                 ariaHideApp={false}>
                 <ReAuth
+                    openCloseModal={openCloseModal}
                     firebase={firebase}
                     updatedFields={updatedFields}
+                    authUser={authUser}
+                    currentUser={currentUser}
                 />
                 <button onClick={() => openCloseModal()}>
                     Close Button
@@ -138,7 +125,7 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
     );
 };
 
-const ReAuth = ({ firebase, updatedFields }) => {
+const ReAuth = ({ firebase, updatedFields, authUser, openCloseModal, currentUser }) => {
 
     const [email, setEmail] = useState(``);
     const [password, setPassword] = useState(``);
@@ -146,12 +133,30 @@ const ReAuth = ({ firebase, updatedFields }) => {
     const [loginErr, addLoginErr] = useState(``);
 
     const handleUpdate = () => {
-        console.log(updatedFields);
+        const request = {};
+        let needToUpdateDb = false;
+        if (updatedFields.password !== '') {
+            authUser.updatePassword(updatedFields.password);
+        }
+        if (updatedFields.email !== '') {
+            authUser.updateEmail(updatedFields.email);
+            request.E = updatedFields.email;
+            needToUpdateDb = true;
+        }
+        if (updatedFields.username !== '') {
+            request.UN = updatedFields.username;
+            needToUpdateDb = true;
+        }
+        if (needToUpdateDb) {
+            axios.put(`/api/updateProfile`, { request, userId: currentUser.userId })
+                .then(res => console.log(res))
+        }
     };
 
     const handleReAuth = () => {
         firebase.doSignInWithEmailAndPassword(email, password)
             .then(res => {
+                openCloseModal()
                 if (res.credential !== null) {
                     firebase.auth.currentUser.reauthenticateWithCredential(res.credential)
                         .then(() => handleUpdate())
@@ -196,6 +201,16 @@ const ReAuth = ({ firebase, updatedFields }) => {
     );
 };
 
+const UsernameInput = ({ handleChange, username, currentUser }) =>
+    <div className='editField'>
+        <div className='input-group input-group-lg'>
+            <span className='input-group-text fieldDescription'>
+                Username:
+            </span>
+            <input className='form-control' name='username' value={username} type='text' onChange={handleChange} placeholder={currentUser.username} />
+        </div>
+    </div>
+
 const PasswordInput = ({ handleChange, password, showPassword }) =>
     <div className='editField'>
         <div className='input-group input-group-lg'>
@@ -216,7 +231,7 @@ const EmailInput = ({ email, handleChange, authUser }) =>
             <span className='input-group-text fieldDescription'>
                 Email:
             </span>
-            <input className='form-control' name='email' value={email} onChange={handleChange} placeholder={authUser ? authUser.email : 'Email'} />
+            <input className='form-control' name='email' value={email} type='email' onChange={handleChange} placeholder={authUser ? authUser.email : 'Email'} />
         </div>
     </div>
 
@@ -226,6 +241,12 @@ UserProfile.propTypes = {
     currentUser: PropTypes.object,
     groupList: PropTypes.array,
     firebase: PropTypes.any
+};
+
+UsernameInput.propTypes = {
+    handleChange: PropTypes.func,
+    username: PropTypes.string,
+    currentUser: PropTypes.object
 };
 
 EmailInput.propTypes = {
@@ -242,7 +263,10 @@ PasswordInput.propTypes = {
 
 ReAuth.propTypes = {
     firebase: PropTypes.any,
-    updatedFields: PropTypes.object
+    updatedFields: PropTypes.object,
+    authUser: PropTypes.any,
+    openCloseModal: PropTypes.func,
+    currentUser: PropTypes.object
 };
 
 //REAUTH a user in order for them to update any of these
