@@ -4,9 +4,16 @@ import { withAuthorization } from '../Session';
 import Modal from 'react-modal';
 import { withFirebase } from '../Firebase';
 import PropTypes from 'prop-types';
+import Cropper from 'react-easy-crop';
+import Slider from 'rc-slider';
+import Jimp from 'jimp';
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
-import * as Logos from '../../constants/logos';
+import 'rc-slider/assets/index.css';
 import './userProfileStyle.css';
+
+const Alert = withReactContent(Swal);
 
 const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
 
@@ -14,7 +21,9 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
     // const [changedFields, updateChangedFields] = useState([]);
     const [showPassword, updateShowPassword] = useState(`password`);
     const [modalOpen, updateModal] = useState(false);
+    const [modalState, updateModalState] = useState('reAuth');
     const [updatedFields, changeUpdatedFields] = useState({ email: ``, password: ``, username: `` });
+    const [avatar, updateAvatar] = useState(``);
 
     useEffect(() => {
         axios.get(`/api/getTeamList`)
@@ -30,8 +39,49 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
         updateModal(!modalOpen);
     };
 
+
     const handleChange = (e) => {
+        if (e.target.name === `avatar`) {
+
+            //Checks if the file uploaded is an image
+            if (!!e.target.files[0].type.match('image.*')) {
+                Jimp.read((URL.createObjectURL(e.target.files[0])), (err, img) => {
+                    if (err) {
+                        console.log(err);
+                        return;
+                    }
+                    const { height, width } = img.bitmap;
+                    if (height > 200 || width > 200) {
+                        Alert.fire({
+                            title: 'Large Image Selected',
+                            text: 'Image is over 200px in width or height, would you like to resize it?',
+                            showConfirmButton: true,
+                            showCancelButton: true,
+                        }).then(async res => {
+                            if (res.value) {
+                                width > height ? img.resize(Jimp.AUTO, 200) : img.resize(200, Jimp.AUTO);
+                                console.log(img)
+                                const mime = await img.getBase64Async(Jimp.MIME_JPEG);
+                                updateAvatar(mime);
+                            } else {
+                                console.log(img)
+                                const mime = await img.getBase64Async(Jimp.MIME_JPEG);
+                                updateAvatar(mime);
+                            }
+                        })
+                    }
+                })
+                updateModalState(`avatar`);
+                openCloseModal();
+            } else {
+                notAnImage();
+                e.target.value = '';
+            }
+            // updateAvatar((URL.createObjectURL(e.target.files[0])));
+        }
+        //Putting this after the avatar check in case they upload a non image
         changeUpdatedFields({ ...updatedFields, [e.target.name]: e.target.value })
+
         if (e.target.name === `togglePassword`) {
             e.target.value === `password` ? updateShowPassword(`text`) : updateShowPassword(`password`);
             return;
@@ -53,6 +103,15 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
         // });
     };
 
+    const notAnImage = () => {
+        Alert.fire({
+            title: 'Only Upload Images',
+            text: 'Image not selected. Please only upload images',
+            showConfirmButton: false,
+            showCancelButton: true,
+        });
+    };
+
     return (
         <Fragment>
             <div className={'userProfileWrapper ' + (modalOpen && 'greyBackdrop')}>
@@ -61,7 +120,8 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
                         {currentUser.username}&apos;s Profile
                     </div>
                     <div className='favoriteTeamPicture'>
-                        <img src={Logos[updatedFields.favoriteTeam] || Logos[currentUser.FT]} />
+                        <img src={avatar} />
+                        {/* <img src={Logos[updatedFields.favoriteTeam] || Logos[currentUser.FT]} /> */}
                     </div>
                 </div>
                 <div className='userProfileRight'>
@@ -85,6 +145,7 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
                             <span className='input-group-text fieldDescription'>
                                 Avatar:
                             </span>
+                            <input type='file' name='avatar' onChange={handleChange} />
                             {/* <select className='form-control form-control-sm' name='favoriteTeam' value={updatedFields.favoriteTeam || currentUser.FT} onChange={handleChange}>
                                 {teamList.map(team => <option key={team} value={team}>{team}</option>)}
                             </select> */}
@@ -106,17 +167,23 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
             <Modal
                 onRequestClose={openCloseModal}
                 isOpen={modalOpen}
-                contentLabel='reLogin'
-                className='reAuthModal'
+                contentLabel='profileModal'
+                className='userProfileModal'
                 overlayClassName='modalOverlay'
                 ariaHideApp={false}>
-                <ReAuth
-                    openCloseModal={openCloseModal}
-                    firebase={firebase}
-                    updatedFields={updatedFields}
-                    authUser={authUser}
-                    currentUser={currentUser}
-                />
+                {modalState === 'reAuth' ?
+                    <ReAuth
+                        openCloseModal={openCloseModal}
+                        firebase={firebase}
+                        updatedFields={updatedFields}
+                        authUser={authUser}
+                        currentUser={currentUser}
+                    />
+                    :
+                    <ImageEditor
+                        avatar={avatar}
+                    />
+                }
                 <button onClick={() => openCloseModal()}>
                     Close Button
                 </button>
@@ -201,6 +268,48 @@ const ReAuth = ({ firebase, updatedFields, authUser, openCloseModal, currentUser
     );
 };
 
+const ImageEditor = ({ avatar }) => {
+    const [crop, updateCrop] = useState({ x: 0, y: 0 });
+    const [zoom, updateZoom] = useState(1);
+
+    const sliderChange = val => updateZoom(val);
+
+    return (
+        <Fragment>
+            <Cropper
+                image={avatar}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                zoomSpeed={0.10}
+                onCropChange={updateCrop}
+                onZoomChange={updateZoom}
+            />
+            <Slider
+                min={1}
+                max={3}
+                value={zoom}
+                onChange={sliderChange}
+                step={0.10}
+                railStyle={{
+                    height: 2
+                }}
+                handleStyle={{
+                    height: 28,
+                    width: 28,
+                    marginLeft: -14,
+                    marginTop: -14,
+                    backgroundColor: "blue",
+                    border: 0
+                }}
+                trackStyle={{
+                    background: "none"
+                }}
+            />
+        </Fragment>
+    );
+};
+
 const UsernameInput = ({ handleChange, username, currentUser }) =>
     <div className='editField'>
         <div className='input-group input-group-lg'>
@@ -209,7 +318,7 @@ const UsernameInput = ({ handleChange, username, currentUser }) =>
             </span>
             <input className='form-control' name='username' value={username} type='text' onChange={handleChange} placeholder={currentUser.username} />
         </div>
-    </div>
+    </div>;
 
 const PasswordInput = ({ handleChange, password, showPassword }) =>
     <div className='editField'>
@@ -223,7 +332,7 @@ const PasswordInput = ({ handleChange, password, showPassword }) =>
                 &nbsp;Show
             </span>
         </div>
-    </div>
+    </div>;
 
 const EmailInput = ({ email, handleChange, authUser }) =>
     <div className='editField'>
@@ -233,8 +342,11 @@ const EmailInput = ({ email, handleChange, authUser }) =>
             </span>
             <input className='form-control' name='email' value={email} type='email' onChange={handleChange} placeholder={authUser ? authUser.email : 'Email'} />
         </div>
-    </div>
+    </div>;
 
+ImageEditor.propTypes = {
+    avatar: PropTypes.any
+}
 
 UserProfile.propTypes = {
     authUser: PropTypes.any,

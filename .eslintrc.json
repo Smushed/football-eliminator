@@ -20,7 +20,8 @@
         "react"
     ],
     "rules": {
-        "no-unused-vars": "warn"
+        "no-unused-vars": "warn",
+        "no-extra-boolean-cast": "off"
     },
     "ignorePatterns": [
         "node_modules"

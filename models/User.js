@@ -17,9 +17,9 @@ const UserSchema = new Schema({
         type: Boolean,
         default: false
     },
-    FT: { //Favorite Team
+    AV: { //Avatar
         type: String,
-        default: 'UNK'
+        default: 'stockFootballGuy.jpg'
     },
     MG: mongoose.Types.ObjectId //Main Group
 });
