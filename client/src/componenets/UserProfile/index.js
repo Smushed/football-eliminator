@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { withAuthorization } from '../Session';
 import Modal from 'react-modal';
@@ -23,6 +23,7 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
     const [updatedFields, changeUpdatedFields] = useState({ email: ``, password: ``, username: `` });
     const [avatar, updateAvatar] = useState(``);
 
+
     useEffect(() => {
     }, []);
 
@@ -34,7 +35,6 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
     const openCloseModal = () => {
         updateModal(!modalOpen);
     };
-
 
     const handleChange = (e) => {
         if (e.target.name === `avatar`) {
@@ -184,16 +184,10 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
                     :
                     <ImageEditor
                         avatar={avatar}
+                        openCloseModal={openCloseModal}
+                        updateAvatar={updateAvatar}
                     />
                 }
-                <div className='profileButtonWrapper'>
-                    <button className='btn btn-success profileModalButton' onClick={() => openCloseModal()}>
-                        Save Changes
-                </button>
-                    <button className='btn btn-danger profileModalButton' onClick={() => openCloseModal()}>
-                        Close
-                </button>
-                </div>
             </Modal>
         </Fragment>
     );
@@ -271,17 +265,57 @@ const ReAuth = ({ firebase, updatedFields, authUser, openCloseModal, currentUser
                 showPassword={showPassword}
                 modalOpen={false}
             />
-            <button onClick={fillInfo}>Fill Info</button>
-            <button onClick={handleReAuth} >Re-Login</button>
+            <button onClick={fillInfo}>
+                Fill Info
+            </button>
+            <button onClick={handleReAuth}>
+                Re-Login
+            </button>
+            <button className='btn btn-danger profileModalButton' onClick={() => openCloseModal()}>
+                Close
+            </button>
         </Fragment>
     );
 };
 
-const ImageEditor = ({ avatar }) => {
-    const [crop, updateCrop] = useState({ x: 0, y: 0 });
-    const [zoom, updateZoom] = useState(1);
+const ImageEditor = ({ avatar, openCloseModal, updateAvatar }) => {
 
+    const [crop, updateCrop] = useState({ x: 0, y: 0 });
+    const [cropComplete, updateCropComplete] = useState({ x: 0, y: 0, width: 0, height: 0 });
+    const [zoom, updateZoom] = useState(1);
     const sliderChange = val => updateZoom(val);
+
+    const saveAvatar = () => {
+        console.log(`hit`)
+        const bufferedAvatar = Buffer.from(avatar.split(',')[1], 'base64');
+        Jimp.read(bufferedAvatar)
+            .then(async img => {
+                const { x, y, width, height } = cropComplete;
+                img.crop(x, y, 200, 200);
+                const mime = await img.getBase64Async(Jimp.MIME_JPEG);
+                updateAvatar(mime);
+            }).catch(err => {
+                //TODO Display an error message to the user
+                console.log(err)
+            });
+        // Jimp.read(bufferedAvatar), async (err, img) => {
+        //     // if (err) {
+        //     //     console.log(err);
+        //     //     //TODO Display an error message
+        //     //     return;
+        //     // }
+        //     console.log(`read`)
+        //     img.crop(cropComplete);
+        //     console.log(img)
+        //     const mime = await img.getBase64Async(Jimp.MIME_JPEG);
+        //     console.log(mime)
+        //     updateAvatar(mime);
+        // };
+    };
+
+    const getCropComplete = useCallback(croppedArea => {
+        updateCropComplete(croppedArea);
+    }, [])
 
     return (
         <Fragment>
@@ -292,6 +326,7 @@ const ImageEditor = ({ avatar }) => {
                     zoom={zoom}
                     aspect={1}
                     zoomSpeed={0.10}
+                    onCropComplete={getCropComplete}
                     onCropChange={updateCrop}
                     onZoomChange={updateZoom}
                 />
@@ -320,6 +355,14 @@ const ImageEditor = ({ avatar }) => {
                         background: 'cyan'
                     }}
                 />
+            </div>
+            <div className='profileButtonWrapper'>
+                <button className='btn btn-success profileModalButton' onClick={() => saveAvatar()}>
+                    Save Avatar
+                </button>
+                <button className='btn btn-danger profileModalButton' onClick={() => openCloseModal()}>
+                    Close
+                </button>
             </div>
         </Fragment>
     );
@@ -360,7 +403,9 @@ const EmailInput = ({ email, handleChange, authUser, modalOpen }) =>
     </div>;
 
 ImageEditor.propTypes = {
-    avatar: PropTypes.any
+    avatar: PropTypes.any,
+    openCloseModal: PropTypes.func,
+    updateAvatar: PropTypes.func
 }
 
 UserProfile.propTypes = {
