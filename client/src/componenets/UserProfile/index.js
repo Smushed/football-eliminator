@@ -17,8 +17,6 @@ const Alert = withReactContent(Swal);
 
 const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
 
-    const [teamList, setTeamList] = useState([]);
-    // const [changedFields, updateChangedFields] = useState([]);
     const [showPassword, updateShowPassword] = useState(`password`);
     const [modalOpen, updateModal] = useState(false);
     const [modalState, updateModalState] = useState('reAuth');
@@ -26,9 +24,7 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
     const [avatar, updateAvatar] = useState(``);
 
     useEffect(() => {
-        axios.get(`/api/getTeamList`)
-            .then(res => setTeamList(res.data));
-    }, [currentUser]);
+    }, []);
 
     // const sendAuthEmail = (authUser) => {
     //     authUser.sendEmailVerification();
@@ -45,31 +41,33 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
 
             //Checks if the file uploaded is an image
             if (!!e.target.files[0].type.match('image.*')) {
-                Jimp.read((URL.createObjectURL(e.target.files[0])), (err, img) => {
+                Jimp.read((URL.createObjectURL(e.target.files[0])), async (err, img) => {
                     if (err) {
                         console.log(err);
                         return;
                     }
-                    const { height, width } = img.bitmap;
-                    if (height > 200 || width > 200) {
-                        Alert.fire({
-                            title: 'Large Image Selected',
-                            text: 'Image is over 200px in width or height, would you like to resize it?',
-                            showConfirmButton: true,
-                            showCancelButton: true,
-                        }).then(async res => {
-                            if (res.value) {
-                                width > height ? img.resize(Jimp.AUTO, 200) : img.resize(200, Jimp.AUTO);
-                                console.log(img)
-                                const mime = await img.getBase64Async(Jimp.MIME_JPEG);
-                                updateAvatar(mime);
-                            } else {
-                                console.log(img)
-                                const mime = await img.getBase64Async(Jimp.MIME_JPEG);
-                                updateAvatar(mime);
-                            }
-                        })
-                    }
+                    const mime = await img.getBase64Async(Jimp.MIME_JPEG);
+                    updateAvatar(mime);
+
+                    // const { height, width } = img.bitmap;
+                    // if (height > 200 || width > 200) {
+                    //     Alert.fire({
+                    //         title: 'Large Image Selected',
+                    //         text: 'Image is over 200px in width or height, would you like to resize it?',
+                    //         showConfirmButton: true,
+                    //         showCancelButton: true,
+                    //     }).then(async res => {
+                    //         if (res.value) {
+                    //             width > height ? img.resize(Jimp.AUTO, 200) : img.resize(200, Jimp.AUTO);
+                    //             console.log(img)
+                    //             const mime = await img.getBase64Async(Jimp.MIME_JPEG);
+                    //             updateAvatar(mime);
+                    //         } else {
+                    //             console.log(img)
+                    //             const mime = await img.getBase64Async(Jimp.MIME_JPEG);
+                    //             updateAvatar(mime);
+                    //         }
+                    //     })
                 })
                 updateModalState(`avatar`);
                 openCloseModal();
@@ -114,7 +112,8 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
 
     return (
         <Fragment>
-            <div className={'userProfileWrapper ' + (modalOpen && 'greyBackdrop')}>
+            <div className={modalOpen ? 'greyBackdrop' : ''} />
+            <div className='userProfileWrapper '>
                 <div className='userProfileLeft'>
                     <div className='profileName'>
                         {currentUser.username}&apos;s Profile
@@ -129,16 +128,19 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
                         handleChange={handleChange}
                         username={updatedFields.username}
                         currentUser={currentUser}
+                        modalOpen={modalOpen}
                     />
                     <PasswordInput
                         handleChange={handleChange}
                         password={updatedFields.password}
                         showPassword={showPassword}
+                        modalOpen={modalOpen}
                     />
                     <EmailInput
                         authUser={authUser}
                         handleChange={handleChange}
                         email={updatedFields.email}
+                        modalOpen={modalOpen}
                     />
                     <div className='editField'>
                         <div className='input-group input-group-lg'>
@@ -184,9 +186,14 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
                         avatar={avatar}
                     />
                 }
-                <button onClick={() => openCloseModal()}>
-                    Close Button
+                <div className='profileButtonWrapper'>
+                    <button className='btn btn-success profileModalButton' onClick={() => openCloseModal()}>
+                        Save Changes
                 </button>
+                    <button className='btn btn-danger profileModalButton' onClick={() => openCloseModal()}>
+                        Close
+                </button>
+                </div>
             </Modal>
         </Fragment>
     );
@@ -256,11 +263,13 @@ const ReAuth = ({ firebase, updatedFields, authUser, openCloseModal, currentUser
             <EmailInput
                 handleChange={handleChange}
                 email={email}
+                modalOpen={false}
             />
             <PasswordInput
                 handleChange={handleChange}
                 password={password}
                 showPassword={showPassword}
+                modalOpen={false}
             />
             <button onClick={fillInfo}>Fill Info</button>
             <button onClick={handleReAuth} >Re-Login</button>
@@ -276,42 +285,48 @@ const ImageEditor = ({ avatar }) => {
 
     return (
         <Fragment>
-            <Cropper
-                image={avatar}
-                crop={crop}
-                zoom={zoom}
-                aspect={1}
-                zoomSpeed={0.10}
-                onCropChange={updateCrop}
-                onZoomChange={updateZoom}
-            />
-            <Slider
-                min={1}
-                max={3}
-                value={zoom}
-                onChange={sliderChange}
-                step={0.10}
-                railStyle={{
-                    height: 2
-                }}
-                handleStyle={{
-                    height: 28,
-                    width: 28,
-                    marginLeft: -14,
-                    marginTop: -14,
-                    backgroundColor: "blue",
-                    border: 0
-                }}
-                trackStyle={{
-                    background: "none"
-                }}
-            />
+            <div className='cropperWrapper'>
+                <Cropper
+                    image={avatar}
+                    crop={crop}
+                    zoom={zoom}
+                    aspect={1}
+                    zoomSpeed={0.10}
+                    onCropChange={updateCrop}
+                    onZoomChange={updateZoom}
+                />
+            </div>
+            <div className='sliderWrapper'>
+                <Slider
+                    min={1}
+                    max={3}
+                    value={zoom}
+                    onChange={sliderChange}
+                    step={0.10}
+                    railStyle={{
+                        height: 2,
+                        backgroundColor: 'lightgray',
+                    }}
+                    handleStyle={{
+                        height: 20,
+                        width: 20,
+                        marginLeft: -6,
+                        marginTop: -8,
+                        backgroundColor: 'cyan',
+                        border: 0,
+                        opacity: 75,
+                    }}
+                    trackStyle={{
+                        background: 'cyan'
+                    }}
+                />
+            </div>
         </Fragment>
     );
 };
 
-const UsernameInput = ({ handleChange, username, currentUser }) =>
-    <div className='editField'>
+const UsernameInput = ({ handleChange, username, currentUser, modalOpen }) =>
+    <div className={'editField' + (modalOpen && ' lowerOpacity')}>
         <div className='input-group input-group-lg'>
             <span className='input-group-text fieldDescription'>
                 Username:
@@ -320,8 +335,8 @@ const UsernameInput = ({ handleChange, username, currentUser }) =>
         </div>
     </div>;
 
-const PasswordInput = ({ handleChange, password, showPassword }) =>
-    <div className='editField'>
+const PasswordInput = ({ handleChange, password, showPassword, modalOpen }) =>
+    <div className={'editField' + (modalOpen && ' lowerOpacity')}>
         <div className='input-group input-group-lg'>
             <span className='input-group-text fieldDescription'>
                 Password:
@@ -334,8 +349,8 @@ const PasswordInput = ({ handleChange, password, showPassword }) =>
         </div>
     </div>;
 
-const EmailInput = ({ email, handleChange, authUser }) =>
-    <div className='editField'>
+const EmailInput = ({ email, handleChange, authUser, modalOpen }) =>
+    <div className={'editField' + (modalOpen && ' lowerOpacity')}>
         <div className='input-group input-group-lg'>
             <span className='input-group-text fieldDescription'>
                 Email:
@@ -358,19 +373,23 @@ UserProfile.propTypes = {
 UsernameInput.propTypes = {
     handleChange: PropTypes.func,
     username: PropTypes.string,
-    currentUser: PropTypes.object
+    currentUser: PropTypes.object,
+    modalOpen: PropTypes.bool
 };
 
 EmailInput.propTypes = {
     email: PropTypes.string,
     handleChange: PropTypes.func,
-    authUser: PropTypes.any
+    authUser: PropTypes.any,
+    modalOpen: PropTypes.bool
+
 };
 
 PasswordInput.propTypes = {
     handleChange: PropTypes.func,
     password: PropTypes.string,
-    showPassword: PropTypes.string
+    showPassword: PropTypes.string,
+    modalOpen: PropTypes.bool
 };
 
 ReAuth.propTypes = {
