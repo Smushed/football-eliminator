@@ -286,31 +286,23 @@ const ImageEditor = ({ avatar, openCloseModal, updateAvatar }) => {
     const sliderChange = val => updateZoom(val);
 
     const saveAvatar = () => {
-        console.log(`hit`)
         const bufferedAvatar = Buffer.from(avatar.split(',')[1], 'base64');
         Jimp.read(bufferedAvatar)
             .then(async img => {
                 const { x, y, width, height } = cropComplete;
-                img.crop(x, y, 200, 200);
+                //React Easy Crop gives the values that they want to crop as a % of the image size. We need to convert it back for JIMP
+                img.crop((img.bitmap.width * (0.01 * x)),
+                    (img.bitmap.height * (0.01 * y)),
+                    (img.bitmap.width * (0.01 * width)),
+                    (img.bitmap.height * (0.01 * height)));
+                img.resize(200, 200);
                 const mime = await img.getBase64Async(Jimp.MIME_JPEG);
                 updateAvatar(mime);
+                openCloseModal();
             }).catch(err => {
                 //TODO Display an error message to the user
-                console.log(err)
+                console.log(`error`, err)
             });
-        // Jimp.read(bufferedAvatar), async (err, img) => {
-        //     // if (err) {
-        //     //     console.log(err);
-        //     //     //TODO Display an error message
-        //     //     return;
-        //     // }
-        //     console.log(`read`)
-        //     img.crop(cropComplete);
-        //     console.log(img)
-        //     const mime = await img.getBase64Async(Jimp.MIME_JPEG);
-        //     console.log(mime)
-        //     updateAvatar(mime);
-        // };
     };
 
     const getCropComplete = useCallback(croppedArea => {
