@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState, useCallback } from 'react';
+import React, { Fragment, useEffect, useState, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { withAuthorization } from '../Session';
 import Modal from 'react-modal';
@@ -20,9 +20,11 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
     const [showPassword, updateShowPassword] = useState(`password`);
     const [modalOpen, updateModal] = useState(false);
     const [modalState, updateModalState] = useState('reAuth');
-    const [updatedFields, changeUpdatedFields] = useState({ email: ``, password: ``, username: `` });
+    const [updatedFields, changeUpdatedFields] = useState({ email: ``, password: ``, username: ``, avatar: `` });
     const [avatar, updateAvatar] = useState(``);
+    const [tempAvatar, updateTempAvatar] = useState(``);
 
+    const fileInputRef = useRef(null);
 
     useEffect(() => {
     }, []);
@@ -47,27 +49,7 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
                         return;
                     }
                     const mime = await img.getBase64Async(Jimp.MIME_JPEG);
-                    updateAvatar(mime);
-
-                    // const { height, width } = img.bitmap;
-                    // if (height > 200 || width > 200) {
-                    //     Alert.fire({
-                    //         title: 'Large Image Selected',
-                    //         text: 'Image is over 200px in width or height, would you like to resize it?',
-                    //         showConfirmButton: true,
-                    //         showCancelButton: true,
-                    //     }).then(async res => {
-                    //         if (res.value) {
-                    //             width > height ? img.resize(Jimp.AUTO, 200) : img.resize(200, Jimp.AUTO);
-                    //             console.log(img)
-                    //             const mime = await img.getBase64Async(Jimp.MIME_JPEG);
-                    //             updateAvatar(mime);
-                    //         } else {
-                    //             console.log(img)
-                    //             const mime = await img.getBase64Async(Jimp.MIME_JPEG);
-                    //             updateAvatar(mime);
-                    //         }
-                    //     })
+                    updateTempAvatar(mime);
                 })
                 updateModalState(`avatar`);
                 openCloseModal();
@@ -75,23 +57,50 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
                 notAnImage();
                 e.target.value = '';
             }
-            // updateAvatar((URL.createObjectURL(e.target.files[0])));
+            return; //Don't want to set updated fields here in case the user cancels the crop
         }
-        //Putting this after the avatar check in case they upload a non image
-        changeUpdatedFields({ ...updatedFields, [e.target.name]: e.target.value })
 
         if (e.target.name === `togglePassword`) {
             e.target.value === `password` ? updateShowPassword(`text`) : updateShowPassword(`password`);
             return;
         }
+
+        //Putting this after the avatar check in case they upload a non image
+        changeUpdatedFields({ ...updatedFields, [e.target.name]: e.target.value });
+    };
+
+    const saveCroppedAvatar = (mime) => {
+        updateTempAvatar(``);
+        updateAvatar(mime);
+        openCloseModal();
+        changeUpdatedFields({ ...updatedFields, avatar: `active` });
+    };
+
+    //This is fired if someone pressed ESC or clicks off the modal
+    const requestCloseModal = () => {
+        updateModal(!modalOpen);
+        updateTempAvatar(``)
     };
 
     const handleSubmit = () => {
+
+        //Using Fetch here to send along the base64 encoded image
+        fetch('/api/uploadAvatar', {
+            method: 'PUT',
+            headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
+            body: avatar
+        })
+            .then(res => console.log(res))
+
         // if (changedFields.length < 1) {
         //     return;
         // };
 
-        updateModal(!modalOpen);
+        // const formData = new FormData();
+        // axios.put(`/api/uploadAvatar`, {}, { headers: { 'Content-Type': 'multipart/form-data' } })
+        //     .then(res => console.log(res))
+
+        // updateModal(!modalOpen);
 
 
         // authUser.reauthenticateWithCredential(cred).then(res => {
@@ -110,9 +119,20 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
         });
     };
 
+    let checkIfSaveNeeded =
+        updatedFields.avatar !== `` ||
+        updatedFields.email !== `` ||
+        updatedFields.password !== `` ||
+        updatedFields.username !== ``;
+
     return (
         <Fragment>
             <div className={modalOpen ? 'greyBackdrop' : ''} />
+            <div className='notificationHeader'>
+                {checkIfSaveNeeded &&
+                    `Submit to Save Changes`
+                }
+            </div>
             <div className='userProfileWrapper '>
                 <div className='userProfileLeft'>
                     <div className='profileName'>
@@ -120,7 +140,6 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
                     </div>
                     <div className='favoriteTeamPicture'>
                         <img src={avatar} />
-                        {/* <img src={Logos[updatedFields.favoriteTeam] || Logos[currentUser.FT]} /> */}
                     </div>
                 </div>
                 <div className='userProfileRight'>
@@ -147,7 +166,7 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
                             <span className='input-group-text fieldDescription'>
                                 Avatar:
                             </span>
-                            <input type='file' name='avatar' onChange={handleChange} />
+                            <input type='file' name='avatar' onChange={handleChange} ref={fileInputRef} />
                             {/* <select className='form-control form-control-sm' name='favoriteTeam' value={updatedFields.favoriteTeam || currentUser.FT} onChange={handleChange}>
                                 {teamList.map(team => <option key={team} value={team}>{team}</option>)}
                             </select> */}
@@ -167,7 +186,7 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
                 </div>
             </div>
             <Modal
-                onRequestClose={openCloseModal}
+                onRequestClose={requestCloseModal}
                 isOpen={modalOpen}
                 contentLabel='profileModal'
                 className='userProfileModal'
@@ -183,9 +202,10 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
                     />
                     :
                     <ImageEditor
-                        avatar={avatar}
+                        tempAvatar={tempAvatar}
+                        saveCroppedAvatar={saveCroppedAvatar}
                         openCloseModal={openCloseModal}
-                        updateAvatar={updateAvatar}
+                        fileInputRef={fileInputRef}
                     />
                 }
             </Modal>
@@ -278,7 +298,7 @@ const ReAuth = ({ firebase, updatedFields, authUser, openCloseModal, currentUser
     );
 };
 
-const ImageEditor = ({ avatar, openCloseModal, updateAvatar }) => {
+const ImageEditor = ({ tempAvatar, saveCroppedAvatar, openCloseModal, fileInputRef }) => {
 
     const [crop, updateCrop] = useState({ x: 0, y: 0 });
     const [cropComplete, updateCropComplete] = useState({ x: 0, y: 0, width: 0, height: 0 });
@@ -286,7 +306,7 @@ const ImageEditor = ({ avatar, openCloseModal, updateAvatar }) => {
     const sliderChange = val => updateZoom(val);
 
     const saveAvatar = () => {
-        const bufferedAvatar = Buffer.from(avatar.split(',')[1], 'base64');
+        const bufferedAvatar = Buffer.from(tempAvatar.split(',')[1], 'base64');
         Jimp.read(bufferedAvatar)
             .then(async img => {
                 const { x, y, width, height } = cropComplete;
@@ -296,9 +316,9 @@ const ImageEditor = ({ avatar, openCloseModal, updateAvatar }) => {
                     (img.bitmap.width * (0.01 * width)),
                     (img.bitmap.height * (0.01 * height)));
                 img.resize(200, 200);
-                const mime = await img.getBase64Async(Jimp.MIME_JPEG);
-                updateAvatar(mime);
-                openCloseModal();
+                let mime = await img.getBase64Async(Jimp.MIME_JPEG);
+                fileInputRef.current.value = '';
+                saveCroppedAvatar(mime)
             }).catch(err => {
                 //TODO Display an error message to the user
                 console.log(`error`, err)
@@ -307,13 +327,18 @@ const ImageEditor = ({ avatar, openCloseModal, updateAvatar }) => {
 
     const getCropComplete = useCallback(croppedArea => {
         updateCropComplete(croppedArea);
-    }, [])
+    }, []);
+
+    const closeImageModal = () => {
+        fileInputRef.current.value = '';
+        openCloseModal();
+    };
 
     return (
         <Fragment>
             <div className='cropperWrapper'>
                 <Cropper
-                    image={avatar}
+                    image={tempAvatar}
                     crop={crop}
                     zoom={zoom}
                     aspect={1}
@@ -352,7 +377,7 @@ const ImageEditor = ({ avatar, openCloseModal, updateAvatar }) => {
                 <button className='btn btn-success profileModalButton' onClick={() => saveAvatar()}>
                     Save Avatar
                 </button>
-                <button className='btn btn-danger profileModalButton' onClick={() => openCloseModal()}>
+                <button className='btn btn-danger profileModalButton' onClick={() => closeImageModal()}>
                     Close
                 </button>
             </div>
@@ -395,9 +420,10 @@ const EmailInput = ({ email, handleChange, authUser, modalOpen }) =>
     </div>;
 
 ImageEditor.propTypes = {
-    avatar: PropTypes.any,
+    saveCroppedAvatar: PropTypes.func,
+    fileInputRef: PropTypes.any,
+    tempAvatar: PropTypes.any,
     openCloseModal: PropTypes.func,
-    updateAvatar: PropTypes.func
 }
 
 UserProfile.propTypes = {
