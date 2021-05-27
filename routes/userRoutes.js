@@ -106,7 +106,6 @@ module.exports = app => {
         //Need to verify that the image is 200 x 200 (if not then make it so)
         //Get the request from amazon (tutorial)
         const { userId } = req.params;
-        console.log(req.body)
         const { image } = req.body;
         userHandler.uploadAvatar(userId, image)
 
