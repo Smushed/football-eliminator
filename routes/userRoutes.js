@@ -101,12 +101,15 @@ module.exports = app => {
         res.status(200).send(updated);
     });
 
-    app.put(`/api/uploadAvatar`, (req, res) => {
+    app.put(`/api/uploadAvatar/:userId`, (req, res) => {
         //Here in Req.body the base64 image is received.
         //Need to verify that the image is 200 x 200 (if not then make it so)
         //Get the request from amazon (tutorial)
-        console.log(`hit`, req.body, req.params);
+        const { userId } = req.params;
+        console.log(req.body)
+        const { image } = req.body;
+        userHandler.uploadAvatar(userId, image)
 
-        res.status(200).send(`balls`)
+        res.status(200).send(req.body)
     });
 }

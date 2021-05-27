@@ -191,5 +191,8 @@ module.exports = {
             await db.User.findByIdAndUpdate([userId], { $push: { GL: groupId } });
         }
         return { status: 200, message: 'All Good' };
+    },
+    uploadAvatar: (userId, base64Avatar) => {
+        console.log(userId, base64Avatar)
     }
 };

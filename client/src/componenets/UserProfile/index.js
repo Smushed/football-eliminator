@@ -85,10 +85,13 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
     const handleSubmit = () => {
 
         //Using Fetch here to send along the base64 encoded image
-        fetch('/api/uploadAvatar', {
+        fetch(`/api/uploadAvatar/${currentUser.userId}`, {
             method: 'PUT',
-            headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
-            body: avatar
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ image: avatar })
         })
             .then(res => console.log(res))
 
