@@ -15,17 +15,13 @@ module.exports = app => {
         // return "You need to be a moderator to add users to the group";
     });
 
-    app.get(`/api/getGroupData/:groupID`, async (req, res) => {
-        try {
-            const groupID = req.params.groupID;
-            const groupData = await groupHandler.getGroupData(groupID);
-            if (groupData) {
-                res.status(200).send(groupData);
-            } else {
-                res.status(500).send({ 'error': `No Group Found` })
-            }
-        } catch (err) {
-            res.status(500).send(err);
+    app.get(`/api/getGroupData/:groupName`, async (req, res) => {
+        const { groupName } = req.params;
+        const groupData = await groupHandler.getGroupData(groupName);
+        if (groupData) {
+            res.status(200).send(groupData);
+        } else {
+            res.status(500).send({ 'error': `No Group Found` })
         }
     });
 

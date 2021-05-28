@@ -294,5 +294,9 @@ module.exports = {
     checkLockPeriod: async () => {
         const lockPeroid = await db.SeasonAndWeek.findOne();
         return lockPeroid;
+    },
+    getTotalScore: async (userId) => {
+        const userScore = await db.UserScores.findOne({ U: userId }).exec();
+        return userScore.TS;
     }
 };

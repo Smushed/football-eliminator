@@ -16,6 +16,7 @@ import UpdateWeek from './componenets/AdminPanel/UpdateWeek';
 import UpgradeToAdmin from './componenets/AdminPanel/UpgradeToAdmin';
 import UsedPlayers from './componenets/UsedPlayers';
 import GroupPage from './componenets/GroupPage/';
+import SingleGroup from './componenets/SingleGroup';
 import FourOFour from './componenets/404/FourOFour';
 import SidePanel from './componenets/SidePanel';
 
@@ -143,6 +144,14 @@ const App = ({ firebase }) => {
               path={Routes.groupPage}
               render={() =>
                 <GroupPage />}
+            />
+            <Route
+              path={Routes.singleGroup}
+              render={props =>
+                <SingleGroup
+                  {...props}
+                  currUserId={currentUser.userId}
+                />}
             />
             <Route
               path={Routes.signin}

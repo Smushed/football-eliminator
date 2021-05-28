@@ -87,7 +87,8 @@ const findOneRoster = (userId, week, season, groupId) => {
 
 const findOneUserById = (userId) => {
     return db.User.findById(userId, { UN: 1 }).exec();
-}
+};
+
 
 module.exports = {
     createGroup: async (userId, newGroupScore, groupName, groupDesc, groupPositions) => {
@@ -126,17 +127,12 @@ module.exports = {
 
         return groupDetail;
     },
-    checkGroupMod: async (userID, groupID) => {
-        //Looks up the group in the database
-        const foundGroup = await db.Group.findById([groupID], err => { if (err) { console.log(err) } });
-        //Finds the current user
-        const currentUser = await foundGroup.userlist.find(users => users._id == userID);
-        //Checks if that user is a mod and returns a boolean
-        const isModerator = currentUser.isMod;
-        return isModerator;
+    getGroupData: async (groupName) => {
+        const groupData = await db.Group.findOne({ N: groupName }).collation({ locale: `en_US`, strength: 2 }).exec();
+        return groupData;
     },
-    getGroupData: async (groupID) => {
-        const groupData = await db.Group.findById([groupID]);
+    getGroupDataById: async (groupId) => {
+        const groupData = await db.Group.findById([groupId]).exec();
         return groupData;
     },
     getLeaderBoard: async (groupId, season, week) => {
@@ -170,7 +166,7 @@ module.exports = {
         return `working`;
     },
     findGroupIdByName: async (groupname) => {
-        const foundGroup = await db.Group.findOne({ N: groupname });
+        const foundGroup = await db.Group.findOne({ N: groupname }).collation({ locale: `en_US`, strength: 2 }).exec();
         return foundGroup._id;
     },
     createGeneralGroupRoster: async (groupId) => {

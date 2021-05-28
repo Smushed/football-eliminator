@@ -115,4 +115,12 @@ module.exports = app => {
         const avatar = await s3Handler.getAvatar(id);
         res.status(200).send(avatar);
     });
+
+    app.get(`/api/getUserForBox/:userId`, async (req, res) => {
+        const { userId } = req.params;
+        const avatar = await s3Handler.getAvatar(userId);
+        const foundUser = await userHandler.getUserByID(userId);
+        const totalScore = await rosterHandler.getTotalScore(userId);
+        res.status(200).send({ UN: foundUser.UN, avatar, TS: totalScore });
+    });
 }

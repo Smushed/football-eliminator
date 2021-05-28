@@ -35,7 +35,7 @@ const checkDuplicateUser = async (checkedField, checkField1, checkField2) => {
 const fillOutUserForFrontEnd = async (user) => {
     const groupList = [];
     for (let i = 0; i < user.GL.length; i++) {
-        const groupData = await groupHandler.getGroupData(user.GL[i]);
+        const groupData = await groupHandler.getGroupDataById(user.GL[i]);
         groupList.push({
             N: groupData.N,
             D: groupData.D,
@@ -150,7 +150,7 @@ module.exports = {
         return response;
     },
     findUserByUsername: async (username) => {
-        const user = await db.User.findOne({ UN: username });
+        const user = await db.User.findOne({ UN: username }).collation({ locale: `en_US`, strength: 2 }).exec();
         return user;
     },
     initSeasonAndWeekInDB: async () => {
