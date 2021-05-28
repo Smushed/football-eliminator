@@ -76,6 +76,7 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
         updateTempAvatar(``);
         updateAvatar(mime);
         openCloseModal();
+        updateModalState(`reAuth`)
         changeUpdatedFields({ ...updatedFields, avatar: `active` });
     };
 
@@ -86,10 +87,30 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
     };
 
     const handleSubmit = () => {
+        if (updatedFields.email !== ``) {
+            let checkEmail = updatedFields.email.match(/^(([^<>()\]\\.,;:\s@']+(\.[^<>()\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
+            if (!checkEmail) {
+                Alert.fire({
+                    type: 'warning',
+                    title: `Email is invalid`,
+                    text: `Please check the email field and enter again`,
+                });
+                return;
+            }
+        }
 
+        if (checkIfReAuthNeeded) {
+            updateModalState(`reAuth`);
+            openCloseModal();
+        } else if (updatedFields.avatar) { //Do not require users to re sign in if they're just updating their avatar
+            saveAvatarToAWS(avatar);
+        }
+    };
+
+    const saveAvatarToAWS = () => {
         //Using Fetch here to send along the base64 encoded image
         fetch(`/api/uploadAvatar/${currentUser.userId}`, {
-            method: 'PUT',
+            method: `PUT`,
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
@@ -97,36 +118,24 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
             body: JSON.stringify({ image: avatar })
         })
             .then(res => console.log(res))
-
-        // if (changedFields.length < 1) {
-        //     return;
-        // };
-
-        // const formData = new FormData();
-        // axios.put(`/api/uploadAvatar`, {}, { headers: { 'Content-Type': 'multipart/form-data' } })
-        //     .then(res => console.log(res))
-
-        // updateModal(!modalOpen);
-
-
-        // authUser.reauthenticateWithCredential(cred).then(res => {
-        //     console.log(`reauth`, res)
-        // }).catch(err => {
-        //     console.log(err);
-        // });
     };
 
     const notAnImage = () => {
         Alert.fire({
-            title: 'Only Upload Images',
-            text: 'Image not selected. Please only upload images',
+            title: `Only Upload Images`,
+            text: `Image not selected. Please only upload images`,
             showConfirmButton: false,
             showCancelButton: true,
         });
     };
 
-    let checkIfSaveNeeded =
+    const checkIfSaveNeeded =
         updatedFields.avatar !== `` ||
+        updatedFields.email !== `` ||
+        updatedFields.password !== `` ||
+        updatedFields.username !== ``;
+
+    const checkIfReAuthNeeded =
         updatedFields.email !== `` ||
         updatedFields.password !== `` ||
         updatedFields.username !== ``;
@@ -138,14 +147,19 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
                 {checkIfSaveNeeded &&
                     `Submit to Save Changes`
                 }
+                {checkIfReAuthNeeded &&
+                    <div className='relogNotify'>
+                        Profile Data Changed. Relogin Required
+                    </div>
+                }
             </div>
             <div className='userProfileWrapper '>
                 <div className='userProfileLeft'>
                     <div className='profileName'>
                         {currentUser.username}&apos;s Profile
                     </div>
-                    <div className='favoriteTeamPicture'>
-                        <img src={avatar} />
+                    <div className='userAvatarWrapper'>
+                        <img className='userAvatar' src={avatar} />
                     </div>
                 </div>
                 <div className='userProfileRight'>
@@ -167,19 +181,12 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
                         email={updatedFields.email}
                         modalOpen={modalOpen}
                     />
-                    <div className='editField'>
-                        <div className='input-group input-group-lg'>
-                            <span className='input-group-text fieldDescription'>
-                                Avatar:
-                            </span>
-                            <input type='file' name='avatar' onChange={handleChange} ref={fileInputRef} />
-                            {/* <select className='form-control form-control-sm' name='favoriteTeam' value={updatedFields.favoriteTeam || currentUser.FT} onChange={handleChange}>
-                                {teamList.map(team => <option key={team} value={team}>{team}</option>)}
-                            </select> */}
-                        </div>
-                    </div>
+                    <AvatarInput
+                        handleChange={handleChange}
+                        fileInputRef={fileInputRef}
+                    />
                     <div className='submitButtonWrapper'>
-                        <button className='btn btn-primary btn-lg' onClick={() => handleSubmit()}>
+                        <button disabled={!checkIfSaveNeeded} className='btn btn-primary btn-lg' onClick={() => handleSubmit()}>
                             Submit
                         </button>
                     </div>
@@ -205,6 +212,8 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
                         updatedFields={updatedFields}
                         authUser={authUser}
                         currentUser={currentUser}
+                        saveAvatarToAWS={saveAvatarToAWS}
+                        avatar={avatar}
                     />
                     :
                     <ImageEditor
@@ -219,7 +228,7 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
     );
 };
 
-const ReAuth = ({ firebase, updatedFields, authUser, openCloseModal, currentUser }) => {
+const ReAuth = ({ firebase, updatedFields, authUser, openCloseModal, currentUser, saveAvatarToAWS, avatar }) => {
 
     const [email, setEmail] = useState(``);
     const [password, setPassword] = useState(``);
@@ -229,17 +238,20 @@ const ReAuth = ({ firebase, updatedFields, authUser, openCloseModal, currentUser
     const handleUpdate = () => {
         const request = {};
         let needToUpdateDb = false;
-        if (updatedFields.password !== '') {
+        if (updatedFields.password !== ``) {
             authUser.updatePassword(updatedFields.password);
         }
-        if (updatedFields.email !== '') {
+        if (updatedFields.email !== ``) {
             authUser.updateEmail(updatedFields.email);
             request.E = updatedFields.email;
             needToUpdateDb = true;
         }
-        if (updatedFields.username !== '') {
+        if (updatedFields.username !== ``) {
             request.UN = updatedFields.username;
             needToUpdateDb = true;
+        }
+        if (updatedFields.avatar !== ``) {
+            saveAvatarToAWS(avatar)
         }
         if (needToUpdateDb) {
             axios.put(`/api/updateProfile`, { request, userId: currentUser.userId })
@@ -271,14 +283,9 @@ const ReAuth = ({ firebase, updatedFields, authUser, openCloseModal, currentUser
         }
     };
 
-    const fillInfo = () => {
-        setEmail('smushedcode@gmail.com');
-        setPassword('123456');
-    };
-
     return (
         <Fragment>
-            <div>To update profile, please enter your login information</div>
+            <div className='reAuthHeader'>Trying to update profile data, relogin required.</div>
             <div>{loginErr}</div>
             <EmailInput
                 handleChange={handleChange}
@@ -291,15 +298,14 @@ const ReAuth = ({ firebase, updatedFields, authUser, openCloseModal, currentUser
                 showPassword={showPassword}
                 modalOpen={false}
             />
-            <button onClick={fillInfo}>
-                Fill Info
+            <div className='profileButtonWrapper'>
+                <button className='btn btn-success profileModalButton' onClick={handleReAuth}>
+                    Re-Login
             </button>
-            <button onClick={handleReAuth}>
-                Re-Login
+                <button className='btn btn-danger profileModalButton' onClick={() => openCloseModal()}>
+                    Close
             </button>
-            <button className='btn btn-danger profileModalButton' onClick={() => openCloseModal()}>
-                Close
-            </button>
+            </div>
         </Fragment>
     );
 };
@@ -391,8 +397,23 @@ const ImageEditor = ({ tempAvatar, saveCroppedAvatar, openCloseModal, fileInputR
     );
 };
 
+const AvatarInput = ({ handleChange, fileInputRef }) =>
+    <div className='editField'>
+        <div className='input-group input-group-lg'>
+            <span className='input-group-text fieldDescription'>
+                Avatar:
+            </span>
+            <div>
+                <label htmlFor='avatarInput' className='customFileUploadButton' >
+                    Upload Avatar
+                </label>
+            </div>
+            <input type='file' name='avatar' id='avatarInput' className='avatarInputButton' onChange={handleChange} ref={fileInputRef} />
+        </div>
+    </div>
+
 const UsernameInput = ({ handleChange, username, currentUser, modalOpen }) =>
-    <div className={'editField' + (modalOpen && ' lowerOpacity')}>
+    <div className={'editField' + (modalOpen ? ' lowerOpacity' : '')}>
         <div className='input-group input-group-lg'>
             <span className='input-group-text fieldDescription'>
                 Username:
@@ -402,7 +423,7 @@ const UsernameInput = ({ handleChange, username, currentUser, modalOpen }) =>
     </div>;
 
 const PasswordInput = ({ handleChange, password, showPassword, modalOpen }) =>
-    <div className={'editField' + (modalOpen && ' lowerOpacity')}>
+    <div className={'editField' + (modalOpen ? ' lowerOpacity' : '')}>
         <div className='input-group input-group-lg'>
             <span className='input-group-text fieldDescription'>
                 Password:
@@ -416,7 +437,7 @@ const PasswordInput = ({ handleChange, password, showPassword, modalOpen }) =>
     </div>;
 
 const EmailInput = ({ email, handleChange, authUser, modalOpen }) =>
-    <div className={'editField' + (modalOpen && ' lowerOpacity')}>
+    <div className={'editField' + (modalOpen ? ' lowerOpacity' : '')}>
         <div className='input-group input-group-lg'>
             <span className='input-group-text fieldDescription'>
                 Email:
@@ -430,6 +451,11 @@ ImageEditor.propTypes = {
     fileInputRef: PropTypes.any,
     tempAvatar: PropTypes.any,
     openCloseModal: PropTypes.func,
+};
+
+AvatarInput.propTypes = {
+    fileInputRef: PropTypes.any,
+    handleChange: PropTypes.func
 }
 
 UserProfile.propTypes = {
@@ -462,21 +488,14 @@ PasswordInput.propTypes = {
 };
 
 ReAuth.propTypes = {
+    avatar: PropTypes.any,
+    saveAvatarToAWS: PropTypes.func,
     firebase: PropTypes.any,
     updatedFields: PropTypes.object,
     authUser: PropTypes.any,
     openCloseModal: PropTypes.func,
     currentUser: PropTypes.object
 };
-
-//REAUTH a user in order for them to update any of these
-//Username - Password - Email
-
-//Update Favorite Team
-
-//Manage (aka leave) groups from here
-//Groups
-
 
 // const VerifyEmailButton = ({ authUser }) =>
 //     <div className='verifyEmailDiv floatRight notifications'>

@@ -51,6 +51,7 @@
 }
 
 .userProfileLeft {
+    margin-top: -10px;
     margin-left: 300px;
     width: 20%;
 }
@@ -66,7 +67,7 @@
 .editField {
     display: flex;
     font-size: 22px;
-    margin-bottom: 15px;
+    margin-top: 10px;
 }
 
 .lowerOpacity {
@@ -88,8 +89,14 @@
     text-align: center;
 }
 
-.favoriteTeamPicture {
+.userAvatarWrapper {
     text-align: center;
+}
+
+.userAvatar {
+    height: 200px;
+    width: 200px;
+    border-radius: 10px;
 }
 
 .submitButtonWrapper {
@@ -109,6 +116,7 @@
 }
 
 .profileButtonWrapper {
+    margin-top: 15px;
     display: flex;
     justify-content: space-evenly;
 }
@@ -123,6 +131,31 @@
     font-weight: 600;
     margin-bottom: 25px;
     height: 40px;
+}
+
+.reAuthHeader {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.relogNotify {
+    font-size: 20px;
+}
+
+.avatarInputButton {
+    display: none;
+}
+
+.customFileUploadButton {
+    border: 1px solid #ccc;
+    padding: 6px 12px;
+    cursor: pointer;
+    margin-left: 0px;
+}
+
+.customFileUploadButton:hover {
+    background-color: whitesmoke;
 }
 
 @-webkit-keyframes pop-in {
