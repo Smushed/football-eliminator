@@ -1,6 +1,7 @@
 require(`dotenv`).config();
 const userHandler = require(`../handlers/userHandler`);
 const rosterHandler = require(`../handlers/rosterHandler`);
+const s3Handler = require(`../handlers/s3Handler`);
 
 module.exports = app => {
     app.put(`/api/updateProfile`, async (req, res) => {
@@ -101,14 +102,17 @@ module.exports = app => {
         res.status(200).send(updated);
     });
 
-    app.put(`/api/uploadAvatar/:userId`, (req, res) => {
-        //Here in Req.body the base64 image is received.
-        //Need to verify that the image is 200 x 200 (if not then make it so)
-        //Get the request from amazon (tutorial)
-        const { userId } = req.params;
+    app.put(`/api/uploadAvatar/:id`, (req, res) => {
+        const { id } = req.params;
         const { image } = req.body;
-        userHandler.uploadAvatar(userId, image)
+        s3Handler.uploadAvatar(id, image)
 
-        res.status(200).send(req.body)
+        res.status(200).send(`success`)
+    });
+
+    app.get(`/api/getAvatar/:id`, async (req, res) => {
+        const { id } = req.params;
+        const avatar = await s3Handler.getAvatar(id);
+        res.status(200).send(avatar);
     });
 }

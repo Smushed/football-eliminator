@@ -1,15 +1,9 @@
 const db = require(`../models`);
-const AWS = require(`aws-sdk`);
-require(`dotenv`).config();
+
 
 const groupHandler = require(`./groupHandler`);
+const s3Handler = require(`./s3Handler`);
 
-AWS.config.update({
-    region: `us-east-2`,
-    accessKeyId: process.env.AWS_KEY,
-    secretAccessKey: process.env.AWS_SECRET_KEY
-});
-s3 = new AWS.S3({ params: { Bucket: 'football-eliminator' } });
 
 const checkDuplicateUser = async (checkedField, checkField1, checkField2) => {
     let result = false;
@@ -200,29 +194,5 @@ module.exports = {
             await db.User.findByIdAndUpdate([userId], { $push: { GL: groupId } });
         }
         return { status: 200, message: 'All Good' };
-    },
-    uploadAvatar: (userId, base64Avatar) => {
-        // s3.listBuckets(function (err, data) {
-        //     if (err) {
-        //         console.log("Error", err);
-        //     } else {
-        //         console.log("Success", data.Buckets);
-        //     }
-        // });
-        buf = Buffer.from(base64Avatar.replace(/^data:image\/\w+;base64,/, ""), 'base64')
-        var data = {
-            Key: userId,
-            Body: buf,
-            ContentEncoding: 'base64',
-            ContentType: 'image/jpeg'
-        };
-        s3.putObject(data, function (err, data) {
-            if (err) {
-                console.log(err);
-                console.log('Error uploading data: ', data);
-            } else {
-                console.log('successfully uploaded the image!', data);
-            }
-        });
     }
 };

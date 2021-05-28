@@ -27,7 +27,10 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
     const fileInputRef = useRef(null);
 
     useEffect(() => {
-    }, []);
+        if (currentUser.userId !== undefined) {
+            axios.get(`api/getAvatar/${currentUser.userId}`).then(res => updateAvatar(res.data))
+        }
+    }, [currentUser]);
 
     // const sendAuthEmail = (authUser) => {
     //     authUser.sendEmailVerification();

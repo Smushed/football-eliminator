@@ -17,10 +17,6 @@ const UserSchema = new Schema({
         type: Boolean,
         default: false
     },
-    AV: { //Avatar
-        type: String,
-        default: 'stockFootballGuy.jpg'
-    },
     MG: mongoose.Types.ObjectId //Main Group
 });
 
