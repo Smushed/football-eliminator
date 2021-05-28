@@ -65,7 +65,6 @@ const App = ({ firebase }) => {
       username: user.UN,
       userId: user._id,
       isAdmin: user.A,
-      FT: user.FT,
       GL: user.GL
     };
     updateCurrentUser(currentUser);

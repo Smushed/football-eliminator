@@ -1,13 +1,12 @@
 require(`dotenv`).config();
 const userHandler = require(`../handlers/userHandler`);
 const rosterHandler = require(`../handlers/rosterHandler`);
+const s3Handler = require(`../handlers/s3Handler`);
 
 module.exports = app => {
-    app.put(`/api/updateUser`, async (req, res) => {
-        const { userId, value, request } = req.body;
-
-        //Pass the user to change's field, their updated value and what field they would like to change
-        const updatedUser = await userHandler.updateProfile(userId, value, request);
+    app.put(`/api/updateProfile`, async (req, res) => {
+        const { userId, request } = req.body;
+        const updatedUser = await userHandler.updateProfile(userId, request);
         res.status(200).send(updatedUser);
     });
 
@@ -101,5 +100,19 @@ module.exports = app => {
         const updated = await userHandler.updateSeasonWeek(season, currentWeek, lockWeek);
 
         res.status(200).send(updated);
+    });
+
+    app.put(`/api/uploadAvatar/:id`, (req, res) => {
+        const { id } = req.params;
+        const { image } = req.body;
+        s3Handler.uploadAvatar(id, image)
+
+        res.status(200).send(`success`)
+    });
+
+    app.get(`/api/getAvatar/:id`, async (req, res) => {
+        const { id } = req.params;
+        const avatar = await s3Handler.getAvatar(id);
+        res.status(200).send(avatar);
     });
 }

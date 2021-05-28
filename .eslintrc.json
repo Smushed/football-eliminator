@@ -19,7 +19,10 @@
     "plugins": [
         "react"
     ],
-    "rules": {},
+    "rules": {
+        "no-unused-vars": "warn",
+        "no-extra-boolean-cast": "off"
+    },
     "ignorePatterns": [
         "node_modules"
     ],
