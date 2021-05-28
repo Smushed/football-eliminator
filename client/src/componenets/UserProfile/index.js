@@ -1,4 +1,5 @@
 import React, { Fragment, useEffect, useState, useRef, useCallback } from 'react';
+import { Prompt } from 'react-router-dom';
 import axios from 'axios';
 import { withAuthorization } from '../Session';
 import Modal from 'react-modal';
@@ -7,8 +8,8 @@ import PropTypes from 'prop-types';
 import Cropper from 'react-easy-crop';
 import Slider from 'rc-slider';
 import Jimp from 'jimp';
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 
 import 'rc-slider/assets/index.css';
 import './userProfileStyle.css';
@@ -142,6 +143,10 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
 
     return (
         <Fragment>
+            <Prompt
+                when={checkIfSaveNeeded}
+                message='Information is Unsaved. Are you sure you want to leave?'
+            />
             <div className={modalOpen ? 'greyBackdrop' : ''} />
             <div className='notificationHeader'>
                 {checkIfSaveNeeded &&
