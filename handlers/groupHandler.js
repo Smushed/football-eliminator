@@ -1,6 +1,7 @@
 const db = require(`../models`);
 const mySportsHandler = require('./mySportsHandler');
 const positions = require(`../constants/positions`);
+const userHandler = require('./userHandler');
 
 const checkDuplicate = async (checkedField, groupToSearch, userID) => {
     let result = false;
@@ -298,5 +299,12 @@ module.exports = {
         };
         const R = await mySportsHandler.fillUserRoster(topUserRoster.R);
         return R; //Don't need to get user here because the front end already has the leader and the username. Avoid the extra DB call
+    },
+    getBestUserForBox: async function (userScores) {
+        const scoresCopy = [...userScores];
+        const topWeekScore = await getTopOverallLeadRosterForWeek(scoresCopy);
+
+        console.log(topWeekScore)
+        return topWeekScore;
     }
 };

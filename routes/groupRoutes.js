@@ -3,6 +3,7 @@ const userHandler = require(`../handlers/userHandler`);
 const groupHandler = require(`../handlers/groupHandler`);
 const mySportsHandler = require(`../handlers/mySportsHandler`);
 const scoringSystem = require(`../constants/scoringSystem`);
+const s3Handler = require("../handlers/s3Handler");
 
 module.exports = app => {
 
@@ -96,9 +97,28 @@ module.exports = app => {
             return;
         } else {
             const userScores = await groupHandler.getCurrAndLastWeekScores(groupId, season, +week);
-            const bestRoster = await groupHandler.getBestRoster(groupId, season, +week, userScores);
-            const leaderRoster = await groupHandler.getLeaderRoster(userScores, groupId, week, season);
-            res.status(200).send({ bestRoster, leaderRoster });
+            Promise.all([
+                groupHandler.getBestRoster(groupId, season, +week, userScores),
+                groupHandler.getLeaderRoster(userScores, groupId, week, season)
+            ]).then(([
+                bestRoster, leaderRoster
+            ]) => res.status(200).send({ bestRoster, leaderRoster }));
         }
+    });
+
+    app.get(`/api/getGroupForBox/:groupName`, async (req, res) => {
+        const { groupName } = req.params;
+        // const seasonAndWeek = await userHandler.pullSeasonAndWeekFromDB();
+        // const groupData = await groupHandler.getGroupData(groupName);
+        // console.log(seasonAndWeek, `gD`, groupData)
+        Promise.all([
+            userHandler.pullSeasonAndWeekFromDB(),
+            groupHandler.getGroupData(groupName)
+        ]).then(async ([{ season, week }, groupData]) => {
+            const userScores = await groupHandler.getCurrAndLastWeekScores(groupData._id, season, +week);
+            const { TS } = await groupHandler.getBestUserForBox(userScores);
+            const groupAvatar = await s3Handler.getAvatar(groupData._id);
+            res.status(200).send({ name: groupName, score: TS, avatar: groupAvatar });
+        })
     });
 };

@@ -1,9 +1,7 @@
 const db = require(`../models`);
 
-
 const groupHandler = require(`./groupHandler`);
 const s3Handler = require(`./s3Handler`);
-
 
 const checkDuplicateUser = async (checkedField, checkField1, checkField2) => {
     let result = false;

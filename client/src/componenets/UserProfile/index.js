@@ -13,6 +13,7 @@ import withReactContent from 'sweetalert2-react-content';
 
 import 'rc-slider/assets/index.css';
 import './userProfileStyle.css';
+import GroupUserBox from '../GroupUserBox';
 
 const Alert = withReactContent(Swal);
 
@@ -199,7 +200,14 @@ const UserProfile = ({ authUser, currentUser, groupList, firebase }) => {
                         <div>
                             Joined Groups:
                         </div>
-                        {groupList.map((group) => <div key={group.N}>{group.N} {group.D} {group._id}</div>)}
+                        {groupList.map((group) =>
+                            <GroupUserBox
+                                key={group._id}
+                                boxContent={group.N}
+                                type='group'
+                                buttonActive={true}
+                                inGroup={true}
+                            />)}
                     </div>
                 </div>
             </div>

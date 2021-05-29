@@ -118,9 +118,12 @@ module.exports = app => {
 
     app.get(`/api/getUserForBox/:userId`, async (req, res) => {
         const { userId } = req.params;
-        const avatar = await s3Handler.getAvatar(userId);
-        const foundUser = await userHandler.getUserByID(userId);
-        const totalScore = await rosterHandler.getTotalScore(userId);
-        res.status(200).send({ UN: foundUser.UN, avatar, TS: totalScore });
+        Promise.all([
+            s3Handler.getAvatar(userId),
+            userHandler.getUserByID(userId),
+            rosterHandler.getTotalScore(userId)])
+            .then(([avatar, foundUser, totalScore]) =>
+                res.status(200).send({ name: foundUser.UN, avatar, score: totalScore })
+            );
     });
 }

@@ -30,13 +30,16 @@ const SingleGroup = ({ match, currUserId }) => {
     return (
         <div>
             {match.params.groupname}
-            {groupData && groupData.UL.map(user =>
-                <GroupUserBox
-                    key={user.ID}
-                    boxContent={user.ID}
-                    type='user'
-                />
-            )}
+            <div className='groupUserBoxWrapper'>
+                {groupData && groupData.UL.map(user =>
+                    <GroupUserBox
+                        key={user.ID}
+                        boxContent={user.ID}
+                        type='user'
+                        buttonActive={isAdmin}
+                    />
+                )}
+            </div>
         </div>
     )
 };
