@@ -24,7 +24,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
     const [groupPositions, updateGroupPositions] = useState([]);
     const [positionArray, updatePositionArray] = useState([]);
     const [usedPlayers, updateUsedPlayers] = useState({});
-    const [showUsedPlayers, updateShowUsedPlayers] = useState(false);
+    const [showUsedPlayers, updateShowUsedPlayers] = useState(true);
     const [currentPositionUsedPlayers, updateCurrentPositionUsedPlayers] = useState([]);
     const [positionMap, updatePositionMap] = useState([])
     const [weeklyMatchups, updateWeeklyMatchups] = useState([]);
@@ -361,7 +361,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                             disabled={mustDrop} />
                     </div>
                     <div className='searchRow largeScreenShow noMargin'>
-                        <button className='btn btn-success' disabled={mustDrop || lastPosSearch === ``} onClick={() => toggleShowUsedPlayers()}>Show Used Players</button>
+                        <button className='btn btn-success' disabled={mustDrop} onClick={() => toggleShowUsedPlayers()}>Show Used Players</button>
                     </div>
                     <div className='searchRow largeScreenShow'>
                         <button className='btn btn-success' onClick={() => showMatchUps()}>Match Ups</button>
@@ -382,7 +382,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                         />
                         <div className={`usedPlayerCol ${mustDrop && `rosterHide`} ${!showUsedPlayers && ` zeroTransparent`}`}>
                             <div className='sectionHeader'>
-                                Used {lastPosSearch}s
+                                Used {lastPosSearch ? lastPosSearch : 'Player'}s
                             </div>
                             {currentPositionUsedPlayers.map((player, i) => (
                                 <PlayerDisplayRow
