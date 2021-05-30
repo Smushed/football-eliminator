@@ -127,10 +127,10 @@
 
 .notificationHeader {
     text-align: center;
-    font-size: 26px;
+    font-size: 28px;
     font-weight: 600;
     margin-bottom: 25px;
-    height: 40px;
+    height: 42px;
 }
 
 .reAuthHeader {
@@ -140,7 +140,7 @@
 }
 
 .relogNotify {
-    font-size: 20px;
+    font-size: 24px;
 }
 
 .avatarInputButton {

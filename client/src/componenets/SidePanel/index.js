@@ -64,7 +64,7 @@ const SidePanel = ({ firebase, username, groupname, showHideSideBar, showSideBar
                     </div>
                 </div>
             </Link>
-            <Link to={Routes.userProfile} onClick={() => showHideSideBar()}>
+            <Link to={`/profile/user/${username}`} onClick={() => showHideSideBar()}>
                 <div className='sidebarItemWrapper'>
                     <img className='sidebarSVG' src={UserSVG} alt='User Logo' />
                     <div className='sideBarItem'>

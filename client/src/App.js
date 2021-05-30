@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 import SignInOut from './componenets/SignInOut';
 import NavBar from './componenets/NavBar/';
 import Home from './componenets/Home';
-import UserProfile from './componenets/UserProfile';
+import Profile from './componenets/Profile';
 import SeasonLongScore from './componenets/SeasonLongScore';
 import Roster from './componenets/Roster';
 import AdminPanel from './componenets/AdminPanel';
@@ -165,8 +165,9 @@ const App = ({ firebase }) => {
             />
             <Route
               path={Routes.userProfile}
-              render={() =>
-                <UserProfile
+              render={props =>
+                <Profile
+                  {...props}
                   authUser={authUser}
                   currentUser={currentUser}
                   groupList={groupList} />}

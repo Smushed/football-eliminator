@@ -1,7 +1,7 @@
 export const home = '/';
 export const signup = '/signup';
 export const signin = '/signin';
-export const userProfile = '/profile';
+export const userProfile = '/profile/user/:username';
 export const passwordChange = '/passwordChange';
 export const roster = '/roster/:groupname/:username';
 export const adminPanel = '/adminPanel/';

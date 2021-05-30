@@ -84,15 +84,6 @@ module.exports = {
             });
         }
         return { status: 200, message: `Updated` }
-
-        //TODO Check for duplicates
-        // db.User.updateOne({ _id: userId }, { $set: { [updatedField]: updatedValue } }, (err, data) => {
-        //     if (err) {
-        //         return err;
-        //     } else {
-        //         return "Updated Successfully";
-        //     };
-        // });
     },
     updateToAdmin: async (userId) => {
         let dbResponse = ``;
