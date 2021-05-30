@@ -48,7 +48,9 @@ const GroupUserBox = ({ boxContent, type, buttonActive, inGroup = false }) => {
                 </div>
             </div>
             <div>
-                {inGroup ? <div>Leave Group</div> : <div>Join Group</div>}
+                {type === 'group' &&
+                    (inGroup ? <div>Leave Group</div> : <div>Join Group</div>)
+                }
             </div>
             {/* Username / Groupname | Total Score / Best Score */}
         </div>

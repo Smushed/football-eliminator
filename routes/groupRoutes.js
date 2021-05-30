@@ -108,17 +108,29 @@ module.exports = app => {
 
     app.get(`/api/getGroupForBox/:groupName`, async (req, res) => {
         const { groupName } = req.params;
-        // const seasonAndWeek = await userHandler.pullSeasonAndWeekFromDB();
-        // const groupData = await groupHandler.getGroupData(groupName);
-        // console.log(seasonAndWeek, `gD`, groupData)
         Promise.all([
             userHandler.pullSeasonAndWeekFromDB(),
             groupHandler.getGroupData(groupName)
         ]).then(async ([{ season, week }, groupData]) => {
             const userScores = await groupHandler.getCurrAndLastWeekScores(groupData._id, season, +week);
-            const { TS } = await groupHandler.getBestUserForBox(userScores);
-            const groupAvatar = await s3Handler.getAvatar(groupData._id);
-            res.status(200).send({ name: groupName, score: TS, avatar: groupAvatar });
+            Promise.all([
+                groupHandler.getBestUserForBox(userScores),
+                s3Handler.getAvatar(groupData._id)
+            ]).then(([topUser, groupAvatar]) => {
+                res.status(200).send({ name: groupName, score: topUser.TS, avatar: groupAvatar })
+            }
+            )
         })
+    });
+
+    app.get(`/api/groupData/profile/:groupName`, async (req, res) => {
+        const { groupName } = req.params;
+        const groupData = await groupHandler.getGroupData(groupName);
+        if (groupData) {
+            const positions = await groupHandler.getGroupPositions(groupData._id);
+            res.status(200).send({ group: groupData, positions });
+        } else {
+            res.status(500).send({ 'error': `No Group Found` })
+        }
     });
 };

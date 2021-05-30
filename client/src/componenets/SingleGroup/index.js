@@ -13,10 +13,13 @@ const SingleGroup = ({ match, currUserId }) => {
 
     useEffect(() => {
         if (match.params.groupname !== ``) {
-            axios.get(`/api/getGroupData/${match.params.groupname}`)
-                .then(res => {
-                    updateGroupData(res.data);
-                });
+            if (!groupData) {
+                axios.get(`/api/groupData/profile/${match.params.groupname}`)
+                    .then(res => {
+                        console.log(res.data)
+                        updateGroupData(res.data);
+                    });
+            }
         }
         (groupData & currUserId) && checkForAdmin();
     }, [match.params.groupname, currUserId]);
@@ -29,16 +32,18 @@ const SingleGroup = ({ match, currUserId }) => {
 
     return (
         <div>
-            {match.params.groupname}
+            <div className='groupHeader'>
+                {groupData && groupData.group.N}
+            </div>
             <div className='groupUserBoxWrapper'>
-                {groupData && groupData.UL.map(user =>
+                {/* {groupData && groupData.UL.map(user =>
                     <GroupUserBox
                         key={user.ID}
                         boxContent={user.ID}
                         type='user'
                         buttonActive={isAdmin}
                     />
-                )}
+                )} */}
             </div>
         </div>
     )

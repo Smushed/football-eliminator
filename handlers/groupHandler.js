@@ -301,10 +301,10 @@ module.exports = {
         return R; //Don't need to get user here because the front end already has the leader and the username. Avoid the extra DB call
     },
     getBestUserForBox: async function (userScores) {
-        const scoresCopy = [...userScores];
-        const topWeekScore = await getTopOverallLeadRosterForWeek(scoresCopy);
-
-        console.log(topWeekScore)
-        return topWeekScore;
+        return new Promise(async (res, rej) => {
+            const scoresCopy = [...userScores];
+            const topWeekScore = await getTopOverallLeadRosterForWeek(scoresCopy);
+            res(topWeekScore);
+        });
     }
 };
