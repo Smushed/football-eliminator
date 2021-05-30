@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 
-import './groupUserBoxStyle.css'
+import './displayBoxStyle.css'
 
-const GroupUserBox = ({ boxContent, type, buttonActive, inGroup = false }) => {
+const DisplayBox = ({ boxContent, type, buttonActive, inGroup = false }) => {
 
     const [displayData, updateDisplayData] = useState({});
 
@@ -30,16 +30,16 @@ const GroupUserBox = ({ boxContent, type, buttonActive, inGroup = false }) => {
     };
 
     return (
-        <div className={`groupUserBox ` + (buttonActive && `adminHeight`)}>
+        <div className={`displayBox ` + (buttonActive && `adminHeight`)}>
             {/* <Link to={``}> GOOD CHANCE TO TRY AND FIGURE OUT HOW TO LINK TO THE USER OR GROUP PAGE */}
-            <div className='groupUserBoxName'>
+            <div className='displayBoxName'>
                 {displayData.name}
             </div>
             {/* </Link> */}
-            <div className='groupUserBoxAvatarWrapper'>
-                <img className='groupUserBoxAvatar' src={displayData.avatar} />
+            <div className='displayBoxAvatarWrapper'>
+                <img className='displayBoxAvatar' src={displayData.avatar} />
             </div>
-            <div className='groupUserBoxScoreWrapper'>
+            <div className='displayBoxScoreWrapper'>
                 <div>
                     {type === 'user' ? 'Total Score: ' : 'Top Score: '}
                 </div>
@@ -57,11 +57,11 @@ const GroupUserBox = ({ boxContent, type, buttonActive, inGroup = false }) => {
     )
 };
 
-GroupUserBox.propTypes = {
+DisplayBox.propTypes = {
     boxContent: PropTypes.string,
     type: PropTypes.string,
     buttonActive: PropTypes.bool, //Button Active for removing users from a group (if group page) or leaving group (if user profile page)
     inGroup: PropTypes.bool
 }
 
-export default GroupUserBox;
+export default DisplayBox;

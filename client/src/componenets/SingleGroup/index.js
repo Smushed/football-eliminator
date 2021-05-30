@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import axios from 'axios';
 
 import './singleGroupStyle.css';
-import GroupUserBox from '../GroupUserBox';
+// import GroupUserBox from '../GroupUserBox';
 
 const SingleGroup = ({ match, currUserId }) => {
 

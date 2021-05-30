@@ -164,7 +164,7 @@ const App = ({ firebase }) => {
                 <SignInOut />}
             />
             <Route
-              path={Routes.userProfile}
+              path={Routes.profile}
               render={props =>
                 <Profile
                   {...props}

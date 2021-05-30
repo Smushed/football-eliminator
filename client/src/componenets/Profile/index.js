@@ -11,13 +11,17 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
 import 'rc-slider/assets/index.css';
-import './userProfileStyle.css';
+import './profileStyle.css';
 
-import GroupUserBox from '../GroupUserBox';
+import DisplayBox from '../DisplayBox';
 import { AvatarInput, UsernameInput, EmailInput, PasswordInput } from './ProfileInputs';
 import { ReAuth, ImageEditor } from './ModalWindows';
 
 const Alert = withReactContent(Swal);
+
+//Using the new style of route /:type/:name dynamically load which page to display, user or group
+//Also update what state is used based on what is displayed
+//Break it out into 2 different components and then manage which state is shared and what state should be broken out
 
 const Profile = ({ authUser, currentUser, groupList, firebase }) => {
 
@@ -203,7 +207,7 @@ const Profile = ({ authUser, currentUser, groupList, firebase }) => {
                             Joined Groups:
                         </div>
                         {groupList.map((group) =>
-                            <GroupUserBox
+                            <DisplayBox
                                 key={group._id}
                                 boxContent={group.N}
                                 type='group'

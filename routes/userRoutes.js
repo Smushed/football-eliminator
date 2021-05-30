@@ -112,7 +112,6 @@ module.exports = app => {
 
     app.get(`/api/avatar/:id`, async (req, res) => {
         const { id } = req.params;
-        console.log(id)
         const avatar = await s3Handler.getAvatar(id);
         res.status(200).send(avatar);
     });
