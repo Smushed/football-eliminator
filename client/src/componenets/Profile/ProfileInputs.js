@@ -26,7 +26,7 @@ const UsernameInput = ({ handleChange, username, currentUser, modalOpen }) =>
         </div>
     </div>;
 
-const PasswordInput = ({ handleChange, password, showPassword, modalOpen }) =>
+const PasswordInput = ({ handleChange, password, showPassword, modalOpen, toggleShowPassword }) =>
     <div className={'editField' + (modalOpen ? ' lowerOpacity' : '')}>
         <div className='input-group input-group-lg'>
             <span className='input-group-text fieldDescription'>
@@ -34,7 +34,7 @@ const PasswordInput = ({ handleChange, password, showPassword, modalOpen }) =>
                 </span>
             <input className='form-control' name='password' value={password} type={showPassword} onChange={handleChange} placeholder='Password' />
             <span className='input-group-text fieldDescription'>
-                <input className='largeCheckbox input-group-text fieldDescription' type='checkbox' value={showPassword} name='togglePassword' onChange={handleChange} />
+                <input className='largeCheckbox input-group-text fieldDescription' type='checkbox' value={showPassword} name='togglePassword' onChange={toggleShowPassword} />
             &nbsp;Show
         </span>
         </div>
@@ -75,7 +75,8 @@ PasswordInput.propTypes = {
     handleChange: PropTypes.func,
     password: PropTypes.string,
     showPassword: PropTypes.string,
-    modalOpen: PropTypes.bool
+    modalOpen: PropTypes.bool,
+    toggleShowPassword: PropTypes.func
 };
 
-export { AvatarInput, UsernameInput, EmailInput, PasswordInput }
+export { AvatarInput, UsernameInput, EmailInput, PasswordInput };

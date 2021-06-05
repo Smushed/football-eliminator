@@ -13,32 +13,34 @@ import withReactContent from 'sweetalert2-react-content';
 import 'rc-slider/assets/index.css';
 import './profileStyle.css';
 
-import DisplayBox from '../DisplayBox';
-import { AvatarInput, UsernameInput, EmailInput, PasswordInput } from './ProfileInputs';
 import { ReAuth, ImageEditor } from './ModalWindows';
+import UserProfile from './UserProfile';
 
 const Alert = withReactContent(Swal);
 
-//Using the new style of route /:type/:name dynamically load which page to display, user or group
-//Also update what state is used based on what is displayed
-//Break it out into 2 different components and then manage which state is shared and what state should be broken out
+const userFields = { username: ``, email: ``, password: ``, avatar: `` };
+const groupFields = { groupName: `` };
 
-const Profile = ({ authUser, currentUser, groupList, firebase }) => {
+const Profile = ({ authUser, currentUser, firebase, match }) => {
 
-    const [showPassword, updateShowPassword] = useState(`password`);
     const [modalOpen, updateModal] = useState(false);
-    const [modalState, updateModalState] = useState('reAuth');
-    const [updatedFields, changeUpdatedFields] = useState({ email: ``, password: ``, username: ``, avatar: `` });
+    const [modalState, updateModalState] = useState(`reAuth`);
+    const [updatedFields, changeUpdatedFields] = useState({ ...userFields, ...groupFields });
     const [avatar, updateAvatar] = useState(``);
     const [tempAvatar, updateTempAvatar] = useState(``);
 
     const fileInputRef = useRef(null);
 
     useEffect(() => {
-        if (currentUser.userId !== undefined) {
-            axios.get(`/api/avatar/${currentUser.userId}`).then(res => updateAvatar(res.data))
+        if (match.params.type === `user`) {
+            changeUpdatedFields({ ...userFields });
+            if (currentUser.userId !== undefined) {
+                axios.get(`/api/avatar/${currentUser.userId}`).then(res => updateAvatar(res.data));
+            }
+        } else if (match.params.type === `group`) {
+            //Do something if they're on the group page
         }
-    }, [currentUser]);
+    }, [currentUser, match.params.type]);
 
     // const sendAuthEmail = (authUser) => {
     //     authUser.sendEmailVerification();
@@ -53,7 +55,7 @@ const Profile = ({ authUser, currentUser, groupList, firebase }) => {
         if (e.target.name === `avatar`) {
 
             //Checks if the file uploaded is an image
-            if (!!e.target.files[0].type.match('image.*')) {
+            if (!!e.target.files[0].type.match(`image.*`)) {
                 Jimp.read((URL.createObjectURL(e.target.files[0])), async (err, img) => {
                     if (err) {
                         console.log(err);
@@ -71,11 +73,6 @@ const Profile = ({ authUser, currentUser, groupList, firebase }) => {
             return; //Don't want to set updated fields here in case the user cancels the crop
         }
 
-        if (e.target.name === `togglePassword`) {
-            e.target.value === `password` ? updateShowPassword(`text`) : updateShowPassword(`password`);
-            return;
-        }
-
         //Putting this after the avatar check in case they upload a non image
         changeUpdatedFields({ ...updatedFields, [e.target.name]: e.target.value });
     };
@@ -84,14 +81,14 @@ const Profile = ({ authUser, currentUser, groupList, firebase }) => {
         updateTempAvatar(``);
         updateAvatar(mime);
         openCloseModal();
-        updateModalState(`reAuth`)
+        updateModalState(`reAuth`);
         changeUpdatedFields({ ...updatedFields, avatar: `active` });
     };
 
     //This is fired if someone pressed ESC or clicks off the modal
     const requestCloseModal = () => {
         updateModal(!modalOpen);
-        updateTempAvatar(``)
+        updateTempAvatar(``);
     };
 
     const handleSubmit = () => {
@@ -99,7 +96,7 @@ const Profile = ({ authUser, currentUser, groupList, firebase }) => {
             let checkEmail = updatedFields.email.match(/^(([^<>()\]\\.,;:\s@']+(\.[^<>()\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
             if (!checkEmail) {
                 Alert.fire({
-                    type: 'warning',
+                    type: `warning`,
                     title: `Email is invalid`,
                     text: `Please check the email field and enter again`,
                 });
@@ -110,7 +107,7 @@ const Profile = ({ authUser, currentUser, groupList, firebase }) => {
         if (checkIfReAuthNeeded) {
             updateModalState(`reAuth`);
             openCloseModal();
-        } else if (updatedFields.avatar) { //Do not require users to re sign in if they're just updating their avatar
+        } else if (updatedFields.avatar) { //Do not require users to re sign in if they`re just updating their avatar
             saveAvatarToAWS(avatar);
         }
     };
@@ -138,15 +135,21 @@ const Profile = ({ authUser, currentUser, groupList, firebase }) => {
     };
 
     const checkIfSaveNeeded =
-        updatedFields.avatar !== `` ||
-        updatedFields.email !== `` ||
-        updatedFields.password !== `` ||
-        updatedFields.username !== ``;
+        match.params.type === `user` ?
+            updatedFields.avatar !== `` ||
+            updatedFields.email !== `` ||
+            updatedFields.password !== `` ||
+            updatedFields.username !== ``
+            :
+            updatedFields.groupName !== ``;
 
     const checkIfReAuthNeeded =
-        updatedFields.email !== `` ||
-        updatedFields.password !== `` ||
-        updatedFields.username !== ``;
+        match.params.type === `user` ?
+            updatedFields.email !== `` ||
+            updatedFields.password !== `` ||
+            updatedFields.username !== ``
+            :
+            updatedFields.groupName !== ``;
 
     return (
         <Fragment>
@@ -165,58 +168,17 @@ const Profile = ({ authUser, currentUser, groupList, firebase }) => {
                     </div>
                 }
             </div>
-            <div className='userProfileWrapper '>
-                <div className='userProfileLeft'>
-                    <div className='profileName'>
-                        {currentUser.username}
-                    </div>
-                    <div className='userAvatarWrapper'>
-                        <img className='userAvatar' src={avatar} />
-                    </div>
-                </div>
-                <div className='userProfileRight'>
-                    <UsernameInput
-                        handleChange={handleChange}
-                        username={updatedFields.username}
-                        currentUser={currentUser}
-                        modalOpen={modalOpen}
-                    />
-                    <PasswordInput
-                        handleChange={handleChange}
-                        password={updatedFields.password}
-                        showPassword={showPassword}
-                        modalOpen={modalOpen}
-                    />
-                    <EmailInput
-                        authUser={authUser}
-                        handleChange={handleChange}
-                        email={updatedFields.email}
-                        modalOpen={modalOpen}
-                    />
-                    <AvatarInput
-                        handleChange={handleChange}
-                        fileInputRef={fileInputRef}
-                    />
-                    <div className='submitButtonWrapper'>
-                        <button disabled={!checkIfSaveNeeded} className='btn btn-primary btn-lg' onClick={() => handleSubmit()}>
-                            Submit
-                        </button>
-                    </div>
-                    <div className='editField'>
-                        <div>
-                            Joined Groups:
-                        </div>
-                        {groupList.map((group) =>
-                            <DisplayBox
-                                key={group._id}
-                                boxContent={group.N}
-                                type='group'
-                                buttonActive={true}
-                                inGroup={true}
-                            />)}
-                    </div>
-                </div>
-            </div>
+            <UserProfile
+                authUser={authUser}
+                currentUser={currentUser}
+                handleChange={handleChange}
+                fileInputRef={fileInputRef}
+                checkIfSaveNeeded={checkIfSaveNeeded}
+                handleSubmit={handleSubmit}
+                avatar={avatar}
+                updatedFields={updatedFields}
+                modalOpen={modalOpen}
+            />
             <Modal
                 onRequestClose={requestCloseModal}
                 isOpen={modalOpen}
@@ -250,8 +212,8 @@ const Profile = ({ authUser, currentUser, groupList, firebase }) => {
 Profile.propTypes = {
     authUser: PropTypes.any,
     currentUser: PropTypes.object,
-    groupList: PropTypes.array,
-    firebase: PropTypes.any
+    firebase: PropTypes.any,
+    match: PropTypes.any
 };
 
 

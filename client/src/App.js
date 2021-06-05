@@ -27,7 +27,6 @@ const App = ({ firebase }) => {
   const [currentUser, updateCurrentUser] = useState({});
   const [currentWeek, updateCurrentWeek] = useState(0);
   const [currentSeason, updateCurrentSeason] = useState(``);
-  const [groupList, updateGroupList] = useState([]);
   const [currentGroup, updateCurrentGroup] = useState({});
   const [showSideBar, updateShowSideBar] = useState(false);
   const [latestLockWeek, updateLockWeek] = useState(0);
@@ -73,7 +72,6 @@ const App = ({ firebase }) => {
 
   const getGroupAndPositions = async (user) => {
     updateNoGroup(false);
-    updateGroupList(user.GL);
     updateCurrentGroup({ N: user.GL[0].N, _id: user.GL[0]._id });
 
     getSeasonAndWeek();
@@ -150,8 +148,7 @@ const App = ({ firebase }) => {
               render={props =>
                 <SingleGroup
                   {...props}
-                  currUserId={currentUser.userId}
-                />}
+                  currUserId={currentUser.userId} />}
             />
             <Route
               path={Routes.signin}
@@ -169,8 +166,7 @@ const App = ({ firebase }) => {
                 <Profile
                   {...props}
                   authUser={authUser}
-                  currentUser={currentUser}
-                  groupList={groupList} />}
+                  currentUser={currentUser} />}
             />
             <Route
               path={Routes.seasonLongScore}
