@@ -1,9 +1,7 @@
 const db = require(`../models`);
 
-
 const groupHandler = require(`./groupHandler`);
 const s3Handler = require(`./s3Handler`);
-
 
 const checkDuplicateUser = async (checkedField, checkField1, checkField2) => {
     let result = false;
@@ -35,7 +33,7 @@ const checkDuplicateUser = async (checkedField, checkField1, checkField2) => {
 const fillOutUserForFrontEnd = async (user) => {
     const groupList = [];
     for (let i = 0; i < user.GL.length; i++) {
-        const groupData = await groupHandler.getGroupData(user.GL[i]);
+        const groupData = await groupHandler.getGroupDataById(user.GL[i]);
         groupList.push({
             N: groupData.N,
             D: groupData.D,
@@ -86,15 +84,6 @@ module.exports = {
             });
         }
         return { status: 200, message: `Updated` }
-
-        //TODO Check for duplicates
-        // db.User.updateOne({ _id: userId }, { $set: { [updatedField]: updatedValue } }, (err, data) => {
-        //     if (err) {
-        //         return err;
-        //     } else {
-        //         return "Updated Successfully";
-        //     };
-        // });
     },
     updateToAdmin: async (userId) => {
         let dbResponse = ``;
@@ -150,7 +139,7 @@ module.exports = {
         return response;
     },
     findUserByUsername: async (username) => {
-        const user = await db.User.findOne({ UN: username });
+        const user = await db.User.findOne({ UN: username }).collation({ locale: `en_US`, strength: 2 }).exec();
         return user;
     },
     initSeasonAndWeekInDB: async () => {

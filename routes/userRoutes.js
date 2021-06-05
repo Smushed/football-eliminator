@@ -110,9 +110,20 @@ module.exports = app => {
         res.status(200).send(`success`)
     });
 
-    app.get(`/api/getAvatar/:id`, async (req, res) => {
+    app.get(`/api/avatar/:id`, async (req, res) => {
         const { id } = req.params;
         const avatar = await s3Handler.getAvatar(id);
         res.status(200).send(avatar);
+    });
+
+    app.get(`/api/getUserForBox/:userId`, async (req, res) => {
+        const { userId } = req.params;
+        Promise.all([
+            s3Handler.getAvatar(userId),
+            userHandler.getUserByID(userId),
+            rosterHandler.getTotalScore(userId)])
+            .then(([avatar, foundUser, totalScore]) =>
+                res.status(200).send({ name: foundUser.UN, avatar, score: totalScore })
+            );
     });
 }

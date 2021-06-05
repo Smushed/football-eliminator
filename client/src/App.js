@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 import SignInOut from './componenets/SignInOut';
 import NavBar from './componenets/NavBar/';
 import Home from './componenets/Home';
-import UserProfile from './componenets/UserProfile';
+import Profile from './componenets/Profile';
 import SeasonLongScore from './componenets/SeasonLongScore';
 import Roster from './componenets/Roster';
 import AdminPanel from './componenets/AdminPanel';
@@ -16,6 +16,7 @@ import UpdateWeek from './componenets/AdminPanel/UpdateWeek';
 import UpgradeToAdmin from './componenets/AdminPanel/UpgradeToAdmin';
 import UsedPlayers from './componenets/UsedPlayers';
 import GroupPage from './componenets/GroupPage/';
+import SingleGroup from './componenets/SingleGroup';
 import FourOFour from './componenets/404/FourOFour';
 import SidePanel from './componenets/SidePanel';
 
@@ -26,7 +27,6 @@ const App = ({ firebase }) => {
   const [currentUser, updateCurrentUser] = useState({});
   const [currentWeek, updateCurrentWeek] = useState(0);
   const [currentSeason, updateCurrentSeason] = useState(``);
-  const [groupList, updateGroupList] = useState([]);
   const [currentGroup, updateCurrentGroup] = useState({});
   const [showSideBar, updateShowSideBar] = useState(false);
   const [latestLockWeek, updateLockWeek] = useState(0);
@@ -72,7 +72,6 @@ const App = ({ firebase }) => {
 
   const getGroupAndPositions = async (user) => {
     updateNoGroup(false);
-    updateGroupList(user.GL);
     updateCurrentGroup({ N: user.GL[0].N, _id: user.GL[0]._id });
 
     getSeasonAndWeek();
@@ -145,6 +144,13 @@ const App = ({ firebase }) => {
                 <GroupPage />}
             />
             <Route
+              path={Routes.singleGroup}
+              render={props =>
+                <SingleGroup
+                  {...props}
+                  currUserId={currentUser.userId} />}
+            />
+            <Route
               path={Routes.signin}
               render={() =>
                 <SignInOut />}
@@ -155,12 +161,12 @@ const App = ({ firebase }) => {
                 <SignInOut />}
             />
             <Route
-              path={Routes.userProfile}
-              render={() =>
-                <UserProfile
+              path={Routes.profile}
+              render={props =>
+                <Profile
+                  {...props}
                   authUser={authUser}
-                  currentUser={currentUser}
-                  groupList={groupList} />}
+                  currentUser={currentUser} />}
             />
             <Route
               path={Routes.seasonLongScore}

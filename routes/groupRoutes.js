@@ -3,6 +3,7 @@ const userHandler = require(`../handlers/userHandler`);
 const groupHandler = require(`../handlers/groupHandler`);
 const mySportsHandler = require(`../handlers/mySportsHandler`);
 const scoringSystem = require(`../constants/scoringSystem`);
+const s3Handler = require("../handlers/s3Handler");
 
 module.exports = app => {
 
@@ -15,17 +16,13 @@ module.exports = app => {
         // return "You need to be a moderator to add users to the group";
     });
 
-    app.get(`/api/getGroupData/:groupID`, async (req, res) => {
-        try {
-            const groupID = req.params.groupID;
-            const groupData = await groupHandler.getGroupData(groupID);
-            if (groupData) {
-                res.status(200).send(groupData);
-            } else {
-                res.status(500).send({ 'error': `No Group Found` })
-            }
-        } catch (err) {
-            res.status(500).send(err);
+    app.get(`/api/getGroupData/:groupName`, async (req, res) => {
+        const { groupName } = req.params;
+        const groupData = await groupHandler.getGroupData(groupName);
+        if (groupData) {
+            res.status(200).send(groupData);
+        } else {
+            res.status(500).send({ 'error': `No Group Found` })
         }
     });
 
@@ -100,9 +97,40 @@ module.exports = app => {
             return;
         } else {
             const userScores = await groupHandler.getCurrAndLastWeekScores(groupId, season, +week);
-            const bestRoster = await groupHandler.getBestRoster(groupId, season, +week, userScores);
-            const leaderRoster = await groupHandler.getLeaderRoster(userScores, groupId, week, season);
-            res.status(200).send({ bestRoster, leaderRoster });
+            Promise.all([
+                groupHandler.getBestRoster(groupId, season, +week, userScores),
+                groupHandler.getLeaderRoster(userScores, groupId, week, season)
+            ]).then(([
+                bestRoster, leaderRoster
+            ]) => res.status(200).send({ bestRoster, leaderRoster }));
+        }
+    });
+
+    app.get(`/api/getGroupForBox/:groupName`, async (req, res) => {
+        const { groupName } = req.params;
+        Promise.all([
+            userHandler.pullSeasonAndWeekFromDB(),
+            groupHandler.getGroupData(groupName)
+        ]).then(async ([{ season, week }, groupData]) => {
+            const userScores = await groupHandler.getCurrAndLastWeekScores(groupData._id, season, +week);
+            Promise.all([
+                groupHandler.getBestUserForBox(userScores),
+                s3Handler.getAvatar(groupData._id)
+            ]).then(([topUser, groupAvatar]) => {
+                res.status(200).send({ name: groupName, score: topUser.TS, avatar: groupAvatar })
+            }
+            )
+        })
+    });
+
+    app.get(`/api/groupData/profile/:groupName`, async (req, res) => {
+        const { groupName } = req.params;
+        const groupData = await groupHandler.getGroupData(groupName);
+        if (groupData) {
+            const positions = await groupHandler.getGroupPositions(groupData._id);
+            res.status(200).send({ group: groupData, positions });
+        } else {
+            res.status(500).send({ 'error': `No Group Found` })
         }
     });
 };
