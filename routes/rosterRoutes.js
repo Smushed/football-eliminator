@@ -26,7 +26,7 @@ module.exports = app => {
             //Rather than making this all await calls we can batch together calls that can go at the same time. Speeding up the process considerably
             Promise.all([
                 groupHandler.findGroupIdByName(groupname),
-                userHandler.findUserByUsername(username)
+                userHandler.getUserByUsername(username)
             ])
                 .then(([groupId, user]) => {
                     Promise.all([
@@ -78,7 +78,7 @@ module.exports = app => {
 
     app.get(`/api/getUsedPlayers/:username/:season/:groupname`, async (req, res) => {
         const { username, season, groupname } = req.params;
-        Promise.all([groupHandler.findGroupIdByName(groupname), userHandler.findUserByUsername(username)])
+        Promise.all([groupHandler.findGroupIdByName(groupname), userHandler.getUserByUsername(username)])
             .then(async ([groupId, user]) => {
                 const usedPlayers = await rosterHandler.usedPlayersByPosition(user._id, season, groupId);
                 res.status(200).send(usedPlayers);

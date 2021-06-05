@@ -41,14 +41,10 @@ const Profile = ({ authUser, currentUser, firebase, match }) => {
     useEffect(() => {
         if (match.params.type === `user`) {
             changeUpdatedFields({ ...userFields });
-            if (currentUser.userId !== undefined) {
-                axios.get(`/api/avatar/${currentUser.userId}`).then(res => updateAvatar(res.data));
-            }
         } else if (match.params.type === `group`) {
             changeUpdatedFields({ ...groupFields });
-            //Do something if they're on the group page
         }
-    }, [currentUser, match.params.type]);
+    }, [match.params.type]);
 
     // const sendAuthEmail = (authUser) => {
     //     authUser.sendEmailVerification();
@@ -126,7 +122,7 @@ const Profile = ({ authUser, currentUser, firebase, match }) => {
     const saveAvatarToAWS = () => {
         const idToUpdate = match.params.type === `user` ? currentUser.userId : groupInfo._id;
         //Using Fetch here to send along the base64 encoded image
-        fetch(`/api/uploadAvatar/${idToUpdate}`, {
+        fetch(`/api/avatar/${idToUpdate}`, {
             method: `PUT`,
             headers: {
                 'Accept': 'application/json',
@@ -185,6 +181,7 @@ const Profile = ({ authUser, currentUser, firebase, match }) => {
                 <UserProfile
                     authUser={authUser}
                     currentUser={currentUser}
+                    username={match.params.name}
                     handleChange={handleChange}
                     fileInputRef={fileInputRef}
                     checkIfSaveNeeded={checkIfSaveNeeded}
@@ -192,6 +189,7 @@ const Profile = ({ authUser, currentUser, firebase, match }) => {
                     avatar={avatar}
                     updatedFields={updatedFields}
                     modalOpen={modalOpen}
+                    updateAvatar={updateAvatar}
                 />
                 :
                 match.params.type === `group` ?

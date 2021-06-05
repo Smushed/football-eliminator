@@ -5,6 +5,8 @@ import axios from 'axios';
 
 import './displayBoxStyle.css'
 
+//boxContent is the Id of either the user or the group
+
 const DisplayBox = ({ boxContent, type, buttonActive, inGroup = false }) => {
 
     const [displayData, updateDisplayData] = useState({});
@@ -15,15 +17,16 @@ const DisplayBox = ({ boxContent, type, buttonActive, inGroup = false }) => {
     }, [type]);
 
     const getUserData = () => {
-        axios.get(`/api/getUserForBox/${boxContent}`)
+        axios.get(`/api/user/box/${boxContent}`)
             .then(res => {
+                console.log(res)
                 const { name, avatar, score } = res.data;
                 updateDisplayData({ name, avatar, score: score.toFixed(2) });
             });
     };
 
     const getGroupData = () => {
-        axios.get(`/api/getGroupForBox/${boxContent}`)
+        axios.get(`/api/group/box/${boxContent}`)
             .then(res => {
                 const { name, avatar, score } = res.data;
                 updateDisplayData({ name, avatar, score: score.toFixed(2) });
@@ -32,7 +35,7 @@ const DisplayBox = ({ boxContent, type, buttonActive, inGroup = false }) => {
 
     return (
         <div className={`displayBox ` + (buttonActive && `adminHeight`)}>
-            <Link to={`/profile/${type}/${boxContent}`}>
+            <Link to={`/profile/${type}/${displayData.name}`}>
                 <div className='displayBoxName'>
                     {displayData.name}
                 </div>

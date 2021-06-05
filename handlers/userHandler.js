@@ -136,7 +136,7 @@ module.exports = {
         const response = await db.User.findById(userID);
         return response;
     },
-    findUserByUsername: async (username) => {
+    getUserByUsername: async (username) => {
         const user = await db.User.findOne({ UN: username }).collation({ locale: `en_US`, strength: 2 }).exec();
         return user;
     },

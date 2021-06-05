@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import axios from 'axios';
 
 import './profileStyle.css';
 
@@ -9,15 +10,26 @@ import { AvatarInput, UsernameInput, EmailInput, PasswordInput } from './Profile
 const UserProfile = ({
     authUser,
     currentUser,
+    username,
     handleChange,
     fileInputRef,
     checkIfSaveNeeded,
     handleSubmit,
     avatar,
+    updateAvatar,
     updatedFields,
     modalOpen }) => {
 
     const [showPassword, updateShowPassword] = useState(`password`);
+    const [userOnPage, updateUserOnPage] = useState({});
+
+    useEffect(() => {
+        axios.get(`/api/user/name/${username}`)
+            .then(res => {
+                updateUserOnPage(res.data.user);
+                updateAvatar(res.data.avatar);
+            });
+    }, [updateAvatar, username]);
 
     const toggleShowPassword = () => {
         showPassword === `password` ? updateShowPassword(`text`) : updateShowPassword(`password`);
@@ -27,7 +39,7 @@ const UserProfile = ({
         <div className='profileWrapper '>
             <div className='profileLeft'>
                 <div className='profileName'>
-                    {currentUser.username}
+                    {username}
                 </div>
                 <div className='userAvatarWrapper'>
                     <img className='userAvatar' src={avatar} />
@@ -84,12 +96,14 @@ const UserProfile = ({
 UserProfile.propTypes = {
     authUser: PropTypes.any,
     currentUser: PropTypes.object,
+    username: PropTypes.string,
     firebase: PropTypes.any,
     handleChange: PropTypes.func,
     fileInputRef: PropTypes.any,
     checkIfSaveNeeded: PropTypes.bool,
     handleSubmit: PropTypes.func,
     avatar: PropTypes.any,
+    updateAvatar: PropTypes.func,
     updatedFields: PropTypes.object,
     modalOpen: PropTypes.bool
 };

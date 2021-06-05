@@ -114,7 +114,7 @@ module.exports = app => {
         }
     });
 
-    app.get(`/api/getGroupForBox/:groupName`, async (req, res) => {
+    app.get(`/api/group/box/:groupName`, async (req, res) => {
         const { groupName } = req.params;
         Promise.all([
             userHandler.pullSeasonAndWeekFromDB(),
@@ -123,7 +123,7 @@ module.exports = app => {
             const userScores = await groupHandler.getCurrAndLastWeekScores(groupData._id, season, +week);
             Promise.all([
                 groupHandler.getBestUserForBox(userScores),
-                s3Handler.getAvatar(groupData._id)
+                s3Handler.getAvatar(groupData._id.toString())
             ]).then(([topUser, groupAvatar]) => {
                 res.status(200).send({ name: groupName, score: topUser.TS, avatar: groupAvatar })
             }

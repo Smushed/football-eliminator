@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import axios from 'axios';
 
 import './profileStyle.css';
 
 import DisplayBox from '../DisplayBox';
 import { AvatarInput } from './ProfileInputs';
-import axios from 'axios';
 
 const GroupProfile = ({
     groupName,
@@ -58,7 +58,7 @@ const GroupProfile = ({
                         groupInfo.UL.map((user) =>
                             <DisplayBox
                                 key={user._id}
-                                boxContent={user._id}
+                                boxContent={user.UN}
                                 type='user'
                                 buttonActive={true}
                                 inGroup={true}

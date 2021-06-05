@@ -33,9 +33,8 @@ module.exports = app => {
         res.json(newUserInDB);
     });
 
-    //This is email specific for pulling users who are logged in
     app.get(`/api/getUser/:email`, async (req, res) => {
-        const email = req.params.email;
+        const { email } = req.params;
         const foundUser = await userHandler.getUserByEmail(email);
         res.status(200).send(foundUser);
     });
@@ -60,6 +59,13 @@ module.exports = app => {
         res.status(200).send(foundUser);
     });
 
+    app.get(`/api/user/name/:username`, async (req, res) => {
+        const { username } = req.params;
+        const user = await userHandler.getUserByUsername(username);
+        const avatar = await s3Handler.getAvatar(user._id);
+        res.status(200).send({ user, avatar });
+    });
+
     app.get(`/api/currentSeasonAndWeek`, async (req, res) => {
         //Finds the current season and week for today's date according to the server.
         //This should only drive the starting values for the selects
@@ -67,14 +73,7 @@ module.exports = app => {
         res.status(200).send(seasonAndWeek);
     });
 
-    app.post(`/api/createRoster/:userid`, async (req, res) => {
-        const userId = req.params.userid;
-        console.log(userId);
-
-        res.status(200).send(`working`)
-    });
-
-    app.post(`/api/createAllRosters/:season/`, async (req, res) => {
+    app.post(`/api/createAllRosters/:season/`, (req, res) => {
         const { season } = req.params;
         const dbResponse = rosterHandler.createAllRosters(season);
         res.status(200).send(dbResponse)
@@ -102,7 +101,7 @@ module.exports = app => {
         res.status(200).send(updated);
     });
 
-    app.put(`/api/uploadAvatar/:id`, (req, res) => {
+    app.put(`/api/avatar/:id`, (req, res) => {
         const { id } = req.params;
         const { image } = req.body;
         s3Handler.uploadAvatar(id, image)
@@ -116,14 +115,15 @@ module.exports = app => {
         res.status(200).send(avatar);
     });
 
-    app.get(`/api/getUserForBox/:userId`, async (req, res) => {
-        const { userId } = req.params;
+    app.get(`/api/user/box/:username`, async (req, res) => {
+        const { username } = req.params;
+        const user = await userHandler.getUserByUsername(username);
+        const stringUserId = user._id.toString();
         Promise.all([
-            s3Handler.getAvatar(userId),
-            userHandler.getUserByID(userId),
-            rosterHandler.getTotalScore(userId)])
-            .then(([avatar, foundUser, totalScore]) =>
-                res.status(200).send({ name: foundUser.UN, avatar, score: totalScore })
+            s3Handler.getAvatar(stringUserId),
+            rosterHandler.getTotalScore(stringUserId)])
+            .then(([avatar, totalScore]) =>
+                res.status(200).send({ name: user.UN, avatar, score: totalScore })
             );
     });
 }
