@@ -195,6 +195,7 @@ const Profile = ({ authUser, currentUser, firebase, match }) => {
                 match.params.type === `group` ?
                     <GroupProfile
                         groupName={match.params.name}
+                        currentUser={currentUser}
                         handleChange={handleChange}
                         fileInputRef={fileInputRef}
                         checkIfSaveNeeded={checkIfSaveNeeded}

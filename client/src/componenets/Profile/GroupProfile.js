@@ -9,6 +9,7 @@ import { AvatarInput } from './ProfileInputs';
 
 const GroupProfile = ({
     groupName,
+    currentUser,
     handleChange,
     fileInputRef,
     checkIfSaveNeeded,
@@ -20,15 +21,38 @@ const GroupProfile = ({
     updatedFields,
     modalOpen }) => {
 
+    const [adminStatus, updateAdminStatus] = useState(false);
+
     useEffect(() => {
         if (groupName) {
-            axios.get(`/api/group/name/${groupName}`)
-                .then(res => {
-                    updateGroupInfo(res.data.group);
-                    updateAvatar(res.data.avatar);
-                });
+            pullGroupInfo()
         }
-    }, [groupName, updateAvatar, updateGroupInfo]);
+        if (currentUser.userId) {
+            if (groupInfo.UL) {
+                checkForAdmin(groupInfo)
+            } else {
+                pullGroupInfo();
+            }
+        }
+    }, [groupName, updateAvatar, updateGroupInfo, currentUser]);
+
+    const pullGroupInfo = () => {
+        axios.get(`/api/group/name/${groupName}`)
+            .then(res => {
+                updateGroupInfo(res.data.group);
+                updateAvatar(res.data.avatar);
+                if (currentUser) {
+                    checkForAdmin(res.data.group);
+                }
+            });
+    }
+
+    const checkForAdmin = (group) => {
+        const selfInGroup = group.UL.find(user => user._id === currentUser.userId);
+        if (selfInGroup) {
+            updateAdminStatus(selfInGroup.A);
+        }
+    }
 
     return (
         <div className='profileWrapper '>
@@ -60,7 +84,7 @@ const GroupProfile = ({
                                 key={user._id}
                                 boxContent={user.UN}
                                 type='user'
-                                buttonActive={true}
+                                buttonActive={adminStatus}
                                 inGroup={true}
                             />)}
                 </div>
@@ -71,6 +95,7 @@ const GroupProfile = ({
 
 GroupProfile.propTypes = {
     groupName: PropTypes.string,
+    currentUser: PropTypes.object,
     handleChange: PropTypes.func,
     fileInputRef: PropTypes.any,
     checkIfSaveNeeded: PropTypes.bool,

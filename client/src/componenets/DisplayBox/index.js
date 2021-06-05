@@ -19,7 +19,6 @@ const DisplayBox = ({ boxContent, type, buttonActive, inGroup = false }) => {
     const getUserData = () => {
         axios.get(`/api/user/box/${boxContent}`)
             .then(res => {
-                console.log(res)
                 const { name, avatar, score } = res.data;
                 updateDisplayData({ name, avatar, score: score.toFixed(2) });
             });
