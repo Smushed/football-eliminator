@@ -45,7 +45,6 @@ const fillOutUserForFrontEnd = async (user) => {
         _id: user._id,
         A: user.A,
         GL: groupList,
-        FT: user.FT || 'UNK'
     };
 
     return filledUser;
@@ -134,8 +133,7 @@ module.exports = {
         return userArrayToShow;
     },
     getUserByID: async (userID) => {
-        const foundUser = await db.User.findById(userID);
-        const response = await fillOutUserForFrontEnd(foundUser);
+        const response = await db.User.findById(userID);
         return response;
     },
     findUserByUsername: async (username) => {
@@ -183,5 +181,13 @@ module.exports = {
             await db.User.findByIdAndUpdate([userId], { $push: { GL: groupId } });
         }
         return { status: 200, message: 'All Good' };
+    },
+    filledUserListFromGroup: async function (userList) {
+        const filledUserList = [];
+        for (const user of userList) {
+            const userData = await this.getUserByID(user.ID);
+            filledUserList.push(userData);
+        };
+        return filledUserList;
     }
 };

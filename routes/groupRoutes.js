@@ -16,11 +16,19 @@ module.exports = app => {
         // return "You need to be a moderator to add users to the group";
     });
 
-    app.get(`/api/getGroupData/:groupName`, async (req, res) => {
+    app.get(`/api/group/name/:groupName`, async (req, res) => {
         const { groupName } = req.params;
         const groupData = await groupHandler.getGroupData(groupName);
+        const avatar = await s3Handler.getAvatar(groupData._id.toString());
+        const UL = await userHandler.filledUserListFromGroup(groupData.UL);
+        const group = {
+            D: groupData.D,
+            N: groupData.N,
+            _id: groupData._id,
+            UL
+        };
         if (groupData) {
-            res.status(200).send(groupData);
+            res.status(200).send({ group, avatar });
         } else {
             res.status(500).send({ 'error': `No Group Found` })
         }

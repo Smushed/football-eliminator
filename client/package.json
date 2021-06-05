@@ -20,6 +20,7 @@
     "react-modal": "^3.13.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^4.0.3",
+    "react-toast-notifications": "^2.4.4",
     "reactstrap": "^8.9.0",
     "recompose": "^0.17.0",
     "sweetalert2": "^7.33.1",

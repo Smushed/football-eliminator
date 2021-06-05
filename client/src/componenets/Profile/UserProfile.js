@@ -6,11 +6,8 @@ import './profileStyle.css';
 import DisplayBox from '../DisplayBox';
 import { AvatarInput, UsernameInput, EmailInput, PasswordInput } from './ProfileInputs';
 
-//Using the new style of route /:type/:name dynamically load which page to display, user or group
-//Also update what state is used based on what is displayed
-//Break it out into 2 different components and then manage which state is shared and what state should be broken out
-
-const UserProfile = ({ authUser,
+const UserProfile = ({
+    authUser,
     currentUser,
     handleChange,
     fileInputRef,
@@ -27,8 +24,8 @@ const UserProfile = ({ authUser,
     };
 
     return (
-        <div className='userProfileWrapper '>
-            <div className='userProfileLeft'>
+        <div className='profileWrapper '>
+            <div className='profileLeft'>
                 <div className='profileName'>
                     {currentUser.username}
                 </div>
@@ -36,7 +33,7 @@ const UserProfile = ({ authUser,
                     <img className='userAvatar' src={avatar} />
                 </div>
             </div>
-            <div className='userProfileRight'>
+            <div className='profileRight'>
                 <UsernameInput
                     handleChange={handleChange}
                     username={updatedFields.username}
@@ -63,7 +60,7 @@ const UserProfile = ({ authUser,
                 <div className='submitButtonWrapper'>
                     <button disabled={!checkIfSaveNeeded} className='btn btn-primary btn-lg' onClick={() => handleSubmit()}>
                         Submit
-                        </button>
+                    </button>
                 </div>
                 <div className='editField'>
                     <div>
