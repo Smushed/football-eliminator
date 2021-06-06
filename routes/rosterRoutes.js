@@ -104,7 +104,7 @@ module.exports = app => {
         res.status(200).send(positions.orderOfDescription);
     });
 
-    app.get(`/api/getRosterPositions`, async (req, res) => {
+    app.get(`/api/roster/positions`, async (req, res) => {
         const { rosterPositions, positionMap, maxOfPosition } = positions;
         res.status(200).send({ rosterPositions, positionMap, maxOfPosition });
     });
@@ -113,5 +113,18 @@ module.exports = app => {
         const { season, week, groupId } = req.params;
         const allRosters = await rosterHandler.getAllRostersForGroup(season, week, groupId);
         res.status(200).send(allRosters)
+    });
+
+    app.get(`/api/roster/ideal/:season/:week/:groupId`, async (req, res) => {
+        const { season, week, groupId } = req.params;
+        const previousWeek = +week - 1;
+        if (previousWeek === 0) {
+            const blankRoster = await groupHandler.getBlankRoster(groupId);
+            res.status(200).send(blankRoster);
+            return;
+        }
+        const idealRoster = await groupHandler.getIdealRoster(groupId, season, +previousWeek);
+        const response = await mySportsHandler.fillUserRoster(idealRoster.R);
+        res.status(200).send(response);
     });
 };

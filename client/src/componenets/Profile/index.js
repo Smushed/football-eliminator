@@ -1,6 +1,5 @@
 import React, { Fragment, useEffect, useState, useRef } from 'react';
 import { Prompt } from 'react-router-dom';
-import axios from 'axios';
 import Modal from 'react-modal';
 import PropTypes from 'prop-types';
 import { withFirebase } from '../Firebase';

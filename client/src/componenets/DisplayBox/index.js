@@ -17,7 +17,7 @@ const DisplayBox = ({ boxContent, type, buttonActive, inGroup = false }) => {
     }, [type]);
 
     const getUserData = () => {
-        axios.get(`/api/user/box/${boxContent}`)
+        axios.get(`/api/user/profile/box/${boxContent}`)
             .then(res => {
                 const { name, avatar, score } = res.data;
                 updateDisplayData({ name, avatar, score: score.toFixed(2) });
@@ -25,7 +25,7 @@ const DisplayBox = ({ boxContent, type, buttonActive, inGroup = false }) => {
     };
 
     const getGroupData = () => {
-        axios.get(`/api/group/box/${boxContent}`)
+        axios.get(`/api/group/profile/box/${boxContent}`)
             .then(res => {
                 const { name, avatar, score } = res.data;
                 updateDisplayData({ name, avatar, score: score.toFixed(2) });

@@ -38,7 +38,7 @@ const Home = ({ season, group, week, currentUser }) => {
     };
 
     const getLeaderBoard = (season, week, groupId) => {
-        axios.get(`/api/getLeaderBoard/${season}/${week}/${groupId}`)
+        axios.get(`/api/group/leaderboard/${season}/${week}/${groupId}`)
             .then(res => {
                 updateLeaderboard(res.data.leaderboard);
                 return;
@@ -55,7 +55,7 @@ const Home = ({ season, group, week, currentUser }) => {
     };
 
     const getIdealRoster = (season, week, groupId) => {
-        axios.get(`/api/getIdealRoster/${season}/${week}/${groupId}`)
+        axios.get(`/api/roster/ideal/${season}/${week}/${groupId}`)
             .then(res => {
                 updateIdealRoster(res.data)
             });

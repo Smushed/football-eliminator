@@ -115,7 +115,7 @@ module.exports = app => {
         res.status(200).send(avatar);
     });
 
-    app.get(`/api/user/box/:username`, async (req, res) => {
+    app.get(`/api/user/profile/box/:username`, async (req, res) => {
         const { username } = req.params;
         const user = await userHandler.getUserByUsername(username);
         const stringUserId = user._id.toString();

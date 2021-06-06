@@ -31,17 +31,28 @@ class CreateGroup extends Component {
     }
 
     getRosterPositions = async () => {
-        const dbResponse = await axios.get(`/api/getRosterPositions`);
+        const dbResponse = await axios.get(`/api/roster/positions`);
         const { rosterPositions, positionMap, maxOfPosition } = dbResponse.data;
         this.setState({ rosterPositions, positionMap, maxOfPosition });
     };
 
     handleSubmit = async event => {
         event.preventDefault();
+        const sanitizedScore = {};
+        for (const [key, value] of Object.entries(this.state.enteredScore)) {
+            sanitizedScore[key] = {};
+            for (const [innerKey, innerValue] of Object.entries(this.state.enteredScore[key])) {
+                if (innerValue === `-`) {
+                    sanitizedScore[key][innerKey] = 0;
+                } else {
+                    sanitizedScore[key][innerKey] = innerValue;
+                }
+            }
+        }
         axios.post(`/api/createGroup`,
             {
                 userId: this.props.userId,
-                newGroupScore: this.state.enteredScore,
+                newGroupScore: sanitizedScore,
                 groupName: this.state.groupName.trim(),
                 groupDesc: this.state.groupDesc.trim(),
                 groupPositions: this.state.dbReadyGroupPos,
@@ -61,7 +72,7 @@ class CreateGroup extends Component {
     };
 
     updateGroupsScore = (e) => {
-        const { name, value } = e.target;
+        let { name, value } = e.target;
         let maxLength = 0;
         if (value >= 10) {
             maxLength = 5;
@@ -71,7 +82,7 @@ class CreateGroup extends Component {
             maxLength = 4;
         }
         if (value === `-`) {
-            return;
+            //Do Nothing
         } else if (isNaN(+value)) {
             return;
         } else if (value > 100) {
@@ -297,7 +308,10 @@ ScoringRow.propTypes = {
     description: PropTypes.string,
     bucket: PropTypes.string,
     bucketKey: PropTypes.string,
-    val: PropTypes.string,
+    val: PropTypes.oneOfType([
+        PropTypes.number,
+        PropTypes.string
+    ]),
     handleChange: PropTypes.func
 };
 
