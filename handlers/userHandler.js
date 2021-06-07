@@ -182,11 +182,16 @@ module.exports = {
         }
         return { status: 200, message: 'All Good' };
     },
-    filledUserListFromGroup: async function (userList) {
+    groupUserList: async function (userList) {
         const filledUserList = [];
         for (const user of userList) {
             const userData = await this.getUserByID(user.ID);
-            filledUserList.push(userData);
+            filledUserList.push({
+                A: user.A, //using the GroupList admin
+                E: userData.E,
+                UN: userData.UN,
+                _id: userData._id
+            });
         };
         return filledUserList;
     }

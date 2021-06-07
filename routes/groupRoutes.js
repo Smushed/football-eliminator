@@ -33,7 +33,7 @@ module.exports = app => {
         if (positions === `true`) {
             pos = await groupHandler.getGroupPositions(groupData._id.toString());
         }
-        group.UL = await userHandler.filledUserListFromGroup(groupData.UL);
+        group.UL = await userHandler.groupUserList(groupData.UL);
 
         if (groupData) {
             res.status(200).send({ group, avatar: gAvatar || null, positions: pos || null });
@@ -83,7 +83,7 @@ module.exports = app => {
         res.status(200).send({ leaderboard });
     });
 
-    app.get(`/api/getBestCurrLeadRoster/:season/:week/:groupId`, async (req, res) => {
+    app.get(`/api/group/roster/bestAndLead/:season/:week/:groupId`, async (req, res) => {
         const { season, week, groupId } = req.params;
         if (+week === 1) {
             //Setting this blank roster if we are currently in week 1 there is no previous week to compare

@@ -97,11 +97,11 @@
     font-size: 20px;
 }
 
-.userRosterHomePage {
-    border: 1px solid lightgray;
-    border-radius: 15px;
-    width: 525px;
-    padding:  10px 0 15px 30px;
+.control-arrow {
+    background-color: #999 !important;
+    height: 50%;
+    margin-top: 10% !important;
+    border-radius: 5px;
 }
 
 .rosterHomePageTitle {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import { RosterDisplay } from '../Roster/index';
@@ -8,6 +8,7 @@ import './profileStyle.css';
 
 import DisplayBox from '../DisplayBox';
 import { AvatarInput } from './ProfileInputs';
+import BestRostersCollapse from '../Home/BestRostersCollapse';
 
 const GroupProfile = ({
     groupName,
@@ -26,7 +27,6 @@ const GroupProfile = ({
     const [adminStatus, updateAdminStatus] = useState(false);
     const [groupDataPulled, updateGroupDataPulled] = useState(false); //Don't know a better way to only pull group data one time
     const [groupPositions, updateGroupPositions] = useState([]);
-    const [leaderboard, updateLeaderboard] = useState([]);
     const [week, updateWeek] = useState(0);
     const [season, updateSeason] = useState(``);
     const [dataLocked, updateDataLocked] = useState(true);
@@ -34,16 +34,24 @@ const GroupProfile = ({
     const [positionMap, updatePositionMap] = useState([]);
     const [maxOfPosition, updateMaxOfPosition] = useState([]);
 
+    //Roster Data For Group
+    const [rostersOpen, updateRostersOpen] = useState(true);
+    const [leaderboard, updateLeaderboard] = useState([]);
+    const [idealRoster, updateIdealRoster] = useState([]);
+    const [bestRoster, updateBestRoster] = useState([]);
+    const [bestRosterUser, updateBestRosterUser] = useState(``);
+    const [leaderRoster, updateLeaderRoster] = useState([]);
+
     useEffect(() => {
         if (groupName) {
             pullGroupInfo()
         }
         if (currentUser.userId) {
             if (groupInfo.UL) {
-                checkForAdmin(groupInfo)
+                checkForAdmin(groupInfo, currentUser.userId.toString()); //TODO Gotta be a better way to check for admin status of group
             }
         }
-    }, [groupName, updateAvatar, updateGroupInfo, currentUser]);
+    }, [groupName, currentUser]);
 
     const pullGroupInfo = () => {
         if (!groupDataPulled) {
@@ -54,29 +62,43 @@ const GroupProfile = ({
                     updateGroupInfo(res.data.group);
                     updateGroupPositions(res.data.positions);
                     updateAvatar(res.data.avatar);
-                    getIdealRoster(res.data.group._id.toString());
-                    if (currentUser) {
-                        checkForAdmin(res.data.group);
+                    getLeaderboard(res.data.group._id.toString());
+
+                    if (currentUser.userId) {
+                        checkForAdmin(res.data.group, currentUser.userId.toString());
                     }
                 });
         }
     };
 
-    const checkForAdmin = (group) => {
-        const selfInGroup = group.UL.find(user => user._id === currentUser.userId);
+    const checkForAdmin = (group, userId) => {
+        const selfInGroup = group.UL.find(user => user._id.toString() === userId);
         if (selfInGroup) {
             updateAdminStatus(selfInGroup.A);
         }
     };
 
-    const getIdealRoster = (groupId) => {
+    const getLeaderboard = (groupId) => {
         axios.get(`/api/currentSeasonAndWeek`)
             .then(res => {
                 const { season, week } = res.data;
                 updateWeek(week);
                 updateSeason(season);
+
                 axios.get(`/api/group/leaderboard/${season}/${week}/${groupId}`)
                     .then(res2 => updateLeaderboard(res2.data.leaderboard));
+
+                axios.get(`/api/group/roster/bestAndLead/${season}/${week}/${groupId}`)
+                    .then(res3 => {
+                        updateBestRosterUser(res3.data.bestRoster.U);
+                        updateBestRoster(res3.data.bestRoster.R);
+                        updateLeaderRoster(res3.data.leaderRoster);
+                    });
+
+                axios.get(`/api/roster/ideal/${season}/${week}/${groupId}`)
+                    .then(res4 => {
+                        updateIdealRoster(res4.data)
+                    });
             });
     };
 
@@ -111,10 +133,17 @@ const GroupProfile = ({
             </div>
             <div className='profileRight'>
                 {adminStatus &&
-                    <AvatarInput
-                        handleChange={handleChange}
-                        fileInputRef={fileInputRef}
-                    />
+                    <Fragment>
+                        <AvatarInput
+                            handleChange={handleChange}
+                            fileInputRef={fileInputRef}
+                        />
+                        <div className='submitButtonWrapper'>
+                            <button disabled={!checkIfSaveNeeded} className='btn btn-primary btn-lg' onClick={() => handleSubmit()}>
+                                Submit
+                            </button>
+                        </div>
+                    </Fragment>
                 }
                 <div>
                     <Leaderboard
@@ -124,10 +153,23 @@ const GroupProfile = ({
                         groupName={groupInfo.N}
                     />
                 </div>
-                <div className='submitButtonWrapper'>
-                    <button disabled={!checkIfSaveNeeded} className='btn btn-primary btn-lg' onClick={() => handleSubmit()}>
-                        Submit
-                    </button>
+                <div>
+                    Roster Collapse Stuff
+                    <div>
+                        <button className='btn btn-outline-info' onClick={() => updateRostersOpen(!rostersOpen)}>
+                            Open Rosters
+                        </button>
+                        <BestRostersCollapse
+                            rowOpen={rostersOpen}
+                            week={+week}
+                            bestRosterUser={bestRosterUser}
+                            bestRoster={bestRoster}
+                            groupPositions={groupPositions}
+                            idealRoster={idealRoster}
+                            leaderboard={leaderboard}
+                            leaderRoster={leaderRoster}
+                        />
+                    </div>
                 </div>
                 <div className='editField'>
                     <div>
