@@ -13,29 +13,26 @@ import BestRostersCollapse from '../Home/BestRostersCollapse';
 const GroupProfile = ({
     groupName,
     currentUser,
-    handleChange,
-    fileInputRef,
-    checkIfSaveNeeded,
-    handleSubmit,
+    openCloseModal,
     avatar,
     updateAvatar,
     groupInfo,
     updateGroupInfo,
-    updatedFields,
-    modalOpen }) => {
+    updateModalState,
+    modalOpen
+}) => {
 
     const [adminStatus, updateAdminStatus] = useState(false);
     const [groupDataPulled, updateGroupDataPulled] = useState(false); //Don't know a better way to only pull group data one time
     const [groupPositions, updateGroupPositions] = useState([]);
     const [week, updateWeek] = useState(0);
     const [season, updateSeason] = useState(``);
-    const [dataLocked, updateDataLocked] = useState(true);
     const [rosterPositions, updateRosterPositions] = useState([]);
     const [positionMap, updatePositionMap] = useState([]);
     const [maxOfPosition, updateMaxOfPosition] = useState([]);
 
     //Roster Data For Group
-    const [rostersOpen, updateRostersOpen] = useState(true);
+    const [rostersOpen, updateRostersOpen] = useState(false);
     const [leaderboard, updateLeaderboard] = useState([]);
     const [idealRoster, updateIdealRoster] = useState([]);
     const [bestRoster, updateBestRoster] = useState([]);
@@ -122,30 +119,20 @@ const GroupProfile = ({
                 <div className='userAvatarWrapper'>
                     <img className='userAvatar' src={avatar} />
                 </div>
-                <div className='groupPosHeader'>
+                <button className='btn btn-info' onClick={() => { openCloseModal(); updateModalState(`group`) }}>
+                    View Group Position Data
+                </button>
+                {/* <div className='groupPosHeader'>
                     Group Positions
                     </div>
                 {groupPositions.map((pos, i) =>
                     <div key={i} className='groupPos'>
                         {pos.N}
                     </div>
-                )}
+                )} */}
             </div>
             <div className='profileRight'>
-                {adminStatus &&
-                    <Fragment>
-                        <AvatarInput
-                            handleChange={handleChange}
-                            fileInputRef={fileInputRef}
-                        />
-                        <div className='submitButtonWrapper'>
-                            <button disabled={!checkIfSaveNeeded} className='btn btn-primary btn-lg' onClick={() => handleSubmit()}>
-                                Submit
-                            </button>
-                        </div>
-                    </Fragment>
-                }
-                <div>
+                <div className={`wrapper noTopMargin ${modalOpen && `lowerOpacity`}`}>
                     <Leaderboard
                         week={week}
                         season={season}
@@ -154,11 +141,12 @@ const GroupProfile = ({
                     />
                 </div>
                 <div>
-                    Roster Collapse Stuff
                     <div>
-                        <button className='btn btn-outline-info' onClick={() => updateRostersOpen(!rostersOpen)}>
-                            Open Rosters
-                        </button>
+                        <div className='groupProfileRow'>
+                            <button className='btn btn-outline-info' onClick={() => updateRostersOpen(!rostersOpen)}>
+                                Open / Close Top Rosters
+                            </button>
+                        </div>
                         <BestRostersCollapse
                             rowOpen={rostersOpen}
                             week={+week}
@@ -193,16 +181,13 @@ const GroupProfile = ({
 GroupProfile.propTypes = {
     groupName: PropTypes.string,
     currentUser: PropTypes.object,
-    handleChange: PropTypes.func,
-    fileInputRef: PropTypes.any,
-    checkIfSaveNeeded: PropTypes.bool,
-    handleSubmit: PropTypes.func,
     avatar: PropTypes.any,
     updateAvatar: PropTypes.func,
-    updatedFields: PropTypes.object,
-    modalOpen: PropTypes.bool,
     groupInfo: PropTypes.object,
-    updateGroupInfo: PropTypes.func
+    updateGroupInfo: PropTypes.func,
+    openCloseModal: PropTypes.func,
+    updateModalState: PropTypes.func,
+    modalOpen: PropTypes.bool
 };
 
 export default GroupProfile;

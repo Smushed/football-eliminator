@@ -2,6 +2,10 @@
     display: flex;
 }
 
+.noTopMargin {
+    margin-top: 0;
+}
+
 .greyBackdrop {
     position: fixed;
     top: 0;
@@ -173,6 +177,12 @@
     font-size: 22px;
 }
 
+.groupProfileRow {
+    margin-top: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
 
 
 @-webkit-keyframes pop-in {

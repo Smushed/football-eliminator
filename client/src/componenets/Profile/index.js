@@ -43,6 +43,9 @@ const Profile = ({ authUser, currentUser, firebase, match }) => {
         } else if (match.params.type === `group`) {
             changeUpdatedFields({ ...groupFields });
         }
+        return function cleanup() {
+            updateAvatar(``);
+        }
     }, [match.params.type]);
 
     // const sendAuthEmail = (authUser) => {
@@ -195,16 +198,13 @@ const Profile = ({ authUser, currentUser, firebase, match }) => {
                     <GroupProfile
                         groupName={match.params.name}
                         currentUser={currentUser}
-                        handleChange={handleChange}
-                        fileInputRef={fileInputRef}
-                        checkIfSaveNeeded={checkIfSaveNeeded}
-                        handleSubmit={handleSubmit}
-                        updatedFields={updatedFields}
-                        modalOpen={modalOpen}
                         updateAvatar={updateAvatar}
+                        openCloseModal={openCloseModal}
                         avatar={avatar}
                         groupInfo={groupInfo}
                         updateGroupInfo={updateGroupInfo}
+                        updateModalState={updateModalState}
+                        modalOpen={modalOpen}
                     />
                     :
                     <Redirect to={home} />
@@ -216,7 +216,7 @@ const Profile = ({ authUser, currentUser, firebase, match }) => {
                 className='profileModal'
                 overlayClassName='modalOverlay'
                 ariaHideApp={false}>
-                {modalState === 'reAuth' ?
+                {modalState === `reAuth` ?
                     <ReAuth
                         openCloseModal={openCloseModal}
                         firebase={firebase}
@@ -227,12 +227,15 @@ const Profile = ({ authUser, currentUser, firebase, match }) => {
                         avatar={avatar}
                     />
                     :
-                    <ImageEditor
-                        tempAvatar={tempAvatar}
-                        saveCroppedAvatar={saveCroppedAvatar}
-                        openCloseModal={openCloseModal}
-                        fileInputRef={fileInputRef}
-                    />
+                    modalState === `avatar` ?
+                        <ImageEditor
+                            tempAvatar={tempAvatar}
+                            saveCroppedAvatar={saveCroppedAvatar}
+                            openCloseModal={openCloseModal}
+                            fileInputRef={fileInputRef}
+                        />
+                        :
+                        <div>Group Editor</div>
                 }
             </Modal>
         </Fragment>
