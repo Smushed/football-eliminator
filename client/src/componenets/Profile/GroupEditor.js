@@ -121,11 +121,18 @@ const GroupEditor = ({ groupInfo, groupPositions }) => {
                     </div>
                 )}
             {posDescMap.bucketMap && scoreBuckets.map(bucket =>
-                <div key={bucket}>
-                    {posDescMap.bucketMap[bucket]}
-                    {Object.keys(groupScore[bucket]).map(scoreField =>
-                        <div key={scoreField}>{posDescMap.posMap[bucket][scoreField]} {groupScore[bucket][scoreField]}</div>
-                    )}
+                <div key={bucket} className='groupScoreBucket'>
+                    <div className='groupScoreBucketName'>
+                        {posDescMap.bucketMap[bucket]}
+                    </div>
+                    <div className='groupScoreFields'>
+                        {Object.keys(groupScore[bucket]).map(scoreField =>
+                            <div key={scoreField}>
+                                <div >{posDescMap.posMap[bucket][scoreField]} </div>
+                                <input placeholder={groupScore[bucket][scoreField]} />
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
 

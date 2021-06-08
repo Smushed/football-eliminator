@@ -90,11 +90,11 @@ module.exports = {
             F: `Fumble`
         },
         FG: {
-            1: `1-19 FG`,
-            20: `20-29 FG`,
-            30: `30-39 FG`,
-            40: `40-49 FG`,
-            50: `50 plus FG`,
+            1: `1-19 Yard FG`,
+            20: `20-29 Yard FG`,
+            30: `30-39 Yard FG`,
+            40: `40-49 Yard FG`,
+            50: `50+ Yard FG`,
             'X': `Extra Point`,
         }
     }

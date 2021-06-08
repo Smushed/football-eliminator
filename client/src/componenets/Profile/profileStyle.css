@@ -23,7 +23,7 @@
     left: 50%;
     transform: translate(-50%, -50%); 
     height: 500px;
-    width: 700px;
+    width: 900px;
     background-color: whitesmoke;
     border-radius: 5px;
     border: 1px lightgray solid;
@@ -33,6 +33,10 @@
 .groupModalHeight {
     top: 48%;
     height: 85%;
+}
+
+.ReactModal__Content {
+    overflow-y: auto;
 }
 
 .ReactModal__Overlay {
@@ -187,6 +191,28 @@
     width: 100%;
     display: flex;
     justify-content: center;
+}
+
+.groupScoreBucket {
+    display: flex;
+    border: 1px solid darkgray;
+    border-radius: 5px;
+    min-height: 50px;
+}
+
+.groupScoreBucketName {
+    width: 100px;
+    border-right: 1px solid darkgray;
+    font-weight: 600;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.groupScoreFields {
+    display: flex;
+    flex-wrap: wrap;
 }
 
 
