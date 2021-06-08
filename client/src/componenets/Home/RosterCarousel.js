@@ -5,7 +5,7 @@ import { Carousel } from 'react-responsive-carousel';
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { RosterDisplay } from '../Roster';
 
-const BestRostersCollapse = ({
+const RosterCarousel = ({
     rowOpen,
     week,
     bestRosterUser,
@@ -20,6 +20,7 @@ const BestRostersCollapse = ({
             autoPlay
             infiniteLoop
             interval={10000}
+            showThumbs={false}
         >
             <div>
                 <div>
@@ -62,48 +63,10 @@ const BestRostersCollapse = ({
                 </div>
             </div>
         </Carousel>
-        {/* <div className='rosterRowWrapper'>
-            <div className='userRosterHomePage'>
-                <div className='rosterHomePageTitle'>
-                    Best from Week {week - 1} - {bestRosterUser}
-                </div>
-                <RosterDisplay
-                    groupPositions={groupPositions}
-                    roster={bestRoster}
-                    pastLockWeek={true}
-                />
-            </div>
-            <div>
-                <div className='userRosterHomePage'>
-                    <div className='rosterHomePageTitle'>
-                        Last Week&apos;s Ideal
-                    </div>
-                    {idealRoster.length > 0 &&
-                        <RosterDisplay
-                            groupPositions={groupPositions}
-                            roster={idealRoster}
-                            pastLockWeek={true}
-                        />
-                    }
-                </div>
-            </div>
-            <div className='userRosterHomePage'>
-                <div className='rosterHomePageTitle'>
-                    Current Lead Week {week} {leaderboard[0] && leaderboard[0].UN}
-                </div>
-                {leaderRoster.length > 0 &&
-                    <RosterDisplay
-                        groupPositions={groupPositions}
-                        roster={leaderRoster}
-                        pastLockWeek={true}
-                    />
-                }
-            </div>
-        </div> */}
     </Collapse>
 
 
-BestRostersCollapse.propTypes = {
+RosterCarousel.propTypes = {
     rowOpen: PropTypes.bool,
     week: PropTypes.number,
     bestRosterUser: PropTypes.string,
@@ -114,4 +77,4 @@ BestRostersCollapse.propTypes = {
     leaderRoster: PropTypes.array
 }
 
-export default BestRostersCollapse;
+export default RosterCarousel;

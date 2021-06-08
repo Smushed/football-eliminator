@@ -30,6 +30,11 @@
     padding: 10px 50px;
 }
 
+.groupModalHeight {
+    top: 48%;
+    height: 85%;
+}
+
 .ReactModal__Overlay {
     opacity: 0;
     animation: pop-in 0.15s;

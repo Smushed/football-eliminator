@@ -1,14 +1,13 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
-import { RosterDisplay } from '../Roster/index';
 import Leaderboard from '../Home/Leaderboard';
 
 import './profileStyle.css';
 
 import DisplayBox from '../DisplayBox';
 import { AvatarInput } from './ProfileInputs';
-import BestRostersCollapse from '../Home/BestRostersCollapse';
+import RosterCarousel from '../Home/RosterCarousel';
 
 const GroupProfile = ({
     groupName,
@@ -19,17 +18,15 @@ const GroupProfile = ({
     groupInfo,
     updateGroupInfo,
     updateModalState,
-    modalOpen
+    modalOpen,
+    groupPositions,
+    updateGroupPositions
 }) => {
 
     const [adminStatus, updateAdminStatus] = useState(false);
     const [groupDataPulled, updateGroupDataPulled] = useState(false); //Don't know a better way to only pull group data one time
-    const [groupPositions, updateGroupPositions] = useState([]);
     const [week, updateWeek] = useState(0);
     const [season, updateSeason] = useState(``);
-    const [rosterPositions, updateRosterPositions] = useState([]);
-    const [positionMap, updatePositionMap] = useState([]);
-    const [maxOfPosition, updateMaxOfPosition] = useState([]);
 
     //Roster Data For Group
     const [rostersOpen, updateRostersOpen] = useState(false);
@@ -53,7 +50,6 @@ const GroupProfile = ({
     const pullGroupInfo = () => {
         if (!groupDataPulled) {
             updateGroupDataPulled(true);
-            getRosterPositions();
             axios.get(`/api/group/profile?name=${groupName}&avatar=true&positions=true`)
                 .then(res => {
                     updateGroupInfo(res.data.group);
@@ -99,13 +95,7 @@ const GroupProfile = ({
             });
     };
 
-    const getRosterPositions = async () => {
-        const dbResponse = await axios.get(`/api/roster/positions`);
-        const { rosterPositions, positionMap, maxOfPosition } = dbResponse.data;
-        updateRosterPositions(rosterPositions);
-        updatePositionMap(positionMap);
-        updateMaxOfPosition(maxOfPosition);
-    };
+
 
     return (
         <div className='profileWrapper '>
@@ -122,14 +112,6 @@ const GroupProfile = ({
                 <button className='btn btn-info' onClick={() => { openCloseModal(); updateModalState(`group`) }}>
                     View Group Position Data
                 </button>
-                {/* <div className='groupPosHeader'>
-                    Group Positions
-                    </div>
-                {groupPositions.map((pos, i) =>
-                    <div key={i} className='groupPos'>
-                        {pos.N}
-                    </div>
-                )} */}
             </div>
             <div className='profileRight'>
                 <div className={`wrapper noTopMargin ${modalOpen && `lowerOpacity`}`}>
@@ -147,7 +129,7 @@ const GroupProfile = ({
                                 Open / Close Top Rosters
                             </button>
                         </div>
-                        <BestRostersCollapse
+                        <RosterCarousel
                             rowOpen={rostersOpen}
                             week={+week}
                             bestRosterUser={bestRosterUser}
@@ -187,7 +169,9 @@ GroupProfile.propTypes = {
     updateGroupInfo: PropTypes.func,
     openCloseModal: PropTypes.func,
     updateModalState: PropTypes.func,
-    modalOpen: PropTypes.bool
+    modalOpen: PropTypes.bool,
+    groupPositions: PropTypes.array,
+    updateGroupPositions: PropTypes.func
 };
 
 export default GroupProfile;

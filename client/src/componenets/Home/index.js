@@ -7,7 +7,7 @@ import { RosterDisplay } from '../Roster';
 import './homeStyle.css';
 import Leaderboard from './Leaderboard';
 import PropTypes from 'prop-types';
-import BestRostersCollapse from './BestRostersCollapse';
+import RosterCarousel from './RosterCarousel';
 
 const Home = ({ season, group, week, currentUser }) => {
 
@@ -110,7 +110,7 @@ const Home = ({ season, group, week, currentUser }) => {
                     </button>
                 </div>
             </div>
-            <BestRostersCollapse
+            <RosterCarousel
                 rowOpen={secondRowOpen}
                 week={weekForLeaderboard}
                 bestRosterUser={bestRosterUser}

@@ -1,7 +1,6 @@
 const db = require(`../models`);
 const mySportsHandler = require('./mySportsHandler');
 const positions = require(`../constants/positions`);
-const userHandler = require('./userHandler');
 
 const checkDuplicate = async (checkedField, groupToSearch, userID) => {
     let result = false;

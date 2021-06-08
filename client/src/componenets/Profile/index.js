@@ -4,8 +4,6 @@ import Modal from 'react-modal';
 import PropTypes from 'prop-types';
 import { withFirebase } from '../Firebase';
 import { withAuthorization } from '../Session';
-import { home } from '../../constants/routes';
-import { Redirect } from 'react-router-dom';
 import { useToasts } from 'react-toast-notifications';
 
 import Jimp from 'jimp';
@@ -18,6 +16,8 @@ import './profileStyle.css';
 import { ReAuth, ImageEditor } from './ModalWindows';
 import UserProfile from './UserProfile';
 import GroupProfile from './GroupProfile';
+import FourOFour from '../404';
+import GroupEditor from './GroupEditor';
 
 const Alert = withReactContent(Swal);
 
@@ -26,12 +26,15 @@ const groupFields = { groupName: ``, avatar: `` };
 
 const Profile = ({ authUser, currentUser, firebase, match }) => {
 
-    const [modalOpen, updateModal] = useState(false);
-    const [modalState, updateModalState] = useState(`reAuth`);
+    const [modalOpen, updateModal] = useState(true); //Change back to false
+    const [modalState, updateModalState] = useState(`group`); //Change back to reAuth
     const [updatedFields, changeUpdatedFields] = useState({ ...userFields, ...groupFields });
     const [avatar, updateAvatar] = useState(``);
     const [tempAvatar, updateTempAvatar] = useState(``);
+
+    //Group State
     const [groupInfo, updateGroupInfo] = useState({});
+    const [groupPositions, updateGroupPositions] = useState([]);
 
     const fileInputRef = useRef(null);
 
@@ -138,7 +141,7 @@ const Profile = ({ authUser, currentUser, firebase, match }) => {
     const notAnImage = () => {
         Alert.fire({
             title: `Only Upload Images`,
-            text: `Image not selected. Please only upload images`,
+            text: `File is not an image. Please only upload images`,
             showConfirmButton: false,
             showCancelButton: true,
         });
@@ -205,15 +208,17 @@ const Profile = ({ authUser, currentUser, firebase, match }) => {
                         updateGroupInfo={updateGroupInfo}
                         updateModalState={updateModalState}
                         modalOpen={modalOpen}
+                        groupPositions={groupPositions}
+                        updateGroupPositions={updateGroupPositions}
                     />
                     :
-                    <Redirect to={home} />
+                    <FourOFour />
             }
             <Modal
                 onRequestClose={requestCloseModal}
                 isOpen={modalOpen}
                 contentLabel='profileModal'
-                className='profileModal'
+                className={`profileModal ${modalState === `group` && `groupModalHeight`}`}
                 overlayClassName='modalOverlay'
                 ariaHideApp={false}>
                 {modalState === `reAuth` ?
@@ -235,7 +240,9 @@ const Profile = ({ authUser, currentUser, firebase, match }) => {
                             fileInputRef={fileInputRef}
                         />
                         :
-                        <div>Group Editor</div>
+                        <GroupEditor
+                            groupInfo={groupInfo}
+                            groupPositions={groupPositions} />
                 }
             </Modal>
         </Fragment>

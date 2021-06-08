@@ -18,7 +18,7 @@ import UpgradeToAdmin from './componenets/AdminPanel/UpgradeToAdmin';
 import UsedPlayers from './componenets/UsedPlayers';
 import GroupPage from './componenets/GroupPage/';
 import SingleGroup from './componenets/SingleGroup';
-import FourOFour from './componenets/404/FourOFour';
+import FourOFour from './componenets/404';
 import SidePanel from './componenets/SidePanel';
 
 const App = ({ firebase }) => {

@@ -1,9 +1,8 @@
 require(`dotenv`).config();
 const userHandler = require(`../handlers/userHandler`);
 const groupHandler = require(`../handlers/groupHandler`);
-const mySportsHandler = require(`../handlers/mySportsHandler`);
 const scoringSystem = require(`../constants/scoringSystem`);
-const s3Handler = require("../handlers/s3Handler");
+const s3Handler = require(`../handlers/s3Handler`);
 
 module.exports = app => {
 
@@ -54,7 +53,7 @@ module.exports = app => {
         res.sendStatus(200);
     });
 
-    app.get(`/api/getGroupPositions/:groupId`, async (req, res) => {
+    app.get(`/api/group/positions/:groupId`, async (req, res) => {
         const { groupId } = req.params;
         const positions = await groupHandler.getGroupPositions(groupId);
         res.status(200).send(positions);
@@ -114,8 +113,22 @@ module.exports = app => {
                 s3Handler.getAvatar(groupData._id.toString())
             ]).then(([topUser, groupAvatar]) => {
                 res.status(200).send({ name: name, score: topUser.TS, avatar: groupAvatar })
-            }
-            )
-        })
+            });
+        });
     });
+
+    app.get(`/api/group/scoring/:groupId`, async (req, res) => {
+        const { withDesc } = req.query;
+        const { groupId } = req.params;
+        const response = {};
+
+        const groupScore = await groupHandler.getGroupScore(groupId);
+        response.groupScore = { P: groupScore.P, RU: groupScore.RU, RE: groupScore.RE, FG: groupScore.FG, F: groupScore.F };
+
+        if (withDesc === `true`) {
+            response.map = scoringSystem.groupScoreMap;
+            response.bucketMap = scoringSystem.groupScoreBucketMap;
+        };
+        res.status(200).send(response);
+    })
 };
