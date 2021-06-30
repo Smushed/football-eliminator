@@ -1,42 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import axios from 'axios';
 
 import './profileStyle.css';
 
 import DisplayBox from '../DisplayBox';
 import { AvatarInput, UsernameInput, EmailInput, PasswordInput } from './ProfileInputs';
 
-//Using the new style of route /:type/:name dynamically load which page to display, user or group
-//Also update what state is used based on what is displayed
-//Break it out into 2 different components and then manage which state is shared and what state should be broken out
-
-const UserProfile = ({ authUser,
+const UserProfile = ({
+    authUser,
     currentUser,
+    username,
     handleChange,
     fileInputRef,
     checkIfSaveNeeded,
     handleSubmit,
     avatar,
+    updateAvatar,
     updatedFields,
     modalOpen }) => {
 
     const [showPassword, updateShowPassword] = useState(`password`);
+    const [userOnPage, updateUserOnPage] = useState({});
+
+    useEffect(() => {
+        axios.get(`/api/user/name/${username}`)
+            .then(res => {
+                updateUserOnPage(res.data.user);
+                updateAvatar(res.data.avatar);
+            });
+    }, [updateAvatar, username]);
 
     const toggleShowPassword = () => {
         showPassword === `password` ? updateShowPassword(`text`) : updateShowPassword(`password`);
     };
 
     return (
-        <div className='userProfileWrapper '>
-            <div className='userProfileLeft'>
+        <div className='profileWrapper '>
+            <div className='profileLeft'>
                 <div className='profileName'>
-                    {currentUser.username}
+                    {username}
                 </div>
                 <div className='userAvatarWrapper'>
                     <img className='userAvatar' src={avatar} />
                 </div>
             </div>
-            <div className='userProfileRight'>
+            <div className='profileRight'>
                 <UsernameInput
                     handleChange={handleChange}
                     username={updatedFields.username}
@@ -63,7 +72,7 @@ const UserProfile = ({ authUser,
                 <div className='submitButtonWrapper'>
                     <button disabled={!checkIfSaveNeeded} className='btn btn-primary btn-lg' onClick={() => handleSubmit()}>
                         Submit
-                        </button>
+                    </button>
                 </div>
                 <div className='editField'>
                     <div>
@@ -87,12 +96,14 @@ const UserProfile = ({ authUser,
 UserProfile.propTypes = {
     authUser: PropTypes.any,
     currentUser: PropTypes.object,
+    username: PropTypes.string,
     firebase: PropTypes.any,
     handleChange: PropTypes.func,
     fileInputRef: PropTypes.any,
     checkIfSaveNeeded: PropTypes.bool,
     handleSubmit: PropTypes.func,
     avatar: PropTypes.any,
+    updateAvatar: PropTypes.func,
     updatedFields: PropTypes.object,
     modalOpen: PropTypes.bool
 };

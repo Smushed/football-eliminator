@@ -1,9 +1,8 @@
 require(`dotenv`).config();
 const userHandler = require(`../handlers/userHandler`);
 const groupHandler = require(`../handlers/groupHandler`);
-const mySportsHandler = require(`../handlers/mySportsHandler`);
 const scoringSystem = require(`../constants/scoringSystem`);
-const s3Handler = require("../handlers/s3Handler");
+const s3Handler = require(`../handlers/s3Handler`);
 
 module.exports = app => {
 
@@ -16,11 +15,27 @@ module.exports = app => {
         // return "You need to be a moderator to add users to the group";
     });
 
-    app.get(`/api/getGroupData/:groupName`, async (req, res) => {
-        const { groupName } = req.params;
-        const groupData = await groupHandler.getGroupData(groupName);
+    app.get(`/api/group/profile`, async (req, res) => {
+        const { name, avatar, positions } = req.query;
+        const group = {};
+        const groupData = await groupHandler.getGroupData(name);
+
+        group.D = groupData.D;
+        group.N = groupData.N;
+        group._id = groupData._id;
+
+        let gAvatar;
+        let pos;
+        if (avatar === `true`) {
+            gAvatar = await s3Handler.getAvatar(groupData._id.toString());
+        }
+        if (positions === `true`) {
+            pos = await groupHandler.getGroupPositions(groupData._id.toString());
+        }
+        group.UL = await userHandler.groupUserList(groupData.UL);
+
         if (groupData) {
-            res.status(200).send(groupData);
+            res.status(200).send({ group, avatar: gAvatar || null, positions: pos || null });
         } else {
             res.status(500).send({ 'error': `No Group Found` })
         }
@@ -31,24 +46,16 @@ module.exports = app => {
         if (pass !== process.env.DB_ADMIN_PASS) {
             res.status(401).send(`Get Outta Here!`);
             return;
-        };
+        }
         groupHandler.createClapper();
         userHandler.initSeasonAndWeekInDB();
-        console.log(`Group Created`)
         res.sendStatus(200);
     });
 
-    app.get(`/api/getGroupPositions/:groupId`, async (req, res) => {
+    app.get(`/api/group/positions/:groupId`, async (req, res) => {
         const { groupId } = req.params;
         const positions = await groupHandler.getGroupPositions(groupId);
         res.status(200).send(positions);
-    });
-
-    app.get(`/api/getGroupPositionsForDisplay/:groupId`, async (req, res) => {
-        const { groupId } = req.params;
-        const positions = await groupHandler.getGroupPositions(groupId);
-        const forDisplay = await groupHandler.groupPositionsForDisplay(positions);
-        res.status(200).send({ positions, forDisplay });
     });
 
     app.get(`/api/getScoring`, async (req, res) => {
@@ -59,7 +66,6 @@ module.exports = app => {
         const { userId, newGroupScore, groupName, groupDesc, groupPositions } = req.body;
         const groupResponse = await groupHandler.createGroup(userId, newGroupScore, groupName, groupDesc, groupPositions);
         const addUserResponse = await groupHandler.addUser(userId, groupResponse._id, true);
-        console.log(addUserResponse)
         res.status(200).send(addUserResponse);
     });
 
@@ -68,26 +74,13 @@ module.exports = app => {
         res.status(200).send(dbResponse);
     });
 
-    app.get(`/api/getLeaderboard/:season/:week/:groupId`, async (req, res) => {
+    app.get(`/api/group/leaderboard/:season/:week/:groupId`, async (req, res) => {
         const { season, week, groupId } = req.params;
         const leaderboard = await groupHandler.getLeaderBoard(groupId, season, +week);
         res.status(200).send({ leaderboard });
     });
 
-    app.get(`/api/getIdealRoster/:season/:week/:groupId`, async (req, res) => {
-        const { season, week, groupId } = req.params;
-        const previousWeek = +week - 1;
-        if (previousWeek === 0) {
-            const blankRoster = await groupHandler.getBlankRoster(groupId);
-            res.status(200).send(blankRoster);
-            return;
-        }
-        const idealRoster = await groupHandler.getIdealRoster(groupId, season, +previousWeek);
-        const response = await mySportsHandler.fillUserRoster(idealRoster.R);
-        res.status(200).send(response);
-    });
-
-    app.get(`/api/getBestCurrLeadRoster/:season/:week/:groupId`, async (req, res) => {
+    app.get(`/api/group/roster/bestAndLead/:season/:week/:groupId`, async (req, res) => {
         const { season, week, groupId } = req.params;
         if (+week === 1) {
             //Setting this blank roster if we are currently in week 1 there is no previous week to compare
@@ -106,31 +99,48 @@ module.exports = app => {
         }
     });
 
-    app.get(`/api/getGroupForBox/:groupName`, async (req, res) => {
-        const { groupName } = req.params;
+    app.get(`/api/group/profile/box/:name`, async (req, res) => {
+        const { name } = req.params;
         Promise.all([
             userHandler.pullSeasonAndWeekFromDB(),
-            groupHandler.getGroupData(groupName)
+            groupHandler.getGroupData(name)
         ]).then(async ([{ season, week }, groupData]) => {
             const userScores = await groupHandler.getCurrAndLastWeekScores(groupData._id, season, +week);
             Promise.all([
                 groupHandler.getBestUserForBox(userScores),
-                s3Handler.getAvatar(groupData._id)
+                s3Handler.getAvatar(groupData._id.toString())
             ]).then(([topUser, groupAvatar]) => {
-                res.status(200).send({ name: groupName, score: topUser.TS, avatar: groupAvatar })
-            }
-            )
-        })
+                res.status(200).send({ name: name, score: topUser.TS, avatar: groupAvatar })
+            });
+        });
     });
 
-    app.get(`/api/groupData/profile/:groupName`, async (req, res) => {
-        const { groupName } = req.params;
-        const groupData = await groupHandler.getGroupData(groupName);
-        if (groupData) {
-            const positions = await groupHandler.getGroupPositions(groupData._id);
-            res.status(200).send({ group: groupData, positions });
+    app.get(`/api/group/scoring/:groupId`, async (req, res) => {
+        const { withDesc } = req.query;
+        const { groupId } = req.params;
+        const response = {};
+
+        const groupScore = await groupHandler.getGroupScore(groupId);
+        response.groupScore = { P: groupScore.P, RU: groupScore.RU, RE: groupScore.RE, FG: groupScore.FG, F: groupScore.F };
+
+        if (withDesc === `true`) {
+            response.map = scoringSystem.groupScoreMap;
+            response.bucketMap = scoringSystem.groupScoreBucketMap;
+        }
+        res.status(200).send(response);
+    });
+
+    app.put(`/api/group/`, async (req, res) => {
+        const { data, id } = req.body;
+        if (data && Object.keys(data).length === 0 && data.constructor === Object) {
+            res.status(200).send(`Nothing to update!`);
+            return;
+        }
+        const response = await groupHandler.updateGroup(data, id);
+        if (response.length === 0) {
+            res.sendStatus(200);
         } else {
-            res.status(500).send({ 'error': `No Group Found` })
+            res.sendStatus(400);
         }
     });
 };

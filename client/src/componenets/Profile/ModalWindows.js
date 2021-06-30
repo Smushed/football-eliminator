@@ -5,6 +5,7 @@ import Cropper from 'react-easy-crop';
 import Slider from 'rc-slider';
 import axios from 'axios';
 import Jimp from 'jimp';
+import { useToasts } from 'react-toast-notifications';
 
 import { EmailInput, PasswordInput } from './ProfileInputs';
 
@@ -97,6 +98,8 @@ const ImageEditor = ({ tempAvatar, saveCroppedAvatar, openCloseModal, fileInputR
     const [zoom, updateZoom] = useState(1);
     const sliderChange = val => updateZoom(val);
 
+    const { addToast } = useToasts();
+
     const saveAvatar = () => {
         const bufferedAvatar = Buffer.from(tempAvatar.split(',')[1], 'base64');
         Jimp.read(bufferedAvatar)
@@ -110,9 +113,9 @@ const ImageEditor = ({ tempAvatar, saveCroppedAvatar, openCloseModal, fileInputR
                 img.resize(200, 200);
                 let mime = await img.getBase64Async(Jimp.MIME_JPEG);
                 fileInputRef.current.value = '';
-                saveCroppedAvatar(mime)
+                saveCroppedAvatar(mime);
             }).catch(err => {
-                //TODO Display an error message to the user
+                addToast('Error Reading File, Please upload again', { appearance: 'error', autoDismiss: true });
                 console.log(`error`, err)
             });
     };
@@ -191,7 +194,7 @@ ImageEditor.propTypes = {
     saveCroppedAvatar: PropTypes.func,
     fileInputRef: PropTypes.any,
     tempAvatar: PropTypes.any,
-    openCloseModal: PropTypes.func,
+    openCloseModal: PropTypes.func
 };
 
 export { ReAuth, ImageEditor };

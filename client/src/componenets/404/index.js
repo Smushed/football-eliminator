@@ -1,6 +1,8 @@
 import React from 'react';
-import './404style.css';
+import { Link } from 'react-router-dom';
+import { home } from '../../constants/routes';
 import PoorBaby from './Champs.jpg'
+import './404style.css';
 
 const FourOFour = () => {
     return (
@@ -10,7 +12,9 @@ const FourOFour = () => {
                 Hope you didn&apos;t get here like Rogers did
                 <br />
                 <br />
-                <img className='ripGod' src={PoorBaby} alt='Sore Losers' />
+                <Link to={home}>
+                    <img className='ripGod' src={PoorBaby} alt='Sore Losers' />
+                </Link>
             </div>
         </div>
     )

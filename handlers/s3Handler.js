@@ -7,7 +7,7 @@ AWS.config.update({
     accessKeyId: process.env.AWS_KEY,
     secretAccessKey: process.env.AWS_SECRET_KEY
 });
-s3 = new AWS.S3({ params: { Bucket: 'football-eliminator' } });
+const s3 = new AWS.S3({ params: { Bucket: 'football-eliminator' } });
 
 const verifyAvatar = (base64Avatar) => {
     return new Promise((res, rej) => {
@@ -33,7 +33,7 @@ const genericAvatar = () => {
         s3.getObject(getParams, (err, data) => {
             if (err) {
                 res(err);
-            };
+            }
             Jimp.read(data.Body)
                 .then(async img => {
                     let mime = await img.getBase64Async(Jimp.MIME_JPEG);
@@ -46,14 +46,14 @@ const genericAvatar = () => {
 module.exports = {
     uploadAvatar: async (id, base64Avatar) => {
         const verifiedAvatar = await verifyAvatar(base64Avatar);
-        buf = Buffer.from(verifiedAvatar.replace(/^data:image\/\w+;base64,/, ``), `base64`)
-        var data = {
+        const buf = Buffer.from(verifiedAvatar.replace(/^data:image\/\w+;base64,/, ``), `base64`)
+        const data = {
             Key: id, //This can be either userId or groupId
             Body: buf,
             ContentEncoding: `base64`,
             ContentType: `image/jpeg`
         };
-        s3.putObject(data, function (err, data) {
+        s3.putObject(data, function (err) {
             if (err) {
                 return (`Error Uploading the Avatar`)
             } else {
@@ -64,7 +64,7 @@ module.exports = {
     getAvatar: async (id) => {
         if (id === `undefined`) {
             return;
-        };
+        }
         return new Promise((res, rej) => {
             const getParams = {
                 Key: id
@@ -74,12 +74,12 @@ module.exports = {
                     const stockAvatar = await genericAvatar();
                     res(stockAvatar);
                     return;
-                };
+                }
                 Jimp.read(data.Body)
                     .then(async img => {
                         let mime = await img.getBase64Async(Jimp.MIME_JPEG);
                         res(mime);
-                    })
+                    });
             });
         });
     }

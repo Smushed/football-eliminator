@@ -1,5 +1,9 @@
-.userProfileWrapper {
+.profileWrapper {
     display: flex;
+}
+
+.noTopMargin {
+    margin-top: 0;
 }
 
 .greyBackdrop {
@@ -13,17 +17,26 @@
     z-index: .9;
 }
 
-.userProfileModal {
+.profileModal {
     position: absolute;
     top: 45%;
     left: 50%;
     transform: translate(-50%, -50%); 
     height: 500px;
-    width: 700px;
+    width: 900px;
     background-color: whitesmoke;
     border-radius: 5px;
     border: 1px lightgray solid;
     padding: 10px 50px;
+}
+
+.groupModalHeight {
+    top: 48%;
+    height: 85%;
+}
+
+.ReactModal__Content {
+    overflow-y: auto;
 }
 
 .ReactModal__Overlay {
@@ -50,13 +63,13 @@
     bottom: 0;
 }
 
-.userProfileLeft {
+.profileLeft {
     margin-top: -10px;
     margin-left: 300px;
     width: 20%;
 }
 
-.userProfileRight {
+.profileRight {
     width: 45%;
 }
 
@@ -87,6 +100,11 @@
     font-size: 28px;
     font-weight: 600;
     text-align: center;
+}
+
+.profileDesc {
+    text-align: center;
+    font-size: 20px;
 }
 
 .userAvatarWrapper {
@@ -157,6 +175,103 @@
 
 .customFileUploadButton:hover {
     background-color: whitesmoke;
+}
+
+.groupPosHeader {
+    font-size: 26px;
+    font-weight: 600;
+}
+
+.groupPos {
+    font-size: 22px;
+}
+
+.groupPosDropdowns {
+    width: 150px !important;
+}
+
+.groupProfileRow {
+    margin-top: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.groupScoreBucket {
+    display: flex;
+    border: 1px solid darkgray;
+    border-radius: 5px;
+    min-height: 50px;
+    margin-top: 10px;
+}
+
+.groupScoreBucketName {
+    min-width: 100px;
+    border-right: 1px solid darkgray;
+    font-weight: 600;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.groupScoreFields {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.groupScoreInput {
+    width: 100px !important;
+}
+
+.groupScoreInputWrapper {
+    margin: 5px;
+}
+
+.groupEditorHeader {
+    font-size: 26px;
+    margin-left: 5px;
+    margin-top: 5px;
+    margin-bottom: -7px;
+}
+
+.groupDescInput {
+    height: 100px;
+}
+
+.descText {
+    margin-left: 5px;
+}
+
+.groupEditorHeaderWrapper {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.groupEditorHeaderHalf {
+    width: 45%;
+}
+
+.groupEditorAvatarWrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+.groupPosHeaderWrapper {
+    margin-right: 50px;
+}
+
+.groupPosWrapper {
+    margin-top: 30px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.groupEditorAddRemoveButtons {
+    display: flex;
+    justify-content: space-around;
 }
 
 @-webkit-keyframes pop-in {

@@ -4,6 +4,7 @@ import { Route, BrowserRouter, Switch } from 'react-router-dom';
 import { withFirebase } from './componenets/Firebase';
 import axios from 'axios';
 import PropTypes from 'prop-types';
+import { ToastProvider } from 'react-toast-notifications';
 
 import SignInOut from './componenets/SignInOut';
 import NavBar from './componenets/NavBar/';
@@ -16,8 +17,7 @@ import UpdateWeek from './componenets/AdminPanel/UpdateWeek';
 import UpgradeToAdmin from './componenets/AdminPanel/UpgradeToAdmin';
 import UsedPlayers from './componenets/UsedPlayers';
 import GroupPage from './componenets/GroupPage/';
-import SingleGroup from './componenets/SingleGroup';
-import FourOFour from './componenets/404/FourOFour';
+import FourOFour from './componenets/404';
 import SidePanel from './componenets/SidePanel';
 
 const App = ({ firebase }) => {
@@ -112,105 +112,100 @@ const App = ({ firebase }) => {
           />
         }
 
-        {noGroup ?
-          <GroupPage
-            noGroup={noGroup}
-            userId={currentUser.userId}
-          />
-          :
-          <Switch>
-            <Route
-              exact path={Routes.home}
-              render={() =>
-                <Home
-                  season={currentSeason}
-                  group={currentGroup}
-                  week={currentWeek}
-                  currentUser={currentUser}
-                />}
+        <ToastProvider>
+          {noGroup ?
+            <GroupPage
+              noGroup={noGroup}
+              userId={currentUser.userId}
             />
-            <Route
-              path={Routes.adminPanel}
-              render={() =>
-                <AdminPanel
-                  currentUser={currentUser}
-                  week={currentWeek}
-                  season={currentSeason}
-                  groupId={currentGroup._id} />}
-            />
-            <Route
-              path={Routes.groupPage}
-              render={() =>
-                <GroupPage />}
-            />
-            <Route
-              path={Routes.singleGroup}
-              render={props =>
-                <SingleGroup
-                  {...props}
-                  currUserId={currentUser.userId} />}
-            />
-            <Route
-              path={Routes.signin}
-              render={() =>
-                <SignInOut />}
-            />
-            <Route
-              path={Routes.signup}
-              render={() =>
-                <SignInOut />}
-            />
-            <Route
-              path={Routes.profile}
-              render={props =>
-                <Profile
-                  {...props}
-                  authUser={authUser}
-                  currentUser={currentUser} />}
-            />
-            <Route
-              path={Routes.seasonLongScore}
-              render={() =>
-                <SeasonLongScore
-                  season={currentSeason} />}
-            />
-            <Route
-              path={Routes.roster}
-              render={props =>
-                <Roster
-                  {...props}
-                  latestLockWeek={latestLockWeek}
-                  updateLockWeekOnPull={updateLockWeekOnPull}
-                  username={currentUser.username}
-                  userId={currentUser.userId}
-                  week={currentWeek}
-                  season={currentSeason} />
-              }
-            />
-            <Route
-              path={Routes.upgradeToAdmin}
-              render={() =>
-                <UpgradeToAdmin />}
-            />
-            <Route
-              path={Routes.usedPlayers}
-              render={props =>
-                <UsedPlayers
-                  {...props}  //Need to pass down the props spread to have access to the URL
-                  season={currentSeason} />
-              }
-            />
-            <Route
-              path={Routes.updateWeek}
-              render={() =>
-                <UpdateWeek />}
-            />
-            <Route
-              render={() =>
-                <FourOFour />
-              } />
-          </Switch>
-        }
+            :
+            <Switch>
+              <Route
+                exact path={Routes.home}
+                render={() =>
+                  <Home
+                    season={currentSeason}
+                    group={currentGroup}
+                    week={currentWeek}
+                    currentUser={currentUser}
+                  />}
+              />
+              <Route
+                path={Routes.adminPanel}
+                render={() =>
+                  <AdminPanel
+                    currentUser={currentUser}
+                    week={currentWeek}
+                    season={currentSeason}
+                    groupId={currentGroup._id} />}
+              />
+              <Route
+                path={Routes.groupPage}
+                render={() =>
+                  <GroupPage />}
+              />
+              <Route
+                path={Routes.signin}
+                render={() =>
+                  <SignInOut />}
+              />
+              <Route
+                path={Routes.signup}
+                render={() =>
+                  <SignInOut />}
+              />
+              <Route
+                path={Routes.profile}
+                render={props =>
+                  <Profile
+                    {...props}
+                    authUser={authUser}
+                    currentUser={currentUser} />}
+              />
+              <Route
+                path={Routes.seasonLongScore}
+                render={() =>
+                  <SeasonLongScore
+                    season={currentSeason} />}
+              />
+              <Route
+                path={Routes.roster}
+                render={props =>
+                  <Roster
+                    {...props}
+                    latestLockWeek={latestLockWeek}
+                    updateLockWeekOnPull={updateLockWeekOnPull}
+                    username={currentUser.username}
+                    userId={currentUser.userId}
+                    week={currentWeek}
+                    season={currentSeason} />
+                }
+              />
+              <Route
+                path={Routes.upgradeToAdmin}
+                render={() =>
+                  <UpgradeToAdmin />}
+              />
+              <Route
+                path={Routes.usedPlayers}
+                render={props =>
+                  <UsedPlayers
+                    {...props}  //Need to pass down the props spread to have access to the URL
+                    season={currentSeason} />
+                }
+              />
+              <Route
+                path={Routes.updateWeek}
+                render={() =>
+                  <UpdateWeek />}
+              />
+              <Route
+                render={() =>
+                  <FourOFour />
+                } />
+            </Switch>
+          }
+        </ToastProvider>
       </Fragment>
     </BrowserRouter>
   );

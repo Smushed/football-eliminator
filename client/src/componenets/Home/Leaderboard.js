@@ -19,16 +19,16 @@ const Leaderboard = ({ groupName, week, leaderboard }) => (
             </div>
             <div className='leaderboardRow'>
                 <div className='firstCol'>
-                    Username
+                    Name
                 </div>
                 <div className='secondCol'>
-                    Last Week Score
+                    Last Week
                 </div>
                 <div className='thirdCol'>
-                    Curr Week Score
+                    Curr Week
                 </div>
                 <div className='fourthCol'>
-                    Total Score
+                    Total
                 </div>
             </div>
             {leaderboard &&

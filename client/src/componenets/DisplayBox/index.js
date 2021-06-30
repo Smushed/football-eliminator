@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 
 import './displayBoxStyle.css'
+
+//boxContent is the Id of either the user or the group
 
 const DisplayBox = ({ boxContent, type, buttonActive, inGroup = false }) => {
 
@@ -14,7 +17,7 @@ const DisplayBox = ({ boxContent, type, buttonActive, inGroup = false }) => {
     }, [type]);
 
     const getUserData = () => {
-        axios.get(`/api/getUserForBox/${boxContent}`)
+        axios.get(`/api/user/profile/box/${boxContent}`)
             .then(res => {
                 const { name, avatar, score } = res.data;
                 updateDisplayData({ name, avatar, score: score.toFixed(2) });
@@ -22,7 +25,7 @@ const DisplayBox = ({ boxContent, type, buttonActive, inGroup = false }) => {
     };
 
     const getGroupData = () => {
-        axios.get(`/api/getGroupForBox/${boxContent}`)
+        axios.get(`/api/group/profile/box/${boxContent}`)
             .then(res => {
                 const { name, avatar, score } = res.data;
                 updateDisplayData({ name, avatar, score: score.toFixed(2) });
@@ -31,11 +34,11 @@ const DisplayBox = ({ boxContent, type, buttonActive, inGroup = false }) => {
 
     return (
         <div className={`displayBox ` + (buttonActive && `adminHeight`)}>
-            {/* <Link to={``}> GOOD CHANCE TO TRY AND FIGURE OUT HOW TO LINK TO THE USER OR GROUP PAGE */}
-            <div className='displayBoxName'>
-                {displayData.name}
-            </div>
-            {/* </Link> */}
+            <Link to={`/profile/${type}/${displayData.name}`}>
+                <div className='displayBoxName'>
+                    {displayData.name}
+                </div>
+            </Link>
             <div className='displayBoxAvatarWrapper'>
                 <img className='displayBoxAvatar' src={displayData.avatar} />
             </div>

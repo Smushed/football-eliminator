@@ -7,6 +7,7 @@ import { RosterDisplay } from '../Roster';
 import './homeStyle.css';
 import Leaderboard from './Leaderboard';
 import PropTypes from 'prop-types';
+import RosterCarousel from './RosterCarousel';
 
 const Home = ({ season, group, week, currentUser }) => {
 
@@ -38,7 +39,7 @@ const Home = ({ season, group, week, currentUser }) => {
     };
 
     const getLeaderBoard = (season, week, groupId) => {
-        axios.get(`/api/getLeaderBoard/${season}/${week}/${groupId}`)
+        axios.get(`/api/group/leaderboard/${season}/${week}/${groupId}`)
             .then(res => {
                 updateLeaderboard(res.data.leaderboard);
                 return;
@@ -55,7 +56,7 @@ const Home = ({ season, group, week, currentUser }) => {
     };
 
     const getIdealRoster = (season, week, groupId) => {
-        axios.get(`/api/getIdealRoster/${season}/${week}/${groupId}`)
+        axios.get(`/api/roster/ideal/${season}/${week}/${groupId}`)
             .then(res => {
                 updateIdealRoster(res.data)
             });
@@ -63,7 +64,7 @@ const Home = ({ season, group, week, currentUser }) => {
 
     const getBestCurrLeadRoster = (season, week, groupId) => {
         //This gets both the best roster from the previous week as well as the current leader's roster for the current week
-        axios.get(`/api/getBestCurrLeadRoster/${season}/${week}/${groupId}`)
+        axios.get(`/api/group/roster/bestAndLead/${season}/${week}/${groupId}`)
             .then(res => {
                 updateBestRosterUser(res.data.bestRoster.U);
                 updateBestRoster(res.data.bestRoster.R);
@@ -109,46 +110,16 @@ const Home = ({ season, group, week, currentUser }) => {
                     </button>
                 </div>
             </div>
-            <Collapse isOpened={secondRowOpen}>
-                <div className='rosterRowWrapper'>
-                    <div className='userRosterHomePage'>
-                        <div className='rosterHomePageTitle'>
-                            Best from Week {weekForLeaderboard - 1} - {bestRosterUser}
-                        </div>
-                        <RosterDisplay
-                            groupPositions={groupPositions}
-                            roster={bestRoster}
-                            pastLockWeek={true}
-                        />
-                    </div>
-                    <div>
-                        <div className='userRosterHomePage'>
-                            <div className='rosterHomePageTitle'>
-                                Last Week&apos;s Ideal
-                            </div>
-                            {idealRoster.length > 0 &&
-                                <RosterDisplay
-                                    groupPositions={groupPositions}
-                                    roster={idealRoster}
-                                    pastLockWeek={true}
-                                />
-                            }
-                        </div>
-                    </div>
-                    <div className='userRosterHomePage'>
-                        <div className='rosterHomePageTitle'>
-                            Current Lead Week {weekForLeaderboard} {leaderboard[0] && leaderboard[0].UN}
-                        </div>
-                        {leaderRoster.length > 0 &&
-                            <RosterDisplay
-                                groupPositions={groupPositions}
-                                roster={leaderRoster}
-                                pastLockWeek={true}
-                            />
-                        }
-                    </div>
-                </div>
-            </Collapse>
+            <RosterCarousel
+                rowOpen={secondRowOpen}
+                week={weekForLeaderboard}
+                bestRosterUser={bestRosterUser}
+                bestRoster={bestRoster}
+                groupPositions={groupPositions}
+                idealRoster={idealRoster}
+                leaderboard={leaderboard}
+                leaderRoster={leaderRoster}
+            />
             <div className='rosterGroupHeaderWrapper'>
                 <div className='rosterGroupHeader'>
                     {group.N} Group Rosters

@@ -26,7 +26,7 @@ if (process.env.NODE_ENV === `production`) {
   MONGODB_URI = `mongodb://localhost/fantasyEliminator`;
 };
 try {
-  mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+  mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true });
 } catch (err) {
   console.log(err);
 }

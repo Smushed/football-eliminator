@@ -50,5 +50,52 @@ module.exports = {
             '50': 5,
             'X': 1,
         }
+    },
+    groupScoreBucketMap: {
+        P: `Passing`,
+        RU: `Rushing`,
+        RE: `Receiving`,
+        FG: `Field Goal`,
+        F: `Fumble`
+    },
+    groupScoreMap: {
+        P: {
+            T: `Touchdown`,
+            Y: `Pass Yards`,
+            I: `Interceptions`,
+            A: `Attempts`,
+            C: `Completions`,
+            '2P': `2PT Pass Success`
+        },
+        RU: {
+            A: `Attempts`,
+            Y: `Rush Yards`,
+            T: `Rush TD`,
+            '20': `20-39 Rush`,
+            '40': `40+ Rush`,
+            'F': `Fumbles`,
+            '2P': `2PT Rush Success`
+        },
+        RE: {
+            TA: `Targets`,
+            R: `Receptions`,
+            Y: `Rec Yards`,
+            T: `Rec TD`,
+            '20': `20-39 Rec`,
+            '40': `40+ Rec`,
+            F: `Rec Fumble`,
+            '2P': `2PT Rec Success`,
+        },
+        F: {
+            F: `Fumble`
+        },
+        FG: {
+            1: `1-19 Yard FG`,
+            20: `20-29 Yard FG`,
+            30: `30-39 Yard FG`,
+            40: `40-49 Yard FG`,
+            50: `50+ Yard FG`,
+            'X': `Extra Point`,
+        }
     }
 }

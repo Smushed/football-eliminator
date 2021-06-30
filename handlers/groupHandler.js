@@ -1,7 +1,6 @@
 const db = require(`../models`);
 const mySportsHandler = require('./mySportsHandler');
 const positions = require(`../constants/positions`);
-const userHandler = require('./userHandler');
 
 const checkDuplicate = async (checkedField, groupToSearch, userID) => {
     let result = false;
@@ -13,10 +12,10 @@ const checkDuplicate = async (checkedField, groupToSearch, userID) => {
                 //If there is a group with that name return true
                 if (searched !== null) {
                     result = true;
-                };
+                }
             } catch (err) {
                 console.log(err);
-            };
+            }
             break;
         case `userlist`:
             //Grabs the group that the user is looking to add the user to 
@@ -24,25 +23,25 @@ const checkDuplicate = async (checkedField, groupToSearch, userID) => {
                 searched = await db.Group.findById(groupToSearch);
             } catch (err) {
                 console.log(err);
-            };
+            }
             try {
                 const isInGroup = await searched.UL.filter(user => user._id === userID);
                 if (isInGroup.length > 0) {
                     result = true;
-                };
+                }
             } catch (err) {
                 console.log(err);
-            };
+            }
             break;
         case `userScore`:
             try {
                 searched = await db.UserScores.findOne({ U: userID, G: groupToSearch }).exec();
                 if (searched !== null) {
                     result = true;
-                };
+                }
             } catch (err) {
                 console.log(err);
-            };
+            }
             break;
     }
     return result;
@@ -66,7 +65,7 @@ const createUserScore = async (userId, season, groupId) => {
     const checkDupeUser = await checkDuplicate(`userScore`, userId, groupId);
     if (!checkDupeUser) {
         await db.UserScores.create({ U: userId, G: groupId, S: season });
-    };
+    }
     return;
 };
 
@@ -90,14 +89,61 @@ const findOneUserById = (userId) => {
     return db.User.findById(userId, { UN: 1 }).exec();
 };
 
+const groupUpdater = {
+    groupScore: async (group, field) => {
+        //If the user left just a negative sign in there take it out and add a zero
+        const fields = Object.keys(field);
+        for (let i = 0; i < fields.length; i++) {
+            const innerFields = Object.keys(field[fields[i]]);
+            for (let ii = 0; ii < innerFields.length; ii++) {
+                if (field[fields[i]][innerFields[ii]] === `-`) {
+                    field[fields[i]][innerFields[ii]] = 0;
+                }
+            }
+        }
+        try {
+            await db.GroupScore.findOneAndUpdate({ G: group._id }, { P: field.P, RU: field.RU, RE: field.RE, FG: field.FG, F: field.F });
+        } catch {
+            return `Group Score Error`
+        }
+        return false;
+    },
+    groupDesc: async (group, field) => {
+        group.D = field;
+        try {
+            await group.save();
+        } catch {
+            return `Group Desc Error`
+        }
+        return false;
+    },
+    groupName: async (group, field) => {
+        group.N = field;
+        try {
+            await group.save();
+        } catch {
+            return `Group Name Error`
+        }
+        return false;
+    },
+    groupPos: async (group, field) => {
+        try {
+            await db.GroupRoster.findOneAndUpdate({ G: group._id }, { P: field })
+        } catch {
+            return `Group Position Error`
+        }
+        return false;
+    }
+}
+
 
 module.exports = {
     createGroup: async (userId, newGroupScore, groupName, groupDesc, groupPositions) => {
-        if (!checkDuplicate('group', groupName)) { return false };
+        if (!checkDuplicate('group', groupName)) { return false }
         const newGroup = {
             N: groupName,
             D: groupDesc
-        };
+        }
         const newGroupFromDB = await db.Group.create(newGroup);
         createGroupRoster(newGroupFromDB._id, groupPositions);
         createGroupScore(newGroupFromDB._id, newGroupScore);
@@ -113,7 +159,7 @@ module.exports = {
         //TODO update this so it returns an error message
         if (isDuplicate) {
             return 500;
-        };
+        }
 
         const newUserForGroup = {
             A: isAdmin,
@@ -150,13 +196,13 @@ module.exports = {
                 LW: user[weekAccessor]
             };
             arrayForLeaderBoard.push(filledOutUser);
-        };
+        }
         arrayForLeaderBoard.sort((a, b) => b.TS - a.TS);
         return arrayForLeaderBoard;
     },
     createClapper: async function () { //TODO Break this out to use the Create Group function above. Just not sure about the mod part
         //If there is no Dupe general group we are good to go ahead and add it
-        if (!checkDuplicate('group', 'Clapper')) { return false };
+        if (!checkDuplicate('group', 'Clapper')) { return false }
         const clapper = {
             N: `Clapper`,
             D: `Everyone competing for the Clapper`
@@ -205,8 +251,8 @@ module.exports = {
                 positionsToDisplay[1] = true;
                 positionsToDisplay[2] = true;
                 positionsToDisplay[3] = true;
-            };
-        };
+            }
+        }
         return positionsToDisplay;
     },
     getGroupScore: async (groupId) => {
@@ -217,7 +263,7 @@ module.exports = {
         const groupMap = [];
         for (const position of groupPositions) {
             groupMap.push(positionMap[position.I])
-        };
+        }
         return groupMap;
     },
     getGroupList: async () => {
@@ -234,8 +280,8 @@ module.exports = {
             for (let ii = 0; ii < groupResponse[i].UL.length; ii++) {
                 const { UN } = await db.User.findById(groupResponse[i].UL[ii].ID);
                 filledData[i].UL.push(UN);
-            };
-        };
+            }
+        }
         return filledData;
     },
     getIdealRoster: async function (groupId, season, week) {
@@ -269,7 +315,7 @@ module.exports = {
             })
         } else {
             return idealRosterResponse;
-        };
+        }
     },
     getBlankRoster: async function (groupId) {
         const groupPositions = await this.getGroupPositions(groupId);
@@ -296,15 +342,28 @@ module.exports = {
         let topUserRoster = await findOneRoster(topWeekScore.U, week, season, groupId);
         if (topUserRoster === null) {
             return this.getBlankRoster(groupId);
-        };
+        }
         const R = await mySportsHandler.fillUserRoster(topUserRoster.R);
         return R; //Don't need to get user here because the front end already has the leader and the username. Avoid the extra DB call
     },
     getBestUserForBox: async function (userScores) {
-        return new Promise(async (res, rej) => {
+        return new Promise(async (res) => {
             const scoresCopy = [...userScores];
             const topWeekScore = await getTopOverallLeadRosterForWeek(scoresCopy);
             res(topWeekScore);
         });
+    },
+    updateGroup: async function (updatedFields, groupId) {
+        const group = await this.getGroupDataById(groupId);
+        const updatedArray = Object.keys(updatedFields);
+        const errors = [];
+        for (let i = 0; i < updatedArray.length; i++) {
+            //Returns false if no errors
+            const updateRes = await groupUpdater[updatedArray[i]](group, updatedFields[updatedArray[i]]);
+            if (updateRes) {
+                errors.push(updateRes);
+            }
+        }
+        return errors;
     }
 };
