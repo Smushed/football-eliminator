@@ -46,10 +46,9 @@ module.exports = app => {
         if (pass !== process.env.DB_ADMIN_PASS) {
             res.status(401).send(`Get Outta Here!`);
             return;
-        };
+        }
         groupHandler.createClapper();
         userHandler.initSeasonAndWeekInDB();
-        console.log(`Group Created`)
         res.sendStatus(200);
     });
 
@@ -67,7 +66,6 @@ module.exports = app => {
         const { userId, newGroupScore, groupName, groupDesc, groupPositions } = req.body;
         const groupResponse = await groupHandler.createGroup(userId, newGroupScore, groupName, groupDesc, groupPositions);
         const addUserResponse = await groupHandler.addUser(userId, groupResponse._id, true);
-        console.log(addUserResponse)
         res.status(200).send(addUserResponse);
     });
 
@@ -128,7 +126,21 @@ module.exports = app => {
         if (withDesc === `true`) {
             response.map = scoringSystem.groupScoreMap;
             response.bucketMap = scoringSystem.groupScoreBucketMap;
-        };
+        }
         res.status(200).send(response);
-    })
+    });
+
+    app.put(`/api/group/`, async (req, res) => {
+        const { data, id } = req.body;
+        if (data && Object.keys(data).length === 0 && data.constructor === Object) {
+            res.status(200).send(`Nothing to update!`);
+            return;
+        }
+        const response = await groupHandler.updateGroup(data, id);
+        if (response.length === 0) {
+            res.sendStatus(200);
+        } else {
+            res.sendStatus(400);
+        }
+    });
 };

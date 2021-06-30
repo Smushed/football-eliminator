@@ -6,7 +6,6 @@ import Leaderboard from '../Home/Leaderboard';
 import './profileStyle.css';
 
 import DisplayBox from '../DisplayBox';
-import { AvatarInput } from './ProfileInputs';
 import RosterCarousel from '../Home/RosterCarousel';
 
 const GroupProfile = ({

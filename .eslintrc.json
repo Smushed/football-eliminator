@@ -21,7 +21,8 @@
     ],
     "rules": {
         "no-unused-vars": "warn",
-        "no-extra-boolean-cast": "off"
+        "no-extra-boolean-cast": "off",
+        "no-async-promise-executor": "off"
     },
     "ignorePatterns": [
         "node_modules"

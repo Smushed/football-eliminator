@@ -186,6 +186,10 @@
     font-size: 22px;
 }
 
+.groupPosDropdowns {
+    width: 150px !important;
+}
+
 .groupProfileRow {
     margin-top: 10px;
     width: 100%;
@@ -198,10 +202,11 @@
     border: 1px solid darkgray;
     border-radius: 5px;
     min-height: 50px;
+    margin-top: 10px;
 }
 
 .groupScoreBucketName {
-    width: 100px;
+    min-width: 100px;
     border-right: 1px solid darkgray;
     font-weight: 600;
     font-size: 18px;
@@ -215,6 +220,59 @@
     flex-wrap: wrap;
 }
 
+.groupScoreInput {
+    width: 100px !important;
+}
+
+.groupScoreInputWrapper {
+    margin: 5px;
+}
+
+.groupEditorHeader {
+    font-size: 26px;
+    margin-left: 5px;
+    margin-top: 5px;
+    margin-bottom: -7px;
+}
+
+.groupDescInput {
+    height: 100px;
+}
+
+.descText {
+    margin-left: 5px;
+}
+
+.groupEditorHeaderWrapper {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.groupEditorHeaderHalf {
+    width: 45%;
+}
+
+.groupEditorAvatarWrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+.groupPosHeaderWrapper {
+    margin-right: 50px;
+}
+
+.groupPosWrapper {
+    margin-top: 30px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.groupEditorAddRemoveButtons {
+    display: flex;
+    justify-content: space-around;
+}
 
 @-webkit-keyframes pop-in {
     0% { opacity: 0; -webkit-transform: scale(0.5); }

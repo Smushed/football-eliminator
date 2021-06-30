@@ -22,12 +22,12 @@ import GroupEditor from './GroupEditor';
 const Alert = withReactContent(Swal);
 
 const userFields = { username: ``, email: ``, password: ``, avatar: `` };
-const groupFields = { groupName: ``, avatar: `` };
+const groupFields = { groupName: ``, avatar: ``, groupDesc: `` };
 
 const Profile = ({ authUser, currentUser, firebase, match }) => {
 
-    const [modalOpen, updateModal] = useState(true); //Change back to false
-    const [modalState, updateModalState] = useState(`group`); //Change back to reAuth
+    const [modalOpen, updateModal] = useState(false);
+    const [modalState, updateModalState] = useState(`reAuth`);
     const [updatedFields, changeUpdatedFields] = useState({ ...userFields, ...groupFields });
     const [avatar, updateAvatar] = useState(``);
     const [tempAvatar, updateTempAvatar] = useState(``);
@@ -102,7 +102,6 @@ const Profile = ({ authUser, currentUser, firebase, match }) => {
 
     const handleSubmit = () => {
         if (match.params.type === `user`) {
-
             if (updatedFields.email !== ``) {
                 let checkEmail = updatedFields.email.match(/^(([^<>()\]\\.,;:\s@']+(\.[^<>()\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
                 if (!checkEmail) {
@@ -210,6 +209,7 @@ const Profile = ({ authUser, currentUser, firebase, match }) => {
                         modalOpen={modalOpen}
                         groupPositions={groupPositions}
                         updateGroupPositions={updateGroupPositions}
+                        changeUpdatedFields={changeUpdatedFields}
                     />
                     :
                     <FourOFour />
@@ -241,8 +241,15 @@ const Profile = ({ authUser, currentUser, firebase, match }) => {
                         />
                         :
                         <GroupEditor
+                            updateGroupInfo={updateGroupInfo}
                             groupInfo={groupInfo}
-                            groupPositions={groupPositions} />
+                            groupPositions={groupPositions}
+                            updateGroupPositions={updateGroupPositions}
+                            updatedFields={updatedFields}
+                            changeUpdatedFields={changeUpdatedFields}
+                            updateAvatar={updateAvatar}
+                            openCloseModal={openCloseModal}
+                        />
                 }
             </Modal>
         </Fragment>

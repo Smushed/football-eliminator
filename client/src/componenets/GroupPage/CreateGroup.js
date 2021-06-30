@@ -172,7 +172,7 @@ class CreateGroup extends Component {
 
     addPosition = () => {
         const groupPositions = this.state.groupPosChose.slice(0);
-        if (groupPositions.length <= 12) {
+        if (groupPositions.length < 12) {
             groupPositions.push('QB');
             this.setState({ groupPosChose: groupPositions },
                 () => this.convertForDB(groupPositions));
