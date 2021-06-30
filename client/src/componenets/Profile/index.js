@@ -24,7 +24,7 @@ const Alert = withReactContent(Swal);
 const userFields = { username: ``, email: ``, password: ``, avatar: `` };
 const groupFields = { groupName: ``, avatar: ``, groupDesc: `` };
 
-const Profile = ({ authUser, currentUser, firebase, match }) => {
+const Profile = ({ authUser, currentUser, firebase, match, history }) => {
 
     const [modalOpen, updateModal] = useState(false);
     const [modalState, updateModalState] = useState(`reAuth`);
@@ -146,6 +146,10 @@ const Profile = ({ authUser, currentUser, firebase, match }) => {
         });
     };
 
+    const changeGroup = (newGroup) => {
+        history.push(`/profile/group/${newGroup}`);
+    };
+
     const checkIfSaveNeeded =
         match.params.type === `user` ?
             updatedFields.avatar !== `` ||
@@ -153,8 +157,7 @@ const Profile = ({ authUser, currentUser, firebase, match }) => {
             updatedFields.password !== `` ||
             updatedFields.username !== ``
             :
-            updatedFields.groupName !== `` ||
-            updatedFields.avatar !== ``;
+            false;
 
     const checkIfReAuthNeeded =
         match.params.type === `user` ?
@@ -249,6 +252,7 @@ const Profile = ({ authUser, currentUser, firebase, match }) => {
                             changeUpdatedFields={changeUpdatedFields}
                             updateAvatar={updateAvatar}
                             openCloseModal={openCloseModal}
+                            changeGroup={changeGroup}
                         />
                 }
             </Modal>
@@ -260,7 +264,8 @@ Profile.propTypes = {
     authUser: PropTypes.any,
     currentUser: PropTypes.object,
     firebase: PropTypes.any,
-    match: PropTypes.any
+    match: PropTypes.any,
+    history: PropTypes.any
 };
 
 

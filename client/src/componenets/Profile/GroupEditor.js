@@ -16,7 +16,8 @@ const GroupEditor = ({
     changeUpdatedFields,
     updateGroupInfo,
     updateAvatar,
-    openCloseModal
+    openCloseModal,
+    changeGroup
 }) => {
     const [rosterPositions, updateRosterPositions] = useState([]);
     const [positionMap, updatePositionMap] = useState([]);
@@ -214,16 +215,22 @@ const GroupEditor = ({
         }
         axios.put(`/api/group`, { data, id: groupInfo._id })
             .then(res => {
+                if (updatedFields.groupName !== ``) {
+                    changeGroup(updatedFields.groupName);
+                    openCloseModal();
+                    return;
+                }
                 axios.get(`/api/group/profile?name=${groupInfo.N}&avatar=true&positions=true`)
                     .then(res => {
                         updateGroupInfo(res.data.group);
                         updateGroupPositions(res.data.positions);
                         updateAvatar(res.data.avatar);
-                        // openCloseModal();
+                        openCloseModal();
                     });
-            }).catch(() =>
+            }).catch(err => {
+                console.log(err)
                 addToast('Error occured while saving', { appearance: 'warning', autoDismiss: true })
-            );
+            });
     };
 
     const scoreBuckets = Object.keys(groupScore);
@@ -324,7 +331,8 @@ GroupEditor.propTypes = {
     changeUpdatedFields: PropTypes.func,
     updateGroupInfo: PropTypes.func,
     updateAvatar: PropTypes.func,
-    openCloseModal: PropTypes.func
+    openCloseModal: PropTypes.func,
+    changeGroup: PropTypes.func
 }
 
 export default GroupEditor;
