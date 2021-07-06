@@ -1,7 +1,7 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { withAuthorization } from '../Session';
-import { Collapse } from 'react-collapse';
+import { Link } from 'react-router-dom';
 
 import { RosterDisplay } from '../Roster';
 import './homeStyle.css';
@@ -12,15 +12,13 @@ import RosterCarousel from './RosterCarousel';
 const Home = ({ season, group, week, currentUser }) => {
 
     const [leaderboard, updateLeaderboard] = useState([]);
-    const [roster, updateRoster] = useState([]);
     const [idealRoster, updateIdealRoster] = useState([]);
     const [bestRoster, updateBestRoster] = useState([]);
     const [bestRosterUser, updateBestRosterUser] = useState(``);
+    const [leaderAvatar, updateLeaderAvatar] = useState(``);
     const [leaderRoster, updateLeaderRoster] = useState([]);
     const [weeklyGroupRosters, updateWeeklyGroupRosters] = useState([]);
     const [groupPositions, updateGroupPositions] = useState([]);
-    const [groupRostersOpen, updateGroupRostersOpen] = useState(true);
-    const [secondRowOpen, updateSecondRowOpen] = useState(true);
 
     useEffect(() => {
         if (week !== 0 && season !== ``) {
@@ -42,6 +40,7 @@ const Home = ({ season, group, week, currentUser }) => {
         axios.get(`/api/group/leaderboard/${season}/${week}/${groupId}`)
             .then(res => {
                 updateLeaderboard(res.data.leaderboard);
+                getLeaderAvatar(res.data.leaderboard[0].UID);
                 return;
             });
     };
@@ -49,7 +48,6 @@ const Home = ({ season, group, week, currentUser }) => {
     const getRoster = (season, week, groupname, username) => {
         axios.get(`/api/userRoster/${season}/${week}/${groupname}/${username}`)
             .then(res => {
-                updateRoster(res.data.userRoster);
                 updateGroupPositions(res.data.groupPositions)
                 return;
             });
@@ -79,74 +77,95 @@ const Home = ({ season, group, week, currentUser }) => {
             });
     };
 
+    const getLeaderAvatar = (leaderId) => {
+        axios.get(`/api/avatar/${leaderId}`)
+            .then(res => {
+                updateLeaderAvatar(res.data);
+            });
+    };
+
     const weekForLeaderboard = week === 0 ? 1 : week;
     return (
-        <Fragment>
-            <div className='wrapper'>
+        <div className='wrapper'>
+            <div className='homeSectionWrapper'>
+                <div className='userAvatarWrapper'>
+                    <div className='leaderName'>
+                        <div className='leaderTitle'>Current Leader</div>
+                        {leaderboard.length > 0 &&
+                            leaderboard[0].UN
+                        }
+                    </div>
+                    <img className='userAvatar' src={leaderAvatar} />
+                </div>
+                <div className='wrapperBorder'></div>
                 <Leaderboard
                     week={weekForLeaderboard}
                     season={season}
                     leaderboard={leaderboard}
                     groupName={group.N}
                 />
-                <div className='userRosterHomePage'>
-                    <div className='rosterHomePageTitle'>
-                        Your Week {weekForLeaderboard} Roster
-                    </div>
-                    {roster.length > 0 &&
-                        <RosterDisplay
-                            groupPositions={groupPositions}
-                            roster={roster}
-                            pastLockWeek={true} //This sets it so the score will show
-                        />
-                    }
-                </div>
             </div>
-            <div className='rosterGroupHeaderWrapper'>
-                <div className='rosterGroupHeader'>
-                    Top Rosters
-                    <button className='collapseButton btn btn-outline-info' onClick={() => updateSecondRowOpen(!secondRowOpen)}>
-                        Collapse
-                    </button>
-                </div>
-            </div>
-            <RosterCarousel
-                rowOpen={secondRowOpen}
-                week={weekForLeaderboard}
-                bestRosterUser={bestRosterUser}
-                bestRoster={bestRoster}
-                groupPositions={groupPositions}
-                idealRoster={idealRoster}
-                leaderboard={leaderboard}
-                leaderRoster={leaderRoster}
-            />
-            <div className='rosterGroupHeaderWrapper'>
-                <div className='rosterGroupHeader'>
-                    {group.N} Group Rosters
-                    <button className='collapseButton btn btn-outline-info' onClick={() => updateGroupRostersOpen(!groupRostersOpen)}>
-                        Collapse
-                    </button>
-                </div>
-            </div>
-            <Collapse isOpened={groupRostersOpen}>
-                <div className='rosterRowWrapper'>
-                    {weeklyGroupRosters.map(inGroupRoster =>
-                        <div className='bottomMargin' key={inGroupRoster.UN}>
-                            <div className='userRosterHomePage'>
-                                <div className='rosterHomePageTitle'>
-                                    {inGroupRoster.UN} Roster
-                                </div>
-                                <RosterDisplay
-                                    groupPositions={groupPositions}
-                                    roster={inGroupRoster.R}
-                                    pastLockWeek={true}
-                                />
+            <div className='homeSectionWrapper'>
+                <div>
+                    <div className='largeScreenShow flexOn'>
+                        <div className='rosterWrapper'>
+                            <div className='rosterHomePageTitle'>
+                                Last Week&apos;s Ideal
                             </div>
+                            <RosterDisplay
+                                groupPositions={groupPositions}
+                                roster={idealRoster}
+                                pastLockWeek={true}
+                            />
                         </div>
-                    )}
+                        <div className='rosterWrapper'>
+                            <div className='rosterHomePageTitle'>
+                                Best from Week {week - 1} - {bestRosterUser}
+                            </div>
+                            <RosterDisplay
+                                groupPositions={groupPositions}
+                                roster={bestRoster}
+                                pastLockWeek={true}
+                            />
+                        </div>
+                    </div>
+                    <div className='smallScreenShow'>
+                        <RosterCarousel
+                            week={weekForLeaderboard}
+                            bestRosterUser={bestRosterUser}
+                            bestRoster={bestRoster}
+                            groupPositions={groupPositions}
+                            idealRoster={idealRoster}
+                            leaderboard={leaderboard}
+                            leaderRoster={leaderRoster}
+                        />
+                    </div>
                 </div>
-            </Collapse>
-        </Fragment>
+            </div>
+            <div className='homeSectionWrapper'>
+                <div>
+                    <div className='rosterGroupHeader'>
+                        {group.N} Week {week} Rosters
+                    </div>
+                    <div className='rosterRowWrapper'>
+                        {weeklyGroupRosters.map(inGroupRoster =>
+                            <div className='bottomMargin rosterWrapper' key={inGroupRoster.UN}>
+                                <div>
+                                    <div className='rosterHomePageTitle'>
+                                        <Link to={`/roster/${group.N}/${inGroupRoster.UN}`}>{inGroupRoster.UN}</Link> Roster
+                                    </div>
+                                    <RosterDisplay
+                                        groupPositions={groupPositions}
+                                        roster={inGroupRoster.R}
+                                        pastLockWeek={true}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 };
 

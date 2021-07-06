@@ -8,101 +8,17 @@
     height: 80px;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
     border-bottom: 1px solid lightgrey;
     margin-bottom: 10px;
 }
 
-.halfWay {
-    width: 50%;
-    align-items: center;
+.navBarLogo {
+    height: 80px;
+    position: absolute;
+    margin-left: 50%;
+    transform: translateX(-50%);
 }
 
-.leftHalf {
-    justify-content: flex-start;
-}
-
-.rightHalf {
-    justify-content: flex-end;
-}
-
-.navHomeIcon {
-    height: 70px;
-    width: 93px;
-}
-
-
-
-.floatLeft {
-    float: left;
-}
-
-.floatRight {
-    float: right;
-}
-
-.navButton {
-    min-width: 150px;
-    margin-left: 5%;
-    transform: translateY(50%);
-}
-
-.notifications {
-    margin-right: 5%;
-}
-
-.verifyEmailDiv {
-    text-align: center;
-    font-weight: 600;
-}
-
-.sentEmail {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.navBarDropdownMenu {
-    margin-left: 20px;
-    display: flex;
-    flex-direction: column;
-    top: 28px;
-    right: 0;
-    padding: 2px 8px;
-    background-color: #ffffff;
-    border-radius: 3px;
-    cursor: pointer;
-}
-   
-.navBarDropdownItem {
-    display: flex;
-    z-index: 100;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    width: 200px;
-    padding: 6px 26px;
-    font-size: 14px;
-    color: #333537;
-    background-color: rgb(245, 245, 245);
-    border-radius: 3px;
-}
-
-.navBarDropdownItem:hover {
-    background-color: #b4b4b4;
-}
-
-.navDropdownLink {
-    font-size: 18px;;
-    font-weight: 600;
-}
-
-.smallViewLinks {
-    display: none;
-}
-.largeViewLinks {
-    display: block;
-} 
 
 @media only screen and (max-width: 900px) {
     .smallViewLinks {
