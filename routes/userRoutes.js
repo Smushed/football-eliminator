@@ -15,7 +15,7 @@ module.exports = app => {
         if (pass !== process.env.DB_ADMIN_PASS) {
             res.status(401).send(`Get Outta Here!`);
             return;
-        };
+        }
         const response = await userHandler.updateToAdmin(userId);
 
         res.status(200).send(response);
@@ -84,7 +84,7 @@ module.exports = app => {
         if (pass !== process.env.DB_ADMIN_PASS) {
             res.status(401).send(`Get Outta Here!`);
             return;
-        };
+        }
         console.log(`deleting`)
         userHandler.purgeDB();
         res.status(200).send(`success`);
@@ -95,7 +95,7 @@ module.exports = app => {
         if (pass !== process.env.DB_ADMIN_PASS) {
             res.status(401).send(`Get Outta Here!`);
             return;
-        };
+        }
         const updated = await userHandler.updateSeasonWeek(season, currentWeek, lockWeek);
 
         res.status(200).send(updated);

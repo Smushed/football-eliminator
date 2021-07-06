@@ -341,12 +341,12 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
         <div>
             <div className='centerText headerFont usernameRow'>
                 {usernameOfPage}&apos;s Roster
-                </div>
+            </div>
             <div className='rosterPageContainer'>
                 <div className='leftSearchRow'>
                     <div className='searchRow'>
                         Change Week
-                            <WeekSearch
+                        <WeekSearch
                             weekSelect={weekSelect}
                             handleChange={handleChange}
                             customSeasonWeekSearch={customSeasonWeekSearch}
@@ -354,7 +354,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                     </div>
                     <div className='searchRow largeScreenShow'>
                         Position Search
-                            <PositionSearch
+                        <PositionSearch
                             positionSelect={positionSelect}
                             handleChange={handleChange}
                             positionSearch={positionSearch}
@@ -438,7 +438,7 @@ const CurrentRosterRow = ({ evenOrOddRow, player, position, showSingleMatchUp, a
                             addDropPlayer &&
                             <button className='addDropButton custom-button' onClick={() => addDropPlayer(player.M, 'drop')}>
                                 Drop
-                    </button>
+                            </button>
                         }
                     </div>
                     : ``

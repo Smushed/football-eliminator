@@ -1,7 +1,30 @@
 .wrapper {
+    margin: auto;
+    width: 60%;
+}
+
+.homeSectionWrapper {
     display: flex;
-    margin-top: 50px;
-    margin-left: 10%;
+    justify-content: space-evenly;
+    margin-top: 10px;
+    border: 1px solid lightgray;
+    min-height: 300px;
+    border-radius: 2px;
+    overflow: auto;
+}
+
+.wrapperBorder {
+    height: 100%;
+    background-color: lightgray;
+    width: 2px;
+    margin-top: auto;
+    margin-bottom: auto;
+    min-height: 275px;
+}
+
+.userAvatarWrapper {
+    margin-top: auto;
+    margin-bottom: auto;
 }
  
 .rosterRowWrapper {
@@ -12,6 +35,11 @@
     margin-left: 0;
 }
 
+.rosterWrapper {
+    width: 525px;
+    margin: auto;
+}
+
 .ReactCollapse--collapse {
     transition: height 500ms;
 }
@@ -20,23 +48,15 @@
     opacity: 0;
 }
 
-.rosterGroupHeaderWrapper {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-}
-
 .rosterGroupHeader {
-    width: 30%;
-    margin-top: 30px;
+    width: 80%;
+    display: flex;
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
+    margin-top: 15px;
     font-size: 26px;
-    font-weight: 600;
-    border-radius: 15px;
-    padding-top: 4px;
-    padding-bottom: 5px;
-    border: 2px solid lightgray;
-    text-align: center;
-    height: 50px;
+    border-bottom: 1px solid lightgray;
 }
 
 .bottomMargin {
@@ -110,6 +130,10 @@
     text-align: center;
 }
 
+.rosterHomePageTitle>a {
+    color: #000;
+}
+
 .variousRosterContainers {
     flex-grow: 3;
 }
@@ -117,6 +141,27 @@
 .collapseButton {
     margin-left: 15px;
     margin-top: -9px;
+}
+
+.leaderName {
+    font-size: 26px;
+    font-weight: 600;
+}
+
+.leaderTitle {
+    font-size: 22px;
+}
+
+.smallScreenShow {
+    display: none;
+}
+
+.largeScreenShow {
+    display: block;
+}
+
+.flexOn {
+    display: flex;
 }
 
 /* FOR SMARTPHONES */
@@ -128,5 +173,11 @@
         margin-top: 10px;
         margin-left: 0;
         width: 100%;
+    }
+    .smallScreenShow {
+        display: block;
+    }
+    .largeScreenShow  {
+        display: none;
     }
 }

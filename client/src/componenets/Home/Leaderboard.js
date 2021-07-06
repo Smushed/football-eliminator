@@ -34,16 +34,16 @@ const Leaderboard = ({ groupName, week, leaderboard }) => (
             {leaderboard &&
                 leaderboard.map((user, i) => (
                     <div className={i % 2 ? 'leaderboardRow' : 'leaderboardRow oddRow'} key={user.UN}>
-                        <div className='firstCol'>
+                        <div className='firstCol wordOverflow'>
                             {user.UN}
                         </div>
-                        <div className='secondCol'>
+                        <div className='secondCol wordOverflow'>
                             {user.LW.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
                         </div>
-                        <div className='thirdCol'>
+                        <div className='thirdCol wordOverflow'>
                             {user.CW.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
                         </div>
-                        <div className='fourthCol'>
+                        <div className='fourthCol wordOverflow'>
                             {user.TS.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
                         </div>
                     </div>
