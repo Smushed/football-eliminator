@@ -70,3 +70,15 @@
     padding-bottom: 8px;
     min-width: 40px;
 }
+
+@media only screen and (max-width: 767px) {
+    .playerRow {
+        width: 100%;
+    }
+}
+
+@media only screen and (max-width: 450px) {
+    .teamCol {
+        display: none;
+    }
+}

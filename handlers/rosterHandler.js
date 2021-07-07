@@ -13,22 +13,22 @@ const checkDuplicateRoster = async (checkedField, userId, groupId, season, week)
                 searched = await db.UserRoster.findOne({ U: userId, W: week, G: groupId, S: season }).exec();
                 if (searched !== null) {
                     return true;
-                };
+                }
             } catch (err) {
                 console.log(err);
-            };
+            }
             break;
         case `usedPlayers`:
             try {
                 searched = await db.UsedPlayers.findOne({ U: userId, S: season, G: groupId }).exec();
                 if (searched !== null) {
                     return true;
-                };
+                }
             } catch (err) {
                 console.log(err);
-            };
+            }
             break;
-    };
+    }
     return result;
 };
 
@@ -54,8 +54,7 @@ const getUsedPlayers = async (userId, season, groupId) => {
         return createdUsedPlayers.UP;
     } else {
         return currentUser.UP;
-    };
-
+    }
 };
 
 const createUsedPlayers = (userId, season, groupId) => {
@@ -64,7 +63,7 @@ const createUsedPlayers = (userId, season, groupId) => {
         let newRecord;
         if (!isDupe) {
             newRecord = await db.UsedPlayers.create({ U: userId, S: season, G: groupId });
-        };
+        }
         res(newRecord);
     })
 };
@@ -84,19 +83,31 @@ const getAllRostersByGroupAndWeek = async (season, week, groupId) => {
         const userRosters = await db.UserRoster.find({ S: season, W: week, G: groupId }).exec();
         const completeRosters = userRosters.slice(0);
         if (group.UL.length !== userRosters.length) {
-            for (user of group.UL) {
+            for (let user of group.UL) {
                 let isIncluded = false;
-                for (userRoster of userRosters) {
+                for (let userRoster of userRosters) {
                     if (userRoster.U.toString() === user.ID.toString()) {
                         isIncluded = true;
-                    };
-                };
+                    }
+                }
                 if (!isIncluded) {
                     completeRosters.push(await createWeeklyRoster(user.ID, week, season, groupId));
-                };
-            };
-        };
+                }
+            }
+        }
         res(completeRosters);
+    });
+};
+
+const sortUsersByScore = async (userRosterArray, groupId) => {
+    return new Promise(async res => {
+        const sortedScores = [];
+        for (let user of userRosterArray) {
+            const userScore = await db.UserScores.findOne({ U: user.UID, G: groupId }, 'TS').exec();
+            sortedScores.push({ UID: user.UID, UN: user.UN, R: user.R, TS: userScore.TS });
+        }
+        sortedScores.sort((a, b) => b.TS - a.TS);
+        res(sortedScores);
     });
 };
 
@@ -112,11 +123,11 @@ module.exports = {
             db.UserRoster.findOne({ U: userId, G: groupId, W: week, S: season }, async (err, userRoster) => {
                 if (userRoster === null) {
                     userRoster = await db.UserRoster.create({ U: userId, G: groupId, W: week, S: season });
-                };
+                }
                 await db.UsedPlayers.findOne({ U: userId, S: season, G: groupId }, async (err, usedPlayers) => {
                     if (usedPlayers === null) {
                         usedPlayers = createUsedPlayers(userId, season, groupId);
-                    };
+                    }
                     //Create a set of players currently in the week. We want to pull them out of the UsedPlayer Array when we update them
                     const rosterArray = Object.values(userRoster.R);
                     const currentRoster = new Set(rosterArray.filter(playerId => playerId !== 0));
@@ -130,14 +141,14 @@ module.exports = {
                     for (const player of dummyRosterArray) {
                         if (parseInt(player) !== 0) {
                             updatedUsedPlayers.push(player);
-                        };
-                    };
+                        }
+                    }
 
                     usedPlayers.UP = updatedUsedPlayers;
                     usedPlayers.save((err, result) => {
                         if (err) {
                             console.log(err);
-                        };
+                        }
                     });
                 });
                 userRoster.R = dummyRoster;
@@ -146,7 +157,7 @@ module.exports = {
                         console.log(err);
                     } else {
                         res(result);
-                    };
+                    }
                 });
             });
         });
@@ -155,7 +166,7 @@ module.exports = {
         //Goes through the roster of players and pulls in their full data to then display
         currentRoster = currentRoster.roster.toObject();
 
-        rosterArray = Object.values(currentRoster);
+        const rosterArray = Object.values(currentRoster);
 
         const responseRoster = [];
         for (const player of rosterArray) {
@@ -163,8 +174,8 @@ module.exports = {
                 //Go through the object that was given to us
                 const response = await db.PlayerStats.findOne({ M: player }, { M: 1, N: 1, P: 1, R: 1, T: 1 }).exec();
                 responseRoster.push(response);
-            };
-        };
+            }
+        }
 
         //We also return the array so the drag & drop component can populate this without having to pull it again
         return responseRoster;
@@ -188,8 +199,8 @@ module.exports = {
             for (const playerId of usedPlayers.UP) {
                 if (playerId !== +droppedPlayer) {
                     newUsedPlayers.push(playerId);
-                };
-            };
+                }
+            }
             newUsedPlayers.push(addedPlayer);
             usedPlayers.UP = newUsedPlayers;
             await usedPlayers.save();
@@ -198,7 +209,7 @@ module.exports = {
             const newRoster = [];
             for (const player of roster) {
                 newRoster.push({ M: +player.M, S: 0 } || 0);
-            };
+            }
             currentRoster.R = newRoster;
             await currentRoster.save();
             res(currentRoster.R);
@@ -206,14 +217,15 @@ module.exports = {
     },
     getAllRostersForGroup: async (season, week, groupId) => {
         return new Promise(async (res, rej) => {
-            const forDisplay = [];
+            const userRosters = [];
             const allRosters = await getAllRostersByGroupAndWeek(season, week, groupId);
             for (const roster of allRosters) {
                 const filledRoster = await mySportsHandler.fillUserRoster(roster.R);
                 const user = await userHandler.getUserByID(roster.U);
-                forDisplay.push({ UID: user._id, UN: user.UN, R: filledRoster });
-            };
-            res(forDisplay);
+                userRosters.push({ UID: user._id, UN: user.UN, R: filledRoster });
+            }
+            const sortedUsers = await sortUsersByScore(userRosters, groupId);
+            res(sortedUsers);
         });
     },
     pullGroupRostersForScoring: async (season, week, groupId) => {
@@ -227,10 +239,10 @@ module.exports = {
 
         const usedPlayers = await getUsedPlayers(userId, season, groupId);
 
-        for (playerId of usedPlayers) {
+        for (let playerId of usedPlayers) {
             const player = await db.PlayerData.findOne({ M: playerId }, { N: 1, P: 1, T: 1, M: 1 });
             sortedPlayers[player.P].push(player);
-        };
+        }
 
         return sortedPlayers;
     },
@@ -266,9 +278,9 @@ module.exports = {
                 newPlayer.score = playerScore.toFixed(2);
 
                 parsedWeeklyRoster.push(newPlayer);
-            };
+            }
             scoredAllSeason[i] = parsedWeeklyRoster;
-        };
+        }
 
         return scoredAllSeason;
     },
@@ -280,15 +292,15 @@ module.exports = {
             for (let ii = 0; ii < userList[i].groupList.length; ii++) {
                 createUsedPlayers(userList[i], season, userList[i].groupList[ii]);
                 this.createSeasonRoster(userList[i]._id, season, userList[i].groupList[ii])
-            };
-        };
+            }
+        }
     },
     getUserRoster: async (userId, week, season, groupId) => {
         //This grabs the user roster, and if not it creates one.
         let roster = await db.UserRoster.findOne({ U: userId, W: week, S: season, G: groupId }, { R: 1 });
         if (roster === null) {
             roster = await createWeeklyRoster(userId, week, season, groupId);
-        };
+        }
         return roster.R;
     },
     checkLockPeriod: async () => {

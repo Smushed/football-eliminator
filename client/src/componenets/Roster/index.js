@@ -106,7 +106,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
     };
 
     const tooManyPlayers = async (currentRoster, allowedMap, addedPlayer) => {
-        console.log(`tooManyPlayers`, currentRoster, allowedMap, addedPlayer)
+        window.scrollTo(0, 0)
         const possibleDrops = [];
         for (let i = 0; i < allowedMap.length; i++) { //Allowed Map is an array of bool which will map to the rosters to be able to pick players
             if (allowedMap[i]) {
@@ -166,7 +166,6 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
         axios.put(`/api/updateUserRoster`,
             { userId: userId, roster, droppedPlayer, addedPlayer, week: weekSelect, season: season, groupname: match.params.groupname })
             .then(res => {
-                console.log(res.data)
                 doneLoading();
                 updateUserRoster(res.data);
                 return;
@@ -177,7 +176,6 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
 
     const checkLockPeriod = async () => {
         const response = await axios.get(`/api/checkLockPeriod`);
-        console.log(response.data)
         updateLockWeekOnPull(response.data.LW);
         if (response.data.LW === 0) {
             return true;
@@ -352,7 +350,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                             customSeasonWeekSearch={customSeasonWeekSearch}
                             disabled={mustDrop} />
                     </div>
-                    <div className='searchRow largeScreenShow'>
+                    <div className='searchRow'>
                         Position Search
                         <PositionSearch
                             positionSelect={positionSelect}
@@ -360,10 +358,10 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                             positionSearch={positionSearch}
                             disabled={mustDrop} />
                     </div>
-                    <div className='searchRow largeScreenShow noMargin'>
+                    <div className='searchRow noMargin oneFlexLine smallerSearchHeight'>
                         <button className='btn btn-success' disabled={mustDrop} onClick={() => toggleShowUsedPlayers()}>Show Used Players</button>
                     </div>
-                    <div className='searchRow largeScreenShow'>
+                    <div className='searchRow smallerSearchHeight'>
                         <button className='btn btn-success' onClick={() => showMatchUps()}>Match Ups</button>
                     </div>
                 </div>
@@ -516,7 +514,10 @@ PlayerDisplayRow.propTypes = {
         PropTypes.bool,
         PropTypes.func
     ]),
-    addDropPlayer: PropTypes.func
+    addDropPlayer: PropTypes.oneOfType([
+        PropTypes.bool,
+        PropTypes.func
+    ])
 };
 
 RosterDisplay.propTypes = {

@@ -10,7 +10,6 @@
     border: 1px solid lightgray;
     min-height: 300px;
     border-radius: 2px;
-    overflow: auto;
 }
 
 .wrapperBorder {
@@ -156,12 +155,41 @@
     display: none;
 }
 
+.medScreenShow {
+    display: none;
+}
+
 .largeScreenShow {
     display: block;
 }
 
 .flexOn {
     display: flex;
+}
+
+.carouselWrapper {
+    width: 750px;
+}
+
+/* MEDIUM SCREENS */
+@media only screen and (max-width: 1650px) {
+    .medScreenShow {
+        display: block;
+    }
+    .smallScreenShow {
+        display: none;
+    }
+    .largeScreenShow {
+        display: none;
+    }
+}
+
+@media only screen and (max-width: 1525px) {
+    .wrapper {
+        margin: 0;
+        width: 100%;
+    }
+    
 }
 
 /* FOR SMARTPHONES */
@@ -179,5 +207,18 @@
     }
     .largeScreenShow  {
         display: none;
+    }
+    .carouselWrapper {
+        width: 100%;
+    }
+    .homeSectionWrapper {
+        display: block;
+        width: 100%;
+    }
+    .wrapperBorder {
+        display: none;
+    }
+    .rosterWrapper {
+        width: 100%;
     }
 }
