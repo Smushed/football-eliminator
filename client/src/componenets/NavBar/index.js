@@ -4,13 +4,19 @@ import { Link } from 'react-router-dom';
 
 import * as Routes from '../../constants/routes';
 import './navBarStyle.css';
-import ElimLogo from '../../constants/elimLogos/ElimLogoText.png'
+import ElimLogo from '../../constants/elimLogos/ElimLogoText.png';
+import SmallElimLogo from '../../constants/elimLogos/SmallElimLogoText.png';
 
 const NavBar = ({ showHideSideBar }) =>
     <>
         <Link to={Routes.home}>
             <div className='navBarLogo'>
                 <img className='' src={ElimLogo} />
+            </div>
+        </Link>
+        <Link to={Routes.home}>
+            <div className='smallNavBarLogo'>
+                <img className='' src={SmallElimLogo} />
             </div>
         </Link>
         <div className='navHeader' >
