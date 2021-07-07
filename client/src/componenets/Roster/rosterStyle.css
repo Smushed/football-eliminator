@@ -148,8 +148,26 @@
     display: block;
 }
 
+/* MEDIUM SIZE */
+@media only screen and (max-width: 1100px) {
+    .rosterPageContainer {
+        display: block;
+    }
+    .leftSearchRow {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .searchRow {
+        margin-top: 0;
+    }
+}
+
 /* FOR SMARTPHONES */
 @media only screen and (max-width: 767px) {
+    .leftSearchRow {
+        margin-left: 0;
+    }
     .smallSearchContainer {
         display: block
     }
@@ -159,15 +177,32 @@
     .searchRow {
         text-align: center;
         margin-top: 0;
+        height: 75px;
+    }
+    .smallerSearchHeight {
+        height: 50px;
     }
     .rosterCol {
         width: 100%;
         margin-top: 15px;
+        min-width: 0;
     }
     .rosterContainer {
         display: block;
     }
-    .teamCol {
-        display: none;
+    .selectContainer {
+        flex-wrap: wrap;
+    }
+    .oneFlexLine {
+        flex-basis: 100%;
+    }
+    .usedPlayerCol {
+        margin-top: 15px;
+    }
+    .rosterPageContainer {
+        width: 100%;
+    }
+    .adjustRosterSpacing {
+        margin: 0;
     }
 }

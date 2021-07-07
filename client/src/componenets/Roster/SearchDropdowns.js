@@ -28,13 +28,13 @@ const WeekSearch = ({ weekSelect, handleChange, customSeasonWeekSearch, disabled
         </div>
         <button className='btn btn-success submitButton' onClick={customSeasonWeekSearch} disabled={disabled} >
             Search
-    </button>
+        </button>
     </div>
 );
 
 const TeamSearch = ({ teamSelect, handleChange, searchByTeam }) => (
     <div className='selectContainer'>
-        <div className='inputContainer inputLength'>
+        <div className='inputLength'>
             <select value={teamSelect} type='select' name='teamSelect' className='form-select searchDropdown' onChange={handleChange}>
                 <option>ARI</option>
                 <option>ATL</option>
@@ -89,7 +89,7 @@ const PositionSearch = ({ positionSelect, handleChange, disabled, positionSearch
         </div>
         <button className='btn btn-success submitButton' onClick={positionSearch} disabled={disabled}>
             Search
-    </button>
+        </button>
     </div>
 );
 
