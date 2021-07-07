@@ -134,7 +134,7 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
             },
             body: JSON.stringify({ image: avatar })
         })
-            .then(res => addToast('Avatar Saved', { appearance: 'success', autoDismiss: true }))
+            .then(() => addToast('Avatar Saved', { appearance: 'success', autoDismiss: true }))
     };
 
     const notAnImage = () => {
@@ -180,7 +180,7 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
                 }
                 {checkIfReAuthNeeded &&
                     <div className='relogNotify'>
-                        Data Changed. Relogin Required
+                        Sensitive Data Updated<br />Relogin Required
                     </div>
                 }
             </div>

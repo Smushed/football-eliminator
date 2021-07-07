@@ -48,7 +48,7 @@ module.exports = app => {
         } else {
             //TODO Do something with this error
             res.status(400).send(`Bad URL. Try refreshing or going home and coming back if this persists`);
-        };
+        }
     });
 
     app.put(`/api/dummyRoster/`, async (req, res) => {
@@ -109,7 +109,7 @@ module.exports = app => {
         res.status(200).send({ rosterPositions, positionMap, maxOfPosition });
     });
 
-    app.get(`/api/getAllRostersForGroup/:season/:week/:groupId`, async (req, res) => {
+    app.get(`/api/roster/group/all/:season/:week/:groupId`, async (req, res) => {
         const { season, week, groupId } = req.params;
         const allRosters = await rosterHandler.getAllRostersForGroup(season, week, groupId);
         res.status(200).send(allRosters)

@@ -71,7 +71,7 @@ const Home = ({ season, group, week, currentUser }) => {
     };
 
     const getAllRostersForWeek = (season, week, groupId) => {
-        axios.get(`/api/getAllRostersForGroup/${season}/${week}/${groupId}`)
+        axios.get(`/api/roster/group/all/${season}/${week}/${groupId}`)
             .then(res => {
                 updateWeeklyGroupRosters(res.data);
             });

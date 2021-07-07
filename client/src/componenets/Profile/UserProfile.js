@@ -21,12 +21,10 @@ const UserProfile = ({
     modalOpen }) => {
 
     const [showPassword, updateShowPassword] = useState(`password`);
-    const [userOnPage, updateUserOnPage] = useState({});
 
     useEffect(() => {
         axios.get(`/api/user/name/${username}`)
             .then(res => {
-                updateUserOnPage(res.data.user);
                 updateAvatar(res.data.avatar);
             });
     }, [updateAvatar, username]);
@@ -77,16 +75,18 @@ const UserProfile = ({
                 <div className='editField'>
                     <div>
                         Joined Groups:
-                        </div>
+                    </div>
                     {currentUser.GL &&
                         currentUser.GL.map((group) =>
-                            <DisplayBox
-                                key={group._id}
-                                boxContent={group.N}
-                                type='group'
-                                buttonActive={true}
-                                inGroup={true}
-                            />)}
+                            <div key={group._id} className='smallScreenCenterBox'>
+                                <DisplayBox
+                                    boxContent={group.N}
+                                    type='group'
+                                    buttonActive={true}
+                                    inGroup={true}
+                                />
+                            </div>
+                        )}
                 </div>
             </div>
         </div>
