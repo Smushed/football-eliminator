@@ -20,44 +20,38 @@ const RosterCarousel = ({
         showThumbs={false}
     >
         <div>
-            <div>
-                <div className='rosterHomePageTitle'>
-                    Best from Week {week - 1} - {bestRosterUser}
-                </div>
+            <div className='rosterHomePageTitle'>
+                Best from Week {week - 1} - {bestRosterUser}
+            </div>
+            <RosterDisplay
+                groupPositions={groupPositions}
+                roster={bestRoster}
+                pastLockWeek={true}
+            />
+        </div>
+        <div>
+            <div className='rosterHomePageTitle'>
+                Last Week&apos;s Ideal
+            </div>
+            {idealRoster.length > 0 &&
                 <RosterDisplay
                     groupPositions={groupPositions}
-                    roster={bestRoster}
+                    roster={idealRoster}
                     pastLockWeek={true}
                 />
-            </div>
+            }
         </div>
-        <div >
-            <div>
-                <div className='rosterHomePageTitle'>
-                    Last Week&apos;s Ideal
-                </div>
-                {idealRoster.length > 0 &&
-                    <RosterDisplay
-                        groupPositions={groupPositions}
-                        roster={idealRoster}
-                        pastLockWeek={true}
-                    />
-                }
+        <div>
+            <div className='rosterHomePageTitle'>
+                Current Lead Week {week} {leaderboard[0] && leaderboard[0].UN}
             </div>
-        </div>
-        <div >
-            <div>
-                <div className='rosterHomePageTitle'>
-                    Current Lead Week {week} {leaderboard[0] && leaderboard[0].UN}
-                </div>
-                {leaderRoster.length > 0 &&
-                    <RosterDisplay
-                        groupPositions={groupPositions}
-                        roster={leaderRoster}
-                        pastLockWeek={true}
-                    />
-                }
-            </div>
+            {leaderRoster.length > 0 &&
+                <RosterDisplay
+                    groupPositions={groupPositions}
+                    roster={leaderRoster}
+                    pastLockWeek={true}
+                />
+            }
         </div>
     </Carousel>
 

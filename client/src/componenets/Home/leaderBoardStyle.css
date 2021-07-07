@@ -93,12 +93,22 @@
     .leaderboard {
         width: 100%;
     }
-
     .leaderboardTitle {
         font-size: 18px;
     }
-
     .headerText {
         font-size: 16px;
+    }
+    .secondCol {
+        display: none;
+    }
+    .thirdCol {
+        display: none;
+    }
+    .leaderboardTitle {
+        display: none;
+    }
+    .leaderboardContainter {
+        min-width: 100%;
     }
 }

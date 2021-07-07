@@ -167,5 +167,7 @@
     .rosterContainer {
         display: block;
     }
-    
+    .teamCol {
+        display: none;
+    }
 }

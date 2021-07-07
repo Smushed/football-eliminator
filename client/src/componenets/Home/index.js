@@ -129,7 +129,7 @@ const Home = ({ season, group, week, currentUser }) => {
                             />
                         </div>
                     </div>
-                    <div className='smallScreenShow'>
+                    <div className='medScreenShow carouselWrapper'>
                         <RosterCarousel
                             week={weekForLeaderboard}
                             bestRosterUser={bestRosterUser}
