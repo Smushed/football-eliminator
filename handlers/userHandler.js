@@ -12,21 +12,21 @@ const checkDuplicateUser = async (checkedField, checkField1, checkField2) => {
             searched = await db.User.findOne({ UN: checkField1 });
             if (searched !== null) {
                 result = true;
-            };
+            }
             break;
         case `email`:
             searched = await db.User.findOne({ E: checkField1 });
             if (searched !== null) {
                 result = true;
-            };
+            }
             break;
         case `group`:
             const dbUser = await db.User.findById(checkField1);
             const alreadyInGroup = await dbUser.GL.filter(groupId => groupId.toString() === checkField2.toString());
             if (alreadyInGroup.length > 0) {
                 result = true;
-            };
-    };
+            }
+    }
     return result;
 };
 
@@ -39,7 +39,7 @@ const fillOutUserForFrontEnd = async (user) => {
             D: groupData.D,
             _id: groupData._id
         });
-    };
+    }
     const filledUser = {
         UN: user.UN,
         _id: user._id,
@@ -65,10 +65,10 @@ module.exports = {
             if (dupeUser) {
                 return { status: 409, message: `Username is in use` };
             }
-            db.User.updateOne({ _id: userId }, { $set: { UN: request.UN } }, (err, data) => {
+            db.User.updateOne({ _id: userId }, { $set: { UN: request.UN } }, (err) => {
                 if (err) {
                     return err;
-                };
+                }
             });
         }
         if (request.E) {
@@ -76,27 +76,27 @@ module.exports = {
             if (dupeUser) {
                 return { status: 409, message: `Email is in use` }
             }
-            db.User.updateOne({ _id: userId }, { $set: { E: request.E } }, (err, data) => {
+            db.User.updateOne({ _id: userId }, { $set: { E: request.E } }, (err) => {
                 if (err) {
                     return err;
-                };
+                }
             });
         }
         return { status: 200, message: `Updated` }
     },
     updateToAdmin: async (userId) => {
         let dbResponse = ``;
-        await db.User.updateOne({ _id: userId }, { $set: { A: true } }, (err, data) => {
+        await db.User.updateOne({ _id: userId }, { $set: { A: true } }, (err) => {
             if (err) {
                 dbResponse = err;
             } else {
                 dbResponse = `${userId} is now an admin!`;
-            };
+            }
         });
         return dbResponse;
     },
     saveNewUser: async (newUser) => {
-        if (!checkDuplicateUser(`username`, newUser.UN) || !checkDuplicateUser(`email`, newUser.E)) { return false };
+        if (!checkDuplicateUser(`username`, newUser.UN) || !checkDuplicateUser(`email`, newUser.E)) { return false }
 
         const newUserInDB = await db.User.create(newUser);
 
@@ -170,7 +170,29 @@ module.exports = {
             } catch (e) {
                 console.log(e);
                 res(`failure, check logs!`);
-            };
+            }
+        })
+    },
+    updateCurrWeek: (currentWeek) => {
+        return new Promise(async (res, rej) => {
+            try {
+                await db.SeasonAndWeek.updateMany({}, { $set: { W: currentWeek } });
+                res(`success!`);
+            } catch (e) {
+                console.log(e);
+                res(`failure, check logs!`);
+            }
+        })
+    },
+    updateLockWeek: (lockWeek) => {
+        return new Promise(async (res, rej) => {
+            try {
+                await db.SeasonAndWeek.updateMany({}, { $set: { LW: lockWeek } });
+                res(`success!`);
+            } catch (e) {
+                console.log(e);
+                res(`failure, check logs!`);
+            }
         })
     },
     addGroupToList: async (userId, groupId) => {
