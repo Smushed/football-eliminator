@@ -35,6 +35,7 @@ require(`./routes/rosterRoutes`)(app);
 require(`./routes/mySportsRoutes`)(app);
 require(`./routes/groupRoutes`)(app);
 require(`./routes/userRoutes`)(app);
+require(`./handlers/cronHandler`);
 
 // Send every other request to the React app
 // Define any API routes before this runs
