@@ -47,8 +47,23 @@ const checkDuplicate = async (checkedField, groupToSearch, userID) => {
     return result;
 };
 
+const updateUserScore = async (groupId, season, prevWeek, week) => {
+    return new Promise(async (res) => {
+        const group = await db.Group.findById([groupId]).exec();
+        for (const user of group.UL) {
+            createUserScore(user.ID, season, groupId)
+        }
+        res(await db.UserScores.find({ G: groupId, S: season }, `U ${prevWeek} ${week} TS`).exec())
+    })
+}
+
 const getUserScoreList = async (groupId, season, prevWeek, week) => {
-    return await db.UserScores.find({ G: groupId, S: season }, `U ${prevWeek} ${week} TS`).exec();
+    const userScores = await db.UserScores.find({ G: groupId, S: season }, `U ${prevWeek} ${week} TS`).exec();
+    if (userScores.length === 0) {
+        return await updateUserScore(groupId, season, prevWeek, week);
+    } else {
+        return userScores;
+    }
 };
 
 const createGroupRoster = async (groupId, rosterSpots) => {

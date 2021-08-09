@@ -39,6 +39,7 @@ const Home = ({ season, group, week, currentUser }) => {
     const getLeaderBoard = (season, week, groupId) => {
         axios.get(`/api/group/leaderboard/${season}/${week}/${groupId}`)
             .then(res => {
+                console.log(res)
                 updateLeaderboard(res.data.leaderboard);
                 getLeaderAvatar(res.data.leaderboard[0].UID);
                 return;

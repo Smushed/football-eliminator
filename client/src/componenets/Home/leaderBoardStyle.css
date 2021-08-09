@@ -5,6 +5,7 @@
     max-height: 450px;
     margin-top: 10px;
     margin-bottom: 10px;
+    overflow-y: scroll;
 }
 
 .leaderboard {
