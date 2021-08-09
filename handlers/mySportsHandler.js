@@ -473,7 +473,7 @@ module.exports = {
         }
 
         console.log(`weekly data received, parsing`);
-
+        console.log(search)
         for (let i = 0; i < search.data.gamelogs.length; i++) {
             const position = search.data.gamelogs[i].player.position || search.data.gamelogs[i].player.primaryPosition;
 

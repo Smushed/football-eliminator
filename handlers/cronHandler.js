@@ -1,6 +1,7 @@
 const schedule = require('node-schedule');
 const dates = require('../constants/dates');
 const userHandler = require('../handlers/userHandler');
+const mySportsHandler = require('../handlers/mySportsHandler');
 
 // Schedule a job for thge 22nd minute of each hour
 // Doing this every hour rather than schedule it in case Heroku isn't working
@@ -10,7 +11,14 @@ schedule.scheduleJob('22 * * * *', async function () {
     const currDBWeeks = await userHandler.pullSeasonAndWeekFromDB();
 
     startWeek(currDate, currDBWeeks, 1);
-    lockWeek(currDate, currDBWeeks, 0)
+    lockWeek(currDate, currDBWeeks, 0);
+});
+
+// Update Scores every day at 11pm 
+schedule.scheduleJob('* 23 * * *', async function () {
+    const currDBWeeks = await userHandler.pullSeasonAndWeekFromDB();
+    mySportsHandler.getWeeklyData(currDBWeeks.season, currDBWeeks.week);
+
 });
 
 const startWeek = (currDate, currDBWeeks, currWeek) => {
@@ -23,7 +31,7 @@ const startWeek = (currDate, currDBWeeks, currWeek) => {
     if (currDBWeeks.week !== currWeek) {
         userHandler.updateCurrWeek(currWeek);
     }
-}
+};
 
 const lockWeek = (currDate, currDBWeeks, currWeek) => {
     for (let i = 17; i > 0; i--) {
@@ -35,4 +43,4 @@ const lockWeek = (currDate, currDBWeeks, currWeek) => {
     if (currDBWeeks.week !== currWeek) {
         userHandler.updateLockWeek(currWeek);
     }
-}
+};
