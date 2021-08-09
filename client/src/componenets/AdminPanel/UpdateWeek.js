@@ -17,7 +17,7 @@ class UpdateWeek extends Component {
             dbPass: ``,
             currentWeek: 1,
             lockWeek: 0,
-            season: `2020-2021-regular`
+            season: `2021-2022-regular`
         };
     }
 
@@ -113,7 +113,7 @@ class UpdateWeek extends Component {
                 <div>
                     <button className='btn btn-info' onClick={this.updateWeekSeason}>
                         Submit
-                </button>
+                    </button>
                 </div>
             </div>
         )
