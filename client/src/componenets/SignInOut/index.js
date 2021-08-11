@@ -10,8 +10,10 @@ import './signInOutStyle.css';
 import ElimLogo from '../../constants/elimLogos/ElimLogoText.png';
 import Stadium from '../../constants/elimLogos/stadium.jpg';
 
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
+import { EmailInput, PasswordInput } from '../Profile/ProfileInputs';
+
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 
 const Alert = withReactContent(Swal);
 
@@ -28,20 +30,39 @@ const SignInOut = () => {
         <div className='signInUpContainer'>
             <div className='loginFormContainer loginForms'>
                 <img className='signInOutLogo' src={ElimLogo} alt={`Home`} />
-                <SignInForm switchView={switchView} />
+                <div className='signInHeader'>
+                    {showSignIn ? 'Sign In' : 'Sign Up'}
+                </div>
+                {showSignIn ?
+                    <SignInForm switchView={switchView} />
+                    :
+                    <SignUpForm switchView={switchView} />
+                }
+                <SwitchSignInUp
+                    showSignIn={showSignIn}
+                    switchView={switchView}
+                />
             </div>
 
             <img src={Stadium} alt='Soldier Field' />
-            {/* <div className='logoContainer'>
-            </div>
-            {showSignIn ?
+            {/* {showSignIn ?
                 <SignInForm switchView={switchView} />
                 :
                 <SignUpForm switchView={switchView} />
-            } */}
+            }  */}
         </div>
     );
 }
+
+const SwitchSignInUp = ({ showSignIn, switchView }) =>
+    <div>
+        <div className='switchViewHeader'>
+            {showSignIn ? 'Need an account?' : 'Have an account?'}
+        </div>
+        <button className='btn switchViewBtn' onClick={() => switchView()}>
+            {showSignIn ? 'Sign Up' : 'Sign In'}
+        </button>
+    </div>
 
 const SignUpFormBase = ({ history, firebase, switchView }) => {
 
@@ -164,9 +185,6 @@ const SignUpFormBase = ({ history, firebase, switchView }) => {
             </div>
             <div className='signInUpWrapper' >
                 <form onSubmit={handleSubmit}>
-                    <div className='signInHeader'>
-                        Sign Up
-                    </div>
                     <div className='errorMessages'>
                         {error}
                         {validMessage.length > 0 && validMessage.map((message, i) => <div key={i}>{message}</div>)}
@@ -218,11 +236,12 @@ const SignUpFormBase = ({ history, firebase, switchView }) => {
     )
 }
 
-const SignInFormBase = ({ history, firebase, switchView }) => {
+const SignInFormBase = ({ history, firebase }) => {
 
-    const [email, updateEmail] = useState('');
-    const [password, updatePassword] = useState('');
-    const [error, updateError] = useState('');
+    const [email, updateEmail] = useState(``);
+    const [password, updatePassword] = useState(``);
+    const [showPassword, updateShowPassword] = useState(`password`);
+    const [error, updateError] = useState(``);
 
     const handleChange = e => {
         const { name, value } = e.target;
@@ -251,20 +270,24 @@ const SignInFormBase = ({ history, firebase, switchView }) => {
             .catch(error => {
                 console.log(error)
                 switch (error.code) {
-                    case 'auth/invalid-email':
-                        updateError('Invalid Email Format');
+                    case `auth/invalid-email`:
+                        updateError(`Invalid Email Format`);
                         break;
-                    case 'auth/user-not-found':
-                        updateError('Email Not Found');
+                    case `auth/user-not-found`:
+                        updateError(`Email Not Found`);
                         break;
-                    case 'auth/wrong-password':
-                        updateError('Wrong Email / Password');
+                    case `auth/wrong-password`:
+                        updateError(`Wrong Email / Password`);
                         break;
                     default:
-                        updateError('Error - Please Reload!');
+                        updateError(`Error - Please Reload!`);
                         break;
                 }
             });
+    };
+
+    const toggleShowPassword = () => {
+        showPassword === `password` ? updateShowPassword(`text`) : updateShowPassword(`password`);
     };
 
     const forgotPassword = async () => {
@@ -283,41 +306,30 @@ const SignInFormBase = ({ history, firebase, switchView }) => {
     };
 
     return (
-        <div className='formContainer'>
-            <div className='signInUpWrapper' >
-                <form onSubmit={handleSubmit}>
-                    <div className='signInHeader'>
-                        Sign In
-                    </div>
-                    <div className='errorMessages'>
-                        {error}
-                    </div>
-                    <div className='labelContainer'>
-                        <label className='signInOutLabel'>Email:</label>
-                    </div>
-                    <div className='inputContainer'>
-                        <input className='signInOutInput' name='email' type='text' placeholder='email' value={email} onChange={handleChange} />
-                    </div>
-                    <div className='labelContainer'>
-                        <label className='signInOutLabel'>Password:</label>
-                    </div>
-                    <div className='inputContainer'>
-                        <input className='signInOutInput' name='password' type='password' placeholder='password' value={password} onChange={handleChange} />
-                    </div>
-                    <div className='inputContainer buttonContainer'>
-                        <button className='signInUpBtn btn btn-success'>Sign In</button>
-                        <input type='button' className='forgotPassBtn btn btn-secondary' onClick={forgotPassword} value='Forgot Password?' />
-                    </div>
-                </form>
-            </div>
-            <div className='switchViewContainer'>
-                <div className='fullWidth'>
-                    Need an account?
+        <div className='signInFormContainer'>
+            <form onSubmit={handleSubmit}>
+
+                <div className='errorMessages'>
+                    {error}
                 </div>
-                <button className='btn btn-info switchView' onClick={() => switchView()}>
-                    Sign Up
-                </button>
-            </div>
+                <EmailInput
+                    authUser={false}
+                    handleChange={handleChange}
+                    email={email}
+                    modalOpen={false}
+                />
+                <PasswordInput
+                    handleChange={handleChange}
+                    toggleShowPassword={toggleShowPassword}
+                    password={password}
+                    showPassword={showPassword}
+                    modalOpen={false}
+                />
+                <div className='inputContainer signInButtonContainer'>
+                    <button className='signInUpBtn btn signInUpBtnColor'>Sign In</button>
+                    <input type='button' className='forgotPassBtn btn' onClick={forgotPassword} value='Forgot Password?' />
+                </div>
+            </form>
         </div>
     );
 }
@@ -326,14 +338,18 @@ SignInFormBase.propTypes = {
     firebase: PropTypes.any,
     history: PropTypes.any,
     switchView: PropTypes.func
-}
+};
 
 SignUpFormBase.propTypes = {
     firebase: PropTypes.any,
     history: PropTypes.any,
     switchView: PropTypes.func
-}
+};
 
+SwitchSignInUp.propTypes = {
+    switchView: PropTypes.func,
+    showSignIn: PropTypes.bool
+};
 
 const SignUpForm = compose(withRouter, withFirebase)(SignUpFormBase);
 const SignInForm = compose(withRouter, withFirebase)(SignInFormBase);

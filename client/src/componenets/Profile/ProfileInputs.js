@@ -10,7 +10,7 @@ const AvatarInput = ({ handleChange, fileInputRef }) =>
             <div>
                 <label htmlFor='avatarInput' className='customFileUploadButton' >
                     Upload Avatar
-            </label>
+                </label>
             </div>
             <input type='file' name='avatar' id='avatarInput' className='avatarInputButton' onChange={handleChange} ref={fileInputRef} />
         </div>
@@ -21,7 +21,7 @@ const UsernameInput = ({ handleChange, username, currentUser, modalOpen }) =>
         <div className='input-group input-group-lg'>
             <span className='input-group-text fieldDescription'>
                 Username:
-        </span>
+            </span>
             <input className='form-control' name='username' value={username} type='text' onChange={handleChange} placeholder={currentUser.username} />
         </div>
     </div>;
@@ -35,8 +35,8 @@ const PasswordInput = ({ handleChange, password, showPassword, modalOpen, toggle
             <input className='form-control' name='password' value={password} type={showPassword} onChange={handleChange} placeholder='Password' />
             <span className='input-group-text fieldDescription'>
                 <input className='largeCheckbox input-group-text fieldDescription' type='checkbox' value={showPassword} name='togglePassword' onChange={toggleShowPassword} />
-            &nbsp;Show
-        </span>
+                &nbsp;Show
+            </span>
         </div>
     </div>;
 

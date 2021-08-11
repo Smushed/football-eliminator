@@ -10,49 +10,51 @@
 }
 
 .loginFormContainer {
-    
+    text-align: center;
 }
-
 
 .loginForms {
     width: 45%;
-}
-
-.switchView {
-    height: 40px;
-}
-
-.formContainer {
-    display: flex;
-    justify-content: center;
-}
-
-.signInUpWrapper {
-    border: 1px solid lightgray;
-    border-radius: 15px;
-    width: 500px;
 }
 
 .signInHeader {
     font-size: 28px;
     font-weight: 600;
     text-align: center;
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-bottom: 5px;
+    box-shadow: 0 7px 5px -5px lightgray;
+}
+
+.signInFormContainer {
+    display: flex;
+    justify-content: center;
+}
+
+.switchViewHeader {
+    font-size: 18px;
+    margin-left: 20%;
+    margin-right: 20%;
+    margin-top: 30px;
+}
+
+.switchViewBtn {
+    background-color: rgb(0, 228, 205) !important;
+}
+
+.switchViewBtn:hover {
+    background-color: rgb(110, 226, 215) !important;
+    border: 1px solid grey;
 }
 
 .errorMessages {
     text-align: center;
 }
 
-.logoContainer {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    margin-top: 5%;
-}
-
 .signInOutLogo {
-    max-height: 200px;
-    max-width: 100%;
+    margin-top: 55px;
+    margin-bottom: 55px;
 }
 
 .switchView {
@@ -61,54 +63,33 @@
     margin-right: 100px;
 }
 
-.labelContainer {
-    text-align: center;
-}
-
-.inputContainer {
-    display: flex;
-    justify-content: center;
-}
-
-.signInOutInput {
-    width: 225px;
-}
-
-.signInOutLabel {
-    text-align: center;
-    margin-top: 15px;
-    font-size: 20px;
-    margin-bottom: 0;
-}
-
-.signInOutInput {
-    display: flex;
-    justify-content: center;
-}
-
-.buttonContainer {
+.signInButtonContainer {
     margin-top: 15px;
     margin-bottom: 15px;
 }
 
+.signInUpBtnColor {
+    background-color: rgb(0, 172, 0) !important;
+    color: white !important;
+}
+
+.signInUpBtnColor:hover {
+    background-color: rgb(0, 128, 0) !important;
+}
+
 .forgotPassBtn {
     margin-left: 20px;
+    background-color: whitesmoke !important;
+    border: 1px solid grey !important;
+}
+
+.forgotPassBtn:hover {
+    background-color: grey !important;
+    color: white !important;
 }
 
 .signInUpBtn {
     width: 150px;
-}
-
-.labelDescriptor {
-    text-align: center;
-    font-size: 13px;
-    margin-bottom: 2px;
-}
-
-.switchViewContainer {
-    margin-top: 15px;
-    font-size: 20px;
-    text-align: center;
 }
 
 .smallScreenSignIn {
