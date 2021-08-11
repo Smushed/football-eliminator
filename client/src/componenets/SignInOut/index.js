@@ -7,7 +7,8 @@ import axios from 'axios';
 import PropTypes from 'prop-types';
 
 import './signInOutStyle.css';
-import ElimLogo from './EliminatorSignInLogo.png';
+import ElimLogo from '../../constants/elimLogos/ElimLogoText.png';
+import Stadium from '../../constants/elimLogos/stadium.jpg';
 
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -25,14 +26,19 @@ const SignInOut = () => {
     return (
 
         <div className='signInUpContainer'>
-            <div className='logoContainer'>
+            <div className='loginFormContainer loginForms'>
                 <img className='signInOutLogo' src={ElimLogo} alt={`Home`} />
+                <SignInForm switchView={switchView} />
+            </div>
+
+            <img src={Stadium} alt='Soldier Field' />
+            {/* <div className='logoContainer'>
             </div>
             {showSignIn ?
                 <SignInForm switchView={switchView} />
                 :
                 <SignUpForm switchView={switchView} />
-            }
+            } */}
         </div>
     );
 }

@@ -1,5 +1,21 @@
 .signInUpContainer {
-    width: 100%;
+    height: 75vh;
+    width: 70%;
+    margin: 12vh 15%;
+    border-radius: 5px;
+    border: 1px solid lightgray;
+    box-shadow: 0 0 40px 15px rgb(189, 189, 189);
+    overflow: hidden;
+    display: flex;
+}
+
+.loginFormContainer {
+    
+}
+
+
+.loginForms {
+    width: 45%;
 }
 
 .switchView {
@@ -16,7 +32,6 @@
     border-radius: 15px;
     width: 500px;
 }
-
 
 .signInHeader {
     font-size: 28px;
