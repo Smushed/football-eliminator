@@ -27,7 +27,7 @@ const Home = ({ season, group, week, currentUser }) => {
                 getRoster(season, week, group.N, currentUser.username);
             }
         }
-    }, [week, season, currentUser.username, group])
+    }, [week, season, currentUser.username, group]);
 
     const getRostersForHome = (season, week, groupId) => {
         getLeaderBoard(season, week, groupId);
