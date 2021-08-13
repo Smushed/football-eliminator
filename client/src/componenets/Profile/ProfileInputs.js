@@ -33,9 +33,11 @@ const PasswordInput = ({ handleChange, password, showPassword, modalOpen, toggle
                 Password:
             </span>
             <input className='form-control' name='password' value={password} type={showPassword} onChange={handleChange} placeholder='Password' />
-            <span className='input-group-text fieldDescription'>
+            <span className='input-group-text fieldDescription inputCheckbox'>
                 <input className='largeCheckbox input-group-text fieldDescription' type='checkbox' value={showPassword} name='togglePassword' onChange={toggleShowPassword} />
-                &nbsp;Show
+                <div className='largeTogglePass'>
+                    &nbsp;Show
+                </div>
             </span>
         </div>
     </div>;
@@ -47,10 +49,13 @@ const ConfirmPasswordInput = ({ handleChange, password, showPassword, modalOpen,
                 Confirm:
             </span>
             <input className='form-control' name='confirmPassword' value={password} type={showPassword} onChange={handleChange} placeholder='Confirm Password' />
-            <span className='input-group-text fieldDescription'>
-                <input className='largeCheckbox input-group-text fieldDescription' type='checkbox' value={showPassword} name='togglePassword' onChange={toggleShowPassword} />
-                &nbsp;Show
+            <span className='input-group-text fieldDescription inputCheckbox'>
+                <input className='largeCheckbox input-group-text' type='checkbox' value={showPassword} name='togglePassword' onChange={toggleShowPassword} />
+                <div className='largeTogglePass'>
+                    &nbsp;Show
+                </div>
             </span>
+
         </div>
     </div>;
 

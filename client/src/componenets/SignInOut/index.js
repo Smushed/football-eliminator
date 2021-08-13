@@ -19,7 +19,7 @@ const Alert = withReactContent(Swal);
 
 const SignInOut = () => {
 
-    const [showSignIn, updateSignIn] = useState(false);
+    const [showSignIn, updateSignIn] = useState(true);
     const [showPassword, updateShowPassword] = useState(`password`);
 
     const switchView = () => {
@@ -58,7 +58,7 @@ const SignInOut = () => {
                 />
             </div>
 
-            <img src={Stadium} alt='Football Stadium' />
+            <img className='largeScreenImage' src={Stadium} alt='Football Stadium' />
         </div>
     );
 }
@@ -227,14 +227,6 @@ const SignUpFormBase = ({ history, firebase, switchView, showPassword, toggleSho
                         <button className='signInUpBtn btn signInUpBtnColor'>Sign Up</button>
                     </div>
                 </form>
-            </div>
-            <div className='switchViewContainer smallScreenSignIn'>
-                <div className='fullWidth'>
-                    Have an account?
-                </div>
-                <button className='btn btn-info switchView' onClick={() => switchView()}>
-                    Sign In
-                </button>
             </div>
         </div >
     )
