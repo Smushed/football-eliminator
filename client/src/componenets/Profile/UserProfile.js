@@ -47,7 +47,7 @@ const UserProfile = ({
                 <UsernameInput
                     handleChange={handleChange}
                     username={updatedFields.username}
-                    currentUser={currentUser}
+                    currentUser={currentUser.username}
                     modalOpen={modalOpen}
                 />
                 <PasswordInput
