@@ -16,13 +16,13 @@ const AvatarInput = ({ handleChange, fileInputRef }) =>
         </div>
     </div>
 
-const UsernameInput = ({ handleChange, username, currentUser, modalOpen }) =>
+const UsernameInput = ({ handleChange, username, currentUserName, modalOpen }) =>
     <div className={'editField' + (modalOpen ? ' lowerOpacity' : '')}>
         <div className='input-group input-group-lg'>
             <span className='input-group-text fieldDescription'>
                 Username:
             </span>
-            <input className='form-control' name='username' value={username} type='text' onChange={handleChange} placeholder={currentUser.username} />
+            <input className='form-control' name='username' value={username} type='text' onChange={handleChange} placeholder={currentUserName} />
         </div>
     </div>;
 
@@ -33,6 +33,20 @@ const PasswordInput = ({ handleChange, password, showPassword, modalOpen, toggle
                 Password:
             </span>
             <input className='form-control' name='password' value={password} type={showPassword} onChange={handleChange} placeholder='Password' />
+            <span className='input-group-text fieldDescription'>
+                <input className='largeCheckbox input-group-text fieldDescription' type='checkbox' value={showPassword} name='togglePassword' onChange={toggleShowPassword} />
+                &nbsp;Show
+            </span>
+        </div>
+    </div>;
+
+const ConfirmPasswordInput = ({ handleChange, password, showPassword, modalOpen, toggleShowPassword }) =>
+    <div className={'editField' + (modalOpen ? ' lowerOpacity' : '')}>
+        <div className='input-group input-group-lg'>
+            <span className='input-group-text fieldDescription'>
+                Confirm:
+            </span>
+            <input className='form-control' name='confirmPassword' value={password} type={showPassword} onChange={handleChange} placeholder='Confirm Password' />
             <span className='input-group-text fieldDescription'>
                 <input className='largeCheckbox input-group-text fieldDescription' type='checkbox' value={showPassword} name='togglePassword' onChange={toggleShowPassword} />
                 &nbsp;Show
@@ -59,7 +73,7 @@ AvatarInput.propTypes = {
 UsernameInput.propTypes = {
     handleChange: PropTypes.func,
     username: PropTypes.string,
-    currentUser: PropTypes.object,
+    currentUserName: PropTypes.string,
     modalOpen: PropTypes.bool
 };
 
@@ -68,7 +82,6 @@ EmailInput.propTypes = {
     handleChange: PropTypes.func,
     authUser: PropTypes.any,
     modalOpen: PropTypes.bool
-
 };
 
 PasswordInput.propTypes = {
@@ -79,4 +92,12 @@ PasswordInput.propTypes = {
     toggleShowPassword: PropTypes.func
 };
 
-export { AvatarInput, UsernameInput, EmailInput, PasswordInput };
+ConfirmPasswordInput.propTypes = {
+    handleChange: PropTypes.func,
+    password: PropTypes.string,
+    showPassword: PropTypes.string,
+    modalOpen: PropTypes.bool,
+    toggleShowPassword: PropTypes.func
+}
+
+export { AvatarInput, UsernameInput, EmailInput, PasswordInput, ConfirmPasswordInput };

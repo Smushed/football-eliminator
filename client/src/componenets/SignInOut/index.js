@@ -7,10 +7,10 @@ import axios from 'axios';
 import PropTypes from 'prop-types';
 
 import './signInOutStyle.css';
-import ElimLogo from '../../constants/elimLogos/ElimLogoText.png';
+import ElimLogo from '../../constants/elimLogos/LargeElimLogo.png';
 import Stadium from '../../constants/elimLogos/stadium.jpg';
 
-import { EmailInput, PasswordInput } from '../Profile/ProfileInputs';
+import { EmailInput, PasswordInput, UsernameInput, ConfirmPasswordInput } from '../Profile/ProfileInputs';
 
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
@@ -19,14 +19,19 @@ const Alert = withReactContent(Swal);
 
 const SignInOut = () => {
 
-    const [showSignIn, updateSignIn] = useState(true);
+    const [showSignIn, updateSignIn] = useState(false);
+    const [showPassword, updateShowPassword] = useState(`password`);
 
     const switchView = () => {
+        updateShowPassword(`password`);
         updateSignIn(!showSignIn);
     };
 
-    return (
+    const toggleShowPassword = () => {
+        showPassword === `password` ? updateShowPassword(`text`) : updateShowPassword(`password`);
+    };
 
+    return (
         <div className='signInUpContainer'>
             <div className='loginFormContainer loginForms'>
                 <img className='signInOutLogo' src={ElimLogo} alt={`Home`} />
@@ -34,22 +39,26 @@ const SignInOut = () => {
                     {showSignIn ? 'Sign In' : 'Sign Up'}
                 </div>
                 {showSignIn ?
-                    <SignInForm switchView={switchView} />
+                    <SignInForm
+                        switchView={switchView}
+                        showPassword={showPassword}
+                        toggleShowPassword={toggleShowPassword}
+                    />
                     :
-                    <SignUpForm switchView={switchView} />
+                    <SignUpForm
+                        switchView={switchView}
+                        showPassword={showPassword}
+                        toggleShowPassword={toggleShowPassword}
+                    />
                 }
                 <SwitchSignInUp
                     showSignIn={showSignIn}
+                    toggleShowPassword={toggleShowPassword}
                     switchView={switchView}
                 />
             </div>
 
-            <img src={Stadium} alt='Soldier Field' />
-            {/* {showSignIn ?
-                <SignInForm switchView={switchView} />
-                :
-                <SignUpForm switchView={switchView} />
-            }  */}
+            <img src={Stadium} alt='Football Stadium' />
         </div>
     );
 }
@@ -64,18 +73,21 @@ const SwitchSignInUp = ({ showSignIn, switchView }) =>
         </button>
     </div>
 
-const SignUpFormBase = ({ history, firebase, switchView }) => {
+const SignUpFormBase = ({ history, firebase, switchView, showPassword, toggleShowPassword }) => {
 
-    const [email, updateEmail] = useState('');
-    const [username, updateUsername] = useState('');
-    const [password, updatePassword] = useState('');
-    const [confirmPassword, updateConfirmPassword] = useState('');
-    const [error, updateError] = useState('');
+    const [email, updateEmail] = useState(``);
+    const [username, updateUsername] = useState(``);
+    const [password, updatePassword] = useState(``);
+    const [confirmPassword, updateConfirmPassword] = useState(``);
+    const [error, updateError] = useState(``);
 
     const [validMessage, updateValidMessage] = useState([]);
     const [emailValid, updateEmailValid] = useState(false);
     const [usernameValid, updateUsernameValid] = useState(false);
     const [passwordValid, updatePasswordValid] = useState(false);
+
+    const [showConfirmPass, updateShowConfirmPass] = useState(`password`);
+
 
     useEffect(() => {
         validateForm();
@@ -173,54 +185,46 @@ const SignUpFormBase = ({ history, firebase, switchView }) => {
         updateUsernameValid(usernameCheck);
     };
 
+    const toggleShowConfirmPassword = () => {
+        showConfirmPass === `password` ? updateShowConfirmPass(`text`) : updateShowConfirmPass(`password`);
+    };
+
     return (
-        <div className='formContainer'>
-            <div className='switchViewContainer largeScreenSignIn'>
-                <div className='fullWidth'>
-                    Have an account?
-                </div>
-                <button className='btn btn-info switchView' onClick={() => switchView()}>
-                    Sign In
-                </button>
-            </div>
-            <div className='signInUpWrapper' >
+        <div>
+            <div className='signInUpWrapper signInFormContainer' >
                 <form onSubmit={handleSubmit}>
                     <div className='errorMessages'>
                         {error}
                         {validMessage.length > 0 && validMessage.map((message, i) => <div key={i}>{message}</div>)}
                     </div>
-                    <div className='labelContainer'>
-                        <label className='signInOutLabel'>Email:</label>
-                    </div>
-                    <div className='inputContainer'>
-                        <input className='signInOutInput' name='email' type='text' placeholder='ex. janedoe@gmail.com' value={email} onChange={handleChange} />
-                    </div>
-                    <div className='labelContainer'>
-                        <label className='signInOutLabel'>Username:</label>
-                    </div>
-                    <div className='labelDescriptor'>
-                        (Between 3 & 16 characters, no special characters & no spaces)
-                    </div>
-                    <div className='inputContainer'>
-                        <input className='signInOutInput' name='username' type='text' placeholder='ex. JaneDoe14' value={username} onChange={handleChange} />
-                    </div>
-                    <div className='labelContainer'>
-                        <label className='signInOutLabel'>Password:</label>
-                    </div>
-                    <div className='labelDescriptor'>
-                        (Must be at least 6 characters with no spaces)
-                    </div>
-                    <div className='inputContainer'>
-                        <input className='signInOutInput' name='password' type='password' placeholder='Password' value={password} onChange={handleChange} />
-                    </div>
-                    <div className='labelContainer'>
-                        <label className='signInOutLabel'>Confirm Password:</label>
-                    </div>
-                    <div className='inputContainer'>
-                        <input className='signInOutInput' name='confirmPassword' type='password' placeholder='Confirm Password' value={confirmPassword} onChange={handleChange} />
-                    </div>
-                    <div className='inputContainer buttonContainer'>
-                        <button className='signInUpBtn btn btn-success'>Sign Up</button>
+                    <EmailInput
+                        authUser={false}
+                        handleChange={handleChange}
+                        email={email}
+                        modalOpen={false}
+                    />
+                    <UsernameInput
+                        handleChange={handleChange}
+                        username={username}
+                        currentUser={null}
+                        modalOpen={false}
+                    />
+                    <PasswordInput
+                        handleChange={handleChange}
+                        toggleShowPassword={toggleShowPassword}
+                        password={password}
+                        showPassword={showPassword}
+                        modalOpen={false}
+                    />
+                    <ConfirmPasswordInput
+                        handleChange={handleChange}
+                        toggleShowPassword={toggleShowConfirmPassword}
+                        password={confirmPassword}
+                        showPassword={showConfirmPass}
+                        modalOpen={false}
+                    />
+                    <div className='inputContainer signInButtonContainer'>
+                        <button className='signInUpBtn btn signInUpBtnColor'>Sign Up</button>
                     </div>
                 </form>
             </div>
@@ -236,11 +240,10 @@ const SignUpFormBase = ({ history, firebase, switchView }) => {
     )
 }
 
-const SignInFormBase = ({ history, firebase }) => {
+const SignInFormBase = ({ history, firebase, showPassword, toggleShowPassword }) => {
 
     const [email, updateEmail] = useState(``);
     const [password, updatePassword] = useState(``);
-    const [showPassword, updateShowPassword] = useState(`password`);
     const [error, updateError] = useState(``);
 
     const handleChange = e => {
@@ -284,10 +287,6 @@ const SignInFormBase = ({ history, firebase }) => {
                         break;
                 }
             });
-    };
-
-    const toggleShowPassword = () => {
-        showPassword === `password` ? updateShowPassword(`text`) : updateShowPassword(`password`);
     };
 
     const forgotPassword = async () => {
@@ -337,13 +336,17 @@ const SignInFormBase = ({ history, firebase }) => {
 SignInFormBase.propTypes = {
     firebase: PropTypes.any,
     history: PropTypes.any,
-    switchView: PropTypes.func
+    switchView: PropTypes.func,
+    showPassword: PropTypes.string,
+    toggleShowPassword: PropTypes.func
 };
 
 SignUpFormBase.propTypes = {
     firebase: PropTypes.any,
     history: PropTypes.any,
-    switchView: PropTypes.func
+    switchView: PropTypes.func,
+    showPassword: PropTypes.string,
+    toggleShowPassword: PropTypes.func
 };
 
 SwitchSignInUp.propTypes = {
