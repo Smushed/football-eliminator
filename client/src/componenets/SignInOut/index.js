@@ -282,17 +282,17 @@ const SignInFormBase = ({ history, firebase, showPassword, toggleShowPassword })
     };
 
     const forgotPassword = async () => {
-        const { value: email } = await Alert.fire({
+        const { value: modalEmail } = await Alert.fire({
             title: 'Input Email Address',
             input: 'email',
-            inputValue: this.state.email,
+            inputValue: email,
             inputPlaceholder: 'email@email.com'
         });
-        if (!email) {
+        if (!modalEmail) {
             return;
         } else {
-            firebase.doPasswordReset(email)
-                .then(() => Alert.fire(`Password reset email sent to ${email}`));
+            firebase.doPasswordReset(modalEmail)
+                .then(() => Alert.fire(`Password reset email sent to ${modalEmail}`));
         }
     };
 
