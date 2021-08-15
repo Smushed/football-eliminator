@@ -13,7 +13,7 @@ const Cors = require(`cors`);
 const mongoose = require(`mongoose`);
 
 app.use(Cors());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '5mb' }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 

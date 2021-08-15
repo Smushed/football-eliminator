@@ -117,8 +117,10 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
 
         if (checkIfReAuthNeeded) {
             updateModalState(`reAuth`);
+            changeUpdatedFields({ ...userFields, ...groupFields });
             openCloseModal();
         } else if (updatedFields.avatar) { //Do not require users to re sign in if they`re just updating their avatar
+            changeUpdatedFields({ ...userFields, ...groupFields });
             saveAvatarToAWS(avatar);
         }
     };
