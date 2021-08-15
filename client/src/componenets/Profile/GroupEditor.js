@@ -200,7 +200,6 @@ const GroupEditor = ({
 
     const updateGroup = () => {
         const data = {};
-        console.log(updatedFields)
         if (updatedFields.groupScore === `active`) {
             data.groupScore = groupScore;
         }
@@ -213,6 +212,10 @@ const GroupEditor = ({
         if (updatedFields.groupDesc !== ``) {
             data.groupDesc = updatedFields.groupDesc;
         }
+        if (updatedFields.avatar === `active`) {
+            data.groupAvatar = editAvatar;
+        }
+        console.log({ data })
         axios.put(`/api/group`, { data, id: groupInfo._id })
             .then(res => {
                 if (updatedFields.groupName !== ``) {

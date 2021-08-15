@@ -1,5 +1,6 @@
 const db = require(`../models`);
-const mySportsHandler = require('./mySportsHandler');
+const mySportsHandler = require(`./mySportsHandler`);
+const s3Handler = require(`./s3Handler`);
 const positions = require(`../constants/positions`);
 
 const checkDuplicate = async (checkedField, groupToSearch, userID) => {
@@ -147,6 +148,10 @@ const groupUpdater = {
         } catch {
             return `Group Position Error`
         }
+        return false;
+    },
+    groupAvatar: async (group, field) => {
+        s3Handler.uploadAvatar(group.id.toString(), field);
         return false;
     }
 }
