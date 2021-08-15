@@ -67,7 +67,7 @@ module.exports = {
         }
         return new Promise((res, rej) => {
             const getParams = {
-                Key: id
+                Key: id.toString()
             };
             s3.getObject(getParams, async (err, data) => {
                 if (err) {
