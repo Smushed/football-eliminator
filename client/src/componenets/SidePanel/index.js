@@ -17,7 +17,7 @@ import SignOutIcon from './SignOut.png';
 import ElimLogo from './ElimLogo.png';
 import './sidePanelStyle.css';
 
-const SidePanel = ({ firebase, user, groupname, showHideSideBar, showSideBar, hardSetSideBar }) => {
+const SidePanel = ({ firebase, user, currentGroup, showHideSideBar, showSideBar, hardSetSideBar, changeGroup }) => {
 
     useEffect(() => {
     }, [showSideBar]);
@@ -25,6 +25,10 @@ const SidePanel = ({ firebase, user, groupname, showHideSideBar, showSideBar, ha
     const signUserOut = () => {
         firebase.doSignOut();
         hardSetSideBar(false);
+    };
+
+    const groupSelect = (e) => {
+        changeGroup(e.target.value);
     };
 
     const username = user.username;
@@ -42,7 +46,7 @@ const SidePanel = ({ firebase, user, groupname, showHideSideBar, showSideBar, ha
                     </div>
                 </div>
             </Link>
-            <Link to={`/roster/${groupname}/${username}`} onClick={() => showHideSideBar()}>
+            <Link to={`/roster/${currentGroup.N}/${username}`} onClick={() => showHideSideBar()}>
                 <div className='sidebarItemWrapper'>
                     <img className='sidebarSVG' src={ListSVG} alt='Roster Logo' />
                     <div className='sideBarItem'>
@@ -50,7 +54,7 @@ const SidePanel = ({ firebase, user, groupname, showHideSideBar, showSideBar, ha
                     </div>
                 </div>
             </Link>
-            <Link to={`/usedPlayers/${groupname}/${username}`} onClick={() => showHideSideBar()}>
+            <Link to={`/usedPlayers/${currentGroup.N}/${username}`} onClick={() => showHideSideBar()}>
                 <div className='sidebarItemWrapper'>
                     <img className='sidebarSVG' src={PlayerSVG} alt='Used Players Logo' />
                     <div className='sideBarItem'>
@@ -75,8 +79,8 @@ const SidePanel = ({ firebase, user, groupname, showHideSideBar, showSideBar, ha
                 </div>
             </Link>
             {/* user.MG.toString() === group._id.toString() */}
-            <select className='form-select'>
-                {user.GL && user.GL.map(group => <option key={group._id} defaultValue>{group.N}</option>)}
+            <select className='form-select' value={currentGroup._id} onChange={groupSelect}>
+                {user.GL && user.GL.map(group => <option key={group._id} value={group._id}>{group.N}</option>)}
             </select>
             {/* TODO EMAIL VERIFICATION */}
             {/* {authUser && !authUser.emailVerified && (
@@ -98,10 +102,11 @@ const SidePanel = ({ firebase, user, groupname, showHideSideBar, showSideBar, ha
 SidePanel.propTypes = {
     firebase: PropTypes.any,
     user: PropTypes.object,
-    groupname: PropTypes.string,
+    currentGroup: PropTypes.object,
     showHideSideBar: PropTypes.func,
     showSideBar: PropTypes.bool,
-    hardSetSideBar: PropTypes.func
+    hardSetSideBar: PropTypes.func,
+    changeGroup: PropTypes.func
 }
 
 

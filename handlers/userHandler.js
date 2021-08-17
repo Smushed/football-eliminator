@@ -1,7 +1,6 @@
 const db = require(`../models`);
 
 const groupHandler = require(`./groupHandler`);
-const s3Handler = require(`./s3Handler`);
 
 const checkDuplicateUser = async (checkedField, checkField1, checkField2) => {
     let result = false;
@@ -122,7 +121,7 @@ module.exports = {
             case `email`:
                 userArray = await db.User.find({ 'local.email': query });
                 break;
-        };
+        }
 
         const userArrayToShow = userArray.map(user => {
             const dataToShow = {
@@ -218,7 +217,7 @@ module.exports = {
                 UN: userData.UN,
                 _id: userData._id
             });
-        };
+        }
         return filledUserList;
     }
 };

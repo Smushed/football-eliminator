@@ -54,7 +54,7 @@ const App = ({ firebase }) => {
     setCurrentUser(dbResponse.data);
 
     if (userHasGroup(dbResponse.data)) {
-      getGroupAndPositions(dbResponse.data);
+      initGroup(dbResponse.data);
     } else {
       updateNoGroup(true);
     }
@@ -69,19 +69,25 @@ const App = ({ firebase }) => {
       MG: user.MG || null
     };
     updateCurrentUser(currentUser);
-  }
+  };
 
-  const getGroupAndPositions = async (user) => {
+  const initGroup = async (user) => {
     updateNoGroup(false);
     if (user.MG) {
       const res = await axios.get(`/api/group/details/${user.MG}`);
       updateCurrentGroup({ N: res.data.N, _id: user.MG });
     } else {
       axios.put(`/api/group/main/${user.GL[0]._id}/${user._id}`);
+      updateCurrentUser({ ...currentUser, MG: user.GL[0]._id });
       updateCurrentGroup({ N: user.GL[0].N, _id: user.GL[0]._id });
     }
     getSeasonAndWeek();
   };
+
+  const changeGroup = async (groupId) => {
+    const res = await axios.get(`/api/group/details/${groupId}`);
+    updateCurrentGroup({ N: res.data.N, _id: res.data._id });
+  }
 
   const getSeasonAndWeek = async () => {
     const seasonAndWeek = await axios.get(`/api/currentSeasonAndWeek`);
@@ -107,10 +113,11 @@ const App = ({ firebase }) => {
         <SidePanel
           showSideBar={showSideBar}
           noGroup={noGroup}
-          groupname={currentGroup.N}
+          currentGroup={currentGroup}
           user={currentUser}
           showHideSideBar={showHideSideBar}
           hardSetSideBar={hardSetSideBar}
+          changeGroup={changeGroup}
         />
         {authUser &&
           <NavBar

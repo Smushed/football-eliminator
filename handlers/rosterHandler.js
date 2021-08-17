@@ -69,7 +69,7 @@ const createUsedPlayers = (userId, season, groupId) => {
 };
 
 const checkDupeWeeklyRoster = async (userId, week, season, groupId) => {
-    const search = db.UserRoster({ U: userId, W: week, S: season, G: groupId });
+    const search = await db.UserRoster.findOne({ U: userId, W: week, S: season, G: groupId }).exec();
     if (search !== null) {
         return true;
     } else {
@@ -80,8 +80,7 @@ const checkDupeWeeklyRoster = async (userId, week, season, groupId) => {
 const createWeeklyRoster = async function (userId, week, season, groupId) {
     const groupRoster = await db.GroupRoster.findOne({ G: groupId });
     //The roster on the UserRoster Schema is an array of MySportsPlayerIDs
-
-    const dupe = await this.checkDupeWeeklyRoster(userId, week, season, groupId);
+    const dupe = await checkDupeWeeklyRoster(userId, week, season, groupId);
     if (dupe) { return false }
 
     const userRoster = groupRoster.P.map(position => ({ M: 0, S: 0 }));
