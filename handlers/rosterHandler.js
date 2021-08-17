@@ -104,6 +104,7 @@ const sortUsersByScore = async (userRosterArray, groupId) => {
         const sortedScores = [];
         for (let user of userRosterArray) {
             const userScore = await db.UserScores.findOne({ U: user.UID, G: groupId }, 'TS').exec();
+            if (!userScore) { continue; }
             sortedScores.push({ UID: user.UID, UN: user.UN, R: user.R, TS: userScore.TS });
         }
         sortedScores.sort((a, b) => b.TS - a.TS);

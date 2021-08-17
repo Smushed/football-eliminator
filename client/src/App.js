@@ -49,9 +49,9 @@ const App = ({ firebase }) => {
   }, [firebase]);
 
   const isSignedIn = async (email) => {
-    const dbResponse = await axios.get(`/api/getUser/${email}`);
+    const dbResponse = await axios.get(`/api/user/email/${email}`);
 
-    setCurrentUser(dbResponse.data)
+    setCurrentUser(dbResponse.data);
 
     if (userHasGroup(dbResponse.data)) {
       getGroupAndPositions(dbResponse.data);
@@ -65,15 +65,23 @@ const App = ({ firebase }) => {
       username: user.UN,
       userId: user._id,
       isAdmin: user.A,
-      GL: user.GL
+      GL: user.GL,
+      MG: user.MG || null
     };
     updateCurrentUser(currentUser);
   }
 
   const getGroupAndPositions = async (user) => {
     updateNoGroup(false);
-    updateCurrentGroup({ N: user.GL[0].N, _id: user.GL[0]._id });
-
+    if (user.MG) {
+      const res = await axios.get(`/api/group/details/${user.MG}`);
+      console.log({ res })
+      updateCurrentGroup({ N: res.data.N, _id: user.MG });
+    } else {
+      axios.put(`/api/group/main/${user.GL[0]._id}/${user._id}`);
+      updateCurrentGroup({ N: user.GL[0].N, _id: user.GL[0]._id });
+    }
+    console.log(currentGroup)
     getSeasonAndWeek();
   };
 

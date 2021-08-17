@@ -33,7 +33,7 @@ module.exports = app => {
         res.json(newUserInDB);
     });
 
-    app.get(`/api/getUser/:email`, async (req, res) => {
+    app.get(`/api/user/email/:email`, async (req, res) => {
         const { email } = req.params;
         const foundUser = await userHandler.getUserByEmail(email);
         res.status(200).send(foundUser);

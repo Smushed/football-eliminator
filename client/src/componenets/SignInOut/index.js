@@ -40,13 +40,11 @@ const SignInOut = () => {
                 </div>
                 {showSignIn ?
                     <SignInForm
-                        switchView={switchView}
                         showPassword={showPassword}
                         toggleShowPassword={toggleShowPassword}
                     />
                     :
                     <SignUpForm
-                        switchView={switchView}
                         showPassword={showPassword}
                         toggleShowPassword={toggleShowPassword}
                     />
@@ -73,7 +71,7 @@ const SwitchSignInUp = ({ showSignIn, switchView }) =>
         </button>
     </div>
 
-const SignUpFormBase = ({ history, firebase, switchView, showPassword, toggleShowPassword }) => {
+const SignUpFormBase = ({ history, firebase, showPassword, toggleShowPassword }) => {
 
     const [email, updateEmail] = useState(``);
     const [username, updateUsername] = useState(``);
@@ -328,7 +326,6 @@ const SignInFormBase = ({ history, firebase, showPassword, toggleShowPassword })
 SignInFormBase.propTypes = {
     firebase: PropTypes.any,
     history: PropTypes.any,
-    switchView: PropTypes.func,
     showPassword: PropTypes.string,
     toggleShowPassword: PropTypes.func
 };
@@ -336,7 +333,6 @@ SignInFormBase.propTypes = {
 SignUpFormBase.propTypes = {
     firebase: PropTypes.any,
     history: PropTypes.any,
-    switchView: PropTypes.func,
     showPassword: PropTypes.string,
     toggleShowPassword: PropTypes.func
 };

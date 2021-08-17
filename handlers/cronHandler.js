@@ -4,7 +4,7 @@ const userHandler = require('../handlers/userHandler');
 const mySportsHandler = require('../handlers/mySportsHandler');
 
 // Schedule a job for thge 22nd minute of each hour
-// Doing this every hour rather than schedule it in case Heroku isn't working
+// Doing this every hour rather than daily in case Heroku isn't working
 schedule.scheduleJob('22 * * * *', async function () {
     //Need to update which week we're currently in
     const currDate = new Date();
@@ -15,10 +15,9 @@ schedule.scheduleJob('22 * * * *', async function () {
 });
 
 // Update Scores every day at 11pm 
-schedule.scheduleJob('* 2 * * *', async function () {
+schedule.scheduleJob('* 21 * * *', async function () {
     const currDBWeeks = await userHandler.pullSeasonAndWeekFromDB();
     mySportsHandler.getWeeklyData(currDBWeeks.season, currDBWeeks.week);
-
 });
 
 const startWeek = (currDate, currDBWeeks, currWeek) => {

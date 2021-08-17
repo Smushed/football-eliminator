@@ -385,5 +385,13 @@ module.exports = {
             }
         }
         return errors;
+    },
+    updateMainGroup: async function (groupId, userId) {
+        try {
+            await db.User.updateOne({ _id: userId }, { $set: { MG: groupId } });
+        } catch (err) {
+            console.log(err);
+        }
+        return 200;
     }
 };
