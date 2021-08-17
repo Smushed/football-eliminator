@@ -6,6 +6,7 @@ import { withFirebase } from '../Firebase';
 import { withAuthorization } from '../Session';
 import { useToasts } from 'react-toast-notifications';
 
+import axios from 'axios';
 import Jimp from 'jimp';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
@@ -21,7 +22,7 @@ import GroupEditor from './GroupEditor';
 
 const Alert = withReactContent(Swal);
 
-const userFields = { username: ``, email: ``, password: ``, avatar: `` };
+const userFields = { username: ``, email: ``, password: ``, avatar: ``, mainGroup: `` };
 const groupFields = { groupName: ``, avatar: ``, groupDesc: `` };
 
 const Profile = ({ authUser, currentUser, firebase, match, history }) => {
@@ -42,14 +43,14 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
 
     useEffect(() => {
         if (match.params.type === `user`) {
-            changeUpdatedFields({ ...userFields });
+            changeUpdatedFields({ ...userFields, mainGroup: currentUser.MG });
         } else if (match.params.type === `group`) {
             changeUpdatedFields({ ...groupFields });
         }
         return function cleanup() {
             updateAvatar(``);
         }
-    }, [match.params.type]);
+    }, [match.params.type, currentUser]);
 
     // const sendAuthEmail = (authUser) => {
     //     authUser.sendEmailVerification();
@@ -117,11 +118,15 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
 
         if (checkIfReAuthNeeded) {
             updateModalState(`reAuth`);
-            changeUpdatedFields({ ...userFields, ...groupFields });
             openCloseModal();
-        } else if (updatedFields.avatar) { //Do not require users to re sign in if they`re just updating their avatar
-            changeUpdatedFields({ ...userFields, ...groupFields });
-            saveAvatarToAWS(avatar);
+        } else {
+            if (updatedFields.avatar !== ``) {
+                saveAvatarToAWS(avatar);
+            }
+            if (updatedFields.mainGroup !== currentUser.MG) {
+                axios.put(`/api/group/main/${updatedFields.mainGroup}/${currentUser.userId}`);
+            }
+            window.location.reload(false);
         }
     };
 
@@ -157,7 +162,8 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
             updatedFields.avatar !== `` ||
             updatedFields.email !== `` ||
             updatedFields.password !== `` ||
-            updatedFields.username !== ``
+            updatedFields.username !== `` ||
+            updatedFields.mainGroup !== currentUser.MG
             :
             false;
 

@@ -46,7 +46,6 @@ const Home = ({ season, group, week, currentUser }) => {
     };
 
     const getRoster = (season, week, groupname, username) => {
-        console.log({ season, week, groupname, username })
         axios.get(`/api/userRoster/${season}/${week}/${groupname}/${username}`)
             .then(res => {
                 updateGroupPositions(res.data.groupPositions)
@@ -88,7 +87,6 @@ const Home = ({ season, group, week, currentUser }) => {
     const weekForLeaderboard = week === 0 ? 1 : week;
     return (
         <div className='wrapper'>
-            {console.log(group)}
             <div className='homeSectionWrapper'>
                 <div className='userAvatarWrapper'>
                     <div className='leaderName'>

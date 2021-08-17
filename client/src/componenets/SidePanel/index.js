@@ -78,10 +78,13 @@ const SidePanel = ({ firebase, user, currentGroup, showHideSideBar, showSideBar,
                     </div>
                 </div>
             </Link>
-            {/* user.MG.toString() === group._id.toString() */}
-            <select className='form-select' value={currentGroup._id} onChange={groupSelect}>
-                {user.GL && user.GL.map(group => <option key={group._id} value={group._id}>{group.N}</option>)}
-            </select>
+            {user.GL &&
+                user.GL.length !== 1 &&
+                <select className='form-select groupDropdown' value={currentGroup._id} onChange={groupSelect}>
+                    {user.GL && user.GL.map(group => <option key={group._id} value={group._id}>{group.N}</option>)}
+                </select>
+            }
+
             {/* TODO EMAIL VERIFICATION */}
             {/* {authUser && !authUser.emailVerified && (
                 this.state.emailSent ?

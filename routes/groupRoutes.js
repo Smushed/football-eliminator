@@ -49,7 +49,6 @@ module.exports = app => {
 
     app.put(`/api/group/main/:groupId/:userId`, async (req, res) => {
         const { groupId, userId } = req.params;
-        console.log({ groupId, userId });
         await groupHandler.updateMainGroup(groupId, userId);
         res.sendStatus(200);
     });

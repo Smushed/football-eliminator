@@ -63,6 +63,9 @@ const UserProfile = ({
                     email={updatedFields.email}
                     modalOpen={modalOpen}
                 />
+                <select className='form-select groupDropdown' name='mainGroup' value={updatedFields.mainGroup} onChange={handleChange}>
+                    {currentUser.GL && currentUser.GL.map(group => <option key={group._id} value={group._id}>{group.N}</option>)}
+                </select>
                 <AvatarInput
                     handleChange={handleChange}
                     fileInputRef={fileInputRef}
