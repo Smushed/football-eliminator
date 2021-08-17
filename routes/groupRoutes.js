@@ -78,6 +78,7 @@ module.exports = app => {
     app.post(`/api/createGroup`, async (req, res) => {
         const { userId, newGroupScore, groupName, groupDesc, groupPositions } = req.body;
         const groupResponse = await groupHandler.createGroup(userId, newGroupScore, groupName, groupDesc, groupPositions);
+        if (groupResponse === false) { res.sendStatus(400); return; }
         const addUserResponse = await groupHandler.addUser(userId, groupResponse._id, true);
         res.status(200).send(addUserResponse);
     });

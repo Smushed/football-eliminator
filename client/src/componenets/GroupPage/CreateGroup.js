@@ -49,6 +49,7 @@ class CreateGroup extends Component {
                 }
             }
         }
+        //TODO If 400 Error then the group's name is duplicated
         axios.post(`/api/createGroup`,
             {
                 userId: this.props.userId,
@@ -259,7 +260,7 @@ class CreateGroup extends Component {
                         <div className='form-group createGroupFormContainer'>
                             <button type='button' className='btn btn-primary' onClick={() => this.openScore()} disabled={!groupValid}>
                                 Enter Scores
-                        </button>
+                            </button>
                         </div>
                     </div>
                     {this.state.showScore &&

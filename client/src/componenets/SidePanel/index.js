@@ -17,7 +17,7 @@ import SignOutIcon from './SignOut.png';
 import ElimLogo from './ElimLogo.png';
 import './sidePanelStyle.css';
 
-const SidePanel = ({ firebase, username, groupname, showHideSideBar, showSideBar, hardSetSideBar }) => {
+const SidePanel = ({ firebase, user, groupname, showHideSideBar, showSideBar, hardSetSideBar }) => {
 
     useEffect(() => {
     }, [showSideBar]);
@@ -26,6 +26,8 @@ const SidePanel = ({ firebase, username, groupname, showHideSideBar, showSideBar
         firebase.doSignOut();
         hardSetSideBar(false);
     };
+
+    const username = user.username;
 
     return (
         <Menu onClose={() => hardSetSideBar(false)} className='sideBarHeight' isOpen={showSideBar} disableAutoFocus>
@@ -72,6 +74,10 @@ const SidePanel = ({ firebase, username, groupname, showHideSideBar, showSideBar
                     </div>
                 </div>
             </Link>
+            {/* user.MG.toString() === group._id.toString() */}
+            <select className='form-select'>
+                {user.GL && user.GL.map(group => <option key={group._id} defaultValue>{group.N}</option>)}
+            </select>
             {/* TODO EMAIL VERIFICATION */}
             {/* {authUser && !authUser.emailVerified && (
                 this.state.emailSent ?
@@ -91,7 +97,7 @@ const SidePanel = ({ firebase, username, groupname, showHideSideBar, showSideBar
 
 SidePanel.propTypes = {
     firebase: PropTypes.any,
-    username: PropTypes.string,
+    user: PropTypes.object,
     groupname: PropTypes.string,
     showHideSideBar: PropTypes.func,
     showSideBar: PropTypes.bool,

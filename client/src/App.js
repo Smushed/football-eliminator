@@ -75,13 +75,11 @@ const App = ({ firebase }) => {
     updateNoGroup(false);
     if (user.MG) {
       const res = await axios.get(`/api/group/details/${user.MG}`);
-      console.log({ res })
       updateCurrentGroup({ N: res.data.N, _id: user.MG });
     } else {
       axios.put(`/api/group/main/${user.GL[0]._id}/${user._id}`);
       updateCurrentGroup({ N: user.GL[0].N, _id: user.GL[0]._id });
     }
-    console.log(currentGroup)
     getSeasonAndWeek();
   };
 
@@ -110,7 +108,7 @@ const App = ({ firebase }) => {
           showSideBar={showSideBar}
           noGroup={noGroup}
           groupname={currentGroup.N}
-          username={currentUser.username}
+          user={currentUser}
           showHideSideBar={showHideSideBar}
           hardSetSideBar={hardSetSideBar}
         />
@@ -150,7 +148,9 @@ const App = ({ firebase }) => {
               <Route
                 path={Routes.groupPage}
                 render={() =>
-                  <GroupPage />}
+                  <GroupPage
+                    userId={currentUser.userId}
+                  />}
               />
               <Route
                 path={Routes.signin}

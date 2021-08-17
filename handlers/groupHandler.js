@@ -159,11 +159,12 @@ const groupUpdater = {
 
 module.exports = {
     createGroup: async (userId, newGroupScore, groupName, groupDesc, groupPositions) => {
-        if (!checkDuplicate('group', groupName)) { return false }
+        const dupe = await checkDuplicate('group', groupName);
+        if (dupe) { return false }
         const newGroup = {
             N: groupName,
-            D: groupDesc
-        }
+            D: groupDesc,
+        };
         const newGroupFromDB = await db.Group.create(newGroup);
         createGroupRoster(newGroupFromDB._id, groupPositions);
         createGroupScore(newGroupFromDB._id, newGroupScore);
