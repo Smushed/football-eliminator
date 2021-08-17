@@ -17,7 +17,7 @@ import SignOutIcon from './SignOut.png';
 import ElimLogo from './ElimLogo.png';
 import './sidePanelStyle.css';
 
-const SidePanel = ({ firebase, username, groupname, showHideSideBar, showSideBar, hardSetSideBar }) => {
+const SidePanel = ({ firebase, user, currentGroup, showHideSideBar, showSideBar, hardSetSideBar, changeGroup }) => {
 
     useEffect(() => {
     }, [showSideBar]);
@@ -26,6 +26,12 @@ const SidePanel = ({ firebase, username, groupname, showHideSideBar, showSideBar
         firebase.doSignOut();
         hardSetSideBar(false);
     };
+
+    const groupSelect = (e) => {
+        changeGroup(e.target.value);
+    };
+
+    const username = user.username;
 
     return (
         <Menu onClose={() => hardSetSideBar(false)} className='sideBarHeight' isOpen={showSideBar} disableAutoFocus>
@@ -40,7 +46,7 @@ const SidePanel = ({ firebase, username, groupname, showHideSideBar, showSideBar
                     </div>
                 </div>
             </Link>
-            <Link to={`/roster/${groupname}/${username}`} onClick={() => showHideSideBar()}>
+            <Link to={`/roster/${currentGroup.N}/${username}`} onClick={() => showHideSideBar()}>
                 <div className='sidebarItemWrapper'>
                     <img className='sidebarSVG' src={ListSVG} alt='Roster Logo' />
                     <div className='sideBarItem'>
@@ -48,7 +54,7 @@ const SidePanel = ({ firebase, username, groupname, showHideSideBar, showSideBar
                     </div>
                 </div>
             </Link>
-            <Link to={`/usedPlayers/${groupname}/${username}`} onClick={() => showHideSideBar()}>
+            <Link to={`/usedPlayers/${currentGroup.N}/${username}`} onClick={() => showHideSideBar()}>
                 <div className='sidebarItemWrapper'>
                     <img className='sidebarSVG' src={PlayerSVG} alt='Used Players Logo' />
                     <div className='sideBarItem'>
@@ -72,6 +78,13 @@ const SidePanel = ({ firebase, username, groupname, showHideSideBar, showSideBar
                     </div>
                 </div>
             </Link>
+            {user.GL &&
+                user.GL.length !== 1 &&
+                <select className='form-select groupDropdown' value={currentGroup._id} onChange={groupSelect}>
+                    {user.GL && user.GL.map(group => <option key={group._id} value={group._id}>{group.N}</option>)}
+                </select>
+            }
+
             {/* TODO EMAIL VERIFICATION */}
             {/* {authUser && !authUser.emailVerified && (
                 this.state.emailSent ?
@@ -91,11 +104,12 @@ const SidePanel = ({ firebase, username, groupname, showHideSideBar, showSideBar
 
 SidePanel.propTypes = {
     firebase: PropTypes.any,
-    username: PropTypes.string,
-    groupname: PropTypes.string,
+    user: PropTypes.object,
+    currentGroup: PropTypes.object,
     showHideSideBar: PropTypes.func,
     showSideBar: PropTypes.bool,
-    hardSetSideBar: PropTypes.func
+    hardSetSideBar: PropTypes.func,
+    changeGroup: PropTypes.func
 }
 
 

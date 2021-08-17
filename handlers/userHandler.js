@@ -1,31 +1,33 @@
 const db = require(`../models`);
 
 const groupHandler = require(`./groupHandler`);
-const s3Handler = require(`./s3Handler`);
 
 const checkDuplicateUser = async (checkedField, checkField1, checkField2) => {
     let result = false;
     let searched;
     //TODO Do something other than log these errors
     switch (checkedField) {
-        case `username`:
+        case `username`: {
             searched = await db.User.findOne({ UN: checkField1 });
             if (searched !== null) {
                 result = true;
             }
             break;
-        case `email`:
+        }
+        case `email`: {
             searched = await db.User.findOne({ E: checkField1 });
             if (searched !== null) {
                 result = true;
             }
             break;
-        case `group`:
+        }
+        case `group`: {
             const dbUser = await db.User.findById(checkField1);
             const alreadyInGroup = await dbUser.GL.filter(groupId => groupId.toString() === checkField2.toString());
             if (alreadyInGroup.length > 0) {
                 result = true;
             }
+        }
     }
     return result;
 };
@@ -45,6 +47,7 @@ const fillOutUserForFrontEnd = async (user) => {
         _id: user._id,
         A: user.A,
         GL: groupList,
+        MG: user.MG
     };
 
     return filledUser;
@@ -118,7 +121,7 @@ module.exports = {
             case `email`:
                 userArray = await db.User.find({ 'local.email': query });
                 break;
-        };
+        }
 
         const userArrayToShow = userArray.map(user => {
             const dataToShow = {
@@ -214,7 +217,7 @@ module.exports = {
                 UN: userData.UN,
                 _id: userData._id
             });
-        };
+        }
         return filledUserList;
     }
 };

@@ -41,6 +41,18 @@ module.exports = app => {
         }
     });
 
+    app.get(`/api/group/details/:id`, async (req, res) => {
+        const { id } = req.params;
+        const groupInfo = await groupHandler.getGroupDataById(id);
+        res.status(200).send(groupInfo);
+    });
+
+    app.put(`/api/group/main/:groupId/:userId`, async (req, res) => {
+        const { groupId, userId } = req.params;
+        await groupHandler.updateMainGroup(groupId, userId);
+        res.sendStatus(200);
+    });
+
     app.post(`/api/createClapper/:pass`, async (req, res) => {
         const { pass } = req.params;
         if (pass !== process.env.DB_ADMIN_PASS) {
@@ -65,6 +77,7 @@ module.exports = app => {
     app.post(`/api/createGroup`, async (req, res) => {
         const { userId, newGroupScore, groupName, groupDesc, groupPositions } = req.body;
         const groupResponse = await groupHandler.createGroup(userId, newGroupScore, groupName, groupDesc, groupPositions);
+        if (groupResponse === false) { res.sendStatus(400); return; }
         const addUserResponse = await groupHandler.addUser(userId, groupResponse._id, true);
         res.status(200).send(addUserResponse);
     });
