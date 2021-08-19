@@ -91,7 +91,7 @@ const getTopScorerForWeek = (userScores, week) => {
     return topWeekScore;
 };
 
-const getTopOverallLeadRosterForWeek = (userScores) => {
+const getTopScoreForWeek = (userScores) => {
     userScores.sort((a, b) => b.TS - a.TS);
     const topWeekScore = userScores.shift();
     return topWeekScore;
@@ -299,8 +299,8 @@ module.exports = {
                 UL: []
             };
             for (let ii = 0; ii < groupResponse[i].UL.length; ii++) {
-                const { UN } = await db.User.findById(groupResponse[i].UL[ii].ID);
-                filledData[i].UL.push(UN);
+                const user = await db.User.findById(groupResponse[i].UL[ii].ID, 'UN');
+                filledData[i].UL.push({ UN: user.UN, A: groupResponse[i].UL[ii].A, _id: user._id.toString() });
             }
         }
         return filledData;
@@ -359,7 +359,7 @@ module.exports = {
     },
     getLeaderRoster: async function (userScores, groupId, week, season) {
         const scoresCopy = [...userScores];
-        const topWeekScore = await getTopOverallLeadRosterForWeek(scoresCopy);
+        const topWeekScore = await getTopScoreForWeek(scoresCopy);
         let topUserRoster = await findOneRoster(topWeekScore.U, week, season, groupId);
         if (topUserRoster === null) {
             return this.getBlankRoster(groupId);
@@ -370,7 +370,7 @@ module.exports = {
     getBestUserForBox: async function (userScores) {
         return new Promise(async (res) => {
             const scoresCopy = [...userScores];
-            const topWeekScore = await getTopOverallLeadRosterForWeek(scoresCopy);
+            const topWeekScore = await getTopScoreForWeek(scoresCopy);
             res(topWeekScore);
         });
     },
@@ -394,5 +394,12 @@ module.exports = {
             console.log(err);
         }
         return 200;
+    },
+    topScoreForGroup: async function (groupId, season) {
+        return new Promise(async (res) => {
+            const scores = await db.UserScores.find({ G: groupId, S: season }, `U TS`).exec();
+            const topScore = await getTopScoreForWeek(scores);
+            res(topScore);
+        });
     }
 };

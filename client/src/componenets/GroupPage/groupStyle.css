@@ -1,177 +1,124 @@
-.scoringContainer {
+.groupFlex {
     display: flex;
-    justify-content: space-evenly;
-    flex-wrap: wrap;
-}
-
-.scoringGroup {
-    width: 150px;
-}
-
-.scoringHeader {
-    font-weight: 600;
-    text-align: center;
-    margin-bottom: 10px;
-    border-bottom: 1px solid lightgray;
-}
-
-.groupScoreRow {
-    width: 150px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid lightgray;
-    text-align: center;
-}
-
-.welcomeHeader {
-    font-weight: 600;
-    font-size: 30px;
-}
-
-.welcomeMessage {
     font-size: 18px;
 }
 
-.createGroupFormContainer {
-    text-align: center;
-}
-
-.groupContainer {
-    display: flex;
-}
-
-.leftToggle {
-    width: 30%;
-    text-align: center;
-    margin-top: 20px;
-    margin-left: 45px;
-}
-
-.rightWindow {
-    width: 800px;
-    margin-left: 25px;
-    margin-top: 20px;
-}
-
-.joinGroupRow {
-    display: flex;
-    flex-wrap: wrap;
-    border: 1px solid lightgray;
-    border-radius: 15px;
-    min-height: 70px;
-    margin: 15px 0;
-    padding-top: 5px;
+.groupFieldDescription {
+    width: 105px;
+    font-weight: 600;
 }
 
 .groupName {
-    font-weight: 600;
+    height: 30px;
+}
+
+.groupDescription {
+    height: auto;
+}
+
+.groupFirstCol {
+    width: 500px;
+}
+
+.groupInfo {
+    width: 395px;
+    height: auto;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    margin-left: 25px;
 }
 
 .joinGroupHeader {
-    display: flex;
-    border-bottom: 1px solid lightgray;
-}
-
-.createGroupExplain {
+    font-size: 28px;
+    font-weight: 600;
     text-align: center;
-    font-size: 18px;
+    margin-left: 40%;
+    margin-right: 40%;
     margin-bottom: 10px;
 }
 
-.createGroupHeader {
+.groupHeader {
+    width: 75%;
     text-align: center;
-    font-weight: 600;
-    font-size: 22px;
+    font-size: 24px;
 }
 
-.addRemoveButton {
-    margin-left: 20px;
+.groupHeader > a {
+    color: #000
 }
 
-.addRemovePositions {
-    text-align: center;
+.groupDisplayAvatar {
+    height: 120px;
+    width: 120px;
+    border-radius: 2px;
+    padding-top: 5px;
 }
 
-.createGroupInput {
-    margin: auto;
-    width: 450px;
-}
-
-.positionSelectInput {
-    display: flex;
-    flex-wrap: wrap;
+.groupDisplayRow {
     justify-content: center;
+    height: 140px;
+    width: 950px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 25px;
+    border: 1px solid lightgray;
+    padding-top: 5px;
+    padding-bottom: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-radius: 2px;
+    box-shadow: 0 0 10px 1px rgb(209, 209, 209);
 }
 
-.positionSelectBox {
-    margin-left: 20px;
-    margin-top: 20px;
-    width: 200px;
-}
-
-.formLabel {
-    margin-left: 15px;
-    font-weight: 600;
-}
-
-.groupListCol {
-    width: 205px;
-    text-align: center;
-}
-
-.fullWidth {
-    margin-top: 20px;
-    width: 100%;
-    text-align: center;
-}
-
-.joinGroupFlexContainer {
+.groupRowThirdCol {
+    width: 70px;
+    height: 100%;
+    margin-left: 10px;
     display: flex;
     justify-content: center;
 }
 
-.joinGroupContainer {
-    width: 620px;
+.joinButtonContainer {
+    padding: 15px 0;
 }
 
-@media only screen and (max-width: 1000px) {
-    .scoringContainer {
+.joinGroupButton {
+    height: 40px;
+}
+
+.createGroupPrompt {
+    text-align: center;
+}
+
+.createGroupButton {
+    margin-top: 3px;
+}
+
+.largeScreenFlex {
+    display: flex;
+}
+
+@media only screen and (max-width: 950px) {
+    .largeScreenFlex {
+        display: block;
+    }
+    .groupDisplayRow {
+        width: 96%;
+        height: auto;
+        text-align: center;
+    }
+    .groupHeader {
+        width: 100%;
+    }
+    .groupInfo {
+        width: 100%;
         margin: 0;
+        padding: 5px;
     }
-    
+    .groupFirstCol {
+        width: 100%;
+    }    
+    .groupInfoSmallScreen {
+        margin-left: 75px;
+    }
 }
-
-/* FOR SMARTPHONES */
-@media only screen and (max-width: 767px) {
-    .scoringGroup {
-        width: 100%;
-    }
-
-    .groupListCol {
-        width: 100%;
-    }
-
-    .joinGroupRow {
-        display: block;
-    }
-
-    .groupContainer {
-        display: block;
-    }
-
-    .leftToggle {
-        margin-left: 0;
-        width: 100%;
-    }
-
-    .joinGroupFlexContainer {
-        display: block;
-    }
-    
-    .rightWindow {
-        width: 100%;
-        margin-left: 0;
-        margin-top: 10px;
-    }
-
-}
-

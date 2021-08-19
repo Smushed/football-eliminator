@@ -8,9 +8,9 @@ export const adminPanel = '/adminPanel/';
 export const usedPlayers = '/usedPlayers/:groupname/:username';
 export const seasonLongScore = '/seasonLongScore/:userId';
 export const updateWeek = '/updateWeek';
-export const createGroup = '/createGroup';
-export const groupPage = '/groups';
+export const groupPage = '/group';
 export const fourOFour = '/*';
+export const createGroup = '/group/create';
 
 
 //These are hidden routes. Ones that have no link but anyone can go to them if they'd like
