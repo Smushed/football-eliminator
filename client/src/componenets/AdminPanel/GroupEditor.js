@@ -39,7 +39,7 @@ class GroupEditor extends Component {
 
     pullGroupList = async () => {
         try {
-            const dbResponse = await axios.get(`/api/getGroupList/`);
+            const dbResponse = await axios.get(`/api/group/list`);
             this.setState({ groupList: dbResponse.data });
         } catch (err) {
             console.log(err);

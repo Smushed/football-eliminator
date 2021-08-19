@@ -128,6 +128,7 @@ const App = ({ firebase }) => {
         <ToastProvider>
           {noGroup ?
             <GroupPage
+              season={currentSeason}
               noGroup={noGroup}
               userId={currentUser.userId}
             />
@@ -156,6 +157,8 @@ const App = ({ firebase }) => {
                 path={Routes.groupPage}
                 render={() =>
                   <GroupPage
+                    season={currentSeason}
+                    noGroup={noGroup}
                     userId={currentUser.userId}
                   />}
               />

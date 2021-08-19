@@ -1,69 +1,189 @@
-import React, { useState, Fragment } from 'react';
+import React, { useState, useEffect } from 'react';
 import { withAuthorization } from '../Session';
-import GroupSelect from './JoinGroup';
 import CreateGroup from './CreateGroup';
 import PropTypes from 'prop-types';
+import axios from 'axios';
+import ReactTooltip from 'react-tooltip';
 
-const NoGroup = ({ userId }) => {
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
-    const [currentWindow, updateCurrentWindow] = useState(`Join Group`)
+import './groupStyle.css';
 
-    const changeWindow = (newWindow) => {
-        updateCurrentWindow(newWindow);
+const Alert = withReactContent(Swal);
+
+const GroupPage = ({ userId, noGroup, season }) => {
+
+    const [groupList, updateGroupList] = useState([]);
+
+    useEffect(() => {
+        if (noGroup) { welcomeModal() }
+        getGroupList()
+    }, [noGroup]);
+
+    const welcomeModal = () => {
+        Alert.fire({
+            type: `success`,
+            title: `Welcome to the Eliminator!`,
+            html: `Here we play fantasy football with a twist:
+            <br />
+            <br />
+            - Each week set a lineup while having access to every offensive player in the NFL. 
+            <br />
+            - But, you can only play each player one time per season. 
+            <br />
+            <br />
+            Join a group or create one to begin filling out your roster.
+            <br />
+            If you run into any problems or bugs please email or text me.`,
+        });
+    };
+
+
+    const getGroupList = async () => {
+        const res = await axios.get(`/api/group/list`);
+        updateGroupList(res.data);
+    };
+
+    const joinGroup = async (groupId) => {
+        axios.put(`/api/group/join/`, {
+            userId: userId,
+            groupId
+        }).then(() => {
+            window.location.reload(false);
+        });
+    };
+
+    const showUserlist = async (userlist, groupName) => {
+        const listWithBreaks = userlist.map(user => `<br />${user}`)
+        const userlistForDisplay = listWithBreaks.join();
+        await Alert.fire({
+            title: `${groupName} userlist`,
+            html: userlistForDisplay,
+        });
     };
 
     return (
-        <div className='groupContainer'>
-            <div className='leftToggle'>
-                <div className='welcomeHeader'>
-                    Welcome to the Eliminator!
-                </div>
-                <br />
-                <div className='welcomeMessage'>
-                    Here we play fantasy football but with a spin on the rules:
-                    <br />
-                    <br />
-                    Every user sets a lineup each week by having access to every offensive player in the NFL. But you can only play each player one time.
-                    <br />
-                    <br />
-                    You compete against everyone else in your group and play for total points at the end of the year. Join a group or create one to begin filling out your roster!
-                    <br />
-                    <br />
-                    Please feel free to email or text me if you find any bugs, have any questions or have any issues.
-                    <br />
-                    <br />
-                </div>
-                <ChangeWindowButtons changeWindow={changeWindow} currentWindow={currentWindow} />
+        <div>
+            <div className='joinGroupHeader'>
+                Join a Group
             </div>
-            <div className='rightWindow'>
-                {currentWindow === 'Join Group' ?
-                    <GroupSelect
-                        userId={userId}
-                    /> :
-                    <CreateGroup
-                        userId={userId}
-                    />}
-            </div>
+            {groupList.map(group =>
+                <GroupRow
+                    season={season}
+                    key={group.id}
+                    group={group}
+                    joinGroup={joinGroup}
+                />)}
         </div>
     )
-}
+};
 
-const ChangeWindowButtons = ({ currentWindow, changeWindow }) => (
-    <Fragment>
-        {currentWindow !== 'Join Group' && <button className='btn btn-info' onClick={() => changeWindow('Join Group')}>Join a Group</button>}
-        {currentWindow !== 'Create Group' && <button className='btn btn-info' onClick={() => changeWindow('Create Group')}>Create a Group</button>}
-    </Fragment>
-)
+const GroupRow = ({ group, joinGroup, season }) => {
 
-NoGroup.propTypes = {
+    const [groupAvatar, updateGroupAvatar] = useState([]);
+    const [topScore, updateTopScore] = useState(0);
+    const [ulTooltip, updateULTooltip] = useState(``);
+
+    useEffect(() => {
+        getAvatar(group.id);
+        getTopScore(group.id, season);
+        BuildULTooltip(group.UL);
+    }, [group.id, group.UL, season]);
+
+    const getAvatar = (groupId) => {
+        axios.get(`/api/avatar/${groupId}`)
+            .then(res => {
+                updateGroupAvatar(res.data);
+            });
+    };
+
+    const getTopScore = (groupId, season) => {
+        axios.get(`/api/group/topScore/${groupId}/${season}`)
+            .then(res => {
+                updateTopScore(res.data.TS)
+            });
+    };
+
+    const BuildULTooltip = (userList) => {
+        let ulTooltip = ``;
+        for (const user of userList) {
+            ulTooltip += `${user.UN}<br/>`;
+        }
+        updateULTooltip(ulTooltip);
+    };
+
+    const firstAdmin = group.UL.find(user => user.A === true);
+
+    return (
+        <div className='groupFlex'>
+            <ReactTooltip html={true} />
+            <img className={`${group.N} Avatar`} src={groupAvatar} />
+            <div>
+                <div className='groupFlex groupName groupFirstCol'>
+                    <div className='groupFieldDescription'>
+                        Name:
+                    </div>
+                    <div className='groupInfo'>
+                        {group.N}
+                    </div>
+                </div>
+                <div className='groupFlex groupDescription groupFirstCol'>
+                    <div className='groupFieldDescription'>
+                        Description:
+                    </div>
+                    <div className='groupInfo'>
+                        {group.D}
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div className='groupFlex'>
+                    <div className='groupFieldDescription'>
+                        Admin:
+                    </div>
+                    <div>
+                        {firstAdmin.UN}
+                    </div>
+                </div>
+                <div className='groupFlex'>
+                    <div className='groupFieldDescription'>
+                        Users:
+                    </div>
+                    <div data-tip={ulTooltip}>
+                        {group.UL.length}
+                    </div>
+                </div>
+                <div className='groupFlex'>
+                    <div className='groupFieldDescription'>
+                        Top Score:
+                    </div>
+                    <div>
+                        {topScore}
+                    </div>
+                </div>
+            </div>
+            <div>
+                <button className='btn btn-outline-primary' onClick={() => joinGroup(group._id)} >
+                    Join
+                </button>
+            </div>
+        </div >
+    )
+};
+
+GroupPage.propTypes = {
+    season: PropTypes.string,
+    noGroup: PropTypes.bool,
     userId: PropTypes.string,
 };
 
-ChangeWindowButtons.propTypes = {
-    currentWindow: PropTypes.string,
-    changeWindow: PropTypes.func
+GroupRow.propTypes = {
+    group: PropTypes.object,
+    joinGroup: PropTypes.func,
+    season: PropTypes.string,
 };
 
 const condition = authUser => !!authUser;
 
-export default withAuthorization(condition)(NoGroup);
+export default withAuthorization(condition)(GroupPage);

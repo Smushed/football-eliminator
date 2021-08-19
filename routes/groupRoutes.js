@@ -6,7 +6,7 @@ const s3Handler = require(`../handlers/s3Handler`);
 
 module.exports = app => {
 
-    app.put(`/api/requestJoinGroup`, async (req, res) => {
+    app.put(`/api/group/join/`, async (req, res) => {
         const { userId, groupId } = req.body;
 
         await groupHandler.addUser(userId, groupId);
@@ -82,7 +82,7 @@ module.exports = app => {
         res.status(200).send(addUserResponse);
     });
 
-    app.get(`/api/getGroupList`, async (req, res) => {
+    app.get(`/api/group/list`, async (req, res) => {
         const dbResponse = await groupHandler.getGroupList();
         res.status(200).send(dbResponse);
     });
@@ -155,5 +155,11 @@ module.exports = app => {
         } else {
             res.sendStatus(400);
         }
+    });
+
+    app.get(`/api/group/topScore/:groupId/:season`, async (req, res) => {
+        const { groupId, season } = req.params;
+        const topScore = await groupHandler.topScoreForGroup(groupId, season);
+        res.status(200).send(topScore);
     });
 };

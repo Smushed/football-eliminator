@@ -40,7 +40,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
             getUsedPlayers();
             checkCurrentUser();
         }
-    }, [week, season, match.params.username])
+    }, [week, season, match.params.username]);
 
 
     const getUsedPlayers = () => {
