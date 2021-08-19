@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { withAuthorization } from '../Session';
+import { Link } from 'react-router-dom';
 import CreateGroup from './CreateGroup';
 import PropTypes from 'prop-types';
 import axios from 'axios';
@@ -74,22 +75,27 @@ const GroupPage = ({ userId, noGroup, season }) => {
                     key={group.id}
                     group={group}
                     joinGroup={joinGroup}
+                    userId={userId}
                 />)}
         </div>
     )
 };
 
-const GroupRow = ({ group, joinGroup, season }) => {
+const GroupRow = ({ group, joinGroup, season, userId }) => {
 
     const [groupAvatar, updateGroupAvatar] = useState([]);
     const [topScore, updateTopScore] = useState(0);
     const [ulTooltip, updateULTooltip] = useState(``);
+    const [isInGroup, updateIsInGroup] = useState(false);
 
     useEffect(() => {
         getAvatar(group.id);
         getTopScore(group.id, season);
         BuildULTooltip(group.UL);
-    }, [group.id, group.UL, season]);
+        if (group.UL.length >= 1 && userId) {
+            checkInGroup(userId);
+        }
+    }, [group.id, group.UL, season, userId]);
 
     const getAvatar = (groupId) => {
         axios.get(`/api/avatar/${groupId}`)
@@ -113,6 +119,11 @@ const GroupRow = ({ group, joinGroup, season }) => {
         updateULTooltip(ulTooltip);
     };
 
+    const checkInGroup = (uId) => {
+        const userInGroup = group.UL.find(user => user._id === uId);
+        updateIsInGroup(!userInGroup)
+    };
+
     const firstAdmin = group.UL.find(user => user.A === true);
 
     return (
@@ -121,7 +132,9 @@ const GroupRow = ({ group, joinGroup, season }) => {
             <img alt={`${group.N} Avatar`} className='groupDisplayAvatar' src={groupAvatar} />
             <div>
                 <div className='groupHeader'>
-                    {group.N}
+                    <Link to={`/profile/group/${group.N}`}>
+                        {group.N}
+                    </Link>
                 </div>
                 <div className='groupFlex'>
                     <div className='groupDescription groupFirstCol'>
@@ -156,11 +169,13 @@ const GroupRow = ({ group, joinGroup, season }) => {
                         </div>
                     </div>
                     <div className='groupRowThirdCol'>
-                        <div className='joinButtonContainer'>
-                            <button className='btn btn-outline-primary joinGroupButton' onClick={() => joinGroup(group._id)} >
-                                Join
-                            </button>
-                        </div>
+                        {isInGroup &&
+                            <div className='joinButtonContainer'>
+                                <button className='btn btn-outline-primary joinGroupButton' onClick={() => joinGroup(group._id)} >
+                                    Join
+                                </button>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -178,6 +193,7 @@ GroupRow.propTypes = {
     group: PropTypes.object,
     joinGroup: PropTypes.func,
     season: PropTypes.string,
+    userId: PropTypes.string
 };
 
 const condition = authUser => !!authUser;

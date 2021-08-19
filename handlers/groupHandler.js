@@ -299,8 +299,8 @@ module.exports = {
                 UL: []
             };
             for (let ii = 0; ii < groupResponse[i].UL.length; ii++) {
-                const { UN } = await db.User.findById(groupResponse[i].UL[ii].ID);
-                filledData[i].UL.push({ UN, A: groupResponse[i].UL[ii].A });
+                const user = await db.User.findById(groupResponse[i].UL[ii].ID, 'UN');
+                filledData[i].UL.push({ UN: user.UN, A: groupResponse[i].UL[ii].A, _id: user._id.toString() });
             }
         }
         return filledData;

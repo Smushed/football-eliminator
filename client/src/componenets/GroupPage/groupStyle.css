@@ -43,6 +43,10 @@
     font-size: 24px;
 }
 
+.groupHeader > a {
+    color: #000
+}
+
 .groupDisplayAvatar {
     height: 120px;
     width: 120px;
