@@ -69,6 +69,14 @@ const GroupPage = ({ userId, noGroup, season }) => {
             <div className='joinGroupHeader'>
                 Active Groups
             </div>
+            <div className='createGroupPrompt'>
+                Not seeing a group that interests you?
+                <div className='createGroupButton'>
+                    <Link to={`/group/create`}>
+                        <button className='btn btn-outline-primary btn-sm'>Create Group</button>
+                    </Link>
+                </div>
+            </div>
             {groupList.map(group =>
                 <GroupRow
                     season={season}
@@ -77,6 +85,7 @@ const GroupPage = ({ userId, noGroup, season }) => {
                     joinGroup={joinGroup}
                     userId={userId}
                 />)}
+
         </div>
     )
 };
@@ -127,7 +136,7 @@ const GroupRow = ({ group, joinGroup, season, userId }) => {
     const firstAdmin = group.UL.find(user => user.A === true);
 
     return (
-        <div className='groupFlex groupDisplayRow'>
+        <div className='largeScreenFlex groupDisplayRow'>
             <ReactTooltip html={true} />
             <img alt={`${group.N} Avatar`} className='groupDisplayAvatar' src={groupAvatar} />
             <div>
@@ -136,14 +145,14 @@ const GroupRow = ({ group, joinGroup, season, userId }) => {
                         {group.N}
                     </Link>
                 </div>
-                <div className='groupFlex'>
+                <div className='largeScreenFlex'>
                     <div className='groupDescription groupFirstCol'>
                         <div className='groupInfo'>
                             {group.D}
                         </div>
                     </div>
-                    <div>
-                        <div className='groupFlex'>
+                    <div className=''>
+                        <div className='groupFlex groupInfoSmallScreen'>
                             <div className='groupFieldDescription'>
                                 Admin:
                             </div>
@@ -151,7 +160,7 @@ const GroupRow = ({ group, joinGroup, season, userId }) => {
                                 {firstAdmin.UN}
                             </div>
                         </div>
-                        <div className='groupFlex pointer' data-tip={ulTooltip}>
+                        <div className='groupFlex pointer groupInfoSmallScreen' data-tip={ulTooltip}>
                             <div className='groupFieldDescription'>
                                 Users:
                             </div>
@@ -159,7 +168,7 @@ const GroupRow = ({ group, joinGroup, season, userId }) => {
                                 {group.UL.length}
                             </div>
                         </div>
-                        <div className='groupFlex'>
+                        <div className='groupFlex groupInfoSmallScreen'>
                             <div className='groupFieldDescription'>
                                 Top Score:
                             </div>

@@ -209,7 +209,7 @@ class CreateGroup extends Component {
         const groupValid = (this.state.groupNameValid & this.state.groupDescValid & this.state.groupPosValid);
 
         return (
-            <Fragment>
+            <div>
                 <div className='createGroupHeader'>
                     Creating a group
                 </div>
@@ -292,7 +292,7 @@ class CreateGroup extends Component {
                         </div>
                     }
                 </form>
-            </Fragment>
+            </div>
         );
     }
 }

@@ -17,6 +17,7 @@ import UpdateWeek from './componenets/AdminPanel/UpdateWeek';
 import UpgradeToAdmin from './componenets/AdminPanel/UpgradeToAdmin';
 import UsedPlayers from './componenets/UsedPlayers';
 import GroupPage from './componenets/GroupPage/';
+import CreateGroup from './componenets/GroupPage/CreateGroup';
 import FourOFour from './componenets/404';
 import SidePanel from './componenets/SidePanel';
 
@@ -87,7 +88,7 @@ const App = ({ firebase }) => {
   const changeGroup = async (groupId) => {
     const res = await axios.get(`/api/group/details/${groupId}`);
     updateCurrentGroup({ N: res.data.N, _id: res.data._id });
-  }
+  };
 
   const getSeasonAndWeek = async () => {
     const seasonAndWeek = await axios.get(`/api/currentSeasonAndWeek`);
@@ -216,6 +217,12 @@ const App = ({ firebase }) => {
                 path={Routes.updateWeek}
                 render={() =>
                   <UpdateWeek />}
+              />
+              <Route
+                path={Routes.createGroup}
+                render={() =>
+                  <CreateGroup />
+                }
               />
               <Route
                 render={() =>
