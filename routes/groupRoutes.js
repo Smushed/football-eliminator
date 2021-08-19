@@ -8,7 +8,6 @@ module.exports = app => {
 
     app.put(`/api/group/join/`, async (req, res) => {
         const { userId, groupId } = req.body;
-
         await groupHandler.addUser(userId, groupId);
         await userHandler.addGroupToList(userId, groupId);
         res.status(200).send(`Added`);

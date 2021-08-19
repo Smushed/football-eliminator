@@ -9,11 +9,12 @@ import ReactTooltip from 'react-tooltip';
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
+import * as Routes from '../../constants/routes'
 import './groupStyle.css';
 
 const Alert = withReactContent(Swal);
 
-const GroupPage = ({ userId, noGroup, season }) => {
+const GroupPage = ({ history, userId, noGroup, season }) => {
 
     const [groupList, updateGroupList] = useState([]);
 
@@ -48,10 +49,10 @@ const GroupPage = ({ userId, noGroup, season }) => {
 
     const joinGroup = async (groupId) => {
         axios.put(`/api/group/join/`, {
-            userId: userId,
+            userId,
             groupId
         }).then(() => {
-            window.location.reload(false);
+            history.push(Routes.home);
         });
     };
 
@@ -180,7 +181,7 @@ const GroupRow = ({ group, joinGroup, season, userId }) => {
                     <div className='groupRowThirdCol'>
                         {isInGroup &&
                             <div className='joinButtonContainer'>
-                                <button className='btn btn-outline-primary joinGroupButton' onClick={() => joinGroup(group._id)} >
+                                <button className='btn btn-outline-primary joinGroupButton' onClick={() => joinGroup(group.id)} >
                                     Join
                                 </button>
                             </div>
@@ -196,6 +197,7 @@ GroupPage.propTypes = {
     season: PropTypes.string,
     noGroup: PropTypes.bool,
     userId: PropTypes.string,
+    history: PropTypes.any
 };
 
 GroupRow.propTypes = {

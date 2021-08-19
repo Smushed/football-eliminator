@@ -156,8 +156,9 @@ const App = ({ firebase }) => {
               />
               <Route
                 path={Routes.groupPage}
-                render={() =>
+                render={props =>
                   <GroupPage
+                    {...props}
                     season={currentSeason}
                     noGroup={noGroup}
                     userId={currentUser.userId}

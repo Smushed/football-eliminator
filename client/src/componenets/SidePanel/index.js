@@ -79,7 +79,6 @@ const SidePanel = ({ firebase, user, currentGroup, showHideSideBar, showSideBar,
                 </div>
             </Link>
             {user.GL &&
-                user.GL.length !== 1 &&
                 <select className='form-select groupDropdown' value={currentGroup._id} onChange={groupSelect}>
                     {user.GL && user.GL.map(group => <option key={group._id} value={group._id}>{group.N}</option>)}
                 </select>
