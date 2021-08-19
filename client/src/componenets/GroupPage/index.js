@@ -66,7 +66,7 @@ const GroupPage = ({ userId, noGroup, season }) => {
     return (
         <div>
             <div className='joinGroupHeader'>
-                Join a Group
+                Active Groups
             </div>
             {groupList.map(group =>
                 <GroupRow
@@ -116,57 +116,53 @@ const GroupRow = ({ group, joinGroup, season }) => {
     const firstAdmin = group.UL.find(user => user.A === true);
 
     return (
-        <div className='groupFlex'>
+        <div className='groupFlex groupDisplayRow'>
             <ReactTooltip html={true} />
-            <img className={`${group.N} Avatar`} src={groupAvatar} />
+            <img alt={`${group.N} Avatar`} className='groupDisplayAvatar' src={groupAvatar} />
             <div>
-                <div className='groupFlex groupName groupFirstCol'>
-                    <div className='groupFieldDescription'>
-                        Name:
-                    </div>
-                    <div className='groupInfo'>
-                        {group.N}
-                    </div>
+                <div className='groupHeader'>
+                    {group.N}
                 </div>
-                <div className='groupFlex groupDescription groupFirstCol'>
-                    <div className='groupFieldDescription'>
-                        Description:
-                    </div>
-                    <div className='groupInfo'>
-                        {group.D}
-                    </div>
-                </div>
-            </div>
-            <div>
                 <div className='groupFlex'>
-                    <div className='groupFieldDescription'>
-                        Admin:
+                    <div className='groupDescription groupFirstCol'>
+                        <div className='groupInfo'>
+                            {group.D}
+                        </div>
                     </div>
                     <div>
-                        {firstAdmin.UN}
+                        <div className='groupFlex'>
+                            <div className='groupFieldDescription'>
+                                Admin:
+                            </div>
+                            <div>
+                                {firstAdmin.UN}
+                            </div>
+                        </div>
+                        <div className='groupFlex pointer' data-tip={ulTooltip}>
+                            <div className='groupFieldDescription'>
+                                Users:
+                            </div>
+                            <div>
+                                {group.UL.length}
+                            </div>
+                        </div>
+                        <div className='groupFlex'>
+                            <div className='groupFieldDescription'>
+                                Top Score:
+                            </div>
+                            <div>
+                                {topScore}
+                            </div>
+                        </div>
+                    </div>
+                    <div className='groupRowThirdCol'>
+                        <div className='joinButtonContainer'>
+                            <button className='btn btn-outline-primary joinGroupButton' onClick={() => joinGroup(group._id)} >
+                                Join
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div className='groupFlex'>
-                    <div className='groupFieldDescription'>
-                        Users:
-                    </div>
-                    <div data-tip={ulTooltip}>
-                        {group.UL.length}
-                    </div>
-                </div>
-                <div className='groupFlex'>
-                    <div className='groupFieldDescription'>
-                        Top Score:
-                    </div>
-                    <div>
-                        {topScore}
-                    </div>
-                </div>
-            </div>
-            <div>
-                <button className='btn btn-outline-primary' onClick={() => joinGroup(group._id)} >
-                    Join
-                </button>
             </div>
         </div >
     )
