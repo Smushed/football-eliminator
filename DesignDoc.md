@@ -1,5 +1,11 @@
 ## Fantasy Eliminator
-THis is a game which combines daily fantasy with the challenge of a year long game. All players of this game have access to every player who is on a roster in the NFL however, they may only play each player one time.
+
+### This is a document which I wrote to help myself start this project. Almost all of the technical and structure of the data has been reworked and rewritten.
+### Rather than delete this document I'm keeping it here as an example of how I began this project.
+
+<br />
+
+This is a game which combines daily fantasy with the challenge of a year long game. All players of this game have access to every player who is on a roster in the NFL however, they may only play each player one time.
 - For example: If you were to play Tom Brady week 1, then you are unable to play Tom Brady week 2-17. You can play any other QB in that slot.
 <br />
 <br />
@@ -52,6 +58,8 @@ MVP does NOT include group functionality.
 MVP does include the leaderboard and viewing other people's picks that week.
 
 # Mongo Structure
+## Database has been totally reworked since this was written
+
 - Users
     - local
         - username
