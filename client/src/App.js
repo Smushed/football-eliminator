@@ -49,6 +49,7 @@ const App = ({ firebase }) => {
     });
   }, [firebase]);
 
+
   const isSignedIn = async (email) => {
     const dbResponse = await axios.get(`/api/user/email/${email}`);
 
@@ -127,111 +128,109 @@ const App = ({ firebase }) => {
         }
 
         <ToastProvider>
-          {noGroup ?
-            <GroupPage
-              season={currentSeason}
-              noGroup={noGroup}
-              userId={currentUser.userId}
+          <Switch>
+            <Route
+              exact path={Routes.home}
+              render={() =>
+                <Home
+                  noGroup={noGroup}
+                  season={currentSeason}
+                  group={currentGroup}
+                  week={currentWeek}
+                  currentUser={currentUser}
+                />}
             />
-            :
-            <Switch>
-              <Route
-                exact path={Routes.home}
-                render={() =>
-                  <Home
-                    season={currentSeason}
-                    group={currentGroup}
-                    week={currentWeek}
-                    currentUser={currentUser}
-                  />}
-              />
-              <Route
-                path={Routes.adminPanel}
-                render={() =>
-                  <AdminPanel
-                    currentUser={currentUser}
-                    week={currentWeek}
-                    season={currentSeason}
-                    groupId={currentGroup._id} />}
-              />
-              <Route
-                exact
-                path={Routes.groupPage}
-                render={props =>
-                  <GroupPage
-                    {...props}
-                    season={currentSeason}
-                    noGroup={noGroup}
-                    userId={currentUser.userId}
-                  />}
-              />
-              <Route
-                path={Routes.signin}
-                render={() =>
-                  <SignInOut />}
-              />
-              <Route
-                path={Routes.signup}
-                render={() =>
-                  <SignInOut />}
-              />
-              <Route
-                path={Routes.profile}
-                render={props =>
-                  <Profile
-                    {...props}
-                    authUser={authUser}
-                    currentUser={currentUser} />}
-              />
-              <Route
-                path={Routes.seasonLongScore}
-                render={() =>
-                  <SeasonLongScore
-                    season={currentSeason} />}
-              />
-              <Route
-                path={Routes.roster}
-                render={props =>
-                  <Roster
-                    {...props}
-                    latestLockWeek={latestLockWeek}
-                    updateLockWeekOnPull={updateLockWeekOnPull}
-                    username={currentUser.username}
-                    userId={currentUser.userId}
-                    week={currentWeek}
-                    season={currentSeason} />
-                }
-              />
-              <Route
-                path={Routes.upgradeToAdmin}
-                render={() =>
-                  <UpgradeToAdmin />}
-              />
-              <Route
-                path={Routes.usedPlayers}
-                render={props =>
-                  <UsedPlayers
-                    {...props}  //Need to pass down the props spread to have access to the URL
-                    season={currentSeason} />
-                }
-              />
-              <Route
-                path={Routes.updateWeek}
-                render={() =>
-                  <UpdateWeek />}
-              />
-              <Route
-                path={Routes.createGroup}
-                render={() =>
-                  <CreateGroup />
-                }
-              />
-              <Route
-                render={() =>
-                  <FourOFour />
-                } />
-            </Switch>
-          }
+            <Route
+              path={Routes.adminPanel}
+              render={() =>
+                <AdminPanel
+                  currentUser={currentUser}
+                  week={currentWeek}
+                  season={currentSeason}
+                  groupId={currentGroup._id} />}
+            />
+            <Route
+              exact
+              path={Routes.groupPage}
+              render={props =>
+                <GroupPage
+                  {...props}
+                  season={currentSeason}
+                  noGroup={noGroup}
+                  userId={currentUser.userId}
+                />}
+            />
+            <Route
+              path={Routes.signin}
+              render={() =>
+                <SignInOut />}
+            />
+            <Route
+              path={Routes.signup}
+              render={() =>
+                <SignInOut />}
+            />
+            <Route
+              path={Routes.profile}
+              render={props =>
+                <Profile
+                  {...props}
+                  authUser={authUser}
+                  currentUser={currentUser} />}
+            />
+            <Route
+              path={Routes.seasonLongScore}
+              render={() =>
+                <SeasonLongScore
+                  season={currentSeason} />}
+            />
+            <Route
+              path={Routes.roster}
+              render={() =>
+                <Roster
+                  latestLockWeek={latestLockWeek}
+                  updateLockWeekOnPull={updateLockWeekOnPull}
+                  username={currentUser.username}
+                  userId={currentUser.userId}
+                  week={currentWeek}
+                  season={currentSeason}
+                  noGroup={noGroup}
+                />
+              }
+            />
+            <Route
+              path={Routes.upgradeToAdmin}
+              render={() =>
+                <UpgradeToAdmin />}
+            />
+            <Route
+              path={Routes.usedPlayers}
+              render={props =>
+                <UsedPlayers
+                  {...props}
+                  noGroup={noGroup}
+                  season={currentSeason} />
+              }
+            />
+            <Route
+              path={Routes.updateWeek}
+              render={() =>
+                <UpdateWeek />}
+            />
+            <Route
+              path={Routes.createGroup}
+              render={() =>
+                <CreateGroup
+                  changeGroup={changeGroup}
+                  userId={currentUser.userId}
+                />
+              }
+            />
+            <Route
+              render={() =>
+                <FourOFour />
+              } />
+          </Switch>
         </ToastProvider>
       </Fragment>
     </BrowserRouter>
@@ -239,7 +238,7 @@ const App = ({ firebase }) => {
 }
 
 App.propTypes = {
-  firebase: PropTypes.any
+  firebase: PropTypes.any,
 };
 
 export default withFirebase(App);

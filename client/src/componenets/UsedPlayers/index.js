@@ -1,75 +1,67 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { PlayerDisplayRow } from '../Roster';
 import { withAuthorization } from '../Session';
 import PropTypes from 'prop-types';
 
+import { loading, doneLoading } from '../LoadingAlert';
+import * as Routes from '../../constants/routes';
 import './usedPlayerStyle.css';
 
-class UsedPlayers extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            usedPlayers: {},
-            loading: false,
-            usernameOfPage: '',
-            displayPositions: [] //Figure out if we need to display them with a boolean
-        };
-    }
+const UsedPlayers = ({ match, season, history, noGroup }) => {
 
-    componentDidMount() {
-        if (this.props.season !== '') {
-            this.getUsedPlayers();
-            this.setState({ usernameOfPage: this.props.match.params.username })
+
+    const [usedPlayers, updateUsedPlayers] = useState({});
+    const [usernameOfPage, updateUsernameOfPage] = useState(``);
+
+    useEffect(() => {
+        if (noGroup) { history.push(Routes.groupPage); return; }
+        if (season !== '') {
+            getUsedPlayers();
+            updateUsernameOfPage(match.params.username);
         }
-    }
+    }, [season, match.params.username])
 
-    componentDidUpdate(prevProps) {
-        if (this.props.season !== prevProps.season) {
-            this.getUsedPlayers();
-            this.setState({ usernameOfPage: this.props.match.params.username })
-        }
-    }
-
-    getUsedPlayers = () => {
-        this.setState({ loading: true });
-        axios.get(`/api/getUsedPlayers/${this.props.match.params.username}/${this.props.season}/${this.props.match.params.groupname}`)
+    const getUsedPlayers = () => {
+        loading(true);
+        axios.get(`/api/getUsedPlayers/${match.params.username}/${season}/${match.params.groupname}`)
             .then(res => {
-                this.setState({ usedPlayers: res.data, loading: false });
+                updateUsedPlayers(res.data);
+                doneLoading();
             }).catch(err => {
-                console.log(err)//TODO Better error handling
+                console.log(err)
             });
     };
 
-    render() {
-        const positions = [`QB`, `RB`, `WR`, `TE`, `K`, `D`];
-        return (
-            <div>
-                <div className='centerText titleMargin headerFont'>
-                    {this.state.usernameOfPage}&apos;s Used Players
-                </div>
-                {positions.map(position => (
-                    <div key={position}>
-                        {this.state.usedPlayers[position] &&
-                            <div className='usedPosition'>
-                                <div className='sectionHeader'>
-                                    {position}
-                                </div>
-                                {this.state.usedPlayers[position].map((player, i) => (
-                                    <PlayerDisplayRow player={player} key={i} evenOrOddRow={i % 2} />
-                                ))}
-                            </div>
-                        }
-                    </div>
-                ))}
+    const positions = [`QB`, `RB`, `WR`, `TE`, `K`, `D`];
+    return (
+        <div>
+            <div className='centerText titleMargin headerFont'>
+                {usernameOfPage}&apos;s Used Players
             </div>
-        )
-    }
+            {positions.map(position => (
+                <div key={position}>
+                    {usedPlayers[position] &&
+                        <div className='usedPosition'>
+                            <div className='sectionHeader'>
+                                {position}
+                            </div>
+                            {usedPlayers[position].map((player, i) => (
+                                <PlayerDisplayRow player={player} key={i} evenOrOddRow={i % 2} />
+                            ))}
+                        </div>
+                    }
+                </div>
+            ))}
+        </div>
+    )
 }
 
 UsedPlayers.propTypes = {
     match: PropTypes.any,
     season: PropTypes.string,
+    history: PropTypes.object,
+    noGroup: PropTypes.bool
 };
 
 const condition = authUser => !!authUser;

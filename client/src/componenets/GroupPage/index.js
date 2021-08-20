@@ -174,7 +174,7 @@ const GroupRow = ({ group, joinGroup, season, userId }) => {
                                 Top Score:
                             </div>
                             <div>
-                                {topScore}
+                                {topScore && topScore.toFixed(2)}
                             </div>
                         </div>
                     </div>

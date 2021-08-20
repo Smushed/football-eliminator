@@ -8,11 +8,13 @@ import withReactContent from "sweetalert2-react-content";
 import './rosterStyle.css';
 import './playerStyle.css';
 
+import { loading, doneLoading } from '../LoadingAlert';
 import { WeekSearch, PositionSearch } from './SearchDropdowns';
+import * as Routes from '../../constants/routes';
 
 const Alert = withReactContent(Swal);
 
-const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, username, userId }) => {
+const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, username, userId, history, noGroup }) => {
     const [userRoster, updateUserRoster] = useState([]);
     const [availablePlayers, updateAvaliablePlayers] = useState([]);
     const [positionSelect, updatePositionSelect] = useState(`QB`); //This is the default value for the position search
@@ -33,6 +35,8 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
     const [possiblePlayers, updatePossiblePlayers] = useState([]);
 
     useEffect(() => {
+        if (noGroup) { history.push(Routes.groupPage); return; }
+
         if (week !== 0 && season !== '') {
             updateWeekSelect(+week);
             updateUsernameOfPage(match.params.username);
@@ -40,7 +44,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
             getUsedPlayers();
             checkCurrentUser();
         }
-    }, [week, season, match.params.username]);
+    }, [week, season, match.params.username, noGroup]);
 
 
     const getUsedPlayers = () => {
@@ -68,30 +72,12 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
 
     };
 
-    //We define loading and done loading here to have swal pop ups whenever we are pulling in data so the user can't mess with data while it's in a loading state
-    const loading = () => {
-        Alert.fire({
-            title: 'Loading',
-            text: 'Loading available players',
-            imageUrl: 'https://media.giphy.com/media/3o7aDczpCChShEG27S/giphy.gif',
-            imageWidth: 200,
-            imageHeight: 200,
-            imageAlt: 'Loading Football',
-            showConfirmButton: false,
-            showCancelButton: false
-        });
-    };
-
-    const doneLoading = () => {
-        Alert.close()
-    };
-
     const getRosterData = (weekInput) => {
         getWeeklyMatchUps(weekInput);
         updateWeekOnPage(weekInput);
         if (week !== 0 && season !== ``) {
             loading();
-            axios.get(`/api/userRoster/${season}/${weekInput}/${match.params.groupname}/${match.params.username}`)
+            axios.get(`/api/roster/user/${season}/${weekInput}/${match.params.groupname}/${match.params.username}`)
                 .then(res => {
                     const { userRoster, groupPositions, groupMap, positionArray } = res.data;
                     updateUserRoster(userRoster);
@@ -495,7 +481,9 @@ Roster.propTypes = {
     season: PropTypes.string,
     match: PropTypes.any,
     username: PropTypes.string,
-    userId: PropTypes.string
+    userId: PropTypes.string,
+    history: PropTypes.object,
+    noGroup: PropTypes.bool
 };
 
 CurrentRosterRow.propTypes = {

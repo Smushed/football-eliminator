@@ -8,8 +8,9 @@ import './homeStyle.css';
 import Leaderboard from './Leaderboard';
 import PropTypes from 'prop-types';
 import RosterCarousel from './RosterCarousel';
+import * as Routes from '../../constants/routes';
 
-const Home = ({ season, group, week, currentUser }) => {
+const Home = ({ season, group, week, currentUser, noGroup, history }) => {
 
     const [leaderboard, updateLeaderboard] = useState([]);
     const [idealRoster, updateIdealRoster] = useState([]);
@@ -21,13 +22,15 @@ const Home = ({ season, group, week, currentUser }) => {
     const [groupPositions, updateGroupPositions] = useState([]);
 
     useEffect(() => {
+        if (noGroup) { history.push(Routes.groupPage); return; }
+
         if (week !== 0 && season !== ``) {
             if (currentUser) {
                 getRostersForHome(season, week, group._id)
                 getRoster(season, week, group.N, currentUser.username);
             }
         }
-    }, [week, season, currentUser.username, group]);
+    }, [week, season, currentUser.username, group, noGroup]);
 
     const getRostersForHome = (season, week, groupId) => {
         getLeaderBoard(season, week, groupId);
@@ -46,7 +49,7 @@ const Home = ({ season, group, week, currentUser }) => {
     };
 
     const getRoster = (season, week, groupname, username) => {
-        axios.get(`/api/userRoster/${season}/${week}/${groupname}/${username}`)
+        axios.get(`/api/roster/user/${season}/${week}/${groupname}/${username}`)
             .then(res => {
                 updateGroupPositions(res.data.groupPositions)
                 return;
@@ -173,7 +176,9 @@ Home.propTypes = {
     season: PropTypes.string,
     group: PropTypes.object,
     week: PropTypes.number,
-    currentUser: PropTypes.object
+    currentUser: PropTypes.object,
+    noGroup: PropTypes.bool,
+    history: PropTypes.any
 }
 
 const condition = authUser => !!authUser;

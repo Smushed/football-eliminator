@@ -1,9 +1,10 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 
 import './groupStyle.css';
+import * as Routes from '../../constants/routes';
 
 class CreateGroup extends Component {
     constructor(props) {
@@ -50,7 +51,7 @@ class CreateGroup extends Component {
             }
         }
         //TODO If 400 Error then the group's name is duplicated
-        axios.post(`/api/createGroup`,
+        axios.post(`/api/group/create`,
             {
                 userId: this.props.userId,
                 newGroupScore: sanitizedScore,
@@ -59,8 +60,8 @@ class CreateGroup extends Component {
                 groupPositions: this.state.dbReadyGroupPos,
             })
             .then(res => {
-                console.log(res.data)
-                window.location.reload(false);
+                this.props.changeGroup(res.data._id);
+                this.props.history.push(Routes.home);
             });
     };
 
@@ -322,7 +323,9 @@ ScoringRow.propTypes = {
 CreateGroup.propTypes = {
     userId: PropTypes.string,
     week: PropTypes.number,
-    groupId: PropTypes.string
+    groupId: PropTypes.string,
+    changeGroup: PropTypes.func,
+    history: PropTypes.object
 };
 
 const condition = authUser => !!authUser;

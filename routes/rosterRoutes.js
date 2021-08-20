@@ -17,7 +17,7 @@ module.exports = app => {
         res.status(200).send(availablePlayers);
     });
 
-    app.get(`/api/userRoster/:season/:week/:groupname/:username`, (req, res) => {
+    app.get(`/api/roster/user/:season/:week/:groupname/:username`, (req, res) => {
         const { groupname, username, week, season } = req.params;
         if (username !== `undefined` && week !== 0 && season !== `` && groupname !== `undefined`) { //Checks if this route received the userId before it was ready in react
             //The check already comes in as the string undefined, rather than undefined itself. It comes in as truthly
