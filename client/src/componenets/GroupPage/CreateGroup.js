@@ -210,6 +210,9 @@ class CreateGroup extends Component {
 
         return (
             <div>
+                <div className='developmentNotice'>
+                    This page is actively under development. Please check back soon to see the updated version!
+                </div>
                 <div className='createGroupHeader'>
                     Creating a group
                 </div>

@@ -97,65 +97,70 @@ const GroupProfile = ({
 
 
     return (
-        <div className='profileWrapper '>
-            <div className='profileLeft'>
-                <div className='profileName'>
-                    {groupName}
-                </div>
-                <div className='profileDesc'>
-                    {groupInfo.D}
-                </div>
-                <div className='userAvatarWrapper'>
-                    <img className='userAvatar' src={avatar} />
-                </div>
-                <button className='btn btn-info' onClick={() => { openCloseModal(); updateModalState(`group`) }}>
-                    View Group Position Data
-                </button>
+        <>
+            <div className='developmentNotice'>
+                This page is actively under development. Please check back soon to see the updated version!
             </div>
-            <div className='profileRight'>
-                <div className={`wrapper noTopMargin ${modalOpen && `lowerOpacity`}`}>
-                    <Leaderboard
-                        week={week}
-                        season={season}
-                        leaderboard={leaderboard}
-                        groupName={groupInfo.N}
-                    />
+            <div className='profileWrapper '>
+                <div className='profileLeft'>
+                    <div className='profileName'>
+                        {groupName}
+                    </div>
+                    <div className='profileDesc'>
+                        {groupInfo.D}
+                    </div>
+                    <div className='userAvatarWrapper'>
+                        <img className='userAvatar' src={avatar} />
+                    </div>
+                    <button className='btn btn-info' onClick={() => { openCloseModal(); updateModalState(`group`) }}>
+                        View Group Position Data
+                    </button>
                 </div>
-                <div>
-                    <div>
-                        <div className='groupProfileRow'>
-                            <button className='btn btn-outline-info' onClick={() => updateRostersOpen(!rostersOpen)}>
-                                Open / Close Top Rosters
-                            </button>
-                        </div>
-                        <RosterCarousel
-                            rowOpen={rostersOpen}
-                            week={+week}
-                            bestRosterUser={bestRosterUser}
-                            bestRoster={bestRoster}
-                            groupPositions={groupPositions}
-                            idealRoster={idealRoster}
+                <div className='profileRight'>
+                    <div className={`wrapper noTopMargin ${modalOpen && `lowerOpacity`}`}>
+                        <Leaderboard
+                            week={week}
+                            season={season}
                             leaderboard={leaderboard}
-                            leaderRoster={leaderRoster}
+                            groupName={groupInfo.N}
                         />
                     </div>
-                </div>
-                <div className='editField'>
                     <div>
-                        Active Users:
+                        <div>
+                            <div className='groupProfileRow'>
+                                <button className='btn btn-outline-info' onClick={() => updateRostersOpen(!rostersOpen)}>
+                                    Open / Close Top Rosters
+                                </button>
+                            </div>
+                            <RosterCarousel
+                                rowOpen={rostersOpen}
+                                week={+week}
+                                bestRosterUser={bestRosterUser}
+                                bestRoster={bestRoster}
+                                groupPositions={groupPositions}
+                                idealRoster={idealRoster}
+                                leaderboard={leaderboard}
+                                leaderRoster={leaderRoster}
+                            />
+                        </div>
                     </div>
-                    {groupInfo.UL &&
-                        groupInfo.UL.map((user) =>
-                            <DisplayBox
-                                key={user._id}
-                                boxContent={user.UN}
-                                type='user'
-                                buttonActive={adminStatus}
-                                inGroup={true}
-                            />)}
+                    <div className='editField'>
+                        <div>
+                            Active Users:
+                        </div>
+                        {groupInfo.UL &&
+                            groupInfo.UL.map((user) =>
+                                <DisplayBox
+                                    key={user._id}
+                                    boxContent={user.UN}
+                                    type='user'
+                                    buttonActive={adminStatus}
+                                    inGroup={true}
+                                />)}
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     )
 }
 
