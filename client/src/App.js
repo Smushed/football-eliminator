@@ -155,6 +155,7 @@ const App = ({ firebase }) => {
                     groupId={currentGroup._id} />}
               />
               <Route
+                exact
                 path={Routes.groupPage}
                 render={props =>
                   <GroupPage
