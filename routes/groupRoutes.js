@@ -73,7 +73,7 @@ module.exports = app => {
         res.status(200).send(scoringSystem);
     });
 
-    app.post(`/api/createGroup`, async (req, res) => {
+    app.post(`/api/group/create`, async (req, res) => {
         const { userId, newGroupScore, groupName, groupDesc, groupPositions } = req.body;
         const groupResponse = await groupHandler.createGroup(userId, newGroupScore, groupName, groupDesc, groupPositions);
         if (groupResponse === false) { res.sendStatus(400); return; }
