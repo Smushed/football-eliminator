@@ -25,8 +25,8 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
         if (noGroup) { history.push(Routes.groupPage); return; }
 
         if (week !== 0 && season !== ``) {
-            if (currentUser) {
-                getRostersForHome(season, week, group._id)
+            if (currentUser.username) {
+                getRostersForHome(season, week, group._id);
                 getRoster(season, week, group.N, currentUser.username);
             }
         }

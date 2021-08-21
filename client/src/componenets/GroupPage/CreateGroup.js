@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
 import PropTypes from 'prop-types';
@@ -6,43 +6,52 @@ import PropTypes from 'prop-types';
 import './groupStyle.css';
 import * as Routes from '../../constants/routes';
 
-class CreateGroup extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            rosterPositions: [],
-            positionMap: [],
-            maxOfPosition: [],
-            errorPositions: '', //String to give user an error message
-            groupName: '',
-            groupDesc: '',
-            groupPosChose: ['QB'],
-            dbReadyGroupPos: [{ I: 1, N: 'QB' }],
-            groupNameValid: false,
-            groupDescValid: false,
-            groupPosValid: true,
-            showScore: false,
-            scoringMap: {},
-            enteredScore: {},
-        };
-    }
+const CreateGroup = ({ userId, changeGroup, history }) => {
 
-    componentDidMount() {
-        this.getRosterPositions();
-    }
+    const [rosterPositions, updateRosterPositions] = useState([]);
+    const [positionMap, updatePositionMap] = useState([]);
+    const [maxOfPosition, updateMaxOfPosition] = useState([]);
+    const [error, updateError] = useState(''); //TODO ERROR DISPLAY
+    const [groupName, updateGroupName] = useState('');
+    const [groupDesc, updateGroupDesc] = useState('');
+    const [groupPosChoose, updateGroupPosChoose] = useState(['QB']);
+    const [dbReadyGroupPos, updateDbReadyGroupPos] = useState([{ I: 1, N: 'QB' }]);
+    const [groupNameValid, updateGroupNameValid] = useState(false);
+    const [groupDescValid, updateGroupDescValid] = useState(false);
+    const [groupPosValid, updateGroupPosValid] = useState(true);
+    const [showScore, updateShowScore] = useState(false);
+    const [scoringMap, updateScoringMap] = useState({});
+    const [enteredScore, updateEnteredScore] = useState({});
 
-    getRosterPositions = async () => {
+    useEffect(() => {
+        getRosterPositions();
+    }, []);
+
+    useEffect(() => {
+        if (rosterPositions.length !== 0 && positionMap.length !== 0) {
+            convertForDB(groupPosChoose);
+        }
+    }, [groupPosChoose, rosterPositions, positionMap]);
+
+    useEffect(() => {
+        if (rosterPositions.length !== 0 && positionMap.length !== 0) {
+            validateForm('groupPos', dbReadyGroupPos);
+        }
+    }, [dbReadyGroupPos, rosterPositions, positionMap]);
+
+    const getRosterPositions = async () => {
         const dbResponse = await axios.get(`/api/roster/positions`);
-        const { rosterPositions, positionMap, maxOfPosition } = dbResponse.data;
-        this.setState({ rosterPositions, positionMap, maxOfPosition });
+        updateRosterPositions(dbResponse.data.rosterPositions);
+        updatePositionMap(dbResponse.data.positionMap); //ISSUE IS HERE
+        updateMaxOfPosition(dbResponse.data.maxOfPosition);
     };
 
-    handleSubmit = async event => {
+    const handleSubmit = async event => {
         event.preventDefault();
         const sanitizedScore = {};
-        for (const [key, value] of Object.entries(this.state.enteredScore)) {
+        for (const [key] of Object.entries(enteredScore)) {
             sanitizedScore[key] = {};
-            for (const [innerKey, innerValue] of Object.entries(this.state.enteredScore[key])) {
+            for (const [innerKey, innerValue] of Object.entries(enteredScore[key])) {
                 if (innerValue === `-`) {
                     sanitizedScore[key][innerKey] = 0;
                 } else {
@@ -53,27 +62,36 @@ class CreateGroup extends Component {
         //TODO If 400 Error then the group's name is duplicated
         axios.post(`/api/group/create`,
             {
-                userId: this.props.userId,
+                userId: userId,
                 newGroupScore: sanitizedScore,
-                groupName: this.state.groupName.trim(),
-                groupDesc: this.state.groupDesc.trim(),
-                groupPositions: this.state.dbReadyGroupPos,
+                groupName: groupName.trim(),
+                groupDesc: groupDesc.trim(),
+                groupPositions: dbReadyGroupPos,
             })
             .then(res => {
-                this.props.changeGroup(res.data._id);
-                this.props.history.push(Routes.home);
+                changeGroup(res.data._id);
+                history.push(Routes.home);
             });
     };
 
-    handleChange = e => {
+    const handleChange = e => {
         //Breaking this out due to the input validation
         const { name, value } = e.target;
 
-        this.setState({ [e.target.name]: e.target.value },
-            () => this.validateForm(name, value));
+        switch (name) {
+            case 'groupDesc': {
+                updateGroupDesc(value);
+                break;
+            }
+            case 'groupName': {
+                updateGroupName(value);
+                break;
+            }
+        }
+        validateForm(name, value);
     };
 
-    updateGroupsScore = (e) => {
+    const updateGroupsScore = (e) => {
         let { name, value } = e.target;
         let maxLength = 0;
         if (value >= 10) {
@@ -95,50 +113,47 @@ class CreateGroup extends Component {
             return;
         }
         const [bucket, bucketKey] = name.split(`-`);
-        const updatedScore = { ...this.state.enteredScore };
+        const updatedScore = { ...enteredScore };
         updatedScore[bucket][bucketKey] = value;
-        this.setState({ enteredScore: updatedScore });
+        updateEnteredScore(updatedScore);
     };
 
-    handleRosterUpdate = e => {
+    const handleRosterUpdate = e => {
         const { name, value } = e.target;
-        const groupPositions = this.state.groupPosChose.slice(0);
+        const groupPositions = groupPosChoose.slice(0);
         groupPositions[name] = value;
-        this.setState({ groupPosChose: groupPositions },
-            () => this.convertForDB(groupPositions));
+        updateGroupPosChoose(groupPositions);
     };
 
-    convertForDB = (groupPositions) => {
-        const dbReadyPositions = groupPositions.slice(0);
+    const convertForDB = (groupPositions) => {
+        const dbReadyPositionsCopy = groupPositions.slice(0);
         for (let i = 0; i < groupPositions.length; i++) {
-            dbReadyPositions[i] = this.state.rosterPositions.find(position => position.N === groupPositions[i]);
+            dbReadyPositionsCopy[i] = rosterPositions.find(position => position.N === groupPositions[i]);
         }
-        this.setState({ dbReadyGroupPos: dbReadyPositions },
-            () => this.validateForm('groupPos', dbReadyPositions));
-
+        updateDbReadyGroupPos(dbReadyPositionsCopy);
     };
 
-    validateForm = (fieldName, value) => {
+    const validateForm = (fieldName, value) => {
         let validCheck;
 
         switch (fieldName) {
             case `groupName`: {
                 validCheck = (value.length >= 6) ? true : false;
-                this.setState({ groupNameValid: validCheck });
+                updateGroupNameValid(validCheck);
                 break;
             }
             case `groupDesc`: {
                 validCheck = (value.length >= 6) ? true : false;
-                this.setState({ groupDescValid: validCheck });
+                updateGroupDescValid(validCheck);
                 break;
             }
             case `groupPos`: {
                 const groupPosMap = [];
                 for (const groupPos of value) {
-                    groupPosMap.push(this.state.positionMap[groupPos.I]);
+                    groupPosMap.push(positionMap[groupPos.I]);
                 }
-                validCheck = this.countPositions(groupPosMap);
-                this.setState({ groupPosValid: validCheck });
+                validCheck = countPositions(groupPosMap);
+                updateGroupPosValid(validCheck);
                 break;
             }
             default: {
@@ -147,7 +162,7 @@ class CreateGroup extends Component {
         }
     };
 
-    countPositions = (groupPosMap) => {
+    const countPositions = (groupPosMap) => {
         let tooMany = [];
         const positionCount = [0, 0, 0, 0, 0];
         for (let i = 0; i < groupPosMap.length; i++) {
@@ -156,8 +171,8 @@ class CreateGroup extends Component {
             }
         }
         for (let iii = 0; iii < positionCount.length; iii++) {
-            if (positionCount[iii] > this.state.maxOfPosition[iii]) {
-                tooMany.push(this.state.rosterPositions[iii].N)
+            if (positionCount[iii] > maxOfPosition[iii]) {
+                tooMany.push(rosterPositions[iii].N)
             }
         }
         if (tooMany.length > 0) {
@@ -165,35 +180,33 @@ class CreateGroup extends Component {
             for (let iiii = 0; iiii < tooMany.length; iiii++) {
                 errorMessage += ` ${tooMany[iiii]}`;
             }
-            this.setState({ errorPositions: errorMessage })
+            updateError(errorMessage);
             return false;
         } else {
             return true;
         }
     };
 
-    addPosition = () => {
-        const groupPositions = this.state.groupPosChose.slice(0);
+    const addPosition = () => {
+        const groupPositions = groupPosChoose.slice(0);
         if (groupPositions.length < 12) {
             groupPositions.push('QB');
-            this.setState({ groupPosChose: groupPositions },
-                () => this.convertForDB(groupPositions));
+            updateGroupPosChoose(groupPositions);
         }
     };
 
-    removePosition = () => {
-        const groupPositions = this.state.groupPosChose.slice(0);
+    const removePosition = () => {
+        const groupPositions = groupPosChoose.slice(0);
         if (groupPositions.length > 1) {
             groupPositions.pop();
-            this.setState({ groupPosChose: groupPositions },
-                () => this.convertForDB(groupPositions));
+            updateGroupPosChoose(groupPositions);
         }
     };
 
-    openScore = async () => {
+    const openScore = async () => {
         const newGroupScore = {};
         const dbResponse = await axios.get(`/api/getScoring`);
-        this.setState({ scoringMap: dbResponse.data });
+        updateScoringMap(dbResponse.data);
 
         //Create the new group scoring object
         for (const bucket of dbResponse.data.buckets) {
@@ -202,110 +215,110 @@ class CreateGroup extends Component {
                 newGroupScore[bucket][key] = dbResponse.data.defaultScores[bucket][key];
             }
         }
-
-        this.setState({ showScore: true, enteredScore: newGroupScore });
+        await updateEnteredScore(newGroupScore);
+        updateShowScore(true);
     };
 
-    render() {
-        const groupValid = (this.state.groupNameValid & this.state.groupDescValid & this.state.groupPosValid);
+    const groupValid = (groupNameValid & groupDescValid & groupPosValid);
 
-        return (
-            <div>
-                <div className='developmentNotice'>
-                    This page is actively under development. Please check back soon to see the updated version!
-                </div>
-                <div className='createGroupHeader'>
-                    Creating a group
-                </div>
-                <form onSubmit={this.handleSubmit}>
-                    <div className='form-group createGroupFormContainer'>
-                        <div className='formLabel'>
-                            Group Name
-                        </div>
-                        <div className='createGroupInput'>
-                            <input className='form-control' type='text' name='groupName' placeholder='Dragons of Doom' value={this.state.groupName} onChange={this.handleChange} />
-                        </div>
-                        <small>Must be at least 6 characters</small>
-                    </div>
-                    <div className='form-group'>
-                        <div className='form-group createGroupFormContainer'>
-                            <div className='formLabel'>
-                                Group Description
-                            </div>
-                            <div className='createGroupInput'>
-                                <input className='form-control' type='text' name='groupDesc' placeholder='Burninating the Competition' value={this.state.groupDesc} onChange={this.handleChange} />
-                            </div>
-                            <small>Must be at least 6 characters</small>
-                        </div>
-                    </div>
-                    <div className='form-group'>
-                        <div className='addRemovePositions'>
-                            Add or Remove Roster Spots
-                            <div>
-                                <button type='button' className='btn btn-outline-secondary btn-sm addRemoveButton' onClick={() => this.addPosition()}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z" /></svg>
-                                </button>
-                                <button type='button' className='btn btn-outline-secondary btn-sm addRemoveButton' onClick={() => this.removePosition()}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 10h24v4h-24z" /></svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div className='positionSelectInput'>
-                            {this.state.groupPosChose.map((position, i) => {
-                                return <div className='positionSelectBox' key={`groupPosWrapper-${i}`}>
-                                    <select className='form-control' onChange={this.handleRosterUpdate} name={i} key={`groupPos-${i}`} value={this.state.groupPosChose[i]}>
-                                        {this.state.rosterPositions.map((possiblePos, ii) => <option value={possiblePos.N} key={`possiblePos-${ii}`}>{possiblePos.N}</option>)}
-                                    </select>
-                                </div>
-                            })}
-                        </div>
-                    </div>
-                    <div className='form-group'>
-                        <div className='form-group createGroupFormContainer'>
-                            <button type='button' className='btn btn-primary' onClick={() => this.openScore()} disabled={!groupValid}>
-                                Enter Scores
-                            </button>
-                        </div>
-                    </div>
-                    {this.state.showScore &&
-                        <div className='form-group'>
-                            <div className='createGroupExplain'>
-                                Scores must range from -100 to 100 and cannot go more than two places past the decimal
-                            </div>
-                            <div className='scoringContainer'>
-                                {this.state.scoringMap.buckets.map((bucket, i) =>
-                                    <div className='scoringGroup' key={bucket}>
-                                        <div className='scoringHeader'>
-                                            {this.state.scoringMap.bucketDescription[i]}
-                                        </div>
-                                        {this.state.scoringMap[bucket].map((bucketKey, ii) =>
-                                            <ScoringRow
-                                                description={this.state.scoringMap[`${bucket}Description`][ii]}
-                                                bucket={bucket}
-                                                bucketKey={bucketKey}
-                                                val={this.state.enteredScore[bucket][bucketKey]}
-                                                handleChange={this.updateGroupsScore}
-                                                key={`${bucket}${bucketKey}`} />
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                            <div className='fullWidth'>
-                                <button className='btn btn-success'>Create Group!</button>
-                            </div>
-                        </div>
-                    }
-                </form>
+    return (
+        <>
+            <div className='groupPageHeader'>
+                Create group
             </div>
-        );
-    }
+            <form onSubmit={handleSubmit}>
+                <div className='wrapper'>
+
+                    <div className='groupFlex createGroupCenter'>
+                        <div className='form-group'>
+                            <div className='groupNameInputContainer createGroupPrompt inputInfo'>
+                                Group Name
+                                <div className='smallFieldDesc'>Minimum 6 characters</div>
+                                <input className='form-control' type='text' name='groupName' placeholder='Dragons of Doom' value={groupName} onChange={handleChange} />
+                            </div>
+                        </div>
+                        <div className='form-group'>
+                            <div className='groupDescInputContainer createGroupPrompt inputInfo'>
+                                Group Description
+                                <div className='smallFieldDesc'>Minimum 6 characters</div>
+                                <textarea className='form-control' type='text' name='groupDesc' placeholder='Burninating the Competition' value={groupDesc} onChange={handleChange} />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className='groupFlex createGroupCenter'>
+                        <div className='groupPosContainer groupFlex'>
+                            <div>
+                                <div className='inputInfo createGroupPrompt'>
+                                    Update Roster Spots
+                                </div>
+                                <div className='createGroupPrompt'>
+                                    <button type='button' className='btn btn-outline-info btn-sm' onClick={() => addPosition()}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z" /></svg>
+                                    </button>
+                                    <button type='button' className='btn btn-outline-info btn-sm removePosButton' onClick={() => removePosition()}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 10h24v4h-24z" /></svg>
+                                    </button>
+                                </div>
+                                <div className='createGroupPrompt enterScoreButton'>
+                                    <button type='button' className='btn btn-primary' onClick={() => openScore()} disabled={!groupValid}>
+                                        Enter Scores
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                {groupPosChoose.map((position, i) => {
+                                    return <div className='positionSelectBox' key={`groupPosWrapper-${i}`}>
+                                        <select className='form-control' onChange={handleRosterUpdate} name={i} key={`groupPos-${i}`} value={groupPosChoose[i]}>
+                                            {rosterPositions.map((possiblePos, ii) => <option value={possiblePos.N} key={`possiblePos-${ii}`}>{possiblePos.N}</option>)}
+                                        </select>
+                                    </div>
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {showScore &&
+                    <div className='form-group'>
+                        <div className='smallFieldDesc'>
+                            Scores must range from -100 to 100 and cannot go more than two places past the decimal
+                        </div>
+                        <div className='scoringGroup'>
+                            {scoringMap.buckets.map((bucket, i) =>
+                                <div key={bucket}>
+                                    <div className='scoringHeader'>
+                                        {scoringMap.bucketDescription[i]}
+                                    </div>
+                                    {scoringMap[bucket].map((bucketKey, ii) =>
+                                        <ScoringRow
+                                            description={scoringMap[`${bucket}Description`][ii]}
+                                            bucket={bucket}
+                                            bucketKey={bucketKey}
+                                            val={enteredScore[bucket][bucketKey]}
+                                            handleChange={updateGroupsScore}
+                                            key={`${bucket}${bucketKey}`} />
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className='createGroupButton'>
+                            <button className='btn btn-success btn-lg' disabled={!groupValid}>Create Group!</button>
+                        </div>
+                    </div>
+                }
+            </form>
+
+        </>
+    );
 }
 
 
 const ScoringRow = ({ description, bucket, bucketKey, val, handleChange }) => (
     <div className='groupScoreRow'>
-        <label>{description}</label>
-        <input className='form-control' type='text' name={`${bucket}-${bucketKey}`} value={val} onChange={handleChange} />
+        <div className='groupScoreDesc'>{description}</div>
+        <input className='form-control groupScoreConfigInput' type='text' name={`${bucket}-${bucketKey}`} value={val} onChange={handleChange} />
     </div>
 );
 

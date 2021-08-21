@@ -1,6 +1,7 @@
 .groupFlex {
     display: flex;
     font-size: 18px;
+    flex-wrap: wrap;
 }
 
 .groupFieldDescription {
@@ -28,7 +29,7 @@
     margin-left: 25px;
 }
 
-.joinGroupHeader {
+.groupPageHeader {
     font-size: 28px;
     font-weight: 600;
     text-align: center;
@@ -98,6 +99,94 @@
     display: flex;
 }
 
+.smallFieldDesc {
+    font-size: 12px;
+    text-align: center;
+}
+
+.groupNameInputContainer {
+    width: 300px;
+}
+
+.groupDescInputContainer {
+    width: 350px;
+    margin-left: 25px;
+}
+
+.createGroupCenter {
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.inputInfo {
+    font-size: 22px;
+}
+
+.groupBlock {
+    display: block;
+}
+
+.groupPosContainer {
+    width: 500px;
+    justify-content: space-evenly;
+}
+
+.removePosButton {
+    margin-left: 20px;
+}
+
+.enterScoreButton {
+    margin-top: 25px;
+}
+
+.scoringHeader {
+    text-align: center;
+    font-weight: 600;
+}
+
+.groupScoreRow {
+    display: flex;
+    border-bottom: 1px lightgray solid;
+    margin-bottom: 5px;
+}
+
+.groupScoreDesc {
+    width: 172px;
+}
+
+.scoringGroup {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+
+.groupScoreConfigInput {
+    width: 65px !important;
+    height: 30px !important;
+    margin-bottom: 2px;
+}
+
+.groupPageContainer {
+    height: calc(100vh - 90px);
+    display: flex;
+    flex-direction: column;
+}
+
+.createGroupFooter {
+    text-align: center;
+    margin-top: auto;
+}
+
+.createGroupButton {
+    margin-top: 25px;
+    text-align: center;
+}
+
+@media only screen and (max-width: 1200px) {
+    .scoringHeader {
+        margin-top: 20px;
+    }
+}
 
 @media only screen and (max-width: 950px) {
     .largeScreenFlex {
@@ -121,5 +210,8 @@
     }    
     .groupInfoSmallScreen {
         margin-left: 75px;
+    }
+    .enterScoreButton {
+        margin-bottom: 25px;
     }
 }
