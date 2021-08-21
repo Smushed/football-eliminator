@@ -67,7 +67,7 @@ const GroupPage = ({ history, userId, noGroup, season }) => {
 
     return (
         <div>
-            <div className='joinGroupHeader'>
+            <div className='groupPageHeader'>
                 Active Groups
             </div>
             <div className='createGroupPrompt'>

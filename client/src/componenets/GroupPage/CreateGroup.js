@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import './groupStyle.css';
 import * as Routes from '../../constants/routes';
 
-const CreateGroup = ({ userId, week, groupId, changeGroup, history }) => {
+const CreateGroup = ({ userId, changeGroup, history }) => {
 
     const [rosterPositions, updateRosterPositions] = useState([]);
     const [positionMap, updatePositionMap] = useState([]);
@@ -49,7 +49,7 @@ const CreateGroup = ({ userId, week, groupId, changeGroup, history }) => {
     const handleSubmit = async event => {
         event.preventDefault();
         const sanitizedScore = {};
-        for (const [key, value] of Object.entries(enteredScore)) {
+        for (const [key] of Object.entries(enteredScore)) {
             sanitizedScore[key] = {};
             for (const [innerKey, innerValue] of Object.entries(enteredScore[key])) {
                 if (innerValue === `-`) {
@@ -222,71 +222,71 @@ const CreateGroup = ({ userId, week, groupId, changeGroup, history }) => {
     const groupValid = (groupNameValid & groupDescValid & groupPosValid);
 
     return (
-        <div>
-            <div className='developmentNotice'>
-                This page is actively under development. Please check back soon to see the updated version!
-            </div>
-            <div className='createGroupHeader'>
-                Creating a group
+        <>
+            <div className='groupPageHeader'>
+                Create group
             </div>
             <form onSubmit={handleSubmit}>
-                <div className='form-group createGroupFormContainer'>
-                    <div className='formLabel'>
-                        Group Name
-                    </div>
-                    <div className='createGroupInput'>
-                        <input className='form-control' type='text' name='groupName' placeholder='Dragons of Doom' value={groupName} onChange={handleChange} />
-                    </div>
-                    <small>Must be at least 6 characters</small>
-                </div>
-                <div className='form-group'>
-                    <div className='form-group createGroupFormContainer'>
-                        <div className='formLabel'>
-                            Group Description
-                        </div>
-                        <div className='createGroupInput'>
-                            <input className='form-control' type='text' name='groupDesc' placeholder='Burninating the Competition' value={groupDesc} onChange={handleChange} />
-                        </div>
-                        <small>Must be at least 6 characters</small>
-                    </div>
-                </div>
-                <div className='form-group'>
-                    <div className='addRemovePositions'>
-                        Add or Remove Roster Spots
-                        <div>
-                            <button type='button' className='btn btn-outline-secondary btn-sm addRemoveButton' onClick={() => addPosition()}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z" /></svg>
-                            </button>
-                            <button type='button' className='btn btn-outline-secondary btn-sm addRemoveButton' onClick={() => removePosition()}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 10h24v4h-24z" /></svg>
-                            </button>
-                        </div>
-                    </div>
-                    <div className='positionSelectInput'>
-                        {groupPosChoose.map((position, i) => {
-                            return <div className='positionSelectBox' key={`groupPosWrapper-${i}`}>
-                                <select className='form-control' onChange={handleRosterUpdate} name={i} key={`groupPos-${i}`} value={groupPosChoose[i]}>
-                                    {rosterPositions.map((possiblePos, ii) => <option value={possiblePos.N} key={`possiblePos-${ii}`}>{possiblePos.N}</option>)}
-                                </select>
+                <div className='wrapper'>
+
+                    <div className='groupFlex createGroupCenter'>
+                        <div className='form-group'>
+                            <div className='groupNameInputContainer createGroupPrompt inputInfo'>
+                                Group Name
+                                <div className='smallFieldDesc'>Minimum 6 characters</div>
+                                <input className='form-control' type='text' name='groupName' placeholder='Dragons of Doom' value={groupName} onChange={handleChange} />
                             </div>
-                        })}
+                        </div>
+                        <div className='form-group'>
+                            <div className='groupDescInputContainer createGroupPrompt inputInfo'>
+                                Group Description
+                                <div className='smallFieldDesc'>Minimum 6 characters</div>
+                                <textarea className='form-control' type='text' name='groupDesc' placeholder='Burninating the Competition' value={groupDesc} onChange={handleChange} />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className='groupFlex createGroupCenter'>
+                        <div className='groupPosContainer groupFlex'>
+                            <div>
+                                <div className='inputInfo createGroupPrompt'>
+                                    Update Roster Spots
+                                </div>
+                                <div className='createGroupPrompt'>
+                                    <button type='button' className='btn btn-outline-info btn-sm' onClick={() => addPosition()}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z" /></svg>
+                                    </button>
+                                    <button type='button' className='btn btn-outline-info btn-sm removePosButton' onClick={() => removePosition()}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 10h24v4h-24z" /></svg>
+                                    </button>
+                                </div>
+                                <div className='createGroupPrompt enterScoreButton'>
+                                    <button type='button' className='btn btn-primary' onClick={() => openScore()} disabled={!groupValid}>
+                                        Enter Scores
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                {groupPosChoose.map((position, i) => {
+                                    return <div className='positionSelectBox' key={`groupPosWrapper-${i}`}>
+                                        <select className='form-control' onChange={handleRosterUpdate} name={i} key={`groupPos-${i}`} value={groupPosChoose[i]}>
+                                            {rosterPositions.map((possiblePos, ii) => <option value={possiblePos.N} key={`possiblePos-${ii}`}>{possiblePos.N}</option>)}
+                                        </select>
+                                    </div>
+                                })}
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div className='form-group'>
-                    <div className='form-group createGroupFormContainer'>
-                        <button type='button' className='btn btn-primary' onClick={() => openScore()} disabled={!groupValid}>
-                            Enter Scores
-                        </button>
-                    </div>
-                </div>
+
                 {showScore &&
                     <div className='form-group'>
-                        <div className='createGroupExplain'>
+                        <div className='smallFieldDesc'>
                             Scores must range from -100 to 100 and cannot go more than two places past the decimal
                         </div>
-                        <div className='scoringContainer'>
+                        <div className='scoringGroup'>
                             {scoringMap.buckets.map((bucket, i) =>
-                                <div className='scoringGroup' key={bucket}>
+                                <div key={bucket}>
                                     <div className='scoringHeader'>
                                         {scoringMap.bucketDescription[i]}
                                     </div>
@@ -302,21 +302,23 @@ const CreateGroup = ({ userId, week, groupId, changeGroup, history }) => {
                                 </div>
                             )}
                         </div>
-                        <div className='fullWidth'>
-                            <button className='btn btn-success'>Create Group!</button>
+
+                        <div className='createGroupButton'>
+                            <button className='btn btn-success btn-lg' disabled={!groupValid}>Create Group!</button>
                         </div>
                     </div>
                 }
             </form>
-        </div>
+
+        </>
     );
 }
 
 
 const ScoringRow = ({ description, bucket, bucketKey, val, handleChange }) => (
     <div className='groupScoreRow'>
-        <label>{description}</label>
-        <input className='form-control' type='text' name={`${bucket}-${bucketKey}`} value={val} onChange={handleChange} />
+        <div className='groupScoreDesc'>{description}</div>
+        <input className='form-control groupScoreConfigInput' type='text' name={`${bucket}-${bucketKey}`} value={val} onChange={handleChange} />
     </div>
 );
 
