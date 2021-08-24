@@ -57,7 +57,6 @@ const RosterCarousel = ({
 
 
 RosterCarousel.propTypes = {
-    rowOpen: PropTypes.bool,
     week: PropTypes.number,
     bestRosterUser: PropTypes.string,
     groupPositions: PropTypes.array,

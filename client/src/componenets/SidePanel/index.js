@@ -5,11 +5,11 @@ import { slide as Menu } from 'react-burger-menu';
 import PropTypes from 'prop-types';
 
 // SVGs are from Flatiron
-import RankingSVG from './ranking.svg';
-import ListSVG from './list.svg';
-import PlayerSVG from './player.svg';
-import GroupSVG from './group.svg';
-import UserSVG from './user.svg';
+import RankingSVG from '../../constants/SVG/ranking.svg';
+import ListSVG from '../../constants/SVG/list.svg';
+import PlayerSVG from '../../constants/SVG/player.svg';
+import GroupSVG from '../../constants/SVG/group.svg';
+import UserSVG from '../../constants/SVG/user.svg';
 
 import * as Routes from '../../constants/routes';
 

@@ -115,14 +115,13 @@ module.exports = app => {
         res.status(200).send(avatar);
     });
 
-    app.get(`/api/user/profile/box/:username`, async (req, res) => {
-        const { username } = req.params;
-        const user = await userHandler.getUserByUsername(username);
-        const stringUserId = user._id.toString();
+    app.get(`/api/user/profile/box/:userId`, async (req, res) => {
+        const { userId } = req.params;
         Promise.all([
-            s3Handler.getAvatar(stringUserId),
-            rosterHandler.getTotalScore(stringUserId)])
-            .then(([avatar, totalScore]) =>
+            s3Handler.getAvatar(userId),
+            rosterHandler.getTotalScore(userId),
+            userHandler.getUserByID(userId)])
+            .then(([avatar, totalScore, user]) =>
                 res.status(200).send({ name: user.UN, avatar, score: totalScore })
             );
     });

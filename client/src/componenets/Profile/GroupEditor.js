@@ -1,12 +1,7 @@
-import React, { Fragment, useEffect, useState, useRef } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
-import Jimp from 'jimp';
 import { useToasts } from 'react-toast-notifications';
-import { Collapse } from 'react-collapse';
-
-import { AvatarInput } from './ProfileInputs';
-import { ImageEditor } from './ModalWindows';
 
 const GroupEditor = ({
     groupInfo,
@@ -15,7 +10,6 @@ const GroupEditor = ({
     updatedFields,
     changeUpdatedFields,
     updateGroupInfo,
-    updateAvatar,
     openCloseModal,
     changeGroup
 }) => {
@@ -26,12 +20,6 @@ const GroupEditor = ({
     const [groupScore, updateGroupScore] = useState({});
     const [posDescMap, updatePosDescMap] = useState({});
     const [newGroupPos, updateNewGroupPos] = useState([]);
-
-    const [tempAvatar, updateTempAvatar] = useState(``);
-    const [editAvatar, updateEditAvatar] = useState(``);
-    const [imageCropOpen, updateImageCropOpen] = useState(false);
-
-    const fileInputRef = useRef(null);
 
     const { addToast } = useToasts();
 
@@ -57,24 +45,7 @@ const GroupEditor = ({
     };
 
     const handleChange = (e) => {
-        if (e.target.name === `avatar`) {
-            //Checks if the file uploaded is an image
-            if (!!e.target.files[0].type.match(`image.*`)) {
-                Jimp.read((URL.createObjectURL(e.target.files[0])), async (err, img) => {
-                    if (err) {
-                        console.log(err);
-                        return;
-                    }
-                    const mime = await img.getBase64Async(Jimp.MIME_JPEG);
-                    updateImageCropOpen(!imageCropOpen);
-                    updateTempAvatar(mime);
-                });
-            } else {
-                addToast('File is not an image. Please only upload images', { appearance: 'warning', autoDismiss: true });
-                e.target.value = '';
-            }
-            return;
-        } else if (e.target.name === `groupName`) {
+        if (e.target.name === `groupName`) {
             changeUpdatedFields({ ...updatedFields, [e.target.name]: e.target.value });
         } else if (e.target.name === `groupDesc`) {
             changeUpdatedFields({ ...updatedFields, [e.target.name]: e.target.value });
@@ -130,18 +101,6 @@ const GroupEditor = ({
         } else {
             return true;
         }
-    };
-
-    const resetImage = () => {
-        updateImageCropOpen(false);
-        updateTempAvatar(``);
-    };
-
-    const saveCroppedAvatar = (mime) => {
-        updateEditAvatar(mime);
-        updateTempAvatar(``);
-        updateImageCropOpen(!imageCropOpen);
-        changeUpdatedFields({ ...updatedFields, avatar: `active` });
     };
 
     const changeGroupScoreField = (name, value) => {
@@ -212,9 +171,6 @@ const GroupEditor = ({
         if (updatedFields.groupDesc !== ``) {
             data.groupDesc = updatedFields.groupDesc;
         }
-        if (updatedFields.avatar === `active`) {
-            data.groupAvatar = editAvatar;
-        }
         console.log({ data })
         axios.put(`/api/group`, { data, id: groupInfo._id })
             .then(res => {
@@ -227,7 +183,6 @@ const GroupEditor = ({
                     .then(res => {
                         updateGroupInfo(res.data.group);
                         updateGroupPositions(res.data.positions);
-                        updateAvatar(res.data.avatar);
                         openCloseModal();
                     });
             }).catch(err => {
@@ -251,29 +206,6 @@ const GroupEditor = ({
                     <small className='descText'>Must be at least 6 characters</small>
                     <input className='form-control groupDescInput' name='groupDesc' type='textbox' value={updatedFields.groupDesc} placeholder={groupInfo.D} onChange={handleChange} />
                 </div>
-            </div>
-            <div>
-                <Collapse isOpened={!imageCropOpen}>
-                    {editAvatar !== `` &&
-                        <div>
-                            <img className='userAvatar' src={editAvatar} />
-                        </div>
-                    }
-                    <div className='groupEditorAvatarWrapper'>
-                        <AvatarInput
-                            handleChange={handleChange}
-                            fileInputRef={fileInputRef}
-                        />
-                    </div>
-                </Collapse>
-                <Collapse isOpened={imageCropOpen}>
-                    <ImageEditor
-                        tempAvatar={tempAvatar}
-                        fileInputRef={fileInputRef}
-                        saveCroppedAvatar={saveCroppedAvatar}
-                        openCloseModal={resetImage}
-                    />
-                </Collapse>
             </div>
             <div className='groupPosWrapper'>
                 <div className='groupPosHeaderWrapper'>
@@ -305,21 +237,22 @@ const GroupEditor = ({
                         )}
                 </div>
             </div>
-            {posDescMap.bucketMap && scoreBuckets.map(bucket =>
-                <div key={bucket} className='groupScoreBucket'>
-                    <div className='groupScoreBucketName'>
-                        {posDescMap.bucketMap[bucket]}
+            {posDescMap.bucketMap &&
+                scoreBuckets.map(bucket =>
+                    <div key={bucket} className='groupScoreBucket'>
+                        <div className='groupScoreBucketName'>
+                            {posDescMap.bucketMap[bucket]}
+                        </div>
+                        <div className='groupScoreFields'>
+                            {Object.keys(groupScore[bucket]).map(scoreField =>
+                                <div key={scoreField} className='groupScoreInputWrapper'>
+                                    <div >{posDescMap.posMap[bucket][scoreField]} </div>
+                                    <input className='form-control groupScoreInput' name={`groupScore-${bucket}-${scoreField}`} value={groupScore[bucket][scoreField]} onChange={handleChange} />
+                                </div>
+                            )}
+                        </div>
                     </div>
-                    <div className='groupScoreFields'>
-                        {Object.keys(groupScore[bucket]).map(scoreField =>
-                            <div key={scoreField} className='groupScoreInputWrapper'>
-                                <div >{posDescMap.posMap[bucket][scoreField]} </div>
-                                <input className='form-control groupScoreInput' name={`groupScore-${bucket}-${scoreField}`} value={groupScore[bucket][scoreField]} onChange={handleChange} />
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
+                )}
             <button className='btn btn-info' onClick={updateGroup}>Update Group</button>
 
         </Fragment >
@@ -333,7 +266,6 @@ GroupEditor.propTypes = {
     updatedFields: PropTypes.object,
     changeUpdatedFields: PropTypes.func,
     updateGroupInfo: PropTypes.func,
-    updateAvatar: PropTypes.func,
     openCloseModal: PropTypes.func,
     changeGroup: PropTypes.func
 }

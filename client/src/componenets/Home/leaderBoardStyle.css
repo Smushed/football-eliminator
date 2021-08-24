@@ -1,11 +1,19 @@
 .leaderboardContainter {
     z-index: 0.8;
-    display: flex;
     min-width: 700px;
     max-height: 450px;
     margin-top: 10px;
     margin-bottom: 10px;
     overflow-y: scroll;
+}
+
+.leaderboardContainter::-webkit-scrollbar {
+    display: none;
+}
+
+.leaderboardContainter {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 .leaderboard {

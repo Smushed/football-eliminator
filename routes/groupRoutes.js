@@ -111,18 +111,18 @@ module.exports = app => {
         }
     });
 
-    app.get(`/api/group/profile/box/:name`, async (req, res) => {
-        const { name } = req.params;
+    app.get(`/api/group/profile/box/:groupId`, async (req, res) => {
+        const { groupId } = req.params;
         Promise.all([
             userHandler.pullSeasonAndWeekFromDB(),
-            groupHandler.getGroupData(name)
+            groupHandler.getGroupDataById(groupId)
         ]).then(async ([{ season, week }, groupData]) => {
             const userScores = await groupHandler.getCurrAndLastWeekScores(groupData._id, season, +week);
             Promise.all([
                 groupHandler.getBestUserForBox(userScores),
                 s3Handler.getAvatar(groupData._id.toString())
             ]).then(([topUser, groupAvatar]) => {
-                res.status(200).send({ name: name, score: topUser.TS, avatar: groupAvatar })
+                res.status(200).send({ name: groupData.N, score: topUser.TS, avatar: groupAvatar })
             });
         });
     });
@@ -161,4 +161,19 @@ module.exports = app => {
         const topScore = await groupHandler.topScoreForGroup(groupId, season);
         res.status(200).send(topScore);
     });
+
+    app.delete(`/api/group/user/:delUserId/:adminId`, async (req, res) => {
+        const { delUserId, adminId } = req.params;
+        //TODO MAKE THESE
+        const adminCheck = await groupHandler.checkAdmin(adminId);
+        if (!adminCheck) { res.status(405).send(`Not Allowed to remove people!`); }
+
+        const dbRes = await groupHandler.removeUser(delUserId);
+        if (dbRes) {
+            res.sendStatus(200);
+        } else {
+            res.sendStatus(500)
+        }
+
+    })
 };

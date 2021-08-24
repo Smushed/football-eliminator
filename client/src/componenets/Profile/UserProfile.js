@@ -38,14 +38,12 @@ const UserProfile = ({
             <div className='developmentNotice'>
                 This page is actively under development. Please check back soon to see the updated version!
             </div>
-            <div className='profileWrapper '>
-                <div className='profileLeft'>
-                    <div className='profileName'>
-                        {username}
-                    </div>
-                    <div className='userAvatarWrapper'>
-                        <img className='userAvatar' src={avatar} />
-                    </div>
+            <div className='profileWrapper'>
+                <div className='profileName'>
+                    {username}
+                </div>
+                <div className='profileAvatarWrapper'>
+                    <img className='profileAvatar' src={avatar} />
                 </div>
                 <div className='profileRight'>
                     <UsernameInput
@@ -87,7 +85,7 @@ const UserProfile = ({
                             currentUser.GL.map((group) =>
                                 <div key={group._id} className='smallScreenCenterBox'>
                                     <DisplayBox
-                                        boxContent={group.N}
+                                        boxContent={group._id}
                                         type='group'
                                         buttonActive={true}
                                         inGroup={true}

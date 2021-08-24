@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 
 import Cropper from 'react-easy-crop';
@@ -65,7 +65,7 @@ const ReAuth = ({ firebase, updatedFields, authUser, openCloseModal, currentUser
     };
 
     return (
-        <Fragment>
+        <>
             <div className='reAuthHeader'>Trying to update profile data, relogin required.</div>
             <div>{loginErr}</div>
             <EmailInput
@@ -82,12 +82,12 @@ const ReAuth = ({ firebase, updatedFields, authUser, openCloseModal, currentUser
             <div className='profileButtonWrapper'>
                 <button className='btn btn-success profileModalButton' onClick={handleReAuth}>
                     Re-Login
-            </button>
+                </button>
                 <button className='btn btn-danger profileModalButton' onClick={() => openCloseModal()}>
                     Close
-            </button>
+                </button>
             </div>
-        </Fragment>
+        </>
     );
 };
 
@@ -130,7 +130,7 @@ const ImageEditor = ({ tempAvatar, saveCroppedAvatar, openCloseModal, fileInputR
     };
 
     return (
-        <Fragment>
+        <>
             <div className='cropperWrapper'>
                 <Cropper
                     image={tempAvatar}
@@ -176,7 +176,7 @@ const ImageEditor = ({ tempAvatar, saveCroppedAvatar, openCloseModal, fileInputR
                     Close
                 </button>
             </div>
-        </Fragment>
+        </>
     );
 };
 
