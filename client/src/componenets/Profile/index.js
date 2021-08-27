@@ -35,7 +35,6 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
 
     //Group State
     const [groupInfo, updateGroupInfo] = useState({});
-    const [groupPositions, updateGroupPositions] = useState([]);
 
     const fileInputRef = useRef(null);
 
@@ -47,9 +46,6 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
         } else if (match.params.type === `group`) {
             changeUpdatedFields({ ...groupFields });
         }
-        // return function cleanup() {
-        //     updateAvatar(``);
-        // }
     }, [match.params.type, currentUser]);
 
     // const sendAuthEmail = (authUser) => {
@@ -216,9 +212,8 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
                         avatar={avatar}
                         groupInfo={groupInfo}
                         updateGroupInfo={updateGroupInfo}
-                        groupPositions={groupPositions}
-                        updateGroupPositions={updateGroupPositions}
-                        changeUpdatedFields={changeUpdatedFields}
+                        updateModalState={updateModalState}
+                        openCloseModal={openCloseModal}
                     />
                     :
                     <FourOFour />

@@ -18,7 +18,9 @@ const GroupProfile = ({
     updateAvatar,
     groupInfo,
     updateGroupInfo,
-    fileInputRef
+    fileInputRef,
+    openCloseModal,
+    updateModalState
 }) => {
 
     const [adminStatus, updateAdminStatus] = useState(false);
@@ -82,6 +84,11 @@ const GroupProfile = ({
                     <div className='profileDesc'>
                         {groupInfo.D}
                     </div>
+                    {adminStatus &&
+                        <button className='btn btn-sm btn-info' onClick={() => { openCloseModal(); updateModalState(`group`) }}>
+                            Edit Group
+                        </button>
+                    }
                 </div>
                 <div className='profileAvatarWrapper'>
                     <div className='editAvatarSVGWrapper'>
@@ -90,7 +97,9 @@ const GroupProfile = ({
                     <label htmlFor='groupAvatar'>
                         <img className={`profileAvatar ${adminStatus ? `editAvatar` : ``}`} name='avatar' src={avatar} />
                     </label>
-                    {adminStatus && <input id='groupAvatar' name='avatar' type='file' onChange={handleChange} ref={fileInputRef} />}
+                    {adminStatus &&
+                        <input id='groupAvatar' name='avatar' type='file' onChange={handleChange} ref={fileInputRef} />
+                    }
                 </div>
             </div>
             <div className='groupInfoWrapper'>
@@ -136,7 +145,9 @@ GroupProfile.propTypes = {
     updateAvatar: PropTypes.func,
     groupInfo: PropTypes.object,
     updateGroupInfo: PropTypes.func,
-    fileInputRef: PropTypes.any
+    fileInputRef: PropTypes.any,
+    openCloseModal: PropTypes.func,
+    updateModalState: PropTypes.func
 };
 
 export default GroupProfile;

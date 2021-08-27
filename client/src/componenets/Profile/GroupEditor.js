@@ -5,8 +5,6 @@ import { useToasts } from 'react-toast-notifications';
 
 const GroupEditor = ({
     groupInfo,
-    groupPositions,
-    updateGroupPositions,
     updatedFields,
     changeUpdatedFields,
     updateGroupInfo,
@@ -16,6 +14,7 @@ const GroupEditor = ({
     const [rosterPositions, updateRosterPositions] = useState([]);
     const [positionMap, updatePositionMap] = useState([]);
     const [maxOfPosition, updateMaxOfPosition] = useState([]);
+    const [groupPositions, updateGroupPositions] = useState([]);
 
     const [groupScore, updateGroupScore] = useState({});
     const [posDescMap, updatePosDescMap] = useState({});
@@ -27,6 +26,7 @@ const GroupEditor = ({
         if (groupInfo._id) {
             pullGroupScoring(groupInfo._id);
             getRosterPositions();
+            getGroupPositions(groupInfo._id);
         }
     }, [groupInfo._id]);
 
@@ -42,6 +42,11 @@ const GroupEditor = ({
         updateRosterPositions(rosterPositions);
         updatePositionMap(positionMap);
         updateMaxOfPosition(maxOfPosition);
+    };
+
+    const getGroupPositions = async (groupId) => {
+        const dbResponse = await axios.get(`/api/group/positions/${groupId}`);
+        updateGroupPositions(dbResponse.data);
     };
 
     const handleChange = (e) => {
@@ -171,7 +176,6 @@ const GroupEditor = ({
         if (updatedFields.groupDesc !== ``) {
             data.groupDesc = updatedFields.groupDesc;
         }
-        console.log({ data })
         axios.put(`/api/group`, { data, id: groupInfo._id })
             .then(res => {
                 if (updatedFields.groupName !== ``) {
@@ -253,7 +257,9 @@ const GroupEditor = ({
                         </div>
                     </div>
                 )}
-            <button className='btn btn-info' onClick={updateGroup}>Update Group</button>
+            <div className='submitButtonWrapper'>
+                <button className='btn btn-lg btn-info' onClick={updateGroup}>Update Group</button>
+            </div>
 
         </Fragment >
     )
@@ -261,8 +267,6 @@ const GroupEditor = ({
 
 GroupEditor.propTypes = {
     groupInfo: PropTypes.object,
-    groupPositions: PropTypes.array,
-    updateGroupPositions: PropTypes.func,
     updatedFields: PropTypes.object,
     changeUpdatedFields: PropTypes.func,
     updateGroupInfo: PropTypes.func,
