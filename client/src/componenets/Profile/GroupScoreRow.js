@@ -36,7 +36,7 @@ const GroupScoreRow = ({ groupId, editable, changeGroupScoreField }) => {
                         </div>
                         <div className='groupScoreFields'>
                             {Object.keys(groupScore[bucket]).map(scoreField =>
-                                <div key={scoreField} className='groupScoreInputWrapper'>
+                                <div key={scoreField} className='groupScoreInputWrapper groupScoreNoInput'>
                                     <div className='groupScoreBucketDesc'>
                                         {posDescMap.posMap[bucket][scoreField]}
                                     </div>
