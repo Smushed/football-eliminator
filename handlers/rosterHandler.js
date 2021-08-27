@@ -320,7 +320,8 @@ module.exports = {
         return lockPeroid;
     },
     getTotalScore: async (userId) => {
-        const userScore = await db.UserScores.findOne({ U: userId }, { TS: 1 }).exec();
+        const { season } = await userHandler.pullSeasonAndWeekFromDB();
+        const userScore = await db.UserScores.findOne({ U: userId, S: season }, { TS: 1 }).exec();
         return userScore.TS;
     }
 };
