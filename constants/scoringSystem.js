@@ -61,40 +61,40 @@ module.exports = {
     groupScoreMap: {
         P: {
             T: `Touchdown`,
-            Y: `Pass Yards`,
-            I: `Interceptions`,
-            A: `Attempts`,
-            C: `Completions`,
-            '2P': `2PT Pass Success`
+            Y: `Pass yds`,
+            I: `Interception`,
+            A: `Attempt`,
+            C: `Completion`,
+            '2P': `2PT Pass`
         },
         RU: {
-            A: `Attempts`,
-            Y: `Rush Yards`,
+            A: `Attempt`,
+            Y: `Rush yd`,
             T: `Rush TD`,
             '20': `20-39 Rush`,
             '40': `40+ Rush`,
             'F': `Fumbles`,
-            '2P': `2PT Rush Success`
+            '2P': `2PT Rush`
         },
         RE: {
-            TA: `Targets`,
-            R: `Receptions`,
-            Y: `Rec Yards`,
+            TA: `Target`,
+            R: `Reception`,
+            Y: `Rec yd`,
             T: `Rec TD`,
             '20': `20-39 Rec`,
             '40': `40+ Rec`,
             F: `Rec Fumble`,
-            '2P': `2PT Rec Success`,
+            '2P': `2PT Rec`,
         },
         F: {
             F: `Fumble`
         },
         FG: {
-            1: `1-19 Yard FG`,
-            20: `20-29 Yard FG`,
-            30: `30-39 Yard FG`,
-            40: `40-49 Yard FG`,
-            50: `50+ Yard FG`,
+            1: `1-19 yd FG`,
+            20: `20-29 yd FG`,
+            30: `30-39 yd FG`,
+            40: `40-49 yd FG`,
+            50: `50+ yd FG`,
             'X': `Extra Point`,
         }
     }

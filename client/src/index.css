@@ -11,3 +11,27 @@ body {
   margin-top: 10px;
   margin-bottom: 10px;
 }
+
+.flex {
+  display: flex;
+}
+
+.block {
+  display: block;
+}
+
+.centerFlex {
+  justify-content: center;
+}
+
+.textCenter {
+  text-align: center;
+}
+
+.marginHeightAuto {
+  margin: auto 0;
+}
+
+.flexWrap {
+  flex-wrap: wrap;
+}

@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
 import './leaderBoardStyle.css'
 
@@ -7,9 +8,11 @@ const Leaderboard = ({ groupName, week, leaderboard }) => (
     <div className='leaderboardContainter'>
         <div className='leaderboard'>
             <div className='leaderboardHeader'>
-                <span className='headerText leftHeader'>
-                    {groupName}
-                </span>
+                <Link to={`/profile/group/${groupName}`}>
+                    <span className='headerText leftHeader'>
+                        {groupName}
+                    </span>
+                </Link>
                 <span className='leaderboardTitle'>
                     Leaderboard
                 </span>

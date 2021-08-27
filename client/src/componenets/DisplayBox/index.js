@@ -2,12 +2,28 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import axios from 'axios';
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
-import './displayBoxStyle.css'
+import CloseSVG from '../../constants/SVG/close.svg';
+import './displayBoxStyle.css';
+
+import { useToasts } from 'react-toast-notifications';
+
+const Alert = withReactContent(Swal);
 
 //boxContent is the Id of either the user or the group
-
-const DisplayBox = ({ boxContent, type, buttonActive, inGroup = false }) => {
+//type is either user or group.. which type it is is what the box is DISPLAYING
+//      So on the group page where it's showing users, the type will be USER
+const DisplayBox = ({
+    boxContent,
+    type,
+    buttonActive,
+    inGroup = false,
+    currUserId = null,
+    currPageId,
+    updatePage
+}) => {
 
     const [displayData, updateDisplayData] = useState({});
 
@@ -15,6 +31,8 @@ const DisplayBox = ({ boxContent, type, buttonActive, inGroup = false }) => {
         type === 'user' && getUserData();
         type === 'group' && getGroupData();
     }, [type]);
+
+    const { addToast } = useToasts();
 
     const getUserData = () => {
         axios.get(`/api/user/profile/box/${boxContent}`)
@@ -32,8 +50,34 @@ const DisplayBox = ({ boxContent, type, buttonActive, inGroup = false }) => {
             });
     };
 
+    const clickButton = async () => {
+        if (currUserId === null) { return }
+
+        if (type === 'user') {
+            Alert.fire({
+                title: `Are you sure you want to delete ${displayData.name}?`,
+                text: 'This is final. Their scores and rosters for this group will be deleted.\nThere is no way to reverse this.',
+                type: 'warning',
+                confirmButtonColor: '#DC3545',
+                showCancelButton: true,
+                confirmButtonText: 'Delete'
+            }).then(async res => {
+                if (res.value) {
+                    try {
+                        const res = await axios.delete(`/api/group/user/${currPageId}/${boxContent}/${currUserId}`);
+                        console.log(res)
+                        updatePage();
+                    } catch (err) {
+                        addToast(err.response.data, { appearance: 'error', autoDismiss: true })
+                    }
+                }
+            })
+        }
+
+    }
+
     return (
-        <div className={`displayBox ` + (buttonActive && `adminHeight`)}>
+        <div className={`displayBox ` + (buttonActive && `withButtonHeight`)}>
             <Link to={`/profile/${type}/${displayData.name}`}>
                 <div className='displayBoxName'>
                     {displayData.name}
@@ -44,18 +88,25 @@ const DisplayBox = ({ boxContent, type, buttonActive, inGroup = false }) => {
             </div>
             <div className='displayBoxScoreWrapper'>
                 <div>
-                    {type === 'user' ? 'Total Score: ' : 'Top Score: '}
+                    {type === 'user' ? 'Score: ' : 'Top Score: '}
                 </div>
                 <div>
                     {displayData.score}
                 </div>
             </div>
-            <div>
-                {type === 'group' &&
-                    (inGroup ? <div>Leave Group</div> : <div>Join Group</div>)
-                }
-            </div>
-            {/* Username / Groupname | Total Score / Best Score */}
+            {buttonActive &&
+                <div className='textCenter addRemoveButton'>
+                    {type === 'group' &&
+                        (inGroup ? <div>Leave Group</div> : <div>Join Group</div>)
+                    }
+                    {type === 'user' &&
+                        !(boxContent === currUserId) &&
+                        <button className='btn btn-danger btn-sm' onClick={() => clickButton()}>
+                            Remove User<img className='closeSVGFit' src={CloseSVG} />
+                        </button>
+                    }
+                </div>
+            }
         </div>
     )
 };
@@ -64,7 +115,10 @@ DisplayBox.propTypes = {
     boxContent: PropTypes.string,
     type: PropTypes.string,
     buttonActive: PropTypes.bool, //Button Active for removing users from a group (if group page) or leaving group (if user profile page)
-    inGroup: PropTypes.bool
+    inGroup: PropTypes.bool,
+    currUserId: PropTypes.string,
+    currPageId: PropTypes.string,
+    updatePage: PropTypes.func
 }
 
 export default DisplayBox;

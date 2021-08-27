@@ -401,5 +401,36 @@ module.exports = {
             const topScore = await getTopScoreForWeek(scores);
             res(topScore);
         });
+    },
+    checkAdmin: async (group, adminId) => {
+        const selfInGroup = group.UL.find(user => user.ID.toString() === adminId);
+        if (!selfInGroup) { return false; }
+        return selfInGroup.A;
+    },
+    removeUser: async (group, delUserId, season) => {
+        const userInGroup = group.UL.find(user => user.ID.toString() === delUserId.toString());
+        if (!userInGroup) { return { status: false, message: 'User not found in group.' }; }
+
+        const userPos = group.UL.map(user => user.ID.toString()).indexOf(delUserId);
+        group.UL.splice(userPos, 1);
+
+        const user = await db.User.findById(delUserId).exec();
+        const groupPos = user.GL.map(groupId => groupId.toString()).indexOf(group._id.toString());
+        user.GL.splice(groupPos, 1);
+        if (user.MG.toString() === group._id.toString()) {
+            delete user.MG;
+        }
+
+        try {
+            await db.UserScores.remove({ G: group._id, S: season, U: delUserId });
+            await db.UsedPlayers.remove({ G: group._id, S: season, U: delUserId });
+            await db.UserRoster.remove({ G: group._id, S: season, U: delUserId });
+            await group.save();
+            await user.save();
+        } catch (err) {
+            return { status: false, message: 'Saving error, contact Kevin' };
+        }
+
+        return { status: true, message: 'User removed from group' };
     }
 };

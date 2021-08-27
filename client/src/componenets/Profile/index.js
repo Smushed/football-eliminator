@@ -15,15 +15,15 @@ import 'rc-slider/assets/index.css';
 import './profileStyle.css';
 
 import { ReAuth, ImageEditor } from './ModalWindows';
+import GroupEditor from './GroupEditor';
 import UserProfile from './UserProfile';
 import GroupProfile from './GroupProfile';
 import FourOFour from '../404';
-import GroupEditor from './GroupEditor';
 
 const Alert = withReactContent(Swal);
 
-const userFields = { username: ``, email: ``, password: ``, avatar: ``, mainGroup: `` };
-const groupFields = { groupName: ``, avatar: ``, groupDesc: `` };
+const userFields = { username: ``, email: ``, password: ``, mainGroup: `` };
+const groupFields = { groupName: ``, groupDesc: `` };
 
 const Profile = ({ authUser, currentUser, firebase, match, history }) => {
 
@@ -35,7 +35,6 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
 
     //Group State
     const [groupInfo, updateGroupInfo] = useState({});
-    const [groupPositions, updateGroupPositions] = useState([]);
 
     const fileInputRef = useRef(null);
 
@@ -46,9 +45,6 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
             changeUpdatedFields({ ...userFields, mainGroup: currentUser.MG });
         } else if (match.params.type === `group`) {
             changeUpdatedFields({ ...groupFields });
-        }
-        return function cleanup() {
-            updateAvatar(``);
         }
     }, [match.params.type, currentUser]);
 
@@ -92,7 +88,7 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
         updateAvatar(mime);
         openCloseModal();
         updateModalState(`reAuth`);
-        changeUpdatedFields({ ...updatedFields, avatar: `active` });
+        saveAvatarToAWS(mime);
     };
 
     //This is fired if someone pressed ESC or clicks off the modal
@@ -120,9 +116,6 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
             updateModalState(`reAuth`);
             openCloseModal();
         } else {
-            if (updatedFields.avatar !== ``) {
-                saveAvatarToAWS(avatar);
-            }
             if (updatedFields.mainGroup !== currentUser.MG) {
                 axios.put(`/api/group/main/${updatedFields.mainGroup}/${currentUser.userId}`);
             }
@@ -130,7 +123,7 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
         }
     };
 
-    const saveAvatarToAWS = () => {
+    const saveAvatarToAWS = (updatedAvatar) => {
         const idToUpdate = match.params.type === `user` ? currentUser.userId : groupInfo._id;
         //Using Fetch here to send along the base64 encoded image
         fetch(`/api/avatar/${idToUpdate}`, {
@@ -139,7 +132,7 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ image: avatar })
+            body: JSON.stringify({ image: updatedAvatar })
         })
             .then(() => addToast('Avatar Saved', { appearance: 'success', autoDismiss: true }))
     };
@@ -182,16 +175,18 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
                 message='Information is Unsaved. Are you sure you want to leave?'
             />
             <div className={modalOpen ? 'greyBackdrop' : ''} />
-            <div className='notificationHeader'>
-                {checkIfSaveNeeded &&
-                    `Submit to Save Changes`
-                }
-                {checkIfReAuthNeeded &&
-                    <div className='relogNotify'>
-                        Sensitive Data Updated<br />Relogin Required
-                    </div>
-                }
-            </div>
+            {(checkIfSaveNeeded && checkIfReAuthNeeded) &&
+                <div className='notificationHeader'>
+                    {checkIfSaveNeeded &&
+                        `Submit to Save Changes`
+                    }
+                    {checkIfReAuthNeeded &&
+                        <div className='relogNotify'>
+                            Sensitive Data Updated<br />Relogin Required
+                        </div>
+                    }
+                </div>
+            }
             {match.params.type === `user` ?
                 <UserProfile
                     authUser={authUser}
@@ -211,16 +206,14 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
                     <GroupProfile
                         groupName={match.params.name}
                         currentUser={currentUser}
+                        handleChange={handleChange}
                         updateAvatar={updateAvatar}
-                        openCloseModal={openCloseModal}
+                        fileInputRef={fileInputRef}
                         avatar={avatar}
                         groupInfo={groupInfo}
                         updateGroupInfo={updateGroupInfo}
                         updateModalState={updateModalState}
-                        modalOpen={modalOpen}
-                        groupPositions={groupPositions}
-                        updateGroupPositions={updateGroupPositions}
-                        changeUpdatedFields={changeUpdatedFields}
+                        openCloseModal={openCloseModal}
                     />
                     :
                     <FourOFour />
@@ -254,11 +247,8 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
                         <GroupEditor
                             updateGroupInfo={updateGroupInfo}
                             groupInfo={groupInfo}
-                            groupPositions={groupPositions}
-                            updateGroupPositions={updateGroupPositions}
                             updatedFields={updatedFields}
                             changeUpdatedFields={changeUpdatedFields}
-                            updateAvatar={updateAvatar}
                             openCloseModal={openCloseModal}
                             changeGroup={changeGroup}
                         />

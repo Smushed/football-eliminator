@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import Leaderboard from '../Home/Leaderboard';
@@ -6,61 +6,52 @@ import Leaderboard from '../Home/Leaderboard';
 import './profileStyle.css';
 
 import DisplayBox from '../DisplayBox';
-import RosterCarousel from '../Home/RosterCarousel';
+import GroupScoreRow from './GroupScoreRow';
+
+import PencilSVG from '../../constants/SVG/pencil.svg';
 
 const GroupProfile = ({
     groupName,
     currentUser,
-    openCloseModal,
+    handleChange,
     avatar,
     updateAvatar,
     groupInfo,
     updateGroupInfo,
-    updateModalState,
-    modalOpen,
-    groupPositions,
-    updateGroupPositions
+    fileInputRef,
+    openCloseModal,
+    updateModalState
 }) => {
 
     const [adminStatus, updateAdminStatus] = useState(false);
-    const [groupDataPulled, updateGroupDataPulled] = useState(false); //Don't know a better way to only pull group data one time
     const [week, updateWeek] = useState(0);
     const [season, updateSeason] = useState(``);
 
-    //Roster Data For Group
-    const [rostersOpen, updateRostersOpen] = useState(false);
     const [leaderboard, updateLeaderboard] = useState([]);
-    const [idealRoster, updateIdealRoster] = useState([]);
-    const [bestRoster, updateBestRoster] = useState([]);
-    const [bestRosterUser, updateBestRosterUser] = useState(``);
-    const [leaderRoster, updateLeaderRoster] = useState([]);
 
     useEffect(() => {
         if (groupName) {
             pullGroupInfo()
         }
-        if (currentUser.userId) {
-            if (groupInfo.UL) {
-                checkForAdmin(groupInfo, currentUser.userId.toString()); //TODO Gotta be a better way to check for admin status of group
-            }
+    }, [groupName]);
+
+    useEffect(() => {
+        if (currentUser.userId && groupInfo.UL) {
+            checkForAdmin(groupInfo, currentUser.userId.toString()); //TODO Gotta be a better way to check for admin status of group
         }
-    }, [groupName, currentUser]);
+    }, [currentUser, groupInfo.UL])
 
     const pullGroupInfo = () => {
-        if (!groupDataPulled) {
-            updateGroupDataPulled(true);
-            axios.get(`/api/group/profile?name=${groupName}&avatar=true&positions=true`)
-                .then(res => {
-                    updateGroupInfo(res.data.group);
-                    updateGroupPositions(res.data.positions);
-                    updateAvatar(res.data.avatar);
-                    getLeaderboard(res.data.group._id.toString());
+        axios.get(`/api/group/profile?name=${groupName}&avatar=true&positions=true`)
+            .then(res => {
+                updateGroupInfo(res.data.group);
+                updateAvatar(res.data.avatar);
+                getLeaderboard(res.data.group._id.toString());
 
-                    if (currentUser.userId) {
-                        checkForAdmin(res.data.group, currentUser.userId.toString());
-                    }
-                });
-        }
+                if (currentUser.userId) {
+                    checkForAdmin(res.data.group, currentUser.userId.toString());
+                }
+            });
     };
 
     const checkForAdmin = (group, userId) => {
@@ -80,84 +71,66 @@ const GroupProfile = ({
                 axios.get(`/api/group/leaderboard/${season}/${week}/${groupId}`)
                     .then(res2 => updateLeaderboard(res2.data.leaderboard));
 
-                axios.get(`/api/group/roster/bestAndLead/${season}/${week}/${groupId}`)
-                    .then(res3 => {
-                        updateBestRosterUser(res3.data.bestRoster.U);
-                        updateBestRoster(res3.data.bestRoster.R);
-                        updateLeaderRoster(res3.data.leaderRoster);
-                    });
-
-                axios.get(`/api/roster/ideal/${season}/${week}/${groupId}`)
-                    .then(res4 => {
-                        updateIdealRoster(res4.data)
-                    });
             });
     };
 
-
-
     return (
         <>
-            <div className='developmentNotice'>
-                This page is actively under development. Please check back soon to see the updated version!
-            </div>
-            <div className='profileWrapper '>
-                <div className='profileLeft'>
+            <div className='flex centerFlex profileHeader'>
+                <div className='block marginHeightAuto groupProfileNameDesc'>
                     <div className='profileName'>
                         {groupName}
                     </div>
                     <div className='profileDesc'>
                         {groupInfo.D}
                     </div>
-                    <div className='userAvatarWrapper'>
-                        <img className='userAvatar' src={avatar} />
-                    </div>
-                    <button className='btn btn-info' onClick={() => { openCloseModal(); updateModalState(`group`) }}>
-                        View Group Position Data
-                    </button>
+                    {adminStatus &&
+                        <button className='btn btn-sm btn-info' onClick={() => { openCloseModal(); updateModalState(`group`) }}>
+                            Edit Group
+                        </button>
+                    }
                 </div>
-                <div className='profileRight'>
-                    <div className={`wrapper noTopMargin ${modalOpen && `lowerOpacity`}`}>
-                        <Leaderboard
-                            week={week}
-                            season={season}
-                            leaderboard={leaderboard}
-                            groupName={groupInfo.N}
-                        />
+                <div className='profileAvatarWrapper'>
+                    <div className='editAvatarSVGWrapper'>
+                        <img className='editAvatarSVG' src={PencilSVG} />
                     </div>
-                    <div>
-                        <div>
-                            <div className='groupProfileRow'>
-                                <button className='btn btn-outline-info' onClick={() => updateRostersOpen(!rostersOpen)}>
-                                    Open / Close Top Rosters
-                                </button>
-                            </div>
-                            <RosterCarousel
-                                rowOpen={rostersOpen}
-                                week={+week}
-                                bestRosterUser={bestRosterUser}
-                                bestRoster={bestRoster}
-                                groupPositions={groupPositions}
-                                idealRoster={idealRoster}
-                                leaderboard={leaderboard}
-                                leaderRoster={leaderRoster}
-                            />
-                        </div>
-                    </div>
-                    <div className='editField'>
-                        <div>
-                            Active Users:
-                        </div>
-                        {groupInfo.UL &&
-                            groupInfo.UL.map((user) =>
-                                <DisplayBox
-                                    key={user._id}
-                                    boxContent={user.UN}
-                                    type='user'
-                                    buttonActive={adminStatus}
-                                    inGroup={true}
-                                />)}
-                    </div>
+                    <label htmlFor='groupAvatar'>
+                        <img className={`profileAvatar ${adminStatus ? `editAvatar` : ``}`} name='avatar' src={avatar} />
+                    </label>
+                    {adminStatus &&
+                        <input id='groupAvatar' name='avatar' type='file' onChange={handleChange} ref={fileInputRef} />
+                    }
+                </div>
+            </div>
+            <div className='groupInfoWrapper'>
+                <Leaderboard
+                    week={week}
+                    season={season}
+                    leaderboard={leaderboard}
+                    groupName={groupInfo.N}
+                />
+                {groupInfo._id &&
+                    <GroupScoreRow
+                        editable={false}
+                        groupId={groupInfo._id.toString()}
+                    />
+                }
+                <div className='groupUserHeader'>
+                    Users:
+                </div>
+                <div className='flex flexWrap centerFlex'>
+                    {groupInfo.UL &&
+                        groupInfo.UL.map((user) =>
+                            <DisplayBox
+                                key={user._id}
+                                boxContent={user._id}
+                                type='user'
+                                buttonActive={adminStatus}
+                                inGroup={true}
+                                currUserId={currentUser.userId}
+                                currPageId={groupInfo._id}
+                                updatePage={pullGroupInfo}
+                            />)}
                 </div>
             </div>
         </>
@@ -168,14 +141,13 @@ GroupProfile.propTypes = {
     groupName: PropTypes.string,
     currentUser: PropTypes.object,
     avatar: PropTypes.any,
+    handleChange: PropTypes.func,
     updateAvatar: PropTypes.func,
     groupInfo: PropTypes.object,
     updateGroupInfo: PropTypes.func,
+    fileInputRef: PropTypes.any,
     openCloseModal: PropTypes.func,
-    updateModalState: PropTypes.func,
-    modalOpen: PropTypes.bool,
-    groupPositions: PropTypes.array,
-    updateGroupPositions: PropTypes.func
+    updateModalState: PropTypes.func
 };
 
 export default GroupProfile;
