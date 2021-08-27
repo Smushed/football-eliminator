@@ -39,6 +39,10 @@
     z-index: 0.8;
 }
 
+.leaderboardHeader > a {
+    color: #000;
+}
+
 .wordOverflow {
     text-overflow: ellipsis;
 }

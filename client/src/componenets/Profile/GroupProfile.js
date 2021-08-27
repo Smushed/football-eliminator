@@ -6,7 +6,6 @@ import Leaderboard from '../Home/Leaderboard';
 import './profileStyle.css';
 
 import DisplayBox from '../DisplayBox';
-import RosterCarousel from '../Home/RosterCarousel';
 import GroupScoreRow from './GroupScoreRow';
 
 import PencilSVG from '../../constants/SVG/pencil.svg';
@@ -23,7 +22,6 @@ const GroupProfile = ({
 }) => {
 
     const [adminStatus, updateAdminStatus] = useState(false);
-    const [groupDataPulled, updateGroupDataPulled] = useState(false); //Don't know a better way to only pull group data one time
     const [week, updateWeek] = useState(0);
     const [season, updateSeason] = useState(``);
 
@@ -42,19 +40,16 @@ const GroupProfile = ({
     }, [currentUser, groupInfo.UL])
 
     const pullGroupInfo = () => {
-        if (!groupDataPulled) {
-            updateGroupDataPulled(true);
-            axios.get(`/api/group/profile?name=${groupName}&avatar=true&positions=true`)
-                .then(res => {
-                    updateGroupInfo(res.data.group);
-                    updateAvatar(res.data.avatar);
-                    getLeaderboard(res.data.group._id.toString());
+        axios.get(`/api/group/profile?name=${groupName}&avatar=true&positions=true`)
+            .then(res => {
+                updateGroupInfo(res.data.group);
+                updateAvatar(res.data.avatar);
+                getLeaderboard(res.data.group._id.toString());
 
-                    if (currentUser.userId) {
-                        checkForAdmin(res.data.group, currentUser.userId.toString());
-                    }
-                });
-        }
+                if (currentUser.userId) {
+                    checkForAdmin(res.data.group, currentUser.userId.toString());
+                }
+            });
     };
 
     const checkForAdmin = (group, userId) => {
@@ -124,6 +119,8 @@ const GroupProfile = ({
                                 buttonActive={adminStatus}
                                 inGroup={true}
                                 currUserId={currentUser.userId}
+                                currPageId={groupInfo._id}
+                                updatePage={pullGroupInfo}
                             />)}
                 </div>
             </div>

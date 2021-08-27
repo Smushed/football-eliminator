@@ -22,7 +22,8 @@
     "rules": {
         "no-unused-vars": "warn",
         "no-extra-boolean-cast": "off",
-        "no-async-promise-executor": "off"
+        "no-async-promise-executor": "off",
+        "react-hooks/exhaustive-deps": "off"
     },
     "ignorePatterns": [
         "node_modules"

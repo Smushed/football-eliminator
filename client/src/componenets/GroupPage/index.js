@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { withAuthorization } from '../Session';
 import { Link } from 'react-router-dom';
-import CreateGroup from './CreateGroup';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import ReactTooltip from 'react-tooltip';
@@ -9,12 +8,11 @@ import ReactTooltip from 'react-tooltip';
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
-import * as Routes from '../../constants/routes'
 import './groupStyle.css';
 
 const Alert = withReactContent(Swal);
 
-const GroupPage = ({ history, userId, noGroup, season }) => {
+const GroupPage = ({ userId, noGroup, season }) => {
 
     const [groupList, updateGroupList] = useState([]);
 
@@ -41,7 +39,6 @@ const GroupPage = ({ history, userId, noGroup, season }) => {
         });
     };
 
-
     const getGroupList = async () => {
         const res = await axios.get(`/api/group/list`);
         updateGroupList(res.data);
@@ -52,18 +49,10 @@ const GroupPage = ({ history, userId, noGroup, season }) => {
             userId,
             groupId
         }).then(() => {
-            history.push(Routes.home);
+            window.location.reload();
         });
     };
 
-    const showUserlist = async (userlist, groupName) => {
-        const listWithBreaks = userlist.map(user => `<br />${user}`)
-        const userlistForDisplay = listWithBreaks.join();
-        await Alert.fire({
-            title: `${groupName} userlist`,
-            html: userlistForDisplay,
-        });
-    };
 
     return (
         <div>
@@ -197,7 +186,6 @@ GroupPage.propTypes = {
     season: PropTypes.string,
     noGroup: PropTypes.bool,
     userId: PropTypes.string,
-    history: PropTypes.any
 };
 
 GroupRow.propTypes = {

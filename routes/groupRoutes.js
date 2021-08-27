@@ -162,18 +162,30 @@ module.exports = app => {
         res.status(200).send(topScore);
     });
 
-    app.delete(`/api/group/user/:delUserId/:adminId`, async (req, res) => {
-        const { delUserId, adminId } = req.params;
-        //TODO MAKE THESE
-        const adminCheck = await groupHandler.checkAdmin(adminId);
-        if (!adminCheck) { res.status(405).send(`Not Allowed to remove people!`); }
-
-        const dbRes = await groupHandler.removeUser(delUserId);
-        if (dbRes) {
-            res.sendStatus(200);
-        } else {
-            res.sendStatus(500)
+    app.delete(`/api/group/user/:groupId/:delUserId/:adminId`, async (req, res) => {
+        const { groupId, delUserId, adminId } = req.params;
+        if (delUserId === adminId) {
+            res.status(400).send(`Cannot remove self from group!`);
+            return;
         }
+        const { season } = await userHandler.pullSeasonAndWeekFromDB();
+        const group = await groupHandler.getGroupDataById(groupId);
+        const adminCheck = await groupHandler.checkAdmin(group, adminId);
+        if (!adminCheck) {
+            res.status(400).send(`Not authorized to remove people!`);
+            return;
+        }
+        const dbRes = await groupHandler.removeUser(group, delUserId, season);
+
+        // if (!dbRes.status) {
+        //     res.status(400).send(dbRes.message);
+        // }
+
+        res.sendStatus(200)
+        // if (dbRes) {
+        //     res.sendStatus(200);
+        // } else {
+        // }
 
     })
 };
