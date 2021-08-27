@@ -177,15 +177,12 @@ module.exports = app => {
         }
         const dbRes = await groupHandler.removeUser(group, delUserId, season);
 
-        // if (!dbRes.status) {
-        //     res.status(400).send(dbRes.message);
-        // }
-
         res.sendStatus(200)
-        // if (dbRes) {
-        //     res.sendStatus(200);
-        // } else {
-        // }
+        if (dbRes) {
+            res.sendStatus(200);
+        } else {
+            res.status(400).send(dbRes.message);
+        }
 
     })
 };
