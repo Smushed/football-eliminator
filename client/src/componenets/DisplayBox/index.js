@@ -19,7 +19,6 @@ const DisplayBox = ({
     boxContent,
     type,
     buttonActive,
-    inGroup = false,
     currUserId = null,
     currPageId,
     updatePage
@@ -96,13 +95,9 @@ const DisplayBox = ({
             </div>
             {buttonActive &&
                 <div className='textCenter addRemoveButton'>
-                    {type === 'group' &&
-                        (inGroup ? <div>Leave Group</div> : <div>Join Group</div>)
-                    }
-                    {type === 'user' &&
-                        !(boxContent === currUserId) &&
+                    {boxContent !== currUserId &&
                         <button className='btn btn-danger btn-sm' onClick={() => clickButton()}>
-                            Remove User<img className='closeSVGFit' src={CloseSVG} />
+                            {type === 'group' ? 'Leave Group' : 'Remove User'}<img className='closeSVGFit' src={CloseSVG} />
                         </button>
                     }
                 </div>
@@ -115,7 +110,6 @@ DisplayBox.propTypes = {
     boxContent: PropTypes.string,
     type: PropTypes.string,
     buttonActive: PropTypes.bool, //Button Active for removing users from a group (if group page) or leaving group (if user profile page)
-    inGroup: PropTypes.bool,
     currUserId: PropTypes.string,
     currPageId: PropTypes.string,
     updatePage: PropTypes.func

@@ -1,5 +1,4 @@
-import React, { Fragment, useEffect, useState, useRef } from 'react';
-import { Prompt } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from 'react';
 import Modal from 'react-modal';
 import PropTypes from 'prop-types';
 import { withFirebase } from '../Firebase';
@@ -15,6 +14,7 @@ import 'rc-slider/assets/index.css';
 import './profileStyle.css';
 
 import { ReAuth, ImageEditor } from './ModalWindows';
+import UserEditor from './UserEditor';
 import GroupEditor from './GroupEditor';
 import UserProfile from './UserProfile';
 import GroupProfile from './GroupProfile';
@@ -59,7 +59,6 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
 
     const handleChange = (e) => {
         if (e.target.name === `avatar`) {
-
             //Checks if the file uploaded is an image
             if (!!e.target.files[0].type.match(`image.*`)) {
                 Jimp.read((URL.createObjectURL(e.target.files[0])), async (err, img) => {
@@ -150,16 +149,6 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
         history.push(`/profile/group/${newGroup}`);
     };
 
-    const checkIfSaveNeeded =
-        match.params.type === `user` ?
-            updatedFields.avatar !== `` ||
-            updatedFields.email !== `` ||
-            updatedFields.password !== `` ||
-            updatedFields.username !== `` ||
-            updatedFields.mainGroup !== currentUser.MG
-            :
-            false;
-
     const checkIfReAuthNeeded =
         match.params.type === `user` ?
             updatedFields.email !== `` ||
@@ -169,37 +158,19 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
             updatedFields.groupName !== ``;
 
     return (
-        <Fragment>
-            <Prompt
-                when={checkIfSaveNeeded}
-                message='Information is Unsaved. Are you sure you want to leave?'
-            />
+        <>
+
             <div className={modalOpen ? 'greyBackdrop' : ''} />
-            {(checkIfSaveNeeded && checkIfReAuthNeeded) &&
-                <div className='notificationHeader'>
-                    {checkIfSaveNeeded &&
-                        `Submit to Save Changes`
-                    }
-                    {checkIfReAuthNeeded &&
-                        <div className='relogNotify'>
-                            Sensitive Data Updated<br />Relogin Required
-                        </div>
-                    }
-                </div>
-            }
+
             {match.params.type === `user` ?
                 <UserProfile
-                    authUser={authUser}
                     currentUser={currentUser}
                     username={match.params.name}
-                    handleChange={handleChange}
                     fileInputRef={fileInputRef}
-                    checkIfSaveNeeded={checkIfSaveNeeded}
-                    handleSubmit={handleSubmit}
                     avatar={avatar}
-                    updatedFields={updatedFields}
-                    modalOpen={modalOpen}
+                    openCloseModal={openCloseModal}
                     updateAvatar={updateAvatar}
+                    handleChange={handleChange}
                 />
                 :
                 match.params.type === `group` ?
@@ -244,17 +215,26 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
                             fileInputRef={fileInputRef}
                         />
                         :
-                        <GroupEditor
-                            updateGroupInfo={updateGroupInfo}
-                            groupInfo={groupInfo}
-                            updatedFields={updatedFields}
-                            changeUpdatedFields={changeUpdatedFields}
-                            openCloseModal={openCloseModal}
-                            changeGroup={changeGroup}
-                        />
+                        modalState === `group` ?
+                            <GroupEditor
+                                updateGroupInfo={updateGroupInfo}
+                                groupInfo={groupInfo}
+                                updatedFields={updatedFields}
+                                changeUpdatedFields={changeUpdatedFields}
+                                openCloseModal={openCloseModal}
+                                changeGroup={changeGroup}
+                            />
+                            :
+                            <UserEditor
+                                changeUpdatedFields={changeUpdatedFields}
+                                updatedFields={updatedFields}
+                                currentUser={currentUser}
+                                modalOpen={modalOpen}
+                                authUser={authUser}
+                            />
                 }
             </Modal>
-        </Fragment>
+        </>
     );
 };
 
