@@ -283,8 +283,7 @@ const parseRoster = async (playerArray, team) => {
             if (mySportsId === false || mySportsId === undefined || mySportsId === null) {
                 mySportsId = await addPlayerData(playerArray[i].player, team);
             } else {
-
-                updatePlayerTeam(playerArray[i].player.id, playerArray[i].player.currentTeam.abbreviation);
+                await updatePlayerTeam(playerArray[i].player.id, playerArray[i].player.currentTeam.abbreviation);
             }
             totalPlayerArray.push(mySportsId);
         }
@@ -565,7 +564,8 @@ module.exports = {
         }
 
         return rankedPlayersByPosition;
-    }, savePlayerRank: async (rankedPlayersByPosition) => {
+    },
+    savePlayerRank: async (rankedPlayersByPosition) => {
         //Get them into 7 different categories, each 10 big until the 7th rank, which is just all the rest
         for (const playerByPosArray in rankedPlayersByPosition) {
             const rankingArray = [...playerByPosArray];

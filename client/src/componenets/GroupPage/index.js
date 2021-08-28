@@ -147,7 +147,7 @@ const GroupRow = ({ group, joinGroup, season, userId }) => {
                                 Admin:
                             </div>
                             <div>
-                                {firstAdmin.UN}
+                                {firstAdmin && firstAdmin.UN}
                             </div>
                         </div>
                         <div className='groupFlex pointer groupInfoSmallScreen' data-tip={ulTooltip}>

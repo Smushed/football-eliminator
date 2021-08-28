@@ -15,7 +15,9 @@ const UserProfile = ({
     updateAvatar,
     openCloseModal,
     updateModalState,
-    handleChange
+    handleChange,
+    updateUser,
+    currUserEmail
 }) => {
     useEffect(() => {
         axios.get(`/api/user/name/${username}`)
@@ -25,6 +27,8 @@ const UserProfile = ({
     }, [updateAvatar, username]);
 
     const isCurrentUser = username === currentUser.username;
+
+    const repullUser = () => updateUser(currUserEmail);
 
     return (
         <>
@@ -51,9 +55,6 @@ const UserProfile = ({
                         <input id='groupAvatar' name='avatar' type='file' onChange={handleChange} ref={fileInputRef} />
                     }
                 </div>
-                {/* <div className='profileAvatarWrapper'>
-                    <img className='profileAvatar' src={avatar} />
-                </div> */}
             </div>
 
             <div className='profileDisplayHeader'>
@@ -67,6 +68,9 @@ const UserProfile = ({
                             boxContent={group._id}
                             type='group'
                             buttonActive={isCurrentUser}
+                            currUserId={currentUser.userId}
+                            updatePage={repullUser}
+                            currPageId={currentUser.userId}
                         />
                     )}
             </div>
@@ -82,7 +86,9 @@ UserProfile.propTypes = {
     updateAvatar: PropTypes.func,
     openCloseModal: PropTypes.func,
     updateModalState: PropTypes.func,
-    handleChange: PropTypes.func
+    handleChange: PropTypes.func,
+    updateUser: PropTypes.func,
+    currUserEmail: PropTypes.string
 };
 
 export default UserProfile;

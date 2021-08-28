@@ -27,8 +27,8 @@ const DisplayBox = ({
     const [displayData, updateDisplayData] = useState({});
 
     useEffect(() => {
-        type === 'user' && getUserData();
-        type === 'group' && getGroupData();
+        type === `user` && getUserData();
+        type === `group` && getGroupData();
     }, [type]);
 
     const { addToast } = useToasts();
@@ -53,12 +53,6 @@ const DisplayBox = ({
         if (currUserId === null) { return }
         const alertTitle = `Are you sure you want to ${type === 'user' ? 'remove' : 'leave'} ${displayData.name}?`;
         const alertText = `This is final. ${type === 'user' ? 'Their' : 'Your'} scores and rosters for this group will be deleted. There is no way to reverse this.`
-        // if (type === 'user') {
-        //     alertTitle = `Are you sure you want to delete ${displayData.name}?`;
-        // } else if (type === 'group') {
-        //     alertText = 'This is final. Your scores and rosters for this group will be deleted. There is no way to reverse this.'
-        // }
-
 
         Alert.fire({
             title: alertTitle,
@@ -70,23 +64,57 @@ const DisplayBox = ({
         }).then(async res => {
             if (res.value) {
                 if (type === 'user') { kickUser(); }
-                if (type === 'group') { leaveGroup(); }
+                if (type === 'group') { adminCheck(); }
             }
         })
     };
 
     const kickUser = async () => {
         try {
-            const res = await axios.delete(`/api/group/user/${currPageId}/${boxContent}/${currUserId}`);
-            console.log(res)
+            await axios.delete(`/api/group/user/${currPageId}/${boxContent}/${currUserId}`);
             updatePage();
         } catch (err) {
             addToast(err.response.data, { appearance: 'error', autoDismiss: true })
         }
     };
 
-    const leaveGroup = async () => {
+    const adminCheck = async () => {
+        try {
+            const onlyAdmin = await axios.get(`/api/group/admin/verify/${currPageId}/${boxContent}`);
+            if (onlyAdmin.status === 210) {
+                adminPrompt(onlyAdmin.data);
+            } else {
+                leaveGroup();
+            }
+        } catch (err) {
+            addToast('Error verifying admins, contact Kevin', { appearance: 'error', autoDismiss: true });
+        }
+    };
 
+    const adminPrompt = async (nonAdmins) => {
+        const possibleAdmins = nonAdmins.map(user => user.UN);
+        const adminChoice = await Alert.fire({
+            title: 'Select a user to be new admin of the group.',
+            input: 'select',
+            inputOptions:
+                possibleAdmins
+        });
+        console.log(nonAdmins[adminChoice.value])
+        try {
+            await axios.put(`/api/group/admin/upgrade/${nonAdmins[adminChoice.value]._id}/${boxContent}`);
+            leaveGroup();
+        } catch (err) {
+            addToast('Error upgrading to admin, contact Kevin', { appearance: 'error', autoDismiss: true });
+        }
+    };
+
+    const leaveGroup = async () => {
+        try {
+            await axios.delete(`/api/user/group/${currPageId}/${boxContent}`);
+            updatePage();
+        } catch (err) {
+            addToast(err.response.data, { appearance: 'error', autoDismiss: true })
+        }
     };
 
     return (

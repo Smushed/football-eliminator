@@ -24,7 +24,14 @@ const Alert = withReactContent(Swal);
 const userFields = { username: ``, email: ``, password: ``, mainGroup: `` };
 const groupFields = { groupName: ``, groupDesc: `` };
 
-const Profile = ({ authUser, currentUser, firebase, match, history }) => {
+const Profile = ({
+    authUser,
+    currentUser,
+    firebase,
+    match,
+    history,
+    updateUser
+}) => {
 
     const [modalOpen, updateModal] = useState(false);
     const [modalState, updateModalState] = useState(`reAuth`);
@@ -136,6 +143,8 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
                     updateAvatar={updateAvatar}
                     handleChange={handleChange}
                     updateModalState={updateModalState}
+                    updateUser={updateUser}
+                    currUserEmail={authUser && authUser.email}
                 />
                 :
                 match.params.type === `group` ?
@@ -208,7 +217,8 @@ Profile.propTypes = {
     currentUser: PropTypes.object,
     firebase: PropTypes.any,
     match: PropTypes.any,
-    history: PropTypes.any
+    history: PropTypes.any,
+    updateUser: PropTypes.func
 };
 
 
