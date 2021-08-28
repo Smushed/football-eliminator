@@ -17,7 +17,7 @@ const AvatarInput = ({ handleChange, fileInputRef }) =>
     </div>
 
 const UsernameInput = ({ handleChange, username, currentUserName }) =>
-    <div className='editField lowerOpacity'>
+    <div className='editField'>
         <div className='input-group input-group-lg'>
             <span className='input-group-text fieldDescription'>
                 Username:
@@ -27,7 +27,7 @@ const UsernameInput = ({ handleChange, username, currentUserName }) =>
     </div>;
 
 const PasswordInput = ({ handleChange, password, showPassword, toggleShowPassword }) =>
-    <div className='editField lowerOpacity'>
+    <div className='editField'>
         <div className='input-group input-group-lg'>
             <span className='input-group-text fieldDescription'>
                 Password:
@@ -43,7 +43,7 @@ const PasswordInput = ({ handleChange, password, showPassword, toggleShowPasswor
     </div>;
 
 const ConfirmPasswordInput = ({ handleChange, password, showPassword, toggleShowPassword }) =>
-    <div className='editField lowerOpacity'>
+    <div className='editField'>
         <div className='input-group input-group-lg'>
             <span className='input-group-text fieldDescription'>
                 Confirm:
@@ -60,7 +60,7 @@ const ConfirmPasswordInput = ({ handleChange, password, showPassword, toggleShow
     </div>;
 
 const EmailInput = ({ email, handleChange, authUser }) =>
-    <div className='editField lowerOpacity'>
+    <div className='editField'>
         <div className='input-group input-group-lg'>
             <span className='input-group-text fieldDescription'>
                 Email:

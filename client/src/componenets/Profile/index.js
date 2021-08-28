@@ -96,32 +96,6 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
         updateTempAvatar(``);
     };
 
-    const handleSubmit = () => {
-        if (match.params.type === `user`) {
-            if (updatedFields.email !== ``) {
-                let checkEmail = updatedFields.email.match(/^(([^<>()\]\\.,;:\s@']+(\.[^<>()\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
-                if (!checkEmail) {
-                    Alert.fire({
-                        type: `warning`,
-                        title: `Email is invalid`,
-                        text: `Please check the email field and enter again`,
-                    });
-                    return;
-                }
-            }
-        }
-
-        if (checkIfReAuthNeeded) {
-            updateModalState(`reAuth`);
-            openCloseModal();
-        } else {
-            if (updatedFields.mainGroup !== currentUser.MG) {
-                axios.put(`/api/group/main/${updatedFields.mainGroup}/${currentUser.userId}`);
-            }
-            window.location.reload(false);
-        }
-    };
-
     const saveAvatarToAWS = (updatedAvatar) => {
         const idToUpdate = match.params.type === `user` ? currentUser.userId : groupInfo._id;
         //Using Fetch here to send along the base64 encoded image
@@ -149,17 +123,8 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
         history.push(`/profile/group/${newGroup}`);
     };
 
-    const checkIfReAuthNeeded =
-        match.params.type === `user` ?
-            updatedFields.email !== `` ||
-            updatedFields.password !== `` ||
-            updatedFields.username !== ``
-            :
-            updatedFields.groupName !== ``;
-
     return (
         <>
-
             <div className={modalOpen ? 'greyBackdrop' : ''} />
 
             {match.params.type === `user` ?
@@ -171,6 +136,7 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
                     openCloseModal={openCloseModal}
                     updateAvatar={updateAvatar}
                     handleChange={handleChange}
+                    updateModalState={updateModalState}
                 />
                 :
                 match.params.type === `group` ?
@@ -203,8 +169,6 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
                         updatedFields={updatedFields}
                         authUser={authUser}
                         currentUser={currentUser}
-                        saveAvatarToAWS={saveAvatarToAWS}
-                        avatar={avatar}
                     />
                     :
                     modalState === `avatar` ?
@@ -231,6 +195,8 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
                                 currentUser={currentUser}
                                 modalOpen={modalOpen}
                                 authUser={authUser}
+                                updateModalState={updateModalState}
+                                openCloseModal={openCloseModal}
                             />
                 }
             </Modal>

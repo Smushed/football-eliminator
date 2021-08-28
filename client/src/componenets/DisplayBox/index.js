@@ -51,29 +51,43 @@ const DisplayBox = ({
 
     const clickButton = async () => {
         if (currUserId === null) { return }
+        const alertTitle = `Are you sure you want to ${type === 'user' ? 'remove' : 'leave'} ${displayData.name}?`;
+        const alertText = `This is final. ${type === 'user' ? 'Their' : 'Your'} scores and rosters for this group will be deleted. There is no way to reverse this.`
+        // if (type === 'user') {
+        //     alertTitle = `Are you sure you want to delete ${displayData.name}?`;
+        // } else if (type === 'group') {
+        //     alertText = 'This is final. Your scores and rosters for this group will be deleted. There is no way to reverse this.'
+        // }
 
-        if (type === 'user') {
-            Alert.fire({
-                title: `Are you sure you want to delete ${displayData.name}?`,
-                text: 'This is final. Their scores and rosters for this group will be deleted.\nThere is no way to reverse this.',
-                type: 'warning',
-                confirmButtonColor: '#DC3545',
-                showCancelButton: true,
-                confirmButtonText: 'Delete'
-            }).then(async res => {
-                if (res.value) {
-                    try {
-                        const res = await axios.delete(`/api/group/user/${currPageId}/${boxContent}/${currUserId}`);
-                        console.log(res)
-                        updatePage();
-                    } catch (err) {
-                        addToast(err.response.data, { appearance: 'error', autoDismiss: true })
-                    }
-                }
-            })
+
+        Alert.fire({
+            title: alertTitle,
+            text: alertText,
+            type: 'warning',
+            confirmButtonColor: '#DC3545',
+            showCancelButton: true,
+            confirmButtonText: 'Delete'
+        }).then(async res => {
+            if (res.value) {
+                if (type === 'user') { kickUser(); }
+                if (type === 'group') { leaveGroup(); }
+            }
+        })
+    };
+
+    const kickUser = async () => {
+        try {
+            const res = await axios.delete(`/api/group/user/${currPageId}/${boxContent}/${currUserId}`);
+            console.log(res)
+            updatePage();
+        } catch (err) {
+            addToast(err.response.data, { appearance: 'error', autoDismiss: true })
         }
+    };
 
-    }
+    const leaveGroup = async () => {
+
+    };
 
     return (
         <div className={`displayBox ` + (buttonActive && `withButtonHeight`)}>

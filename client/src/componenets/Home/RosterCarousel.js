@@ -31,7 +31,7 @@ const RosterCarousel = ({
         </div>
         <div>
             <div className='rosterHomePageTitle'>
-                Last Week&apos;s Ideal
+                Last Week&apos;s Ideal Roster
             </div>
             {idealRoster.length > 0 &&
                 <RosterDisplay
