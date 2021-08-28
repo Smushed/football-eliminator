@@ -5,7 +5,6 @@ import { withFirebase } from '../Firebase';
 import { withAuthorization } from '../Session';
 import { useToasts } from 'react-toast-notifications';
 
-import axios from 'axios';
 import Jimp from 'jimp';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';

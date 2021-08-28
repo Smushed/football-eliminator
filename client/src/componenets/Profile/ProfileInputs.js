@@ -69,6 +69,18 @@ const EmailInput = ({ email, handleChange, authUser }) =>
         </div>
     </div>;
 
+const MainGroupInput = ({ currentUser, mainGroup, handleChange }) =>
+    <div className='editField'>
+        <div className='input-group input-group-lg flex'>
+            <span className='input-group-text fieldDescription'>
+                Main Group:
+            </span>
+            <select className='form-select' name='mainGroup' value={mainGroup} onChange={handleChange}>
+                {currentUser.GL && currentUser.GL.map(group => <option key={group._id} value={group._id}>{group.N}</option>)}
+            </select>
+        </div>
+    </div>;
+
 
 AvatarInput.propTypes = {
     fileInputRef: PropTypes.any,
@@ -99,6 +111,12 @@ ConfirmPasswordInput.propTypes = {
     password: PropTypes.string,
     showPassword: PropTypes.string,
     toggleShowPassword: PropTypes.func
-}
+};
 
-export { AvatarInput, UsernameInput, EmailInput, PasswordInput, ConfirmPasswordInput };
+MainGroupInput.propTypes = {
+    currentUser: PropTypes.object,
+    mainGroup: PropTypes.string,
+    handleChange: PropTypes.func
+};
+
+export { AvatarInput, UsernameInput, EmailInput, PasswordInput, ConfirmPasswordInput, MainGroupInput };

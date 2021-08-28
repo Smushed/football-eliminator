@@ -57,7 +57,8 @@
 }
 
 .fieldDescription {
-    width: 120px;
+    width: 127px;
+    padding-left: 12px !important;
 }
 
 .editField {

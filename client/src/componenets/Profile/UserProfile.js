@@ -17,8 +17,6 @@ const UserProfile = ({
     updateModalState,
     handleChange
 }) => {
-
-
     useEffect(() => {
         axios.get(`/api/user/name/${username}`)
             .then(res => {
