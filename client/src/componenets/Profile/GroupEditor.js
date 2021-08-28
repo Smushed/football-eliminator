@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import { useToasts } from 'react-toast-notifications';
@@ -198,7 +198,7 @@ const GroupEditor = ({
     const scoreBuckets = Object.keys(groupScore);
 
     return (
-        <Fragment>
+        <>
             <div className='groupEditorHeaderWrapper'>
                 <div className='groupEditorHeaderHalf'>
                     <div className='groupEditorHeader'>Name</div>
@@ -261,7 +261,7 @@ const GroupEditor = ({
                 <button className='btn btn-lg btn-info' onClick={updateGroup}>Update Group</button>
             </div>
 
-        </Fragment >
+        </>
     )
 }
 

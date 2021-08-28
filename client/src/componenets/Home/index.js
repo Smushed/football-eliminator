@@ -113,7 +113,7 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
                     <div className='largeScreenShow flexOn'>
                         <div className='rosterWrapper'>
                             <div className='rosterHomePageTitle'>
-                                Last Week&apos;s Ideal
+                                Last Week&apos;s Ideal Roster
                             </div>
                             <RosterDisplay
                                 groupPositions={groupPositions}

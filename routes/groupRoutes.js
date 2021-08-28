@@ -177,12 +177,29 @@ module.exports = app => {
         }
         const dbRes = await groupHandler.removeUser(group, delUserId, season);
 
-        res.sendStatus(200)
-        if (dbRes) {
+        if (dbRes.status) {
             res.sendStatus(200);
         } else {
             res.status(400).send(dbRes.message);
         }
+    });
 
-    })
+    app.get(`/api/group/admin/verify/:userId/:groupId`, async (req, res) => {
+        const { userId, groupId } = req.params;
+        const group = await groupHandler.getGroupDataById(groupId);
+        const onlyAdmin = await groupHandler.singleAdminCheck(group, userId);
+        if (onlyAdmin.status) {
+            res.status(210).send(onlyAdmin.nonAdmins);
+            // res.status(100).send('Only Admin in group! Pick another before leaving');
+        } else {
+            res.sendStatus(200)
+        }
+    });
+
+    app.put(`/api/group/admin/upgrade/:userId/:groupId`, async (req, res) => {
+        const { userId, groupId } = req.params;
+        const group = await groupHandler.getGroupDataById(groupId);
+        await groupHandler.upgradeToAdmin(group, userId);
+        res.sendStatus(200);
+    });
 };

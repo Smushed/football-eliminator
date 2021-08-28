@@ -19,7 +19,6 @@ const DisplayBox = ({
     boxContent,
     type,
     buttonActive,
-    inGroup = false,
     currUserId = null,
     currPageId,
     updatePage
@@ -28,8 +27,8 @@ const DisplayBox = ({
     const [displayData, updateDisplayData] = useState({});
 
     useEffect(() => {
-        type === 'user' && getUserData();
-        type === 'group' && getGroupData();
+        type === `user` && getUserData();
+        type === `group` && getGroupData();
     }, [type]);
 
     const { addToast } = useToasts();
@@ -52,29 +51,71 @@ const DisplayBox = ({
 
     const clickButton = async () => {
         if (currUserId === null) { return }
+        const alertTitle = `Are you sure you want to ${type === 'user' ? 'remove' : 'leave'} ${displayData.name}?`;
+        const alertText = `This is final. ${type === 'user' ? 'Their' : 'Your'} scores and rosters for this group will be deleted. There is no way to reverse this.`
 
-        if (type === 'user') {
-            Alert.fire({
-                title: `Are you sure you want to delete ${displayData.name}?`,
-                text: 'This is final. Their scores and rosters for this group will be deleted.\nThere is no way to reverse this.',
-                type: 'warning',
-                confirmButtonColor: '#DC3545',
-                showCancelButton: true,
-                confirmButtonText: 'Delete'
-            }).then(async res => {
-                if (res.value) {
-                    try {
-                        const res = await axios.delete(`/api/group/user/${currPageId}/${boxContent}/${currUserId}`);
-                        console.log(res)
-                        updatePage();
-                    } catch (err) {
-                        addToast(err.response.data, { appearance: 'error', autoDismiss: true })
-                    }
-                }
-            })
+        Alert.fire({
+            title: alertTitle,
+            text: alertText,
+            type: 'warning',
+            confirmButtonColor: '#DC3545',
+            showCancelButton: true,
+            confirmButtonText: 'Delete'
+        }).then(async res => {
+            if (res.value) {
+                if (type === 'user') { kickUser(); }
+                if (type === 'group') { adminCheck(); }
+            }
+        })
+    };
+
+    const kickUser = async () => {
+        try {
+            await axios.delete(`/api/group/user/${currPageId}/${boxContent}/${currUserId}`);
+            updatePage();
+        } catch (err) {
+            addToast(err.response.data, { appearance: 'error', autoDismiss: true })
         }
+    };
 
-    }
+    const adminCheck = async () => {
+        try {
+            const onlyAdmin = await axios.get(`/api/group/admin/verify/${currPageId}/${boxContent}`);
+            if (onlyAdmin.status === 210) {
+                adminPrompt(onlyAdmin.data);
+            } else {
+                leaveGroup();
+            }
+        } catch (err) {
+            addToast('Error verifying admins, contact Kevin', { appearance: 'error', autoDismiss: true });
+        }
+    };
+
+    const adminPrompt = async (nonAdmins) => {
+        const possibleAdmins = nonAdmins.map(user => user.UN);
+        const adminChoice = await Alert.fire({
+            title: 'Select a user to be new admin of the group.',
+            input: 'select',
+            inputOptions:
+                possibleAdmins
+        });
+        console.log(nonAdmins[adminChoice.value])
+        try {
+            await axios.put(`/api/group/admin/upgrade/${nonAdmins[adminChoice.value]._id}/${boxContent}`);
+            leaveGroup();
+        } catch (err) {
+            addToast('Error upgrading to admin, contact Kevin', { appearance: 'error', autoDismiss: true });
+        }
+    };
+
+    const leaveGroup = async () => {
+        try {
+            await axios.delete(`/api/user/group/${currPageId}/${boxContent}`);
+            updatePage();
+        } catch (err) {
+            addToast(err.response.data, { appearance: 'error', autoDismiss: true })
+        }
+    };
 
     return (
         <div className={`displayBox ` + (buttonActive && `withButtonHeight`)}>
@@ -96,13 +137,9 @@ const DisplayBox = ({
             </div>
             {buttonActive &&
                 <div className='textCenter addRemoveButton'>
-                    {type === 'group' &&
-                        (inGroup ? <div>Leave Group</div> : <div>Join Group</div>)
-                    }
-                    {type === 'user' &&
-                        !(boxContent === currUserId) &&
+                    {boxContent !== currUserId &&
                         <button className='btn btn-danger btn-sm' onClick={() => clickButton()}>
-                            Remove User<img className='closeSVGFit' src={CloseSVG} />
+                            {type === 'group' ? 'Leave Group' : 'Remove User'}<img className='closeSVGFit' src={CloseSVG} />
                         </button>
                     }
                 </div>
@@ -115,7 +152,6 @@ DisplayBox.propTypes = {
     boxContent: PropTypes.string,
     type: PropTypes.string,
     buttonActive: PropTypes.bool, //Button Active for removing users from a group (if group page) or leaving group (if user profile page)
-    inGroup: PropTypes.bool,
     currUserId: PropTypes.string,
     currPageId: PropTypes.string,
     updatePage: PropTypes.func

@@ -16,8 +16,8 @@ const AvatarInput = ({ handleChange, fileInputRef }) =>
         </div>
     </div>
 
-const UsernameInput = ({ handleChange, username, currentUserName, modalOpen }) =>
-    <div className={'editField' + (modalOpen ? ' lowerOpacity' : '')}>
+const UsernameInput = ({ handleChange, username, currentUserName }) =>
+    <div className='editField'>
         <div className='input-group input-group-lg'>
             <span className='input-group-text fieldDescription'>
                 Username:
@@ -26,8 +26,8 @@ const UsernameInput = ({ handleChange, username, currentUserName, modalOpen }) =
         </div>
     </div>;
 
-const PasswordInput = ({ handleChange, password, showPassword, modalOpen, toggleShowPassword }) =>
-    <div className={'editField' + (modalOpen ? ' lowerOpacity' : '')}>
+const PasswordInput = ({ handleChange, password, showPassword, toggleShowPassword }) =>
+    <div className='editField'>
         <div className='input-group input-group-lg'>
             <span className='input-group-text fieldDescription'>
                 Password:
@@ -42,8 +42,8 @@ const PasswordInput = ({ handleChange, password, showPassword, modalOpen, toggle
         </div>
     </div>;
 
-const ConfirmPasswordInput = ({ handleChange, password, showPassword, modalOpen, toggleShowPassword }) =>
-    <div className={'editField' + (modalOpen ? ' lowerOpacity' : '')}>
+const ConfirmPasswordInput = ({ handleChange, password, showPassword, toggleShowPassword }) =>
+    <div className='editField'>
         <div className='input-group input-group-lg'>
             <span className='input-group-text fieldDescription'>
                 Confirm:
@@ -59,13 +59,25 @@ const ConfirmPasswordInput = ({ handleChange, password, showPassword, modalOpen,
         </div>
     </div>;
 
-const EmailInput = ({ email, handleChange, authUser, modalOpen }) =>
-    <div className={'editField' + (modalOpen ? ' lowerOpacity' : '')}>
+const EmailInput = ({ email, handleChange, authUser }) =>
+    <div className='editField'>
         <div className='input-group input-group-lg'>
             <span className='input-group-text fieldDescription'>
                 Email:
             </span>
             <input className='form-control' name='email' value={email} type='email' onChange={handleChange} placeholder={authUser ? authUser.email : 'Email'} />
+        </div>
+    </div>;
+
+const MainGroupInput = ({ currentUser, mainGroup, handleChange }) =>
+    <div className='editField'>
+        <div className='input-group input-group-lg flex'>
+            <span className='input-group-text fieldDescription'>
+                Main Group:
+            </span>
+            <select className='form-select' name='mainGroup' value={mainGroup} onChange={handleChange}>
+                {currentUser.GL && currentUser.GL.map(group => <option key={group._id} value={group._id}>{group.N}</option>)}
+            </select>
         </div>
     </div>;
 
@@ -79,21 +91,18 @@ UsernameInput.propTypes = {
     handleChange: PropTypes.func,
     username: PropTypes.string,
     currentUserName: PropTypes.string,
-    modalOpen: PropTypes.bool
 };
 
 EmailInput.propTypes = {
     email: PropTypes.string,
     handleChange: PropTypes.func,
     authUser: PropTypes.any,
-    modalOpen: PropTypes.bool
 };
 
 PasswordInput.propTypes = {
     handleChange: PropTypes.func,
     password: PropTypes.string,
     showPassword: PropTypes.string,
-    modalOpen: PropTypes.bool,
     toggleShowPassword: PropTypes.func
 };
 
@@ -101,8 +110,13 @@ ConfirmPasswordInput.propTypes = {
     handleChange: PropTypes.func,
     password: PropTypes.string,
     showPassword: PropTypes.string,
-    modalOpen: PropTypes.bool,
     toggleShowPassword: PropTypes.func
-}
+};
 
-export { AvatarInput, UsernameInput, EmailInput, PasswordInput, ConfirmPasswordInput };
+MainGroupInput.propTypes = {
+    currentUser: PropTypes.object,
+    mainGroup: PropTypes.string,
+    handleChange: PropTypes.func
+};
+
+export { AvatarInput, UsernameInput, EmailInput, PasswordInput, ConfirmPasswordInput, MainGroupInput };

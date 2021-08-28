@@ -152,9 +152,8 @@ const App = ({ firebase }) => {
             <Route
               exact
               path={Routes.groupPage}
-              render={props =>
+              render={() =>
                 <GroupPage
-                  {...props}
                   season={currentSeason}
                   noGroup={noGroup}
                   userId={currentUser.userId}
@@ -172,9 +171,9 @@ const App = ({ firebase }) => {
             />
             <Route
               path={Routes.profile}
-              render={props =>
+              render={() =>
                 <Profile
-                  {...props}
+                  updateUser={isSignedIn}
                   authUser={authUser}
                   currentUser={currentUser} />}
             />

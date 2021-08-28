@@ -9,7 +9,7 @@ import { useToasts } from 'react-toast-notifications';
 
 import { EmailInput, PasswordInput } from './ProfileInputs';
 
-const ReAuth = ({ firebase, updatedFields, authUser, openCloseModal, currentUser, saveAvatarToAWS, avatar }) => {
+const ReAuth = ({ firebase, updatedFields, authUser, openCloseModal, currentUser }) => {
 
     const [email, setEmail] = useState(``);
     const [password, setPassword] = useState(``);
@@ -30,9 +30,6 @@ const ReAuth = ({ firebase, updatedFields, authUser, openCloseModal, currentUser
         if (updatedFields.username !== ``) {
             request.UN = updatedFields.username;
             needToUpdateDb = true;
-        }
-        if (updatedFields.avatar !== ``) {
-            saveAvatarToAWS(avatar)
         }
         if (needToUpdateDb) {
             axios.put(`/api/updateProfile`, { request, userId: currentUser.userId })
@@ -181,8 +178,6 @@ const ImageEditor = ({ tempAvatar, saveCroppedAvatar, openCloseModal, fileInputR
 };
 
 ReAuth.propTypes = {
-    avatar: PropTypes.any,
-    saveAvatarToAWS: PropTypes.func,
     firebase: PropTypes.any,
     updatedFields: PropTypes.object,
     authUser: PropTypes.any,

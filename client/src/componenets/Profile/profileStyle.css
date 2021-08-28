@@ -9,7 +9,7 @@
     z-index: .9;
 }
 
-.groupInfoWrapper {
+.profileWrapper {
     margin: 0 auto;
     margin-top: 20px;
     width: 862px;
@@ -57,7 +57,8 @@
 }
 
 .fieldDescription {
-    width: 120px;
+    width: 127px;
+    padding-left: 12px !important;
 }
 
 .editField {
@@ -165,23 +166,10 @@
     width: 125px;
 }
 
-.notificationHeader {
-    text-align: center;
-    font-size: 28px;
-    font-weight: 600;
-    margin-bottom: 30px;
-    margin-top: -15px;
-    height: 42px;
-}
-
 .reAuthHeader {
     text-align: center;
     font-size: 20px;
     font-weight: 600;
-}
-
-.relogNotify {
-    font-size: 24px;
 }
 
 .avatarInputButton {
@@ -249,7 +237,7 @@
 }
 
 .groupScoreNoInput {
-    width: 90px;
+    width: 95px;
 }
 
 .groupScoreBucketDesc {
@@ -318,7 +306,7 @@
     margin-top: 25px;
 }
 
-.groupUserHeader {
+.profileDisplayHeader {
     text-align: center;
     font-size: 32px;
     margin-top: 20px;
@@ -338,16 +326,12 @@
 }
 
 @media only screen and (max-width: 862px) {
-    .groupInfoWrapper {
+    .profileWrapper {
         width: 100%;
     }
 }
 
 @media only screen and (max-width: 767px) {
-    .smallScreenCenterBox {
-        display: flex;
-        justify-content: center;
-    }
     .editField {
         display: block;
         text-align: center;

@@ -2,6 +2,7 @@ require(`dotenv`).config();
 const userHandler = require(`../handlers/userHandler`);
 const rosterHandler = require(`../handlers/rosterHandler`);
 const s3Handler = require(`../handlers/s3Handler`);
+const groupHandler = require(`../handlers/groupHandler`);
 
 module.exports = app => {
     app.put(`/api/updateProfile`, async (req, res) => {
@@ -124,5 +125,18 @@ module.exports = app => {
             .then(([avatar, totalScore, user]) =>
                 res.status(200).send({ name: user.UN, avatar, score: totalScore })
             );
+    });
+
+    app.delete(`/api/user/group/:userId/:groupId`, async (req, res) => {
+        const { groupId, userId } = req.params;
+        //TODO If user is only one of group just delete the group
+        const { season } = await userHandler.pullSeasonAndWeekFromDB();
+        const group = await groupHandler.getGroupDataById(groupId);
+        const dbRes = await groupHandler.removeUser(group, userId, season);
+        if (dbRes.status) {
+            res.sendStatus(200);
+        } else {
+            res.status(400).send(dbRes.message);
+        }
     });
 }

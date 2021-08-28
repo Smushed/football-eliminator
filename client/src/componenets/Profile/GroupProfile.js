@@ -102,7 +102,7 @@ const GroupProfile = ({
                     }
                 </div>
             </div>
-            <div className='groupInfoWrapper'>
+            <div className='profileWrapper'>
                 <Leaderboard
                     week={week}
                     season={season}
@@ -115,7 +115,7 @@ const GroupProfile = ({
                         groupId={groupInfo._id.toString()}
                     />
                 }
-                <div className='groupUserHeader'>
+                <div className='profileDisplayHeader'>
                     Users:
                 </div>
                 <div className='flex flexWrap centerFlex'>

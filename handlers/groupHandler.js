@@ -420,17 +420,50 @@ module.exports = {
         if (user.MG.toString() === group._id.toString()) {
             delete user.MG;
         }
-
         try {
-            await db.UserScores.remove({ G: group._id, S: season, U: delUserId });
-            await db.UsedPlayers.remove({ G: group._id, S: season, U: delUserId });
-            await db.UserRoster.remove({ G: group._id, S: season, U: delUserId });
-            await group.save();
+            await db.UserScores.deleteOne({ G: group._id, S: season, U: delUserId });
+            await db.UsedPlayers.deleteOne({ G: group._id, S: season, U: delUserId });
+            await db.UserRoster.deleteMany({ G: group._id, S: season, U: delUserId });
             await user.save();
+            if (group.UL.length <= 1) {
+                await db.Group.deleteOne({ _id: group._id });
+            } else {
+                await group.save();
+            }
         } catch (err) {
             return { status: false, message: 'Saving error, contact Kevin' };
         }
-
         return { status: true, message: 'User removed from group' };
+    },
+    singleAdminCheck: async (group, userId) => {
+        //A value of true means the user is the only admin and there are still others in the group
+        if (group.UL.length === 1) { return false; }
+        const selfInGroup = group.UL.find(user => user.ID.toString() === userId);
+        if (selfInGroup.A === false) { return false; }
+
+        const adminList = group.UL.filter(user => user.A === true);
+        if (adminList.length <= 1) {
+            const nonAdmins = group.UL.filter(user => user.A === false);
+            const filledNonAdmins = [];
+            for (let user of nonAdmins) {
+                const { UN, E, _id } = await db.User.findById(user.ID, `UN E`);
+                filledNonAdmins.push({ UN, E, _id });
+            }
+
+            return { status: true, nonAdmins: filledNonAdmins };
+        } else {
+            return { stauts: false };
+        }
+    },
+    upgradeToAdmin: async (group, userId) => {
+        group.UL = group.UL.map(user => {
+            if (user.ID.toString() === userId) {
+                return { ID: user.ID, A: true, B: false }
+            } else {
+                return user;
+            }
+        });
+        await group.save();
+        return;
     }
 };

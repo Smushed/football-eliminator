@@ -1,12 +1,10 @@
-import React, { Fragment, useEffect, useState, useRef } from 'react';
-import { Prompt } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from 'react';
 import Modal from 'react-modal';
 import PropTypes from 'prop-types';
 import { withFirebase } from '../Firebase';
 import { withAuthorization } from '../Session';
 import { useToasts } from 'react-toast-notifications';
 
-import axios from 'axios';
 import Jimp from 'jimp';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
@@ -15,6 +13,7 @@ import 'rc-slider/assets/index.css';
 import './profileStyle.css';
 
 import { ReAuth, ImageEditor } from './ModalWindows';
+import UserEditor from './UserEditor';
 import GroupEditor from './GroupEditor';
 import UserProfile from './UserProfile';
 import GroupProfile from './GroupProfile';
@@ -25,7 +24,14 @@ const Alert = withReactContent(Swal);
 const userFields = { username: ``, email: ``, password: ``, mainGroup: `` };
 const groupFields = { groupName: ``, groupDesc: `` };
 
-const Profile = ({ authUser, currentUser, firebase, match, history }) => {
+const Profile = ({
+    authUser,
+    currentUser,
+    firebase,
+    match,
+    history,
+    updateUser
+}) => {
 
     const [modalOpen, updateModal] = useState(false);
     const [modalState, updateModalState] = useState(`reAuth`);
@@ -59,7 +65,6 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
 
     const handleChange = (e) => {
         if (e.target.name === `avatar`) {
-
             //Checks if the file uploaded is an image
             if (!!e.target.files[0].type.match(`image.*`)) {
                 Jimp.read((URL.createObjectURL(e.target.files[0])), async (err, img) => {
@@ -97,32 +102,6 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
         updateTempAvatar(``);
     };
 
-    const handleSubmit = () => {
-        if (match.params.type === `user`) {
-            if (updatedFields.email !== ``) {
-                let checkEmail = updatedFields.email.match(/^(([^<>()\]\\.,;:\s@']+(\.[^<>()\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
-                if (!checkEmail) {
-                    Alert.fire({
-                        type: `warning`,
-                        title: `Email is invalid`,
-                        text: `Please check the email field and enter again`,
-                    });
-                    return;
-                }
-            }
-        }
-
-        if (checkIfReAuthNeeded) {
-            updateModalState(`reAuth`);
-            openCloseModal();
-        } else {
-            if (updatedFields.mainGroup !== currentUser.MG) {
-                axios.put(`/api/group/main/${updatedFields.mainGroup}/${currentUser.userId}`);
-            }
-            window.location.reload(false);
-        }
-    };
-
     const saveAvatarToAWS = (updatedAvatar) => {
         const idToUpdate = match.params.type === `user` ? currentUser.userId : groupInfo._id;
         //Using Fetch here to send along the base64 encoded image
@@ -150,56 +129,22 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
         history.push(`/profile/group/${newGroup}`);
     };
 
-    const checkIfSaveNeeded =
-        match.params.type === `user` ?
-            updatedFields.avatar !== `` ||
-            updatedFields.email !== `` ||
-            updatedFields.password !== `` ||
-            updatedFields.username !== `` ||
-            updatedFields.mainGroup !== currentUser.MG
-            :
-            false;
-
-    const checkIfReAuthNeeded =
-        match.params.type === `user` ?
-            updatedFields.email !== `` ||
-            updatedFields.password !== `` ||
-            updatedFields.username !== ``
-            :
-            updatedFields.groupName !== ``;
-
     return (
-        <Fragment>
-            <Prompt
-                when={checkIfSaveNeeded}
-                message='Information is Unsaved. Are you sure you want to leave?'
-            />
+        <>
             <div className={modalOpen ? 'greyBackdrop' : ''} />
-            {(checkIfSaveNeeded && checkIfReAuthNeeded) &&
-                <div className='notificationHeader'>
-                    {checkIfSaveNeeded &&
-                        `Submit to Save Changes`
-                    }
-                    {checkIfReAuthNeeded &&
-                        <div className='relogNotify'>
-                            Sensitive Data Updated<br />Relogin Required
-                        </div>
-                    }
-                </div>
-            }
+
             {match.params.type === `user` ?
                 <UserProfile
-                    authUser={authUser}
                     currentUser={currentUser}
                     username={match.params.name}
-                    handleChange={handleChange}
                     fileInputRef={fileInputRef}
-                    checkIfSaveNeeded={checkIfSaveNeeded}
-                    handleSubmit={handleSubmit}
                     avatar={avatar}
-                    updatedFields={updatedFields}
-                    modalOpen={modalOpen}
+                    openCloseModal={openCloseModal}
                     updateAvatar={updateAvatar}
+                    handleChange={handleChange}
+                    updateModalState={updateModalState}
+                    updateUser={updateUser}
+                    currUserEmail={authUser && authUser.email}
                 />
                 :
                 match.params.type === `group` ?
@@ -232,8 +177,6 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
                         updatedFields={updatedFields}
                         authUser={authUser}
                         currentUser={currentUser}
-                        saveAvatarToAWS={saveAvatarToAWS}
-                        avatar={avatar}
                     />
                     :
                     modalState === `avatar` ?
@@ -244,17 +187,28 @@ const Profile = ({ authUser, currentUser, firebase, match, history }) => {
                             fileInputRef={fileInputRef}
                         />
                         :
-                        <GroupEditor
-                            updateGroupInfo={updateGroupInfo}
-                            groupInfo={groupInfo}
-                            updatedFields={updatedFields}
-                            changeUpdatedFields={changeUpdatedFields}
-                            openCloseModal={openCloseModal}
-                            changeGroup={changeGroup}
-                        />
+                        modalState === `group` ?
+                            <GroupEditor
+                                updateGroupInfo={updateGroupInfo}
+                                groupInfo={groupInfo}
+                                updatedFields={updatedFields}
+                                changeUpdatedFields={changeUpdatedFields}
+                                openCloseModal={openCloseModal}
+                                changeGroup={changeGroup}
+                            />
+                            :
+                            <UserEditor
+                                changeUpdatedFields={changeUpdatedFields}
+                                updatedFields={updatedFields}
+                                currentUser={currentUser}
+                                modalOpen={modalOpen}
+                                authUser={authUser}
+                                updateModalState={updateModalState}
+                                openCloseModal={openCloseModal}
+                            />
                 }
             </Modal>
-        </Fragment>
+        </>
     );
 };
 
@@ -263,7 +217,8 @@ Profile.propTypes = {
     currentUser: PropTypes.object,
     firebase: PropTypes.any,
     match: PropTypes.any,
-    history: PropTypes.any
+    history: PropTypes.any,
+    updateUser: PropTypes.func
 };
 
 
