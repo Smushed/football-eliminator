@@ -599,6 +599,7 @@ module.exports = {
     pullMatchUpsForDB: async (season, week) => {
         return new Promise(async (res, rej) => {
             for (let i = 1; i <= week; i++) {
+                console.log(`requesting matchups for ${season}, week ${i}`)
                 const search = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${i}/games.json`, {
                     auth: {
                         username: mySportsFeedsAPI,
@@ -629,5 +630,13 @@ module.exports = {
                 res(pulledWeek);
             }
         });
+    },
+    sortMatchups: async (matchups) => {
+        const matchupsDisplay = {};
+        for (let team of matchups) {
+            matchupsDisplay[team.H] = { v: team.A, h: true }
+            matchupsDisplay[team.A] = { v: team.H, h: false }
+        }
+        return matchupsDisplay;
     }
 };

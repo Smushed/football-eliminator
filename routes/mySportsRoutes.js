@@ -24,7 +24,7 @@ module.exports = app => {
         } else {
             //TODO Better error handling
             console.log(dbResponse.text);
-        };
+        }
     });
 
     //This iterates through all the teams (all 32) and pulls mySportsFeeds for the current rosters
@@ -53,7 +53,7 @@ module.exports = app => {
             const groupScore = await groupHandler.getGroupScore(groupId);
             await mySportsHandler.calculateWeeklyScore(groupRosters, season, i, groupId, groupScore);
             console.log(`done scoring week ${i}`)
-        };
+        }
         res.status(200).send('working');
     });
 
@@ -69,10 +69,11 @@ module.exports = app => {
         res.status(200).send(dbResponse);
     });
 
-    app.get(`/api/getWeeklyMatchups/:season/:week`, async (req, res) => {
+    app.get(`/api/matchups/:season/:week`, async (req, res) => {
         const { season, week } = req.params;
         const matchups = await mySportsHandler.getMatchups(season, week);
-        res.status(200).send(matchups.M);
+        const sortedMatchups = await mySportsHandler.sortMatchups(matchups.M)
+        res.status(200).send({ matchups: matchups.M, sortedMatchups });
     });
 
     app.post(`/api/pullMatchUpsForDB/:season/:week`, async (req, res) => {

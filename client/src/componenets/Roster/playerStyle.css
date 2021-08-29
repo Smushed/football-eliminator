@@ -7,7 +7,7 @@
     width: 93%;
     height: 36px;
     font-weight: 500;
-    padding-left: 45px;
+    padding-left: 20px;
     overflow: hidden;
 }
 
@@ -43,10 +43,6 @@
     width: 100%;
 }
 
-.addDropButton {
-    margin-right: 10%;
-}
-
 .playerCol {
     padding-top: 8px;
     padding-bottom: 8px;
@@ -62,7 +58,7 @@
 .posCol {
     padding-top: 8px;
     padding-bottom: 8px;
-    min-width: 40px;
+    min-width: 50px;
 }
 
 .scoreCol {
