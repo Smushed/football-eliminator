@@ -30,6 +30,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
     const [currentPositionUsedPlayers, updateCurrentPositionUsedPlayers] = useState([]);
     const [positionMap, updatePositionMap] = useState([])
     const [weeklyMatchups, updateWeeklyMatchups] = useState([]);
+    const [sortedMatchups, updateSortedMatchups] = useState([]);
     const [mustDrop, updateMustDrop] = useState(false);
     const [possiblePlayer, updatePossiblePlayer] = useState(0);
     const [possiblePlayers, updatePossiblePlayers] = useState([]);
@@ -65,9 +66,10 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
     };
 
     const getWeeklyMatchUps = async (weekInput) => {
-        axios.get(`/api/getWeeklyMatchups/${season}/${weekInput}`)
+        axios.get(`/api/matchups/${season}/${weekInput}`)
             .then(res => {
-                updateWeeklyMatchups(res.data);
+                updateWeeklyMatchups(res.data.matchups);
+                updateSortedMatchups(res.data.sortedMatchups);
             });
 
     };
@@ -372,7 +374,9 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                                 <PlayerDisplayRow
                                     showSingleMatchUp={showUsedPlayers && showSingleMatchUp}
                                     player={player} key={i}
-                                    evenOrOddRow={i % 2} />
+                                    evenOrOddRow={i % 2}
+                                    sortedMatchups={sortedMatchups}
+                                />
                             ))}
                         </div>
                     </div>
@@ -385,7 +389,9 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                                 showSingleMatchUp={showSingleMatchUp}
                                 player={player} key={i}
                                 addDropPlayer={mustDrop ? false : addDropPlayer}
-                                evenOrOddRow={i % 2} />
+                                evenOrOddRow={i % 2}
+                                sortedMatchups={sortedMatchups}
+                            />
                         ))}
                     </div>
 
@@ -420,7 +426,7 @@ const CurrentRosterRow = ({ evenOrOddRow, player, position, showSingleMatchUp, a
                                 {player.SC.toFixed(2)}
                             </div> :
                             addDropPlayer &&
-                            <button className='addDropButton custom-button' onClick={() => addDropPlayer(player.M, 'drop')}>
+                            <button className='custom-button' onClick={() => addDropPlayer(player.M, 'drop')}>
                                 Drop
                             </button>
                         }
@@ -431,7 +437,7 @@ const CurrentRosterRow = ({ evenOrOddRow, player, position, showSingleMatchUp, a
     </div >
 );
 
-const PlayerDisplayRow = ({ evenOrOddRow, player, showSingleMatchUp, addDropPlayer }) => (
+const PlayerDisplayRow = ({ evenOrOddRow, player, showSingleMatchUp, addDropPlayer, sortedMatchups }) => (
     <div className={evenOrOddRow === 0 ? 'playerRow' : 'playerRow oddRow'}>
         <div className='playerCol'>
             {player.N && player.N}
@@ -440,10 +446,10 @@ const PlayerDisplayRow = ({ evenOrOddRow, player, showSingleMatchUp, addDropPlay
             {player.T && player.T}
         </div>
         <div className='posCol'>
-            {player.P && player.P}
+            {sortedMatchups && `${sortedMatchups[player.T].h ? 'v' : '@'} ${sortedMatchups[player.T].v}`}
         </div>
         {addDropPlayer &&
-            <button className='addDropButton custom-button' onClick={() => addDropPlayer(player.M, 'add')}>
+            <button className='custom-button' onClick={() => addDropPlayer(player.M, 'add')}>
                 Add
             </button>
         }
@@ -505,7 +511,8 @@ PlayerDisplayRow.propTypes = {
     addDropPlayer: PropTypes.oneOfType([
         PropTypes.bool,
         PropTypes.func
-    ])
+    ]),
+    sortedMatchups: PropTypes.object
 };
 
 RosterDisplay.propTypes = {
@@ -521,37 +528,3 @@ const condition = authUser => !!authUser;
 
 export default withAuthorization(condition)(Roster);
 export { RosterDisplay, PlayerDisplayRow };
-
-        //             {/* <div className='rosterCol largeScreenShow'>
-        //                 <div className='searchRow'>
-        //                     <br />
-        //                     
-        //                 </div>
-        //                 <div className='sectionHeader'>
-        //                     Used Players
-        //                 </div>
-        //                 {this.state.currentPositionUsedPlayers.map((player, i) => (
-        //                     <PlayerDisplayRow player={player} key={i} evenOrOddRow={i % 2} />
-        //                 ))}
-        //             </div> */}
-        // {/*SMALL SCREEN COMMENTED OUT FOR NOW
-        //         <div className='smallSearchContainer'>
-        //             <div className='searchRow'>
-        //                 Change Week
-        //                 <WeekSearch weekSelect={this.state.weekSelect} handleChange={this.handleChange} customSeasonWeekSearch={this.customSeasonWeekSearch} />
-        //             </div>
-        //             <div className='searchRow'>
-        //                 Position Search
-        //                 <PositionSearch
-        //                     positionSelect={this.state.positionSelect}
-        //                     handleChange={this.handleChange}
-        //                     positionSearch={this.positionSearch} />
-        //             </div>
-        //             <div className='searchRow'>
-        //                 Player Search
-        //                 <PlayerSearch
-        //                     playerSearch={this.state.playerSearch}
-        //                     handleChange={this.handleChange}
-        //                     customPlayerSearch={this.customPlayerSearch} />
-        //             </div>
-        //         </div> */}

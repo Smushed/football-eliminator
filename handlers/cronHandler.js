@@ -15,9 +15,10 @@ schedule.scheduleJob('22 * * * *', async function () {
 });
 
 // Update Scores every day at 3am 
-schedule.scheduleJob('0 3 * 9,10,11,12,1 *', async function () {
-    const currDBWeeks = await userHandler.pullSeasonAndWeekFromDB();
-    mySportsHandler.getWeeklyData(currDBWeeks.season, currDBWeeks.week);
+schedule.scheduleJob('0 3 * * *', async function () {
+    const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
+    mySportsHandler.getWeeklyData(season, week);
+    mySportsHandler.updateRoster(season)
 });
 
 const startWeek = (currDate, currDBWeeks, currWeek) => {
