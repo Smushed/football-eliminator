@@ -9,10 +9,18 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
 import './groupStyle.css';
+import * as Routes from '../../constants/routes';
 
 const Alert = withReactContent(Swal);
 
-const GroupPage = ({ userId, noGroup, season }) => {
+const GroupPage = ({
+    history,
+    email,
+    pullUserData,
+    userId,
+    noGroup,
+    season
+}) => {
 
     const [groupList, updateGroupList] = useState([]);
 
@@ -44,12 +52,14 @@ const GroupPage = ({ userId, noGroup, season }) => {
         updateGroupList(res.data);
     };
 
-    const joinGroup = async (groupId) => {
+    const joinGroup = (groupId) => {
         axios.put(`/api/group/join/`, {
             userId,
             groupId
         }).then(() => {
-            window.location.reload();
+            pullUserData(email).then(() => {
+                history.push(Routes.home)
+            });
         });
     };
 
@@ -183,6 +193,9 @@ const GroupRow = ({ group, joinGroup, season, userId }) => {
 };
 
 GroupPage.propTypes = {
+    history: PropTypes.any,
+    email: PropTypes.string,
+    pullUserData: PropTypes.func,
     season: PropTypes.string,
     noGroup: PropTypes.bool,
     userId: PropTypes.string,

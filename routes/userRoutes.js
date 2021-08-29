@@ -129,7 +129,6 @@ module.exports = app => {
 
     app.delete(`/api/user/group/:userId/:groupId`, async (req, res) => {
         const { groupId, userId } = req.params;
-        //TODO If user is only one of group just delete the group
         const { season } = await userHandler.pullSeasonAndWeekFromDB();
         const group = await groupHandler.getGroupDataById(groupId);
         const dbRes = await groupHandler.removeUser(group, userId, season);

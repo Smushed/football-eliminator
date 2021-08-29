@@ -38,7 +38,7 @@ const App = ({ firebase }) => {
     listener.current = firebase.auth.onAuthStateChanged(authUser => {
       if (authUser) {
         updateAuthUser(authUser);
-        isSignedIn(authUser.email);
+        pullUserData(authUser.email);
       } else {
         updateAuthUser(null);
         updateCurrentUser({});
@@ -50,16 +50,19 @@ const App = ({ firebase }) => {
   }, [firebase]);
 
 
-  const isSignedIn = async (email) => {
-    const dbResponse = await axios.get(`/api/user/email/${email}`);
+  const pullUserData = (email) => {
+    return new Promise(async res => {
+      const dbResponse = await axios.get(`/api/user/email/${email}`);
 
-    setCurrentUser(dbResponse.data);
+      setCurrentUser(dbResponse.data);
 
-    if (userHasGroup(dbResponse.data)) {
-      initGroup(dbResponse.data);
-    } else {
-      updateNoGroup(true);
-    }
+      if (userHasGroup(dbResponse.data)) {
+        initGroup(dbResponse.data);
+      } else {
+        updateNoGroup(true);
+      }
+      res();
+    })
   };
 
   const setCurrentUser = (user) => {
@@ -154,6 +157,8 @@ const App = ({ firebase }) => {
               path={Routes.groupPage}
               render={() =>
                 <GroupPage
+                  email={authUser && authUser.email}
+                  pullUserData={pullUserData}
                   season={currentSeason}
                   noGroup={noGroup}
                   userId={currentUser.userId}
@@ -173,7 +178,7 @@ const App = ({ firebase }) => {
               path={Routes.profile}
               render={() =>
                 <Profile
-                  updateUser={isSignedIn}
+                  pullUserData={pullUserData}
                   authUser={authUser}
                   currentUser={currentUser} />}
             />
@@ -220,6 +225,8 @@ const App = ({ firebase }) => {
               path={Routes.createGroup}
               render={() =>
                 <CreateGroup
+                  email={authUser && authUser.email}
+                  pullUserData={pullUserData}
                   changeGroup={changeGroup}
                   userId={currentUser.userId}
                 />

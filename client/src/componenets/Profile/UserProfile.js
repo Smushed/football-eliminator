@@ -16,7 +16,7 @@ const UserProfile = ({
     openCloseModal,
     updateModalState,
     handleChange,
-    updateUser,
+    pullUserData,
     currUserEmail
 }) => {
     useEffect(() => {
@@ -28,7 +28,7 @@ const UserProfile = ({
 
     const isCurrentUser = username === currentUser.username;
 
-    const repullUser = () => updateUser(currUserEmail);
+    const repullUser = () => pullUserData(currUserEmail);
 
     return (
         <>
@@ -87,7 +87,7 @@ UserProfile.propTypes = {
     openCloseModal: PropTypes.func,
     updateModalState: PropTypes.func,
     handleChange: PropTypes.func,
-    updateUser: PropTypes.func,
+    pullUserData: PropTypes.func,
     currUserEmail: PropTypes.string
 };
 

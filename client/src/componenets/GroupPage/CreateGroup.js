@@ -2,16 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
 import PropTypes from 'prop-types';
+import { useToasts } from 'react-toast-notifications';
 
 import './groupStyle.css';
 import * as Routes from '../../constants/routes';
 
-const CreateGroup = ({ userId, changeGroup, history }) => {
+const CreateGroup = ({
+    email,
+    pullUserData,
+    userId,
+    changeGroup,
+    history
+}) => {
 
     const [rosterPositions, updateRosterPositions] = useState([]);
     const [positionMap, updatePositionMap] = useState([]);
     const [maxOfPosition, updateMaxOfPosition] = useState([]);
-    const [error, updateError] = useState(''); //TODO ERROR DISPLAY
     const [groupName, updateGroupName] = useState('');
     const [groupDesc, updateGroupDesc] = useState('');
     const [groupPosChoose, updateGroupPosChoose] = useState(['QB']);
@@ -39,10 +45,12 @@ const CreateGroup = ({ userId, changeGroup, history }) => {
         }
     }, [dbReadyGroupPos, rosterPositions, positionMap]);
 
+    const { addToast } = useToasts();
+
     const getRosterPositions = async () => {
         const dbResponse = await axios.get(`/api/roster/positions`);
         updateRosterPositions(dbResponse.data.rosterPositions);
-        updatePositionMap(dbResponse.data.positionMap); //ISSUE IS HERE
+        updatePositionMap(dbResponse.data.positionMap);
         updateMaxOfPosition(dbResponse.data.maxOfPosition);
     };
 
@@ -59,7 +67,6 @@ const CreateGroup = ({ userId, changeGroup, history }) => {
                 }
             }
         }
-        //TODO If 400 Error then the group's name is duplicated
         axios.post(`/api/group/create`,
             {
                 userId: userId,
@@ -70,7 +77,10 @@ const CreateGroup = ({ userId, changeGroup, history }) => {
             })
             .then(res => {
                 changeGroup(res.data._id);
-                history.push(Routes.home);
+                pullUserData(email)
+                    .then(() => {
+                        history.push(Routes.home);
+                    });
             });
     };
 
@@ -180,7 +190,7 @@ const CreateGroup = ({ userId, changeGroup, history }) => {
             for (let iiii = 0; iiii < tooMany.length; iiii++) {
                 errorMessage += ` ${tooMany[iiii]}`;
             }
-            updateError(errorMessage);
+            addToast(errorMessage, { appearance: 'warning', autoDismiss: true })
             return false;
         } else {
             return true;
@@ -334,6 +344,8 @@ ScoringRow.propTypes = {
 };
 
 CreateGroup.propTypes = {
+    email: PropTypes.string,
+    pullUserData: PropTypes.func,
     userId: PropTypes.string,
     week: PropTypes.number,
     groupId: PropTypes.string,
