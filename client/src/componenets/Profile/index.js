@@ -30,7 +30,7 @@ const Profile = ({
     firebase,
     match,
     history,
-    updateUser
+    pullUserData
 }) => {
 
     const [modalOpen, updateModal] = useState(false);
@@ -143,7 +143,7 @@ const Profile = ({
                     updateAvatar={updateAvatar}
                     handleChange={handleChange}
                     updateModalState={updateModalState}
-                    updateUser={updateUser}
+                    pullUserData={pullUserData}
                     currUserEmail={authUser && authUser.email}
                 />
                 :
@@ -218,7 +218,7 @@ Profile.propTypes = {
     firebase: PropTypes.any,
     match: PropTypes.any,
     history: PropTypes.any,
-    updateUser: PropTypes.func
+    pullUserData: PropTypes.func
 };
 
 

@@ -407,33 +407,36 @@ module.exports = {
         if (!selfInGroup) { return false; }
         return selfInGroup.A;
     },
-    removeUser: async (group, delUserId, season) => {
-        const userInGroup = group.UL.find(user => user.ID.toString() === delUserId.toString());
-        if (!userInGroup) { return { status: false, message: 'User not found in group.' }; }
+    removeUser: (group, delUserId, season) => {
+        return new Promise(async res => {
 
-        const userPos = group.UL.map(user => user.ID.toString()).indexOf(delUserId);
-        group.UL.splice(userPos, 1);
+            const userInGroup = group.UL.find(user => user.ID.toString() === delUserId.toString());
+            if (!userInGroup) { res({ status: false, message: 'User not found in group.' }); }
 
-        const user = await db.User.findById(delUserId).exec();
-        const groupPos = user.GL.map(groupId => groupId.toString()).indexOf(group._id.toString());
-        user.GL.splice(groupPos, 1);
-        if (user.MG.toString() === group._id.toString()) {
-            delete user.MG;
-        }
-        try {
-            await db.UserScores.deleteOne({ G: group._id, S: season, U: delUserId });
-            await db.UsedPlayers.deleteOne({ G: group._id, S: season, U: delUserId });
-            await db.UserRoster.deleteMany({ G: group._id, S: season, U: delUserId });
-            await user.save();
-            if (group.UL.length <= 1) {
-                await db.Group.deleteOne({ _id: group._id });
-            } else {
-                await group.save();
+            const userPos = group.UL.map(user => user.ID.toString()).indexOf(delUserId);
+            group.UL.splice(userPos, 1);
+
+            const user = await db.User.findById(delUserId).exec();
+            const groupPos = user.GL.map(groupId => groupId.toString()).indexOf(group._id.toString());
+            user.GL.splice(groupPos, 1);
+            if (user.MG.toString() === group._id.toString()) {
+                user.MG = null;
             }
-        } catch (err) {
-            return { status: false, message: 'Saving error, contact Kevin' };
-        }
-        return { status: true, message: 'User removed from group' };
+            try {
+                await db.UserScores.deleteOne({ G: group._id, S: season, U: delUserId });
+                await db.UsedPlayers.deleteOne({ G: group._id, S: season, U: delUserId });
+                await db.UserRoster.deleteMany({ G: group._id, S: season, U: delUserId });
+                await user.save();
+                if (group.UL.length <= 1) {
+                    await db.Group.deleteOne({ _id: group._id });
+                } else {
+                    await group.save();
+                }
+            } catch (err) {
+                res({ status: false, message: 'Saving error, contact Kevin' });
+            }
+            res({ status: true, message: 'User removed from group' });
+        })
     },
     singleAdminCheck: async (group, userId) => {
         //A value of true means the user is the only admin and there are still others in the group
