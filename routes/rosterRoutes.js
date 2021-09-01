@@ -62,7 +62,7 @@ module.exports = app => {
         res.status(200).send(dbResponse);
     });
 
-    app.put(`/api/updateUserRoster/`, async (req, res) => {
+    app.put(`/api/user/roster/`, async (req, res) => {
         const { userId, roster, droppedPlayer, addedPlayer, week, season, groupname } = req.body;
         const groupId = await groupHandler.findGroupIdByName(groupname);
         const updatedRoster = await rosterHandler.updateUserRoster(userId, groupId, roster, droppedPlayer, addedPlayer, week, season);
@@ -76,8 +76,9 @@ module.exports = app => {
         res.status(200).send(lockPeriod);
     });
 
-    app.get(`/api/getUsedPlayers/:username/:season/:groupname`, async (req, res) => {
+    app.get(`/api/players/used/:username/:season/:groupname`, async (req, res) => {
         const { username, season, groupname } = req.params;
+
         Promise.all([groupHandler.findGroupIdByName(groupname), userHandler.getUserByUsername(username)])
             .then(async ([groupId, user]) => {
                 const usedPlayers = await rosterHandler.usedPlayersByPosition(user._id, season, groupId);

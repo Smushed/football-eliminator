@@ -206,7 +206,7 @@ module.exports = {
     },
     updateUserRoster: async (userId, groupId, roster, droppedPlayer, addedPlayer, week, season) => {
         return new Promise(async (res, rej) => {
-            const usedPlayers = await db.UsedPlayers.findOne({ U: userId });
+            const usedPlayers = await db.UsedPlayers.findOne({ U: userId, S: season });
             let newUsedPlayers = [];
             for (const playerId of usedPlayers.UP) {
                 if (playerId !== +droppedPlayer) {

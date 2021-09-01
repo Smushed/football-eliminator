@@ -49,7 +49,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
 
 
     const getUsedPlayers = () => {
-        axios.get(`/api/getUsedPlayers/${match.params.username}/${season}/${match.params.groupname}`)
+        axios.get(`/api/players/used/${match.params.username}/${season}/${match.params.groupname}`)
             .then(res => {
                 updateUsedPlayers(res.data);
             }).catch(err => {
@@ -151,7 +151,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
 
     const saveRosterToDb = async (roster, droppedPlayer, addedPlayer) => {
         loading()
-        axios.put(`/api/updateUserRoster`,
+        axios.put(`/api/user/roster`,
             { userId: userId, roster, droppedPlayer, addedPlayer, week: weekSelect, season: season, groupname: match.params.groupname })
             .then(res => {
                 doneLoading();
@@ -183,6 +183,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
             .then(res => {
                 updateLastPosSearch(positionSelect);
                 updateAvaliablePlayers(res.data);
+                console.log(usedPlayers)
                 if (!usedPlayers[positionSelect]) {
                     getUsedPlayers();
                 } else {
@@ -372,7 +373,6 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                             </div>
                             {currentPositionUsedPlayers.map((player, i) => (
                                 <PlayerDisplayRow
-                                    showSingleMatchUp={showUsedPlayers && showSingleMatchUp}
                                     player={player} key={i}
                                     evenOrOddRow={i % 2}
                                     sortedMatchups={sortedMatchups}
@@ -386,7 +386,6 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                         </div>
                         {availablePlayers.map((player, i) => (
                             <PlayerDisplayRow
-                                showSingleMatchUp={showSingleMatchUp}
                                 player={player} key={i}
                                 addDropPlayer={mustDrop ? false : addDropPlayer}
                                 evenOrOddRow={i % 2}
@@ -437,12 +436,12 @@ const CurrentRosterRow = ({ evenOrOddRow, player, position, showSingleMatchUp, a
     </div >
 );
 
-const PlayerDisplayRow = ({ evenOrOddRow, player, showSingleMatchUp, addDropPlayer, sortedMatchups }) => (
+const PlayerDisplayRow = ({ evenOrOddRow, player, addDropPlayer, sortedMatchups }) => (
     <div className={evenOrOddRow === 0 ? 'playerRow' : 'playerRow oddRow'}>
         <div className='playerCol'>
             {player.N && player.N}
         </div>
-        <div onClick={() => (showSingleMatchUp && showSingleMatchUp(player.T))} className={`teamCol ${(showSingleMatchUp && `pointer`)}`}>
+        <div className='teamCol'>
             {player.T && player.T}
         </div>
         <div className='posCol'>
@@ -504,10 +503,6 @@ CurrentRosterRow.propTypes = {
 PlayerDisplayRow.propTypes = {
     evenOrOddRow: PropTypes.number,
     player: PropTypes.object,
-    showSingleMatchUp: PropTypes.oneOfType([
-        PropTypes.bool,
-        PropTypes.func
-    ]),
     addDropPlayer: PropTypes.oneOfType([
         PropTypes.bool,
         PropTypes.func

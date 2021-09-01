@@ -1,7 +1,7 @@
 .leaderboardContainter {
     z-index: 0.8;
     min-width: 700px;
-    max-height: 450px;
+    max-height: 5000px;
     margin-top: 10px;
     margin-bottom: 10px;
     overflow-y: scroll;
