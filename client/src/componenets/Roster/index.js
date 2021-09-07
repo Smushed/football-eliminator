@@ -183,7 +183,6 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
             .then(res => {
                 updateLastPosSearch(positionSelect);
                 updateAvaliablePlayers(res.data);
-                console.log(usedPlayers)
                 if (!usedPlayers[positionSelect]) {
                     getUsedPlayers();
                 } else {
