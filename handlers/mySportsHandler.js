@@ -345,18 +345,18 @@ const saveUserScore = async (userId, groupId, season, week, weekScore) => {
     let status = 200;
     await db.UserScores.findOne({ 'U': userId, 'G': groupId, 'S': season }, (err, userScore) => {
         //First check if the userScore is not in the DB
+        let totalScore = 0;
         if (userScore === null) {
             let newUserScore = new db.UserScores({ U: userId, G: groupId, S: season, TS: totalScore });
-            newUserScore[week] = weekScore
+            newUserScore[week] = weekScore;
             newUserScore.save(err => {
                 if (err) {
                     console.log(err);
                 }
-                return;
             });
+            return;
         }
         userScore[week] = weekScore;
-        let totalScore = 0;
         for (let i = 1; i <= week; i++) {
             totalScore += userScore[i];
         }
@@ -401,37 +401,89 @@ const saveOrUpdateMatchups = async (matchUpArray, season, week) => {
     return true;
 };
 
-module.exports = {
+const getAndSaveUserScore = async (userRoster, season, week, userId, groupScore, groupId) => {
+    let weeklyRosterScore = [];
+    let weekScore = 0;
+    for (let i = 0; i < userRoster.length; i++) {
+        const currentScore = await getPlayerWeeklyScore(userRoster[i].M, season, week, groupScore);
+        const currentScoreNum = +currentScore.toFixed(2);
+        weekScore += currentScoreNum;
+        weeklyRosterScore[i] = currentScoreNum;
+    }
+    saveWeeklyUserScore(userId, groupId, week, season, weeklyRosterScore);
+    saveUserScore(userId, groupId, season, week, weekScore);
+    return;
+};
 
-    updateRoster: async (season) => {
-        // This loops through the array of all the teams above and gets the current rosters
-        for (const team of nflTeams.teams) {
-            if (team === `UNK`) { continue }
-            console.log(`Requesting ${team}`);
-            await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
-                auth: {
-                    username: mySportsFeedsAPI,
-                    password: `MYSPORTSFEEDS`
-                },
-                params: {
-                    season: season,
-                    team: team,
-                    rosterstatus: `assigned-to-roster`
-                }
-            }).then(async (response) => {
-                // Then parses through the roster and pulls out of all the offensive players and updates their data
-                //This also gets any new players and adds them to the DB but inside this function
-                //Await because I want it to iterate through the whole roster that was provided before moving onto the next one
-                console.log(`working through ${team}`)
-                await parseRoster(response.data.players, team);
-            }).catch(err => {
-                //TODO Error handling if the AJAX failed
-                console.log(`ERROR`, err, `GET ERROR`);
-            });
+const getPlayerWeeklyScore = async (playerId, season, week, groupScore) => {
+    return new Promise(async (res, rej) => {
+        if (playerId === 0) {
+            res(0);
         }
+        let weeklyScore = 0;
+        weeklyScore = await playerScoreHandler(playerId, season, week, groupScore);
+        res(weeklyScore);
+    });
+};
 
-        //TODO Better response
-        return { text: `Rosters updated!` };
+module.exports = {
+    updateTestRoster: async (season) => {
+        console.log(season)
+        const team = 'PHI';
+        console.log(`Requesting ${team}`);
+        await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
+            auth: {
+                username: mySportsFeedsAPI,
+                password: `MYSPORTSFEEDS`
+            },
+            params: {
+                season: season,
+                team: team,
+                rosterstatus: `assigned-to-roster`
+            }
+        }).then(async (response) => {
+            // Then parses through the roster and pulls out of all the offensive players and updates their data
+            //This also gets any new players and adds them to the DB but inside this function
+            //Await because I want it to iterate through the whole roster that was provided before moving onto the next one
+            console.log(`working through ${team}`);
+
+            await parseRoster(response.data.players, team);
+        }).catch(err => {
+            //TODO Error handling if the AJAX failed
+            console.log(`ERROR`, err, `GET ERROR`);
+        });
+    },
+    updateRoster: async (season) => {
+        return new Promise(async (res, rej) => {
+            // This loops through the array of all the teams above and gets the current rosters
+            for (const team of nflTeams.teams) {
+                if (team === `UNK`) { continue }
+                console.log(`Requesting ${team}`);
+                await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
+                    auth: {
+                        username: mySportsFeedsAPI,
+                        password: `MYSPORTSFEEDS`
+                    },
+                    params: {
+                        season: season,
+                        team: team,
+                        rosterstatus: `assigned-to-roster`
+                    }
+                }).then(async (response) => {
+                    // Then parses through the roster and pulls out of all the offensive players and updates their data
+                    //This also gets any new players and adds them to the DB but inside this function
+                    //Await because I want it to iterate through the whole roster that was provided before moving onto the next one
+                    console.log(`working through ${team}`)
+                    await parseRoster(response.data.players, team);
+                }).catch(err => {
+                    //TODO Error handling if the AJAX failed
+                    console.log(`ERROR`, err, `GET ERROR`);
+                });
+            }
+
+            //TODO Better response
+            res({ text: `Rosters updated!` });
+        });
     },
     getMassData: async function (currentSeason) {
         //This loops through the the seasons and weeks and pulls through all of the data for the players
@@ -455,87 +507,66 @@ module.exports = {
         }
         return testReturn;
     },
-    getWeeklyData: async (season, week) => {
+    getWeeklyData: (season, week) => {
         //This gets a specific week's worth of games and iterates through the list of players to come up with an array
         //The array has player id, names, positions and stats in it. It then should feed an update a database
-        console.log(`requesting week ${week} data`)
-        let search;
-        try {
-            search = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${week}/player_gamelogs.json`, {
-                auth: {
-                    username: mySportsFeedsAPI,
-                    password: `MYSPORTSFEEDS`
-                }
-            });
-        } catch (err) {
-            console.log(`ERR getting week ${week}`, err)
-        }
-
-        console.log(`weekly data received, parsing`);
-        for (let i = 0; i < search.data.gamelogs.length; i++) {
-            const position = search.data.gamelogs[i].player.position || search.data.gamelogs[i].player.primaryPosition;
-
-            if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
-
-                //This searches the database and then returns their ID if they're there and false if they are not
-                let mySportsId = await findPlayerInDB(search.data.gamelogs[i].player.id);
-                if (!mySportsId) {
-                    //Need to break out player team incase the team part is null
-                    //This is for players that have retired or are not currently on a team in mySportsDB
-                    let playerTeam = ``;
-                    if (search.data.gamelogs[i].team !== null) {
-                        playerTeam = search.data.gamelogs[i].team.abbreviation;
-                    } else {
-                        playerTeam = `UNK`;
+        return new Promise(async (res, rej) => {
+            console.log(`requesting week ${week} data`)
+            let search;
+            try {
+                search = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${week}/player_gamelogs.json`, {
+                    auth: {
+                        username: mySportsFeedsAPI,
+                        password: `MYSPORTSFEEDS`
                     }
-                    //If they are not in the database then I need to first update the PlayerData collection
-                    mySportsId = addPlayerData(search.data.gamelogs[i].player, playerTeam, search.data.gamelogs[i].stats, season, week);
-                } else {
-                    //Need to ensure the player is set to active when their stats are entered in
-                    setPlayerToActive(mySportsId);
-                    addWeeksStats(mySportsId, search.data.gamelogs[i].stats, season, week)
+                });
+            } catch (err) {
+                console.log(`ERR getting week ${week}`, err)
+            }
+
+            console.log(`weekly data received, parsing`);
+            for (let i = 0; i < search.data.gamelogs.length; i++) {
+                const position = search.data.gamelogs[i].player.position || search.data.gamelogs[i].player.primaryPosition;
+
+                if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
+
+                    //This searches the database and then returns their ID if they're there and false if they are not
+                    let mySportsId = await findPlayerInDB(search.data.gamelogs[i].player.id);
+                    if (!mySportsId) {
+                        //Need to break out player team incase the team part is null
+                        //This is for players that have retired or are not currently on a team in mySportsDB
+                        let playerTeam = ``;
+                        if (search.data.gamelogs[i].team !== null) {
+                            playerTeam = search.data.gamelogs[i].team.abbreviation;
+                        } else {
+                            playerTeam = `UNK`;
+                        }
+                        //If they are not in the database then I need to first update the PlayerData collection
+                        mySportsId = addPlayerData(search.data.gamelogs[i].player, playerTeam, search.data.gamelogs[i].stats, season, week);
+                    } else {
+                        //Need to ensure the player is set to active when their stats are entered in
+                        setPlayerToActive(mySportsId);
+                        addWeeksStats(mySportsId, search.data.gamelogs[i].stats, season, week)
+                    }
                 }
             }
-        }
 
-        //TODO Do more than just send the same thing
-        const response = {
-            status: 200,
-            text: `DB Updated`
-        };
-        console.log(`get weekly data done week ${week} season ${season}`);
-        return response;
+            //TODO Do more than just send the same thing
+            const response = {
+                status: 200,
+                text: `DB Updated`
+            };
+            console.log(`get weekly data done week ${week} season ${season}`);
+            res(response);
+        });
     },
-    getAndSaveUserScore: async function (userRoster, season, week, userId, groupScore, groupId) {
-        let weeklyRosterScore = [];
-        let weekScore = 0;
-        for (let i = 0; i < userRoster.length; i++) {
-            const currentScore = await this.getPlayerWeeklyScore(userRoster[i].M, season, week, groupScore);
-            const currentScoreNum = +currentScore.toFixed(2);
-            weekScore += currentScoreNum;
-            weeklyRosterScore[i] = currentScoreNum;
-        }
-        saveWeeklyUserScore(userId, groupId, week, season, weeklyRosterScore);
-        saveUserScore(userId, groupId, season, week, weekScore);
-        return;
-    },
-    calculateWeeklyScore: async function (groupList, season, week, groupId, groupScore) {
+    calculateWeeklyScore: async (groupList, season, week, groupId, groupScore) => {
 
         for (const user of groupList) {
-            await this.getAndSaveUserScore(user.R, season, week, user.U, groupScore, groupId);
+            getAndSaveUserScore(user.R, season, week, user.U, groupScore, groupId);
         }
 
         return;
-    },
-    getPlayerWeeklyScore: async (playerId, season, week, groupScore) => {
-        return new Promise(async (res, rej) => {
-            if (playerId === 0) {
-                res(0);
-            }
-            let weeklyScore = 0;
-            weeklyScore = await playerScoreHandler(playerId, season, week, groupScore);
-            res(weeklyScore);
-        });
     },
     rankPlayers: async function (season, week, groupScore) {
         console.log(`Ranking Players for `, season, week);

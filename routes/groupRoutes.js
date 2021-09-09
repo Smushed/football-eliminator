@@ -2,6 +2,8 @@ require(`dotenv`).config();
 const userHandler = require(`../handlers/userHandler`);
 const groupHandler = require(`../handlers/groupHandler`);
 const scoringSystem = require(`../constants/scoringSystem`);
+const rosterHandler = require(`../handlers/rosterHandler`);
+const mySportsHandler = require(`../handlers/mySportsHandler`);
 const s3Handler = require(`../handlers/s3Handler`);
 
 module.exports = app => {
@@ -200,6 +202,34 @@ module.exports = app => {
         const { userId, groupId } = req.params;
         const group = await groupHandler.getGroupDataById(groupId);
         await groupHandler.upgradeToAdmin(group, userId);
+        res.sendStatus(200);
+    });
+
+    app.put(`/api/calculateScore/:groupId/:season/:week`, async (req, res) => {
+        const { groupId, season, week } = req.params;
+        for (let i = 1; i <= week; i++) {
+            const groupRosters = await rosterHandler.pullGroupRostersForScoring(season, i, groupId);
+            const groupScore = await groupHandler.getGroupScore(groupId);
+            await mySportsHandler.calculateWeeklyScore(groupRosters, season, i, groupId, groupScore);
+            console.log(`done scoring week ${i}`)
+        }
+        res.status(200).send('working');
+    });
+
+    app.put(`/api/group/score/calculate/all`, async (req, res) => {
+        const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
+        rosterHandler.scoreAllGroups(season, week);
+        // const allGroups = await groupHandler.getAllGroups();
+        // for (let group of allGroups) {
+        //     console.log(`scoring ${group.N}`)
+        //     for (let i = 1; i <= week; i++) {
+        //         const groupRosters = await rosterHandler.pullGroupRostersForScoring(season, i, group._id);
+        //         console.log({ groupRosters })
+        //         const groupScore = await groupHandler.getGroupScore(group._id);
+        //         await mySportsHandler.calculateWeeklyScore(groupRosters, season, i, group._id, groupScore);
+        //         console.log(`done scoring week ${i}`)
+        //     }
+        // }
         res.sendStatus(200);
     });
 };
