@@ -138,4 +138,13 @@ module.exports = app => {
             res.status(400).send(dbRes.message);
         }
     });
+
+    app.get(`/api/email/test`, async (req, res) => {
+        const allGroups = await groupHandler.getAllGroups();
+        const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
+        groupHandler.calculateAllGroupScores(season, week, allGroups);
+        // console.log(`hit`);
+        // s3Handler.sendEmail();
+        res.sendStatus(200);
+    });
 }

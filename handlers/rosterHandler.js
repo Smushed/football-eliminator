@@ -1,7 +1,7 @@
 const db = require(`../models`);
-const { getPlayerWeeklyScore } = require(`./mySportsHandler`);
 const userHandler = require(`./userHandler`);
-const mySportsHandler = require("./mySportsHandler");
+const { getAllGroups, getGroupScore } = require(`./groupHandler`);
+const { fillUserRoster, getPlayerWeeklyScore, calculateWeeklyScore } = require(`./mySportsHandler`);
 require(`dotenv`).config();
 
 const checkDuplicateRoster = async (checkedField, userId, groupId, season, week) => {
@@ -232,7 +232,7 @@ module.exports = {
             const userRosters = [];
             const allRosters = await getAllRostersByGroupAndWeek(season, week, groupId);
             for (const roster of allRosters) {
-                const filledRoster = await mySportsHandler.fillUserRoster(roster.R);
+                const filledRoster = await fillUserRoster(roster.R);
                 const user = await userHandler.getUserByID(roster.U);
                 userRosters.push({ UID: user._id, UN: user.UN, R: filledRoster });
             }
@@ -323,5 +323,18 @@ module.exports = {
         const { season } = await userHandler.pullSeasonAndWeekFromDB();
         const userScore = await db.UserScores.findOne({ U: userId, S: season }, { TS: 1 }).exec();
         return userScore.TS;
+    },
+    scoreAllGroups: async function (season, week) {
+        const allGroups = await getAllGroups();
+        for (let group of allGroups) {
+            console.log(`scoring ${group.N}`)
+            for (let i = 1; i <= week; i++) {
+                const groupRosters = await this.pullGroupRostersForScoring(season, i, group._id);
+                console.log({ groupRosters })
+                const groupScore = await getGroupScore(group._id);
+                await calculateWeeklyScore(groupRosters, season, i, group._id, groupScore);
+                console.log(`done scoring week ${i}`)
+            }
+        }
     }
 };

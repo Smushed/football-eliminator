@@ -46,17 +46,6 @@ module.exports = app => {
         res.status(200).send(userScore);
     });
 
-    app.put(`/api/calculateScore/:groupId/:season/:week`, async (req, res) => {
-        const { groupId, season, week } = req.params;
-        for (let i = 1; i <= week; i++) {
-            const groupRosters = await rosterHandler.pullGroupRostersForScoring(season, i, groupId);
-            const groupScore = await groupHandler.getGroupScore(groupId);
-            await mySportsHandler.calculateWeeklyScore(groupRosters, season, i, groupId, groupScore);
-            console.log(`done scoring week ${i}`)
-        }
-        res.status(200).send('working');
-    });
-
     app.get(`/api/rankPlayers/:season/:week/:groupId`, async (req, res) => {
         const { season, week, groupId } = req.params;
 

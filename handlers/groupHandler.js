@@ -1,7 +1,7 @@
 const db = require(`../models`);
-const mySportsHandler = require(`./mySportsHandler`);
 const s3Handler = require(`./s3Handler`);
 const positions = require(`../constants/positions`);
+const { rankPlayers, fillUserRoster } = require(`./mySportsHandler`);
 
 const checkDuplicate = async (checkedField, groupToSearch, userID) => {
     let result = false;
@@ -314,7 +314,7 @@ module.exports = {
                 this.getGroupPositions(groupId)
             ]).then(async ([groupScore, groupPositions]) => {
                 Promise.all([
-                    mySportsHandler.rankPlayers(season, week, groupScore),
+                    rankPlayers(season, week, groupScore),
                     this.mapGroupPositions(groupPositions, positions.positionMap)
                 ]).then(([rankedPlayers, groupPositionMap]) => {
                     for (const possiblePositions of groupPositionMap) {
@@ -350,7 +350,7 @@ module.exports = {
         //Doing this here because rosterHandler.js doesn't want to be exported to any other file for some reason
         let topUserRoster = await findOneRoster(topWeekScore.U, lastWeek, season, groupId);
         const foundUser = await findOneUserById(topWeekScore.U);
-        const R = await mySportsHandler.fillUserRoster(topUserRoster.R);
+        const R = await fillUserRoster(topUserRoster.R);
         return { R, U: foundUser.UN }; //Short hand for roster and user
     },
     getCurrAndLastWeekScores: async (groupId, season, week) => {
@@ -364,7 +364,7 @@ module.exports = {
         if (topUserRoster === null) {
             return this.getBlankRoster(groupId);
         }
-        const R = await mySportsHandler.fillUserRoster(topUserRoster.R);
+        const R = await fillUserRoster(topUserRoster.R);
         return R; //Don't need to get user here because the front end already has the leader and the username. Avoid the extra DB call
     },
     getBestUserForBox: async function (userScores) {
@@ -468,5 +468,8 @@ module.exports = {
         });
         await group.save();
         return;
+    },
+    getAllGroups: async () => {
+        return await db.Group.find().exec();
     }
 };
