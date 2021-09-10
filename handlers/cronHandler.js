@@ -23,9 +23,9 @@ schedule.scheduleJob('0 3 * * *', async function () {
     scoreAllGroups(season, week);
 });
 
-
 const startWeek = (currDate, currDBWeeks, currWeek) => {
-    for (let i = 17; i > 0; i--) {
+    for (let i = 17; i >= 0; i--) {
+        console.log(currDate > dates.startWeek2021[i])
         if (currDate > dates.startWeek2021[i]) {
             currWeek = i + 1;
             break;
@@ -37,13 +37,13 @@ const startWeek = (currDate, currDBWeeks, currWeek) => {
 };
 
 const lockWeek = (currDate, currDBWeeks, currWeek) => {
-    for (let i = 17; i > 0; i--) {
+    for (let i = 17; i >= 0; i--) {
         if (currDate > dates.lockWeek2021[i]) {
             currWeek = i + 1;
             break;
         }
     }
-    if (currDBWeeks.week !== currWeek) {
+    if (currDBWeeks.lockWeek !== currWeek) {
         updateLockWeek(currWeek);
     }
 };

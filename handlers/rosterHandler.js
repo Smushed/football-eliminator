@@ -330,7 +330,6 @@ module.exports = {
             console.log(`scoring ${group.N}`)
             for (let i = 1; i <= week; i++) {
                 const groupRosters = await this.pullGroupRostersForScoring(season, i, group._id);
-                console.log({ groupRosters })
                 const groupScore = await getGroupScore(group._id);
                 await calculateWeeklyScore(groupRosters, season, i, group._id, groupScore);
                 console.log(`done scoring week ${i}`)

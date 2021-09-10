@@ -219,17 +219,6 @@ module.exports = app => {
     app.put(`/api/group/score/calculate/all`, async (req, res) => {
         const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
         rosterHandler.scoreAllGroups(season, week);
-        // const allGroups = await groupHandler.getAllGroups();
-        // for (let group of allGroups) {
-        //     console.log(`scoring ${group.N}`)
-        //     for (let i = 1; i <= week; i++) {
-        //         const groupRosters = await rosterHandler.pullGroupRostersForScoring(season, i, group._id);
-        //         console.log({ groupRosters })
-        //         const groupScore = await groupHandler.getGroupScore(group._id);
-        //         await mySportsHandler.calculateWeeklyScore(groupRosters, season, i, group._id, groupScore);
-        //         console.log(`done scoring week ${i}`)
-        //     }
-        // }
         res.sendStatus(200);
     });
 };
