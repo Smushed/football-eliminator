@@ -25,7 +25,6 @@ schedule.scheduleJob('0 3 * * *', async function () {
 
 const startWeek = (currDate, currDBWeeks, currWeek) => {
     for (let i = 17; i >= 0; i--) {
-        console.log(currDate > dates.startWeek2021[i])
         if (currDate > dates.startWeek2021[i]) {
             currWeek = i + 1;
             break;
