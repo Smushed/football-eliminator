@@ -251,7 +251,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
         const isLocked = await checkLockPeriod();
         if (!isLocked) {
             Alert.fire({
-                title: `Peroid is locked!`,
+                title: `Week is locked!`,
                 type: `warning`,
                 text: `Week ${weekOnPage} is locked. Please search a different week`,
             });

@@ -60,10 +60,6 @@ class AdminPanel extends Component {
         this.setState({ playerEditor: false, userEditor: false, groupEditor: true });
     };
 
-    createAllRosters = async () => {
-        const dbResponse = await axios.post(`/api/createAllRosters/${this.state.seasonSelect}`);
-        console.log(dbResponse)
-    };
 
     getMatchups = async () => {
         const dbResponse = await axios.post(`/api/pullMatchUpsForDB/${this.state.seasonSelect}/${this.state.weekSelect}`);
@@ -120,9 +116,6 @@ class AdminPanel extends Component {
                             <br />
                             <br />
                             <Button color='primary' onClick={this.showGroupEditor}>Group Editor</Button>
-                            <br />
-                            <br />
-                            <Button color='primary' onClick={this.createAllRosters}>Create All Rosters</Button>
                             <br />
                             <br />
                             <Button color='primary' onClick={this.getMatchups}>Get Matchups</Button>

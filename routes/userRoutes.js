@@ -74,12 +74,6 @@ module.exports = app => {
         res.status(200).send(seasonAndWeek);
     });
 
-    app.post(`/api/createAllRosters/:season/`, (req, res) => {
-        const { season } = req.params;
-        const dbResponse = rosterHandler.createAllRosters(season);
-        res.status(200).send(dbResponse)
-    });
-
     app.post(`/api/purgeUserAndGroupDB/:pass`, (req, res) => {
         const { pass } = req.params;
         if (pass !== process.env.DB_ADMIN_PASS) {

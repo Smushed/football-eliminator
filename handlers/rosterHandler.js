@@ -123,6 +123,13 @@ const sortUsersByScore = async (userRosterArray, groupId) => {
     });
 };
 
+const pullGroupRostersForScoring = async (season, week, groupId) => {
+    return new Promise(async (res, rej) => {
+        const allRosters = await getAllRostersByGroupAndWeek(season, week, groupId);
+        res(allRosters);
+    });
+};
+
 module.exports = {
     byRoster: async () => {
         const players = await db.FantasyStats.find({ 'team': 'CHI' });
@@ -240,12 +247,6 @@ module.exports = {
             res(sortedUsers);
         });
     },
-    pullGroupRostersForScoring: async (season, week, groupId) => {
-        return new Promise(async (res, rej) => {
-            const allRosters = await getAllRostersByGroupAndWeek(season, week, groupId);
-            res(allRosters);
-        });
-    },
     usedPlayersByPosition: async (userId, season, groupId) => {
         const sortedPlayers = { 'QB': [], 'RB': [], 'WR': [], 'TE': [], 'K': [] };
 
@@ -296,17 +297,6 @@ module.exports = {
 
         return scoredAllSeason;
     },
-    createAllRosters: async function (season) {
-        //Get all the users
-        //Then send them to create season roster
-        const userList = await userHandler.getUserList();
-        for (let i = 0; i < userList.length; i++) {
-            for (let ii = 0; ii < userList[i].groupList.length; ii++) {
-                createUsedPlayers(userList[i], season, userList[i].groupList[ii]);
-                this.createSeasonRoster(userList[i]._id, season, userList[i].groupList[ii])
-            }
-        }
-    },
     getUserRoster: async (userId, week, season, groupId) => {
         //This grabs the user roster, and if not it creates one.
         let roster = await db.UserRoster.findOne({ U: userId, W: week, S: season, G: groupId }, { R: 1 });
@@ -324,12 +314,12 @@ module.exports = {
         const userScore = await db.UserScores.findOne({ U: userId, S: season }, { TS: 1 }).exec();
         return userScore.TS;
     },
-    scoreAllGroups: async function (season, week) {
+    scoreAllGroups: async (season, week) => {
         const allGroups = await getAllGroups();
         for (let group of allGroups) {
             console.log(`scoring ${group.N}`)
             for (let i = 1; i <= week; i++) {
-                const groupRosters = await this.pullGroupRostersForScoring(season, i, group._id);
+                const groupRosters = await pullGroupRostersForScoring(season, i, group._id);
                 const groupScore = await getGroupScore(group._id);
                 await calculateWeeklyScore(groupRosters, season, i, group._id, groupScore);
                 console.log(`done scoring week ${i}`)
