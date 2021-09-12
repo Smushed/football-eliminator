@@ -9,7 +9,7 @@ const moment = require(`moment-timezone`);
 // Doing this every hour rather than daily in case Heroku isn't working
 schedule.scheduleJob('22 * * * *', async function () {
     //Need to update which week we're currently in
-    const currDate = moment.utc(new Date()).tz(`America/Chicago`).format();
+    const currDate = moment.utc(new Date()).tz(`America/Chicago`).toDate();
 
     const currDBWeeks = await pullSeasonAndWeekFromDB();
 
