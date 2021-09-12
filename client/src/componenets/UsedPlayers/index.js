@@ -24,7 +24,7 @@ const UsedPlayers = ({ match, season, history, noGroup }) => {
 
     const getUsedPlayers = () => {
         loading(true);
-        axios.get(`/api/getUsedPlayers/${match.params.username}/${season}/${match.params.groupname}`)
+        axios.get(`/api/players/used/${match.params.username}/${season}/${match.params.groupname}`)
             .then(res => {
                 updateUsedPlayers(res.data);
                 doneLoading();

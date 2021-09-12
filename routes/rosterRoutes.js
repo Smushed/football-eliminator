@@ -2,7 +2,7 @@ const rosterHandler = require(`../handlers/rosterHandler`);
 const groupHandler = require(`../handlers/groupHandler`);
 const mySportsHandler = require(`../handlers/mySportsHandler`);
 const positions = require(`../constants/positions`);
-const userHandler = require("../handlers/userHandler");
+const userHandler = require(`../handlers/userHandler`);
 
 module.exports = app => {
     app.get(`/api/displayplayers`, async (req, res) => {
@@ -72,13 +72,11 @@ module.exports = app => {
 
     app.get(`/api/checkLockPeriod`, async (req, res) => {
         const lockPeriod = await rosterHandler.checkLockPeriod();
-
         res.status(200).send(lockPeriod);
     });
 
     app.get(`/api/players/used/:username/:season/:groupname`, async (req, res) => {
         const { username, season, groupname } = req.params;
-
         Promise.all([groupHandler.findGroupIdByName(groupname), userHandler.getUserByUsername(username)])
             .then(async ([groupId, user]) => {
                 const usedPlayers = await rosterHandler.usedPlayersByPosition(user._id, season, groupId);

@@ -35,6 +35,7 @@
         "express": "^4.17.1",
         "if-env": "^1.0.4",
         "jimp": "^0.16.1",
+        "moment-timezone": "^0.5.33",
         "mongoose": "^5.12.8",
         "node-schedule": "^2.0.0"
     },
