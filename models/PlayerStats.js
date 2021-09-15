@@ -2,7 +2,6 @@ const mongoose = require(`mongoose`);
 
 const Schema = mongoose.Schema;
 
-//Everything is to be singular
 const PlayerStatsSchema = new Schema({
     M: { //mySportsId
         type: Number,

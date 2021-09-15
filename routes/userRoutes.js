@@ -3,6 +3,7 @@ const userHandler = require(`../handlers/userHandler`);
 const rosterHandler = require(`../handlers/rosterHandler`);
 const s3Handler = require(`../handlers/s3Handler`);
 const groupHandler = require(`../handlers/groupHandler`);
+const emailHandler = require(`../handlers/emailHandler`);
 
 module.exports = app => {
     app.put(`/api/updateProfile`, async (req, res) => {
@@ -63,8 +64,9 @@ module.exports = app => {
     app.get(`/api/user/name/:username`, async (req, res) => {
         const { username } = req.params;
         const user = await userHandler.getUserByUsername(username);
+        const emailSettings = await userHandler.getEmailSettings(user._id);
         const avatar = await s3Handler.getAvatar(user._id);
-        res.status(200).send({ user, avatar });
+        res.status(200).send({ user, avatar, emailSettings });
     });
 
     app.get(`/api/currentSeasonAndWeek`, async (req, res) => {
@@ -134,11 +136,11 @@ module.exports = app => {
     });
 
     app.get(`/api/email/test`, async (req, res) => {
-        const allGroups = await groupHandler.getAllGroups();
         const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
-        groupHandler.calculateAllGroupScores(season, week, allGroups);
-        // console.log(`hit`);
-        // s3Handler.sendEmail();
+        const groups = await groupHandler.getAllGroups();
+        for (let group of groups) {
+            if (group.N === 'The Clapper') emailHandler.sendLeaderBoardEmail(group, season, week);
+        }
         res.sendStatus(200);
     });
 }

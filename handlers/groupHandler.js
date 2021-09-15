@@ -306,7 +306,7 @@ module.exports = {
         return filledData;
     },
     getIdealRoster: async function (groupId, season, week) {
-        const idealRosterResponse = await db.IdealRoster.findOne({ G: groupId, S: season, W: week });
+        const idealRosterResponse = await db.IdealRoster.findOne({ G: groupId, S: season, W: week }).exec();
         if (idealRosterResponse === null) {
             let newIdealRoster = new db.IdealRoster({ G: groupId, S: season, W: week });
             Promise.all([
@@ -320,7 +320,7 @@ module.exports = {
                     for (const possiblePositions of groupPositionMap) {
                         const highScorers = [];
                         for (const positionVal of possiblePositions) {
-                            const topScorer = rankedPlayers[positions.positionArray[positionVal]].shift()
+                            const topScorer = rankedPlayers[positions.positionArray[positionVal]].shift();
                             highScorers.push(topScorer);
                         }
                         if (highScorers.length === 1) {

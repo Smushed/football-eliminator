@@ -576,7 +576,7 @@ module.exports = {
         for (const position of positions.positionArray) {
             rankedPlayersByPosition[position] = [];
             console.log(`Pulling ${position} for scoring`);
-            const playersByPosition = await db.PlayerData.find({ 'P': position }, { M: 1, N: 1, P: 1 });
+            const playersByPosition = await db.PlayerData.find({ 'P': position, 'A': true }, { M: 1, N: 1, P: 1 });
             const rankingArray = [];
 
             //Iterate through every player, get their total score for the season
@@ -593,17 +593,17 @@ module.exports = {
             rankingArray.sort((a, b) => { return b.score - a.score });
             rankedPlayersByPosition[position] = rankingArray;
         }
-
         return rankedPlayersByPosition;
     },
     savePlayerRank: async (rankedPlayersByPosition) => {
         //Get them into 7 different categories, each 10 big until the 7th rank, which is just all the rest
-        for (const playerByPosArray in rankedPlayersByPosition) {
-            const rankingArray = [...playerByPosArray];
+        for (const position in rankedPlayersByPosition) {
+            const rankingArray = [...rankedPlayersByPosition[position]];
+            console.log(`Saving ${position}`);
             for (let i = 1; i <= 7; i++) {
                 let currentRank = [];
                 if (i !== 7) {
-                    currentRank = rankingArray.splice(0, 9)
+                    currentRank = rankingArray.splice(0, 9);
                 } else {
                     currentRank = rankingArray;
                 }

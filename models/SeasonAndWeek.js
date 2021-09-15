@@ -2,7 +2,6 @@ const mongoose = require(`mongoose`);
 
 const Schema = mongoose.Schema;
 
-//Everything is to be singular
 const SeasonAndWeekSchema = new Schema({
     S: { //Current Season
         type: String,

@@ -2,7 +2,6 @@ const mongoose = require(`mongoose`);
 
 const Schema = mongoose.Schema;
 
-//Everything is to be singular
 const GroupScoreSchema = new Schema({
     G: { //GroupID
         type: mongoose.Types.ObjectId,
