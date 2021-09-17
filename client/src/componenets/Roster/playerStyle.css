@@ -22,7 +22,6 @@
 }
 
 .positionBox {
-    display: flex;
     padding-top: 8px;
     min-width: 70px;
 }
@@ -34,7 +33,6 @@
 }
 
 .playerContainer {
-    display: flex;
     width: 80%;
 }
 

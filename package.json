@@ -36,7 +36,8 @@
         "jimp": "^0.16.1",
         "moment-timezone": "^0.5.33",
         "mongoose": "^5.12.8",
-        "node-schedule": "^2.0.0"
+        "node-schedule": "^2.0.0",
+        "table": "^6.7.1"
     },
     "repository": {
         "type": "git",

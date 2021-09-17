@@ -11,6 +11,7 @@ const moment = require(`moment-timezone`);
 schedule.scheduleJob('22 * * 1,9-12 *', async function () {
     //Need to update which week we're currently in
     const currDate = moment.utc(new Date()).tz(`America/Chicago`).toDate();
+    console.log(`Checking start week and lock week ${currDate}`)
 
     const currDBWeeks = await userHandler.pullSeasonAndWeekFromDB();
 
@@ -20,6 +21,7 @@ schedule.scheduleJob('22 * * 1,9-12 *', async function () {
 
 // Update Scores every day at 3am Chicago time
 schedule.scheduleJob('0 9 * 1,9-12 *', async function () {
+    console.log(`Running daily score update`);
     const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
     await mySportsHandler.updateRoster(season);
     updatePlayerData(season, week);
@@ -34,12 +36,14 @@ schedule.scheduleJob('0 9 * 1,9-12 *', async function () {
 
 // Thursday and Monday games (these are in UTC)
 schedule.scheduleJob('0,30 0-5 * 1,9-12 2,5', async function () {
+    console.log(`Running bi-hourly Monday and Thursday game score`);
     const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
     updatePlayerData(season, week)
 });
 
 //Update most often on Sunday
 schedule.scheduleJob('0,30 17-23 * 1,9-12 0', async function () {
+    console.log(`Running bi-hourly Sunday job`);
     const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
     updatePlayerData(season, week)
 });
