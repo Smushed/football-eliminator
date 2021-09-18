@@ -1,7 +1,6 @@
 require(`dotenv`).config();
 const AWS = require(`aws-sdk`);
 const Jimp = require(`jimp`);
-const userHandler = require(`./userHandler`);
 
 AWS.config.update({
     region: `us-east-2`,
@@ -12,7 +11,7 @@ const s3 = new AWS.S3({ params: { Bucket: 'football-eliminator' } });
 
 const verifyAvatar = (base64Avatar) => {
     return new Promise((res, rej) => {
-        const bufferedAvatar = Buffer.from(base64Avatar.split(',')[1], 'base64');
+        const bufferedAvatar = Buffer.from(base64Avatar.split(`,`)[1], `base64`);
         Jimp.read(bufferedAvatar)
             .then(async img => {
                 if (img.bitmap.height !== 200 || img.bitmap.width !== 200) {
@@ -84,46 +83,5 @@ module.exports = {
             });
         });
     },
-    sendEmail: async (reason, userId) => {
-        const user = await userHandler.getUserByID(userId).exec();
-        let subject = ``;
-        if (reason === `reminder`) {
-            subject = `Eliminator Reminder - Week ${'INSERT WEEK HERE'} roster`;
-        } else {
-            subject = `Eliminator Leaderboard`;
-        }
 
-
-
-        // var params = {
-        //     Destination: { /* required */
-        //         ToAddresses: [
-        //             `smushedcode@gmail.com`
-        //         ]
-        //     },
-        //     Message: { /* required */
-        //         Body: { /* required */
-        //             Html: {
-        //                 Charset: `UTF-8`,
-        //                 Data: `This is a test email`
-        //             },
-        //         },
-        //         Subject: {
-        //             Charset: `UTF-8`,
-        //             Data: `TestING BABY email`
-        //         }
-        //     },
-        //     Source: `kevin@eliminator.football`
-        // };
-
-        // const sendPromise = new AWS.SES({ apiVersion: `2010-12-01` }).sendEmail(params).promise();
-
-        // sendPromise.then(
-        //     function (data) {
-        //         console.log(`Email sent to ${user}`);
-        //     }).catch(
-        //         function (err) {
-        //             console.error(err, err.stack);
-        //         });
-    }
 }

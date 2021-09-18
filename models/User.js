@@ -2,7 +2,6 @@ const mongoose = require(`mongoose`);
 
 const Schema = mongoose.Schema;
 
-//Everything is to be singular
 const UserSchema = new Schema({
     UN: { //Username
         type: String,
@@ -17,7 +16,7 @@ const UserSchema = new Schema({
         type: Boolean,
         default: false
     },
-    MG: mongoose.Types.ObjectId //Main Group
+    MG: mongoose.Types.ObjectId, //Main Group
 });
 
 

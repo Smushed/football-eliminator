@@ -2,8 +2,7 @@ const mongoose = require(`mongoose`);
 
 const Schema = mongoose.Schema;
 
-//Everything is to be singular
-const MatchUps = new Schema({
+const MatchUpsSchema = new Schema({
     S: { //Season
         type: String,
         required: true
@@ -20,4 +19,4 @@ const MatchUps = new Schema({
     }]
 });
 
-module.exports = mongoose.model(`MatchUps`, MatchUps);
+module.exports = mongoose.model(`MatchUps`, MatchUpsSchema);

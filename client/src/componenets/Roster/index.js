@@ -306,23 +306,6 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
         });
     };
 
-    const showSingleMatchUp = async (team) => {
-        const matchup = weeklyMatchups.find(match => (match.H === team || match.A === team));
-        if (!matchup) {
-            await Alert.fire({
-                title: `${team} is on bye!`,
-            });
-            return;
-        } else if (!matchup.H || !matchup.A) {
-            return;
-        }
-        const display = `Home: ${matchup.H}<br />Away:${matchup.A}`
-        await Alert.fire({
-            title: `${team} week ${weekOnPage} match`,
-            html: display
-        })
-    };
-
     return (
         <div>
             <div className='centerText headerFont usernameRow'>
@@ -360,7 +343,6 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                         </div>
                         <RosterDisplay
                             pastLockWeek={latestLockWeek >= weekOnPage}
-                            showSingleMatchUp={showSingleMatchUp}
                             groupPositions={groupPositions}
                             addDropPlayer={addDropPlayer}
                             roster={mustDrop ? possiblePlayers : userRoster}
@@ -374,7 +356,6 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                                 <PlayerDisplayRow
                                     player={player} key={i}
                                     evenOrOddRow={i % 2}
-                                    sortedMatchups={sortedMatchups}
                                 />
                             ))}
                         </div>
@@ -400,7 +381,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
     );
 };
 
-const CurrentRosterRow = ({ evenOrOddRow, player, position, showSingleMatchUp, addDropPlayer, pastLockWeek }) => (
+const CurrentRosterRow = ({ evenOrOddRow, player, position, addDropPlayer, pastLockWeek }) => (
     <div className={evenOrOddRow === 0 ? 'playerRow' : 'playerRow oddRow'}>
         <div className='positionBox'>
             {position}
@@ -415,7 +396,7 @@ const CurrentRosterRow = ({ evenOrOddRow, player, position, showSingleMatchUp, a
                             </div>
                         }
                         {player.T &&
-                            <div onClick={() => (showSingleMatchUp && showSingleMatchUp(player.T))} className={`teamCol ${(showSingleMatchUp && `pointer`)}`}>
+                            <div className='teamCol'>
                                 {player.T}
                             </div>
                         }
@@ -454,12 +435,11 @@ const PlayerDisplayRow = ({ evenOrOddRow, player, addDropPlayer, sortedMatchups 
     </div>
 );
 
-const RosterDisplay = ({ groupPositions, showSingleMatchUp, roster, addDropPlayer, mustDrop, pastLockWeek }) =>
+const RosterDisplay = ({ groupPositions, roster, addDropPlayer, mustDrop, pastLockWeek }) =>
     mustDrop ?
         roster.map((player, i) =>
             <CurrentRosterRow
                 key={i}
-                showSingleMatchUp={showSingleMatchUp}
                 position={player.P}
                 player={player}
                 addDropPlayer={addDropPlayer}
@@ -469,7 +449,6 @@ const RosterDisplay = ({ groupPositions, showSingleMatchUp, roster, addDropPlaye
             <CurrentRosterRow
                 key={i}
                 pastLockWeek={pastLockWeek}
-                showSingleMatchUp={showSingleMatchUp}
                 position={position.N}
                 player={roster[i]}
                 addDropPlayer={addDropPlayer}
@@ -494,7 +473,6 @@ CurrentRosterRow.propTypes = {
     evenOrOddRow: PropTypes.number,
     player: PropTypes.object,
     position: PropTypes.string,
-    showSingleMatchUp: PropTypes.func,
     addDropPlayer: PropTypes.func,
     pastLockWeek: PropTypes.bool
 };
@@ -511,7 +489,6 @@ PlayerDisplayRow.propTypes = {
 
 RosterDisplay.propTypes = {
     groupPositions: PropTypes.array,
-    showSingleMatchUp: PropTypes.func,
     roster: PropTypes.array,
     addDropPlayer: PropTypes.func,
     mustDrop: PropTypes.bool,

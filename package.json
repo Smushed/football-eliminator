@@ -7,7 +7,6 @@
         "node": "14.16.1"
     },
     "scripts": {
-        "start:testings": "if-env NODE_ENV=production && npm run start:prod || npm run start:dev",
         "start": "node server.js",
         "start:dev": "concurrently \"nodemon --ignore client/\" \"npm run client\"",
         "client": "cd ./client && npm run start",
@@ -37,7 +36,8 @@
         "jimp": "^0.16.1",
         "moment-timezone": "^0.5.33",
         "mongoose": "^5.12.8",
-        "node-schedule": "^2.0.0"
+        "node-schedule": "^2.0.0",
+        "table": "^6.7.1"
     },
     "repository": {
         "type": "git",

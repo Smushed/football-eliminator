@@ -1,8 +1,8 @@
+require(`dotenv`).config();
 const db = require(`../models`);
 const userHandler = require(`./userHandler`);
-const { getAllGroups, getGroupScore } = require(`./groupHandler`);
-const { fillUserRoster, getPlayerWeeklyScore, calculateWeeklyScore } = require(`./mySportsHandler`);
-require(`dotenv`).config();
+const groupHandler = require(`./groupHandler`);
+const mySportsHandler = require(`./mySportsHandler`);
 
 const checkDuplicateRoster = async (checkedField, userId, groupId, season, week) => {
     let result = false;
@@ -110,11 +110,11 @@ const getAllRostersByGroupAndWeek = async (season, week, groupId) => {
     });
 };
 
-const sortUsersByScore = async (userRosterArray, groupId) => {
+const sortUsersByScore = async (userRosterArray, groupId, season) => {
     return new Promise(async res => {
         const sortedScores = [];
         for (let user of userRosterArray) {
-            const userScore = await db.UserScores.findOne({ U: user.UID, G: groupId }, 'TS').exec();
+            const userScore = await db.UserScores.findOne({ U: user.UID, G: groupId, S: season }, 'TS').exec();
             if (!userScore) { continue; }
             sortedScores.push({ UID: user.UID, UN: user.UN, R: user.R, TS: userScore.TS });
         }
@@ -239,11 +239,11 @@ module.exports = {
             const userRosters = [];
             const allRosters = await getAllRostersByGroupAndWeek(season, week, groupId);
             for (const roster of allRosters) {
-                const filledRoster = await fillUserRoster(roster.R);
-                const user = await userHandler.getUserByID(roster.U);
+                const filledRoster = await mySportsHandler.fillUserRoster(roster.R);
+                const user = await db.User.findById(roster.U);
                 userRosters.push({ UID: user._id, UN: user.UN, R: filledRoster });
             }
-            const sortedUsers = await sortUsersByScore(userRosters, groupId);
+            const sortedUsers = await sortUsersByScore(userRosters, groupId, season);
             res(sortedUsers);
         });
     },
@@ -286,7 +286,7 @@ module.exports = {
                     mySportsId: weeklyUserRoster[ii].mySportsId
                 };
 
-                const playerScore = await getPlayerWeeklyScore(newPlayer.mySportsId, season, i + 1);
+                const playerScore = await mySportsHandler.getPlayerWeeklyScore(newPlayer.mySportsId, season, i + 1);
 
                 newPlayer.score = playerScore.toFixed(2);
 
@@ -315,14 +315,19 @@ module.exports = {
         return userScore.TS;
     },
     scoreAllGroups: async (season, week) => {
-        const allGroups = await getAllGroups();
+        const allGroups = await groupHandler.getAllGroups();
         for (let group of allGroups) {
             console.log(`scoring ${group.N}`)
+            let groupScore;
             for (let i = 1; i <= week; i++) {
                 const groupRosters = await pullGroupRostersForScoring(season, i, group._id);
-                const groupScore = await getGroupScore(group._id);
-                await calculateWeeklyScore(groupRosters, season, i, group._id, groupScore);
+                groupScore = await groupHandler.getGroupScore(group._id);
+                await mySportsHandler.calculateWeeklyScore(groupRosters, season, i, group._id, groupScore);
                 console.log(`done scoring week ${i}`)
+            }
+            if (group.N === `The Clapper`) {
+                const rankedPlayers = await mySportsHandler.rankPlayers(season, week, groupScore);
+                await mySportsHandler.savePlayerRank(rankedPlayers);
             }
         }
     }

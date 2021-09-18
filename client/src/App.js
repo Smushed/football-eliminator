@@ -20,6 +20,7 @@ import GroupPage from './componenets/GroupPage/';
 import CreateGroup from './componenets/GroupPage/CreateGroup';
 import FourOFour from './componenets/404';
 import SidePanel from './componenets/SidePanel';
+import EmailPref from './componenets/EmailPref';
 
 const App = ({ firebase }) => {
 
@@ -231,6 +232,13 @@ const App = ({ firebase }) => {
                   userId={currentUser.userId}
                 />
               }
+            />
+            <Route
+              path={Routes.emailPref}
+              render={props =>
+                <EmailPref
+                  {...props}
+                />}
             />
             <Route
               render={() =>

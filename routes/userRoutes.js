@@ -3,6 +3,7 @@ const userHandler = require(`../handlers/userHandler`);
 const rosterHandler = require(`../handlers/rosterHandler`);
 const s3Handler = require(`../handlers/s3Handler`);
 const groupHandler = require(`../handlers/groupHandler`);
+const emailHandler = require(`../handlers/emailHandler`);
 
 module.exports = app => {
     app.put(`/api/updateProfile`, async (req, res) => {
@@ -40,6 +41,12 @@ module.exports = app => {
         res.status(200).send(foundUser);
     });
 
+    app.get(`/api/user/emailPref/:id`, async (req, res) => {
+        const { id } = req.params;
+        const emailPres = await userHandler.getEmailSettings(id);
+        res.status(200).send(emailPres);
+    });
+
     app.get(`/api/getAllUsers`, async (req, res) => {
         const dbResponse = await userHandler.getUserList();
 
@@ -54,17 +61,18 @@ module.exports = app => {
         res.status(200).send(foundUser);
     });
 
-    app.get(`/api/getUserById/:userid`, async (req, res) => {
-        const userId = req.params.userid;
+    app.get(`/api/user/id/:userId`, async (req, res) => {
+        const { userId } = req.params;
         const foundUser = await userHandler.getUserByID(userId);
-        res.status(200).send(foundUser);
+        res.status(foundUser.status).send(foundUser.response);
     });
 
     app.get(`/api/user/name/:username`, async (req, res) => {
         const { username } = req.params;
         const user = await userHandler.getUserByUsername(username);
+        const emailSettings = await userHandler.getEmailSettings(user._id);
         const avatar = await s3Handler.getAvatar(user._id);
-        res.status(200).send({ user, avatar });
+        res.status(200).send({ user, avatar, emailSettings });
     });
 
     app.get(`/api/currentSeasonAndWeek`, async (req, res) => {
@@ -133,12 +141,15 @@ module.exports = app => {
         }
     });
 
-    app.get(`/api/email/test`, async (req, res) => {
-        const allGroups = await groupHandler.getAllGroups();
-        const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
-        groupHandler.calculateAllGroupScores(season, week, allGroups);
-        // console.log(`hit`);
-        // s3Handler.sendEmail();
+    app.put(`/api/user/group/main/:groupId/:userId`, async (req, res) => {
+        const { groupId, userId } = req.params;
+        await groupHandler.updateMainGroup(groupId, userId);
+        res.sendStatus(200);
+    });
+
+    app.put(`/api/user/emailPref/:userId/:LE/:RE`, (req, res) => {
+        const { userId, LE, RE } = req.params;
+        userHandler.updateEmailSettings(userId, LE, RE);
         res.sendStatus(200);
     });
 }

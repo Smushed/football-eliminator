@@ -1,5 +1,4 @@
 const mySportsHandler = require(`../handlers/mySportsHandler`);
-const rosterHandler = require(`../handlers/rosterHandler`);
 const groupHandler = require("../handlers/groupHandler");
 
 const nflTeams = require(`../constants/nflTeams`);

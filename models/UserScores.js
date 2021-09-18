@@ -2,8 +2,7 @@ const mongoose = require(`mongoose`);
 
 const Schema = mongoose.Schema;
 
-//Everything is to be singular
-const UserScores = new Schema({
+const UserScoresSchema = new Schema({
 
     U: { //User ID
         type: mongoose.Schema.Types.ObjectId,
@@ -91,4 +90,4 @@ const UserScores = new Schema({
     },
 });
 
-module.exports = mongoose.model(`UserScores`, UserScores);
+module.exports = mongoose.model(`UserScores`, UserScoresSchema);

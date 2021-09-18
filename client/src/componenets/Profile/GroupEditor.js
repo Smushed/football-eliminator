@@ -177,7 +177,7 @@ const GroupEditor = ({
             data.groupDesc = updatedFields.groupDesc;
         }
         axios.put(`/api/group`, { data, id: groupInfo._id })
-            .then(res => {
+            .then(() => {
                 if (updatedFields.groupName !== ``) {
                     changeGroup(updatedFields.groupName);
                     openCloseModal();

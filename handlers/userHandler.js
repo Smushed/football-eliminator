@@ -1,11 +1,8 @@
 const db = require(`../models`);
 
-const groupHandler = require(`./groupHandler`);
-
 const checkDuplicateUser = async (checkedField, checkField1, checkField2) => {
     let result = false;
     let searched;
-    //TODO Do something other than log these errors
     switch (checkedField) {
         case `username`: {
             searched = await db.User.findOne({ UN: checkField1 });
@@ -35,7 +32,7 @@ const checkDuplicateUser = async (checkedField, checkField1, checkField2) => {
 const fillOutUserForFrontEnd = async (user) => {
     const groupList = [];
     for (let i = 0; i < user.GL.length; i++) {
-        const groupData = await groupHandler.getGroupDataById(user.GL[i]);
+        const groupData = await db.Group.findById([user.GL[i]]).exec();
         groupList.push({
             N: groupData.N,
             D: groupData.D,
@@ -111,33 +108,16 @@ module.exports = {
 
         return response;
     },
-    userSearch: async (query, searchParam) => {
-        //On the front end we control what can be searched with a select dropdown
-        let userArray = [];
-        switch (searchParam) {
-            case `username`:
-                userArray = await db.User.find({ 'local.username': query });
-                break;
-            case `email`:
-                userArray = await db.User.find({ 'local.email': query });
-                break;
-        }
-
-        const userArrayToShow = userArray.map(user => {
-            const dataToShow = {
-                userID: user._id,
-                email: user.local.email,
-                username: user.local.username,
-                firstname: user.local.firstname,
-                lastname: user.local.lastname,
-            };
-            return dataToShow;
-        });
-        return userArrayToShow;
-    },
     getUserByID: async (userID) => {
-        const response = await db.User.findById(userID);
-        return response;
+        let response;
+        let status = 200;
+        try {
+            response = await db.User.findById(userID);
+        } catch (err) {
+            response = 'No User Found!';
+            status = 400;
+        }
+        return { response, status };
     },
     getUserByUsername: async (username) => {
         const user = await db.User.findOne({ UN: username }).collation({ locale: `en_US`, strength: 2 }).exec();
@@ -219,5 +199,19 @@ module.exports = {
             });
         }
         return filledUserList;
+    },
+    getEmailSettings: async (userId) => {
+        let emailSettings = await db.UserEmailSettings.findOne({ U: userId }).exec();
+        if (emailSettings === null) {
+            emailSettings = await db.UserEmailSettings.create({ U: userId });
+        }
+        return emailSettings;
+    },
+    updateEmailSettings: async (userId, LE, RE) => {
+        try {
+            await db.UserEmailSettings.findOneAndUpdate({ U: userId }, { LE, RE });
+        } catch (err) {
+            console.log(err);
+        }
     }
 };
