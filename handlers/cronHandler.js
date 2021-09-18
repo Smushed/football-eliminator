@@ -4,6 +4,7 @@ const userHandler = require(`../handlers/userHandler`);
 const mySportsHandler = require(`../handlers/mySportsHandler`);
 const rosterHandler = require(`../handlers/rosterHandler`);
 const groupHandler = require(`../handlers/groupHandler`);
+const emailHandler = require(`../handlers/emailHandler`);
 const moment = require(`moment-timezone`);
 
 // Schedule a job for thge 22nd minute of each hour
@@ -46,6 +47,16 @@ schedule.scheduleJob('0 17-23 * 1,9-12 0', async function () {
     console.log(`Running bi-hourly Sunday job`);
     const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
     updatePlayerData(season, week)
+});
+
+//Send out the Leaderboard every Tuesday
+schedule.scheduleJob('0 11 * 1,9-12 2', async function () {
+    console.log(`Sending out the weekly email`);
+    const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
+    const groups = await groupHandler.getAllGroups();
+    for (let group of groups) {
+        if (group.N !== 'Demo Group') emailHandler.sendLeaderBoardEmail(group, season, week);
+    }
 });
 
 const updatePlayerData = async (season, week) => {

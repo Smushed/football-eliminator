@@ -110,11 +110,11 @@ const getAllRostersByGroupAndWeek = async (season, week, groupId) => {
     });
 };
 
-const sortUsersByScore = async (userRosterArray, groupId) => {
+const sortUsersByScore = async (userRosterArray, groupId, season) => {
     return new Promise(async res => {
         const sortedScores = [];
         for (let user of userRosterArray) {
-            const userScore = await db.UserScores.findOne({ U: user.UID, G: groupId }, 'TS').exec();
+            const userScore = await db.UserScores.findOne({ U: user.UID, G: groupId, S: season }, 'TS').exec();
             if (!userScore) { continue; }
             sortedScores.push({ UID: user.UID, UN: user.UN, R: user.R, TS: userScore.TS });
         }
@@ -240,10 +240,10 @@ module.exports = {
             const allRosters = await getAllRostersByGroupAndWeek(season, week, groupId);
             for (const roster of allRosters) {
                 const filledRoster = await mySportsHandler.fillUserRoster(roster.R);
-                const user = await userHandler.getUserByID(roster.U);
+                const user = await db.User.findById(roster.U);
                 userRosters.push({ UID: user._id, UN: user.UN, R: filledRoster });
             }
-            const sortedUsers = await sortUsersByScore(userRosters, groupId);
+            const sortedUsers = await sortUsersByScore(userRosters, groupId, season);
             res(sortedUsers);
         });
     },

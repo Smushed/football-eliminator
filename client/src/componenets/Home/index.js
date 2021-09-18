@@ -87,14 +87,9 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
             });
     };
 
-    const testEmail = () => {
-        axios.get(`/api/email/test`);
-    };
-
     const weekForLeaderboard = week === 0 ? 1 : week;
     return (
         <div className='wrapper'>
-            <button onClick={() => testEmail()}>Test Email</button>
             <div className='homeSectionWrapper'>
                 <div className='userAvatarWrapper'>
                     <div className='leaderName'>

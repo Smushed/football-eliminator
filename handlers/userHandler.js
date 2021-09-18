@@ -109,8 +109,15 @@ module.exports = {
         return response;
     },
     getUserByID: async (userID) => {
-        const response = await db.User.findById(userID);
-        return response;
+        let response;
+        let status = 200;
+        try {
+            response = await db.User.findById(userID);
+        } catch (err) {
+            response = 'No User Found!';
+            status = 400;
+        }
+        return { response, status };
     },
     getUserByUsername: async (username) => {
         const user = await db.User.findOne({ UN: username }).collation({ locale: `en_US`, strength: 2 }).exec();

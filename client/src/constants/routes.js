@@ -15,3 +15,4 @@ export const createGroup = '/group/create';
 
 //These are hidden routes. Ones that have no link but anyone can go to them if they'd like
 export const upgradeToAdmin = '/upgradeToAdmin/';
+export const emailPref = '/emailPref/:userId';

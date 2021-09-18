@@ -3,6 +3,7 @@ const groupHandler = require(`./groupHandler`);
 const mySportsHandler = require(`./mySportsHandler`);
 const leaderBoardBuilder = require(`../constants/leaderBoardBuilder`);
 const idealRosterBuilder = require(`../constants/idealRosterBuilder`);
+const unsubscribe = require(`../constants/unsubscribe`);
 
 const AWS = require(`aws-sdk`);
 AWS.config.update({
@@ -12,6 +13,7 @@ AWS.config.update({
 });
 
 const sendEmail = (user, subject, html, text) => {
+    console.log(user)
     var sesEmailBuilder = {
         Destination: {
             ToAddresses: [
@@ -59,10 +61,10 @@ const composeWeeklyEmail = async (firstItem, secondItem, week) => {
 const createLeaderBoard = async (group, season, week) => {
     const leaderBoard = await groupHandler.getLeaderBoard(group._id, season, +week);
     const rows = await leaderBoardBuilder.leaderBoardRowBuilder(leaderBoard);
-    const leaderBoardHTML = leaderBoardBuilder.leaderBoardTemplate(rows, group.N, +week - 1);
+    const leaderBoardHTML = await leaderBoardBuilder.leaderBoardTemplate(rows, group.N, +week - 1);
 
     const textRows = await leaderBoardBuilder.leaderBoardTextRows(leaderBoard);
-    const leaderBoardText = leaderBoardBuilder.leaderBoardTextTemplate(textRows, group.N, +week);
+    const leaderBoardText = await leaderBoardBuilder.leaderBoardTextTemplate(textRows, group.N, +week);
 
     return { leaderBoardHTML, leaderBoardText };
 };
@@ -88,8 +90,8 @@ module.exports = {
         for (let user of group.UL) {
             const emailPermission = await userHandler.getEmailSettings(user.ID);
             if (emailPermission.LE) {
-                const { E } = await userHandler.getUserByID(user.ID);
-                emailList.push(E);
+                const { response } = await userHandler.getUserByID(user.ID);
+                emailList.push({ E: response.E, id: response._id });
             }
         }
         const subject = `Eliminator - Week ${+week - 1}`;
@@ -98,10 +100,17 @@ module.exports = {
 
         const { idealRosterText, idealRosterHTML } = await createIdealRoster(group, season, week);
 
-        const HTMLEmail = await composeWeeklyEmail(leaderBoardHTML, idealRosterHTML, week);
-        const textEmail = await composeWeeklyEmail(leaderBoardText, idealRosterText, week);
+        const HTMLTemplate = await composeWeeklyEmail(leaderBoardHTML, idealRosterHTML, week);
+        const textTemplate = await composeWeeklyEmail(leaderBoardText, idealRosterText, week);
 
-        sendEmail(emailList[0], subject, HTMLEmail, textEmail);
-        // sendEmail(emailList[0], subject, leaderBoardHTML, leaderBoardText);
+
+        for (let user of emailList) {
+            const HTMLemail = await unsubscribe.appendHTML(HTMLTemplate, user.id);
+            const textEmail = await unsubscribe.appendText(textTemplate, user.id);
+
+            if (user.E === 'smushedcode@gmail.com' || user.E === 'tflerlage@comcast.net' || user.E === 'elstinkio33@gmail.com') {
+                sendEmail(user.E, subject, HTMLemail, textEmail);
+            }
+        }
     }
 }

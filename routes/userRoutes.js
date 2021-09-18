@@ -61,10 +61,10 @@ module.exports = app => {
         res.status(200).send(foundUser);
     });
 
-    app.get(`/api/getUserById/:userid`, async (req, res) => {
-        const userId = req.params.userid;
+    app.get(`/api/user/id/:userId`, async (req, res) => {
+        const { userId } = req.params;
         const foundUser = await userHandler.getUserByID(userId);
-        res.status(200).send(foundUser);
+        res.status(foundUser.status).send(foundUser.response);
     });
 
     app.get(`/api/user/name/:username`, async (req, res) => {
@@ -144,15 +144,6 @@ module.exports = app => {
     app.put(`/api/user/group/main/:groupId/:userId`, async (req, res) => {
         const { groupId, userId } = req.params;
         await groupHandler.updateMainGroup(groupId, userId);
-        res.sendStatus(200);
-    });
-
-    app.get(`/api/email/test`, async (req, res) => {
-        const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
-        const groups = await groupHandler.getAllGroups();
-        for (let group of groups) {
-            if (group.N === 'The Clapper') emailHandler.sendLeaderBoardEmail(group, season, week);
-        }
         res.sendStatus(200);
     });
 
