@@ -35,14 +35,14 @@ schedule.scheduleJob('0 9 * 1,9-12 *', async function () {
 });
 
 // Thursday and Monday games (these are in UTC)
-schedule.scheduleJob('0,30 0-5 * 1,9-12 2,5', async function () {
+schedule.scheduleJob('0 0-5 * 1,9-12 2,5', async function () {
     console.log(`Running bi-hourly Monday and Thursday game score`);
     const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
     updatePlayerData(season, week)
 });
 
 //Update most often on Sunday
-schedule.scheduleJob('0,30 17-23 * 1,9-12 0', async function () {
+schedule.scheduleJob('0 17-23 * 1,9-12 0', async function () {
     console.log(`Running bi-hourly Sunday job`);
     const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
     updatePlayerData(season, week)

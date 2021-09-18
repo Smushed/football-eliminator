@@ -199,5 +199,12 @@ module.exports = {
             emailSettings = await db.UserEmailSettings.create({ U: userId });
         }
         return emailSettings;
+    },
+    updateEmailSettings: async (userId, LE, RE) => {
+        try {
+            await db.UserEmailSettings.findOneAndUpdate({ U: userId }, { LE, RE });
+        } catch (err) {
+            console.log(err);
+        }
     }
 };

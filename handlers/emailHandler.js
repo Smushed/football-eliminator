@@ -92,11 +92,9 @@ module.exports = {
                 emailList.push(E);
             }
         }
-        const subject = `Eliminator Leaderboard - Week ${+week - 1}`;
+        const subject = `Eliminator - Week ${+week - 1}`;
 
         const { leaderBoardHTML, leaderBoardText } = await createLeaderBoard(group, season, week);
-
-        //Grab the ideal roster from last week
 
         const { idealRosterText, idealRosterHTML } = await createIdealRoster(group, season, week);
 

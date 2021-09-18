@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import Cropper from 'react-easy-crop';
@@ -7,7 +7,7 @@ import axios from 'axios';
 import Jimp from 'jimp';
 import { useToasts } from 'react-toast-notifications';
 
-import { EmailInput, PasswordInput } from './ProfileInputs';
+import { UsernameInput, EmailInput, PasswordInput, MainGroupInput, EmailToggleInput } from './ProfileInputs';
 
 const ReAuth = ({ firebase, updatedFields, authUser, openCloseModal, currentUser }) => {
 
@@ -177,6 +177,118 @@ const ImageEditor = ({ tempAvatar, saveCroppedAvatar, openCloseModal, fileInputR
     );
 };
 
+const UserEditor = ({
+    changeUpdatedFields,
+    updatedFields,
+    currentUser,
+    authUser,
+    updateModalState,
+    openCloseModal
+}) => {
+    const { addToast } = useToasts();
+
+    const [showPassword, updateShowPassword] = useState(`password`);
+    const [emailPref, updateEmailPref] = useState({});
+
+    useEffect(() => {
+        getEmailPref(currentUser.userId);
+    }, [currentUser.userId]);
+
+    const getEmailPref = async (userId) => {
+        const emailPref = await axios.get(`/api/user/emailPref/${userId}`);
+        changeUpdatedFields({ ...updatedFields, reminderEmail: emailPref.data.RE, leaderboardEmail: emailPref.data.LE })
+        updateEmailPref(emailPref.data);
+    }
+
+    const toggleShowPassword = () => {
+        showPassword === `password` ? updateShowPassword(`text`) : updateShowPassword(`password`);
+    };
+
+    const handleChange = (e) => {
+        if (e.target.name === `leaderboardEmail` || e.target.name === 'reminderEmail') {
+            const updatedVal = (e.target.value === `true`);
+            changeUpdatedFields({ ...updatedFields, [e.target.name]: updatedVal });
+        } else {
+            changeUpdatedFields({ ...updatedFields, [e.target.name]: e.target.value });
+        }
+    };
+
+    const handleSubmit = async () => {
+
+        if (updatedFields.email !== ``) {
+            let checkEmail = updatedFields.email.match(/^(([^<>()\]\\.,;:\s@']+(\.[^<>()\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
+            if (!checkEmail) {
+                addToast('Invalid Email - Please check', { appearance: 'warning', autoDismiss: true });
+                return;
+            }
+        }
+
+        if (updatedFields.mainGroup !== currentUser.MG) {
+            try {
+                await axios.put(`/api/user/group/main/${updatedFields.mainGroup}/${currentUser.userId}`);
+                addToast('Main group updated', { appearance: 'success', autoDismiss: true });
+            } catch (err) {
+                addToast('Error saving main group', { appearance: 'warning', autoDismiss: true });
+            }
+        }
+
+        if (updatedFields.leaderboardEmail !== emailPref.LE || updatedFields.reminderEmail !== emailPref.RE) {
+            await axios.put(`/api/user/emailPref/${currentUser.userId}/${updatedFields.leaderboardEmail}/${updatedFields.reminderEmail}`);
+        }
+
+        if (updatedFields.email !== `` || updatedFields.password !== `` || updatedFields.username !== ``) {
+            updateModalState('reAuth');
+            return;
+        }
+        openCloseModal();
+    };
+
+    return (
+        <>
+            <UsernameInput
+                handleChange={handleChange}
+                username={updatedFields.username}
+                currentUser={currentUser.username}
+            />
+            <PasswordInput
+                handleChange={handleChange}
+                toggleShowPassword={toggleShowPassword}
+                password={updatedFields.password}
+                showPassword={showPassword}
+            />
+            <EmailInput
+                authUser={authUser}
+                handleChange={handleChange}
+                email={updatedFields.email}
+            />
+            <MainGroupInput
+                currentUser={currentUser}
+                mainGroup={updatedFields.mainGroup}
+                handleChange={handleChange}
+            />
+            <EmailToggleInput
+                leaderboardEmailPref={updatedFields.leaderboardEmail}
+                reminderEmailPref={updatedFields.reminderEmail}
+                handleChange={handleChange}
+            />
+            <div className='submitButtonWrapper'>
+                <button className='btn btn-primary btn-lg' onClick={() => handleSubmit()}>
+                    Save
+                </button>
+            </div>
+        </>
+    )
+};
+
+UserEditor.propTypes = {
+    changeUpdatedFields: PropTypes.func,
+    updatedFields: PropTypes.object,
+    currentUser: PropTypes.object,
+    authUser: PropTypes.object,
+    updateModalState: PropTypes.func,
+    openCloseModal: PropTypes.func
+};
+
 ReAuth.propTypes = {
     firebase: PropTypes.any,
     updatedFields: PropTypes.object,
@@ -192,4 +304,4 @@ ImageEditor.propTypes = {
     openCloseModal: PropTypes.func
 };
 
-export { ReAuth, ImageEditor };
+export { ReAuth, ImageEditor, UserEditor };

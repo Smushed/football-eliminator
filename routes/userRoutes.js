@@ -41,6 +41,12 @@ module.exports = app => {
         res.status(200).send(foundUser);
     });
 
+    app.get(`/api/user/emailPref/:id`, async (req, res) => {
+        const { id } = req.params;
+        const emailPres = await userHandler.getEmailSettings(id);
+        res.status(200).send(emailPres);
+    });
+
     app.get(`/api/getAllUsers`, async (req, res) => {
         const dbResponse = await userHandler.getUserList();
 
@@ -135,12 +141,24 @@ module.exports = app => {
         }
     });
 
+    app.put(`/api/user/group/main/:groupId/:userId`, async (req, res) => {
+        const { groupId, userId } = req.params;
+        await groupHandler.updateMainGroup(groupId, userId);
+        res.sendStatus(200);
+    });
+
     app.get(`/api/email/test`, async (req, res) => {
         const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
         const groups = await groupHandler.getAllGroups();
         for (let group of groups) {
             if (group.N === 'The Clapper') emailHandler.sendLeaderBoardEmail(group, season, week);
         }
+        res.sendStatus(200);
+    });
+
+    app.put(`/api/user/emailPref/:userId/:LE/:RE`, (req, res) => {
+        const { userId, LE, RE } = req.params;
+        userHandler.updateEmailSettings(userId, LE, RE);
         res.sendStatus(200);
     });
 }

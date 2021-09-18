@@ -48,12 +48,6 @@ module.exports = app => {
         res.status(200).send(groupInfo);
     });
 
-    app.put(`/api/group/main/:groupId/:userId`, async (req, res) => {
-        const { groupId, userId } = req.params;
-        await groupHandler.updateMainGroup(groupId, userId);
-        res.sendStatus(200);
-    });
-
     app.post(`/api/createClapper/:pass`, async (req, res) => {
         const { pass } = req.params;
         if (pass !== process.env.DB_ADMIN_PASS) {

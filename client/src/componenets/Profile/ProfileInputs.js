@@ -81,6 +81,40 @@ const MainGroupInput = ({ currentUser, mainGroup, handleChange }) =>
         </div>
     </div>;
 
+const EmailToggleInput = ({ leaderboardEmailPref, reminderEmailPref, handleChange }) =>
+    <div className='editField centerFlex'>
+        <div>
+            <span>
+                Leaderboard Emails:
+            </span>
+            <select className='form-select' name='leaderboardEmail' value={leaderboardEmailPref} onChange={handleChange}>
+                <option value={true}>On</option>
+                <option value={false}>Off</option>
+            </select>
+        </div>
+        <div className='dropdownSpace'>
+            <span>
+                Reminder Emails:
+            </span>
+            <select className='form-select' name='reminderEmail' value={reminderEmailPref} onChange={handleChange}>
+                <option value={true}>On</option>
+                <option value={false}>Off</option>
+            </select>
+        </div>
+    </div>;
+
+
+EmailToggleInput.propTypes = {
+    leaderboardEmailPref: PropTypes.oneOfType([
+        PropTypes.bool,
+        PropTypes.string
+    ]),
+    reminderEmailPref: PropTypes.oneOfType([
+        PropTypes.bool,
+        PropTypes.string
+    ]),
+    handleChange: PropTypes.func
+}
 
 AvatarInput.propTypes = {
     fileInputRef: PropTypes.any,
@@ -119,4 +153,4 @@ MainGroupInput.propTypes = {
     handleChange: PropTypes.func
 };
 
-export { AvatarInput, UsernameInput, EmailInput, PasswordInput, ConfirmPasswordInput, MainGroupInput };
+export { AvatarInput, UsernameInput, EmailInput, PasswordInput, ConfirmPasswordInput, MainGroupInput, EmailToggleInput };

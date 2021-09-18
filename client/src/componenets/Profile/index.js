@@ -12,8 +12,7 @@ import withReactContent from 'sweetalert2-react-content';
 import 'rc-slider/assets/index.css';
 import './profileStyle.css';
 
-import { ReAuth, ImageEditor } from './ModalWindows';
-import UserEditor from './UserEditor';
+import { ReAuth, ImageEditor, UserEditor } from './ModalWindows';
 import GroupEditor from './GroupEditor';
 import UserProfile from './UserProfile';
 import GroupProfile from './GroupProfile';
@@ -21,7 +20,7 @@ import FourOFour from '../404';
 
 const Alert = withReactContent(Swal);
 
-const userFields = { username: ``, email: ``, password: ``, mainGroup: `` };
+const userFields = { username: ``, email: ``, password: ``, mainGroup: ``, leaderboardEmail: true, reminderEmail: true };
 const groupFields = { groupName: ``, groupDesc: `` };
 
 const Profile = ({
@@ -49,8 +48,6 @@ const Profile = ({
     useEffect(() => {
         if (match.params.type === `user`) {
             changeUpdatedFields({ ...userFields, mainGroup: currentUser.MG });
-        } else if (match.params.type === `group`) {
-            changeUpdatedFields({ ...groupFields });
         }
     }, [match.params.type, currentUser]);
 
