@@ -50,7 +50,18 @@ const sendEmail = (user, subject, html, text) => {
             });
 };
 
-const composeWeeklyEmail = async (firstItem, secondItem, week) => {
+const composeWeeklyHTMLEmail = async (firstItem, secondItem, week) => {
+    return `<div style='font-weight:600;
+                        font-size: 24px;'>
+    Congrats on making it another week in the Eliminator! Onto week ${week}
+    </div>
+
+    ${firstItem}
+    
+    ${secondItem}`;
+};
+
+const composeWeeklyTextEmail = async (firstItem, secondItem, week) => {
     return `Congrats on making it another week in the Eliminator! Onto week ${week}
 
     ${firstItem}
@@ -100,8 +111,8 @@ module.exports = {
 
         const { idealRosterText, idealRosterHTML } = await createIdealRoster(group, season, week);
 
-        const HTMLTemplate = await composeWeeklyEmail(leaderBoardHTML, idealRosterHTML, week);
-        const textTemplate = await composeWeeklyEmail(leaderBoardText, idealRosterText, week);
+        const HTMLTemplate = await composeWeeklyHTMLEmail(leaderBoardHTML, idealRosterHTML, week);
+        const textTemplate = await composeWeeklyTextEmail(leaderBoardText, idealRosterText, week);
 
 
         for (let user of emailList) {
