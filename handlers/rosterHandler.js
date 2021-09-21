@@ -326,7 +326,7 @@ module.exports = {
                 console.log(`done scoring week ${i}`)
             }
             if (group.N === `The Clapper`) {
-                const rankedPlayers = await mySportsHandler.rankPlayers(season, week, groupScore);
+                const rankedPlayers = await mySportsHandler.rankPlayers(season, week, groupScore, true);
                 await mySportsHandler.savePlayerRank(rankedPlayers);
             }
         }

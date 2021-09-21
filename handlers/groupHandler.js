@@ -314,7 +314,7 @@ module.exports = {
                 this.getGroupPositions(groupId)
             ]).then(async ([groupScore, groupPositions]) => {
                 Promise.all([
-                    mySportsHandler.rankPlayers(season, week, groupScore),
+                    mySportsHandler.rankPlayers(season, week, groupScore, false),
                     this.mapGroupPositions(groupPositions, positions.positionMap)
                 ]).then(async ([rankedPlayers, groupPositionMap]) => {
                     for (const possiblePositions of groupPositionMap) {
@@ -324,13 +324,11 @@ module.exports = {
                             highScorers.push(topScorer);
                         }
 
-                        const score = await mySportsHandler.singleWeekPlayerScore(highScorers[0].M, season, week, groupScore);
-
                         if (highScorers.length === 1) {
-                            newIdealRoster.R.push({ M: highScorers[0].M, SC: score });
+                            newIdealRoster.R.push({ M: highScorers[0].M, SC: highScorers[0].score });
                         } else {
                             highScorers.sort((a, b) => { return b.score - a.score });
-                            newIdealRoster.R.push({ M: highScorers[0].M, SC: score });
+                            newIdealRoster.R.push({ M: highScorers[0].M, SC: highScorers[0].score });
                         }
                     }
 
