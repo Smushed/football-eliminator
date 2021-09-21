@@ -36,7 +36,7 @@ const sendEmail = (user, subject, html, text) => {
                 Data: subject
             }
         },
-        Source: `kevin@eliminator.football`
+        Source: `smushedcode@gmail.com`
     };
 
     const sendPromise = new AWS.SES({ apiVersion: `2010-12-01` }).sendEmail(sesEmailBuilder).promise();
@@ -52,7 +52,8 @@ const sendEmail = (user, subject, html, text) => {
 
 const composeWeeklyHTMLEmail = async (firstItem, secondItem, week) => {
     return `<div style='font-weight:600;
-                        font-size: 24px;'>
+                        font-size: 24px;
+                        margin-bottom: 15px;'>
     Congrats on making it another week in the Eliminator! Onto week ${week}
     </div>
 

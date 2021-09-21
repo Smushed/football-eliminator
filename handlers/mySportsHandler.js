@@ -18,6 +18,7 @@ const playerScoreHandler = async (playerId, season, week, groupScore) => {
                     weeklyScore += calculateScore(playerStats[bucket][field], groupScore[bucket][field]);
             }
         }
+
         res(weeklyScore);
     });
 };
@@ -674,5 +675,8 @@ module.exports = {
             matchupsDisplay[team.A] = { v: team.H, h: false }
         }
         return matchupsDisplay;
+    },
+    singleWeekPlayerScore: async (playerId, season, week, groupScore) => {
+        return await playerScoreHandler(playerId, season, week, groupScore);
     }
 };

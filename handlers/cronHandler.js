@@ -50,7 +50,7 @@ schedule.scheduleJob('0 17-23 * 1,9-12 0', async function () {
 });
 
 //Send out the Leaderboard every Tuesday
-schedule.scheduleJob('0 11 * 1,9-12 2', async function () {
+schedule.scheduleJob('15 9 * 1,9-12 2', async function () {
     console.log(`Sending out the weekly email`);
     const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
     const groups = await groupHandler.getAllGroups();
