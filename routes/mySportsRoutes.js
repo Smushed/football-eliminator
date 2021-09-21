@@ -50,7 +50,7 @@ module.exports = app => {
 
         const groupScore = await groupHandler.getGroupScore(groupId);
 
-        const rankedPlayersByPosition = await mySportsHandler.rankPlayers(season, week, groupScore);
+        const rankedPlayersByPosition = await mySportsHandler.rankPlayers(season, week, groupScore, true);
 
         const dbResponse = await mySportsHandler.savePlayerRank(rankedPlayersByPosition);
 

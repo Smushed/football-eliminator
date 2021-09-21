@@ -25,7 +25,7 @@ schedule.scheduleJob('0 9 * 1,9-12 *', async function () {
     console.log(`Running daily score update`);
     const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
     await mySportsHandler.updateRoster(season);
-    updatePlayerData(season, week);
+    await updatePlayerData(season, week);
 
     //Rank the players
     const clapper = await groupHandler.getGroupData(`The Clapper`);  //Default to the clapper as the 'main' group
@@ -61,7 +61,8 @@ schedule.scheduleJob('15 9 * 1,9-12 2', async function () {
 
 const updatePlayerData = async (season, week) => {
     await mySportsHandler.getWeeklyData(season, week);
-    rosterHandler.scoreAllGroups(season, week);
+    await rosterHandler.scoreAllGroups(season, week);
+    return;
 };
 
 const startWeek = (currDate, currDBWeeks, currWeek) => {
@@ -87,3 +88,13 @@ const lockWeek = (currDate, currDBWeeks, currWeek) => {
         userHandler.updateLockWeek(currWeek);
     }
 };
+
+const test = async () => {
+    const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
+
+    //Rank the players
+    const clapper = await groupHandler.getGroupData(`The Clapper`);  //Default to the clapper as the 'main' group
+    const idealRoster = await groupHandler.getIdealRoster(clapper._id, season, week - 1);
+}
+
+test();

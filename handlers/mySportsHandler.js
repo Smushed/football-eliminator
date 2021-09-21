@@ -526,6 +526,7 @@ module.exports = {
             }
 
             console.log(`weekly data received, parsing`);
+            if (!search.data.gamelogs) return;
             for (let i = 0; i < search.data.gamelogs.length; i++) {
                 const position = search.data.gamelogs[i].player.position || search.data.gamelogs[i].player.primaryPosition;
 
@@ -569,7 +570,7 @@ module.exports = {
 
         return;
     },
-    rankPlayers: async function (season, week, groupScore) {
+    rankPlayers: async function (season, week, groupScore, totalSeason) {
         console.log(`Ranking Players for `, season, week);
         //Loop through the positions of the players to then rank them
         //We are doing the offense here, since D will be different
@@ -584,8 +585,13 @@ module.exports = {
             for (let player of playersByPosition) {
                 const scoredPlayer = player.toObject();
                 scoredPlayer.score = 0;
-                for (let i = 1; i <= week; i++) {
-                    scoredPlayer.score += await playerScoreHandler(player.M, season, i, groupScore)
+                if (totalSeason) {
+                    for (let i = 1; i <= week; i++) {
+                        scoredPlayer.score += await playerScoreHandler(player.M, season, i, groupScore)
+                    }
+                } else {
+                    scoredPlayer.score += await playerScoreHandler(player.M, season, week, groupScore)
+
                 }
                 //Put them in an array to rank them
                 rankingArray.push(scoredPlayer);
