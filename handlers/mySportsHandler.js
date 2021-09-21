@@ -616,15 +616,20 @@ module.exports = {
         return `Ranked Players Saved`;
     },
     fillUserRoster: async (playerIdRoster) => {
-        const filledRoster = [];
-        for (let i = 0; i < playerIdRoster.length; i++) {
-            if (playerIdRoster[i].M !== 0) {
-                const { P, T, M, N } = await db.PlayerData.findOne({ M: playerIdRoster[i].M }, { P: 1, T: 1, M: 1, N: 1 });
-                filledRoster.push({ P, T, M, N, SC: playerIdRoster[i].SC });
-            } else {
-                filledRoster.push({ M: 0, SC: 0 });
-            }
+        // const filledRoster = [];
+        const mySportsIdArray = playerIdRoster.map(id => id.M);
+        let dbSearch;
+        try {
+            dbSearch = await db.PlayerData.find({ M: { $in: mySportsIdArray } }, { P: 1, T: 1, M: 1, N: 1 });
+        } catch (err) {
+            console.log(err);
         }
+        const filledRoster = playerIdRoster.map(id => {
+            const player = dbSearch.find(player => player.M === id.M);
+            if (!player) return { M: 0, SC: 0 };
+            const { P, T, M, N } = player;
+            return { P, T, M, N, SC: id.SC }
+        });
         return filledRoster;
     },
     pullMatchUpsForDB: async (season, week) => {
