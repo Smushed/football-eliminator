@@ -177,7 +177,7 @@ module.exports = {
     addUser: async (addedUserID, groupId, isAdmin = false) => {
         //Checks if the user is already added to the group and returns 500 if they are
         const isDuplicate = await checkDuplicate(`userlist`, groupId, addedUserID);
-        //TODO update this so it returns an error message
+
         if (isDuplicate) {
             return 500;
         }

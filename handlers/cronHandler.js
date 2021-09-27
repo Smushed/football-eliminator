@@ -88,13 +88,3 @@ const lockWeek = (currDate, currDBWeeks, currWeek) => {
         userHandler.updateLockWeek(currWeek);
     }
 };
-
-const test = async () => {
-    const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
-
-    //Rank the players
-    const clapper = await groupHandler.getGroupData(`The Clapper`);  //Default to the clapper as the 'main' group
-    const idealRoster = await groupHandler.getIdealRoster(clapper._id, season, week - 1);
-}
-
-test();
