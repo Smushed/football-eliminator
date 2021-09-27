@@ -13,7 +13,6 @@ module.exports = app => {
         await groupHandler.addUser(userId, groupId);
         await userHandler.addGroupToList(userId, groupId);
         res.status(200).send(`Added`);
-        // return "You need to be a moderator to add users to the group";
     });
 
     app.get(`/api/group/profile`, async (req, res) => {

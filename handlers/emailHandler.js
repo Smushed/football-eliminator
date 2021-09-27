@@ -36,7 +36,7 @@ const sendEmail = (user, subject, html, text) => {
                 Data: subject
             }
         },
-        Source: `smushedcode@gmail.com`
+        Source: `kevin@eliminator.football`
     };
 
     const sendPromise = new AWS.SES({ apiVersion: `2010-12-01` }).sendEmail(sesEmailBuilder).promise();
