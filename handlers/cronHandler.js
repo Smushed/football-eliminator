@@ -55,7 +55,7 @@ schedule.scheduleJob('15 9 * 1,9-12 2', async function () {
     const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
     const groups = await groupHandler.getAllGroups();
     for (let group of groups) {
-        if (group.N !== 'Demo Group') emailHandler.sendLeaderBoardEmail(group, season, week);
+        if (group.N !== 'Demo Group') emailHandler.sendLeaderBoardEmail(group, season, +week + 1);
     }
 });
 

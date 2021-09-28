@@ -72,7 +72,7 @@ const composeWeeklyTextEmail = async (firstItem, secondItem, week) => {
 const createLeaderBoard = async (group, season, week) => {
     const leaderBoard = await groupHandler.getLeaderBoard(group._id, season, +week);
     const rows = await leaderBoardBuilder.leaderBoardRowBuilder(leaderBoard);
-    const leaderBoardHTML = await leaderBoardBuilder.leaderBoardTemplate(rows, group.N, +week - 1);
+    const leaderBoardHTML = await leaderBoardBuilder.leaderBoardTemplate(rows, group.N, +week);
 
     const textRows = await leaderBoardBuilder.leaderBoardTextRows(leaderBoard);
     const leaderBoardText = await leaderBoardBuilder.leaderBoardTextTemplate(textRows, group.N, +week);
@@ -81,16 +81,15 @@ const createLeaderBoard = async (group, season, week) => {
 };
 
 const createIdealRoster = async (group, season, week) => {
-    const convWeek = +week - 1;
-    const idealRoster = await groupHandler.getIdealRoster(group._id, season, convWeek);
+    const idealRoster = await groupHandler.getIdealRoster(group._id, season, week);
     const filledRoster = await mySportsHandler.fillUserRoster(idealRoster.R);
     const groupPos = await groupHandler.getGroupPositions(group._id.toString());
 
     const idealRosterRows = await idealRosterBuilder.idealRosterRow(filledRoster, groupPos);
-    const idealRosterHTML = await idealRosterBuilder.idealRosterBuilder(idealRosterRows, convWeek);
+    const idealRosterHTML = await idealRosterBuilder.idealRosterBuilder(idealRosterRows, week);
 
     const textRows = await idealRosterBuilder.idealRosterTextRows(filledRoster, groupPos);
-    const idealRosterText = await idealRosterBuilder.idealRosterTextTemplate(textRows, convWeek);
+    const idealRosterText = await idealRosterBuilder.idealRosterTextTemplate(textRows, week);
 
     return { idealRosterHTML, idealRosterText };
 };
@@ -119,9 +118,7 @@ module.exports = {
             const HTMLemail = await unsubscribe.appendHTML(HTMLTemplate, user.id);
             const textEmail = await unsubscribe.appendText(textTemplate, user.id);
 
-            if (user.E === 'smushedcode@gmail.com' || user.E === 'tflerlage@comcast.net' || user.E === 'elstinkio33@gmail.com') {
-                sendEmail(user.E, subject, HTMLemail, textEmail);
-            }
+            sendEmail(user.E, subject, HTMLemail, textEmail);
         }
     }
 }
