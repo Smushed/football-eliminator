@@ -13,7 +13,6 @@ AWS.config.update({
 });
 
 const sendEmail = (user, subject, html, text) => {
-    console.log(user)
     var sesEmailBuilder = {
         Destination: {
             ToAddresses: [
