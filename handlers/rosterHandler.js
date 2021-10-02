@@ -311,7 +311,12 @@ module.exports = {
     },
     getTotalScore: async (userId) => {
         const { season } = await userHandler.pullSeasonAndWeekFromDB();
-        const userScore = await db.UserScores.findOne({ U: userId, S: season }, { TS: 1 }).exec();
+        let userScore;
+        try {
+            userScore = await db.UserScores.findOne({ U: userId, S: season }, { TS: 1 }).exec();
+        } catch (err) {
+            console.log(err);
+        }
         return userScore.TS;
     },
     scoreAllGroups: async (season, week) => {

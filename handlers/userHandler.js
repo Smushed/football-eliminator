@@ -187,18 +187,20 @@ module.exports = {
         }
         return { status: 200, message: 'All Good' };
     },
-    groupUserList: async function (userList) {
-        const filledUserList = [];
-        for (const user of userList) {
-            const userData = await this.getUserByID(user.ID);
-            filledUserList.push({
-                A: user.A, //using the GroupList admin
-                E: userData.E,
-                UN: userData.UN,
-                _id: userData._id
-            });
-        }
-        return filledUserList;
+    groupUserList: function (userList) {
+        return new Promise(async (res) => {
+            const filledUserList = [];
+            for (const user of userList) {
+                const userData = await await db.User.findById(user.ID);
+                filledUserList.push({
+                    A: user.A, //using the GroupList admin
+                    E: userData.E,
+                    UN: userData.UN,
+                    _id: userData._id
+                });
+            }
+            res(filledUserList);
+        })
     },
     getEmailSettings: async (userId) => {
         let emailSettings = await db.UserEmailSettings.findOne({ U: userId }).exec();
