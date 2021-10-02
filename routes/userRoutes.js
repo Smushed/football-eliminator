@@ -120,7 +120,6 @@ module.exports = app => {
 
     app.get(`/api/user/profile/box/:userId`, async (req, res) => {
         const { userId } = req.params;
-        console.log(userId)
         Promise.all([
             s3Handler.getAvatar(userId),
             rosterHandler.getTotalScore(userId),
