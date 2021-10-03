@@ -40,6 +40,7 @@ const addPlayerData = (player, team, stats, season, week) => {
             P: player.primaryPosition || player.position,
             A: true,
             R: 7,
+            I: player.currentInjury
         }, function (err, player) {
             if (err) {
                 console.log(err);
@@ -62,7 +63,7 @@ const findPlayerInDB = async (playerID) => {
             if (playerInDB === null) {
                 res(false);
             } else {
-                res(playerInDB.M);
+                res(playerInDB);
             }
         } catch (err) {
             //TODO Do something more with the error
@@ -280,13 +281,17 @@ const parseRoster = async (playerArray, team) => {
     for (let i = 0; i < playerArray.length; i++) {
         const position = playerArray[i].player.primaryPosition || playerArray[i].player.position;
         if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
-            let mySportsId = await findPlayerInDB(playerArray[i].player.id);
-            if (mySportsId === false || mySportsId === undefined || mySportsId === null) {
-                mySportsId = await addPlayerData(playerArray[i].player, team);
+            let dbPlayer = await findPlayerInDB(playerArray[i].player.id);
+            if (dbPlayer === false || dbPlayer === undefined || dbPlayer === null) {
+                dbPlayer = await addPlayerData(playerArray[i].player, team);
             } else {
-                await updatePlayerTeam(playerArray[i].player.id, playerArray[i].player.currentTeam.abbreviation);
+                let injury = null;
+                if (playerArray[i].player.currentInjury !== null) {
+                    injury = { D: playerArray[i].player.currentInjury.description, PP: playerArray[i].player.currentInjury.playingProbability }
+                }
+                await updatePlayer(playerArray[i].player.id, playerArray[i].player.currentTeam.abbreviation, injury, position);
             }
-            totalPlayerArray.push(mySportsId);
+            totalPlayerArray.push(dbPlayer.M);
         }
     }
 
@@ -313,7 +318,6 @@ const inactivatePlayers = (inactivePlayerArray) => {
 
             dbPlayer.save((err, result) => {
                 if (err) {
-                    //TODO Better error handling
                     console.log(`error ${dbPlayer.full_name}`, err);
                 } else {
                     return result;
@@ -329,7 +333,6 @@ const setPlayerToActive = (mySportsId) => {
 
         dbPlayer.save((err, result) => {
             if (err) {
-                //TODO Better error handling
                 console.log(`error ${dbPlayer.full_name}`, err);
             } else {
                 return result;
@@ -338,8 +341,8 @@ const setPlayerToActive = (mySportsId) => {
     });
 };
 
-const updatePlayerTeam = async (mySportsId, team) => {
-    await db.PlayerData.findOneAndUpdate({ 'M': mySportsId }, { 'T': team, 'A': true });
+const updatePlayer = async (mySportsId, team, injury, position) => {
+    await db.PlayerData.findOneAndUpdate({ 'M': mySportsId }, { 'T': team, 'A': true, 'I': injury, 'P': position });
 };
 
 const saveUserScore = async (userId, groupId, season, week, weekScore) => {
@@ -533,8 +536,8 @@ module.exports = {
                 if (position === `QB` || position === `TE` || position === `WR` || position === `RB` || position === `K`) {
 
                     //This searches the database and then returns their ID if they're there and false if they are not
-                    let mySportsId = await findPlayerInDB(search.data.gamelogs[i].player.id);
-                    if (!mySportsId) {
+                    let player = await findPlayerInDB(search.data.gamelogs[i].player.id);
+                    if (!player) {
                         //Need to break out player team incase the team part is null
                         //This is for players that have retired or are not currently on a team in mySportsDB
                         let playerTeam = ``;
@@ -544,11 +547,11 @@ module.exports = {
                             playerTeam = `UNK`;
                         }
                         //If they are not in the database then I need to first update the PlayerData collection
-                        mySportsId = addPlayerData(search.data.gamelogs[i].player, playerTeam, search.data.gamelogs[i].stats, season, week);
+                        addPlayerData(search.data.gamelogs[i].player, playerTeam, search.data.gamelogs[i].stats, season, week);
                     } else {
                         //Need to ensure the player is set to active when their stats are entered in
-                        setPlayerToActive(mySportsId);
-                        addWeeksStats(mySportsId, search.data.gamelogs[i].stats, season, week)
+                        setPlayerToActive(player.M);
+                        addWeeksStats(player.M, search.data.gamelogs[i].stats, season, week)
                     }
                 }
             }
@@ -627,15 +630,15 @@ module.exports = {
         const mySportsIdArray = playerIdRoster.map(id => id.M);
         let dbSearch;
         try {
-            dbSearch = await db.PlayerData.find({ M: { $in: mySportsIdArray } }, { P: 1, T: 1, M: 1, N: 1 });
+            dbSearch = await db.PlayerData.find({ M: { $in: mySportsIdArray } }, { P: 1, T: 1, M: 1, N: 1, I: 1 });
         } catch (err) {
             console.log(err);
         }
         const filledRoster = playerIdRoster.map(id => {
             const player = dbSearch.find(player => player.M === id.M);
             if (!player) return { M: 0, SC: 0 };
-            const { P, T, M, N } = player;
-            return { P, T, M, N, SC: id.SC }
+            const { P, T, M, N, I } = player;
+            return { P, T, M, N, I, SC: id.SC }
         });
         return filledRoster;
     },

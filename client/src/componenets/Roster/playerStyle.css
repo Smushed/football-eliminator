@@ -7,7 +7,6 @@
     width: 93%;
     height: 36px;
     font-weight: 500;
-    padding-left: 20px;
     overflow: hidden;
 }
 
@@ -17,19 +16,31 @@
     justify-content: center;
 }
 
+.injuryCol {
+    width: 15px;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
 .oddRow {
     background-color: rgb(208, 236, 208);
 }
 
+.redText {
+    color: red;
+}
+
 .positionBox {
     padding-top: 8px;
-    min-width: 70px;
+    width: 15%;
+    text-align: center;
+    padding-left: 10px;
 }
 
 .hasPlayerContainer {
-    width: 90%;
+    width: 390px;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-evenly;
 }
 
 .playerContainer {
@@ -44,7 +55,7 @@
 .playerCol {
     padding-top: 8px;
     padding-bottom: 8px;
-    min-width: 150px;
+    min-width: 165px;
 }
 
 .teamCol {

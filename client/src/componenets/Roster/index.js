@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
 import PropTypes from 'prop-types';
+import ReactTooltip from 'react-tooltip';
 
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -53,7 +54,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
             .then(res => {
                 updateUsedPlayers(res.data);
             }).catch(err => {
-                console.log(err); //TODO better error handling
+                console.log(err);
             });
     };
 
@@ -88,7 +89,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                     updatePositionArray(positionArray);
                     doneLoading();
                 }).catch(err => {
-                    console.log(`roster data error`, err); //TODO better error handling
+                    console.log(`roster data error`, err);
                 });
         }
     };
@@ -178,7 +179,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
         e.preventDefault();
 
         loading();
-        axios.get(`/api/availablePlayers`,
+        axios.get(`/api/roster/players/available`,
             { params: { userId, searchedPosition: positionSelect, season: season, groupId: match.params.groupId } })
             .then(res => {
                 updateLastPosSearch(positionSelect);
@@ -373,16 +374,20 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                             />
                         ))}
                     </div>
-
                 </div>
             </div>
         </div>
-
     );
 };
 
-const CurrentRosterRow = ({ evenOrOddRow, player, position, addDropPlayer, pastLockWeek }) => (
-    <div className={evenOrOddRow === 0 ? 'playerRow' : 'playerRow oddRow'}>
+const CurrentRosterRow = ({ evenOrOddRow, player, position, addDropPlayer, pastLockWeek }) => {
+    const showInjury = async () => {
+        const playingProb = player.I.PP.toLowerCase();
+        Alert.fire({
+            title: `${player.N} is ${playingProb} with a ${player.I.D} injury`,
+        });
+    };
+    return <div className={evenOrOddRow === 0 ? 'playerRow' : 'playerRow oddRow'}>
         <div className='positionBox'>
             {position}
         </div>
@@ -390,16 +395,21 @@ const CurrentRosterRow = ({ evenOrOddRow, player, position, addDropPlayer, pastL
             {player &&
                 (player.M !== 0 ?
                     <div className='hasPlayerContainer'>
-                        {player.N &&
-                            <div className='playerCol'>
-                                {player.N}
+                        <div className='playerCol flex'>
+                            <div className='injuryCol'>
+                                {!pastLockWeek &&
+                                    player.I &&
+                                    <InjuryCol
+                                        injury={player.I}
+                                        showInjury={showInjury}
+                                    />
+                                }
                             </div>
-                        }
-                        {player.T &&
-                            <div className='teamCol'>
-                                {player.T}
-                            </div>
-                        }
+                            {player.N && player.N}
+                        </div>
+                        <div className='teamCol'>
+                            {player.T}
+                        </div>
                         {pastLockWeek === true ?
                             <div className='scoreCol'>
                                 {player.SC.toFixed(2)}
@@ -413,27 +423,44 @@ const CurrentRosterRow = ({ evenOrOddRow, player, position, addDropPlayer, pastL
                     : ``
                 )}
         </div>
-    </div >
-);
-
-const PlayerDisplayRow = ({ evenOrOddRow, player, addDropPlayer, sortedMatchups }) => (
-    <div className={evenOrOddRow === 0 ? 'playerRow' : 'playerRow oddRow'}>
-        <div className='playerCol'>
-            {player.N && player.N}
-        </div>
-        <div className='teamCol'>
-            {player.T && player.T}
-        </div>
-        <div className='posCol'>
-            {sortedMatchups && `${sortedMatchups[player.T].h ? 'v' : '@'} ${sortedMatchups[player.T].v}`}
-        </div>
-        {addDropPlayer &&
-            <button className='custom-button' onClick={() => addDropPlayer(player.M, 'add')}>
-                Add
-            </button>
-        }
     </div>
-);
+};
+
+const PlayerDisplayRow = ({ evenOrOddRow, player, addDropPlayer, sortedMatchups }) => {
+    const showInjury = async () => {
+        const playingProb = player.I.PP.toLowerCase();
+        Alert.fire({
+            title: `${player.N} is ${playingProb} with a ${player.I.D} injury`,
+        });
+    };
+    return <>
+        <div className={evenOrOddRow === 0 ? 'playerRow' : 'playerRow oddRow'}>
+
+            <div className='playerCol flex'>
+                <div className='injuryCol'>
+                    {player.I &&
+                        <InjuryCol
+                            injury={player.I}
+                            showInjury={showInjury}
+                        />
+                    }
+                </div>
+                {player.N && player.N}
+            </div>
+            <div className='teamCol'>
+                {player.T && player.T}
+            </div>
+            <div className='posCol'>
+                {sortedMatchups && `${sortedMatchups[player.T].h ? 'v' : '@'} ${sortedMatchups[player.T].v}`}
+            </div>
+            {addDropPlayer &&
+                <button className='custom-button' onClick={() => addDropPlayer(player.M, 'add')}>
+                    Add
+                </button>
+            }
+        </div>
+    </>
+};
 
 const RosterDisplay = ({ groupPositions, roster, addDropPlayer, mustDrop, pastLockWeek }) =>
     mustDrop ?
@@ -456,6 +483,22 @@ const RosterDisplay = ({ groupPositions, roster, addDropPlayer, mustDrop, pastLo
             />
         ));
 
+const InjuryCol = ({ injury, showInjury }) => {
+    return <>
+        <ReactTooltip />
+        <div className='redText'
+            data-tip={injury.D}
+            onClick={showInjury}
+        >
+            {injury.PP[0]}
+        </div>
+    </>
+}
+
+InjuryCol.propTypes = {
+    injury: PropTypes.object,
+    showInjury: PropTypes.func
+}
 
 Roster.propTypes = {
     latestLockWeek: PropTypes.number,
