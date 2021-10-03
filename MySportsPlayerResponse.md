@@ -229,3 +229,49 @@
          puntRetYds: 0,
          puntRetAvg: 0 },
       miscellaneous: { gamesStarted: 0 } } }
+
+
+
+## Active Roster
+{
+  player: {
+    id: 14734,
+    firstName: 'Justin',
+    lastName: 'Watson',
+    primaryPosition: 'WR',
+    alternatePositions: [],
+    jerseyNumber: 17,
+    currentTeam: { id: 71, abbreviation: 'TB' },
+    currentRosterStatus: 'ROSTER',
+    currentInjury: { description: 'knee', playingProbability: 'OUT' },
+    height: `6'3"`,
+    weight: 215,
+    birthDate: '1995-04-04',
+    age: 26,
+    birthCity: 'South Park, PA',
+    birthCountry: 'USA',
+    rookie: false,
+    highSchool: 'South Fayette',
+    college: 'Pennsylvania',
+    handedness: null,
+    officialImageSrc: 'http://static.nfl.com/static/content/public/static/img/fantasy/transparent/200x200/WAT441238.png',
+    socialMediaAccounts: [],
+    currentContractYear: null,
+    drafted: {
+      year: 2018,
+      team: [Object],
+      pickTeam: [Object],
+      round: 5,
+      roundPick: 16,
+      overallPick: 144
+    },
+    externalMappings: [
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object]
+    ]
+  },
+  teamAsOfDate: { id: 71, abbreviation: 'TB' }
+}

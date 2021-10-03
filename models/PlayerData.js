@@ -23,6 +23,12 @@ const PlayerDataSchema = new Schema({
     },
     A: Boolean, //Active
     R: Number, //Rank
+    I: { //Injury
+        type: {
+            D: String,
+            PP: String
+        }
+    },
 });
 
 module.exports = mongoose.model(`PlayerData`, PlayerDataSchema);
