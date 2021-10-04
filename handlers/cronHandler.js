@@ -49,13 +49,20 @@ schedule.scheduleJob('0 17-23 * 1,9-12 0', async function () {
     updatePlayerData(season, week)
 });
 
+//Right before the Leaderboard is sent out update the ideal roster
+schedule.scheduleJob('20 9 * 1,9-12 2', async function () {
+    console.log(`Updating Ideal Roster`);
+    const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
+    groupHandler.updateAllIdealRosters(season, week);
+});
+
 //Send out the Leaderboard every Tuesday
-schedule.scheduleJob('15 9 * 1,9-12 2', async function () {
+schedule.scheduleJob('30 9 * 1,9-12 2', async function () {
     console.log(`Sending out the weekly email`);
     const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
     const groups = await groupHandler.getAllGroups();
     for (let group of groups) {
-        if (group.N !== 'Demo Group') emailHandler.sendLeaderBoardEmail(group, season, +week + 1);
+        if (group.N !== 'Demo Group') emailHandler.sendLeaderBoardEmail(group, season, +week);
     }
 });
 
