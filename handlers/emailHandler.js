@@ -53,7 +53,7 @@ const composeWeeklyHTMLEmail = async (firstItem, secondItem, week) => {
     return `<div style='font-weight:600;
                         font-size: 24px;
                         margin-bottom: 15px;'>
-    Congrats on making it another week in the Eliminator! Onto week ${week}
+    Congrats on making it another week in the Eliminator! Onto week ${week + 1}
     </div>
 
     ${firstItem}
@@ -62,7 +62,7 @@ const composeWeeklyHTMLEmail = async (firstItem, secondItem, week) => {
 };
 
 const composeWeeklyTextEmail = async (firstItem, secondItem, week) => {
-    return `Congrats on making it another week in the Eliminator! Onto week ${week}
+    return `Congrats on making it another week in the Eliminator! Onto week ${week + 1}
 
     ${firstItem}
     
@@ -70,12 +70,12 @@ const composeWeeklyTextEmail = async (firstItem, secondItem, week) => {
 };
 
 const createLeaderBoard = async (group, season, week) => {
-    const leaderBoard = await groupHandler.getLeaderBoard(group._id, season, +week);
+    const leaderBoard = await groupHandler.getLeaderBoard(group._id, season, week);
     const rows = await leaderBoardBuilder.leaderBoardRowBuilder(leaderBoard);
-    const leaderBoardHTML = await leaderBoardBuilder.leaderBoardTemplate(rows, group.N, +week);
+    const leaderBoardHTML = await leaderBoardBuilder.leaderBoardTemplate(rows, group.N, week);
 
     const textRows = await leaderBoardBuilder.leaderBoardTextRows(leaderBoard);
-    const leaderBoardText = await leaderBoardBuilder.leaderBoardTextTemplate(textRows, group.N, +week);
+    const leaderBoardText = await leaderBoardBuilder.leaderBoardTextTemplate(textRows, group.N, week);
 
     return { leaderBoardHTML, leaderBoardText };
 };
@@ -104,14 +104,14 @@ module.exports = {
                 emailList.push({ E: response.E, id: response._id });
             }
         }
-        const subject = `Eliminator - Week ${+week - 1}`;
+        const subject = `Eliminator - Week ${week}`;
 
-        const { leaderBoardHTML, leaderBoardText } = await createLeaderBoard(group, season, week);
+        const { leaderBoardHTML, leaderBoardText } = await createLeaderBoard(group, season, +week + 1);
 
-        const { idealRosterText, idealRosterHTML } = await createIdealRoster(group, season, week);
+        const { idealRosterText, idealRosterHTML } = await createIdealRoster(group, season, +week);
 
-        const HTMLTemplate = await composeWeeklyHTMLEmail(leaderBoardHTML, idealRosterHTML, week);
-        const textTemplate = await composeWeeklyTextEmail(leaderBoardText, idealRosterText, week);
+        const HTMLTemplate = await composeWeeklyHTMLEmail(leaderBoardHTML, idealRosterHTML, +week);
+        const textTemplate = await composeWeeklyTextEmail(leaderBoardText, idealRosterText, +week);
 
 
         for (let user of emailList) {

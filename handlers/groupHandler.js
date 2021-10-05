@@ -154,7 +154,7 @@ const groupUpdater = {
         s3Handler.uploadAvatar(group.id.toString(), field);
         return false;
     }
-}
+};
 
 
 module.exports = {
@@ -310,38 +310,53 @@ module.exports = {
             const idealRosterResponse = await db.IdealRoster.findOne({ G: groupId, S: season, W: week }).exec();
             if (idealRosterResponse === null) {
                 let newIdealRoster = new db.IdealRoster({ G: groupId, S: season, W: week });
-                Promise.all([
-                    this.getGroupScore(groupId),
-                    this.getGroupPositions(groupId)
-                ]).then(async ([groupScore, groupPositions]) => {
-                    Promise.all([
-                        mySportsHandler.rankPlayers(season, week, groupScore, false),
-                        this.mapGroupPositions(groupPositions, positions.positionMap)
-                    ]).then(async ([rankedPlayers, groupPositionMap]) => {
-                        for (const possiblePositions of groupPositionMap) {
-                            const highScorers = [];
-                            for (const positionVal of possiblePositions) {
-                                const topScorer = rankedPlayers[positions.positionArray[positionVal]].shift();
-                                highScorers.push(topScorer);
-                            }
-
-                            if (highScorers.length === 1) {
-                                newIdealRoster.R.push({ M: highScorers[0].M, SC: highScorers[0].score });
-                            } else {
-                                highScorers.sort((a, b) => { return b.score - a.score });
-                                newIdealRoster.R.push({ M: highScorers[0].M, SC: highScorers[0].score });
-                            }
-                        }
-
-                        newIdealRoster.save(err => console.log(err));
-
-                        res(newIdealRoster);
-                    })
-                })
+                const updatedIdealRoster = await this.updateIdealRoster(groupId, season, week, newIdealRoster);
+                res(updatedIdealRoster);
             } else {
                 res(idealRosterResponse);
             }
         })
+    },
+    updateAllIdealRosters: async function (season, week) {
+        const allGroups = await this.getAllGroups();
+        for (const group of allGroups) {
+            let idealRoster = await db.IdealRoster.findOne({ G: group._id, S: season, W: week }).exec();
+            if (!idealRoster) {
+                idealRoster = new db.IdealRoster({ G: group._id, S: season, W: week });
+            }
+            this.updateIdealRoster(group._id, season, week, idealRoster);
+        }
+    },
+    updateIdealRoster: function (groupId, season, week, idealRoster) {
+        return new Promise(res => Promise.all([
+            this.getGroupScore(groupId),
+            this.getGroupPositions(groupId)
+        ]).then(async ([groupScore, groupPositions]) => {
+            Promise.all([
+                mySportsHandler.rankPlayers(season, week, groupScore, false),
+                this.mapGroupPositions(groupPositions, positions.positionMap)
+            ]).then(async ([rankedPlayers, groupPositionMap]) => {
+                const idealArray = [];
+                for (const possiblePositions of groupPositionMap) {
+                    const highScorers = [];
+                    for (const positionVal of possiblePositions) {
+                        const topScorer = rankedPlayers[positions.positionArray[positionVal]].shift();
+                        highScorers.push(topScorer);
+                    }
+
+                    if (highScorers.length === 1) {
+                        idealArray.push({ M: highScorers[0].M, SC: highScorers[0].score });
+                    } else {
+                        highScorers.sort((a, b) => { return b.score - a.score });
+                        idealArray.push({ M: highScorers[0].M, SC: highScorers[0].score });
+                    }
+                }
+                idealRoster.R = idealArray;
+                idealRoster.save();
+
+                res(idealRoster);
+            })
+        }));
     },
     getBlankRoster: async function (groupId) {
         const groupPositions = await this.getGroupPositions(groupId);
@@ -475,6 +490,10 @@ module.exports = {
         return;
     },
     getAllGroups: async () => {
-        return await db.Group.find().exec();
+        try {
+            return await db.Group.find().exec();
+        } catch (err) {
+            console.log(err)
+        }
     }
 };
