@@ -222,4 +222,7 @@
     .rosterWrapper {
         width: 100%;
     }
+    .rosterGroupHeader {
+        text-align: center;
+    }
 }
