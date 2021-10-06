@@ -380,7 +380,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
     );
 };
 
-const CurrentRosterRow = ({ evenOrOddRow, player, position, addDropPlayer, pastLockWeek }) => {
+const CurrentRosterRow = ({ evenOrOddRow, player, position, addDropPlayer, pastLockWeek, mustDrop }) => {
     const showInjury = async () => {
         const playingProb = player.I.PP.toLowerCase();
         Alert.fire({
@@ -414,7 +414,7 @@ const CurrentRosterRow = ({ evenOrOddRow, player, position, addDropPlayer, pastL
                             <div className='scoreCol'>
                                 {player.SC.toFixed(2)}
                             </div> :
-                            addDropPlayer &&
+                            mustDrop &&
                             <button className='custom-button' onClick={() => addDropPlayer(player.M, 'drop')}>
                                 Drop
                             </button>
@@ -451,7 +451,10 @@ const PlayerDisplayRow = ({ evenOrOddRow, player, addDropPlayer, sortedMatchups 
                 {player.T && player.T}
             </div>
             <div className='posCol'>
-                {sortedMatchups && `${sortedMatchups[player.T].h ? 'v' : '@'} ${sortedMatchups[player.T].v}`}
+                {sortedMatchups &&
+                    sortedMatchups[player.T] ?
+                    `${sortedMatchups[player.T].h ? 'v' : '@'} ${sortedMatchups[player.T].v}` : `BYE`
+                }
             </div>
             {addDropPlayer &&
                 <button className='custom-button' onClick={() => addDropPlayer(player.M, 'add')}>
@@ -471,6 +474,8 @@ const RosterDisplay = ({ groupPositions, roster, addDropPlayer, mustDrop, pastLo
                 player={player}
                 addDropPlayer={addDropPlayer}
                 evenOrOddRow={i % 2}
+                pastLockWeek={pastLockWeek}
+                mustDrop={mustDrop}
             />) :
         groupPositions.map((position, i) => (
             <CurrentRosterRow
@@ -513,6 +518,7 @@ Roster.propTypes = {
 };
 
 CurrentRosterRow.propTypes = {
+    mustDrop: PropTypes.bool,
     evenOrOddRow: PropTypes.number,
     player: PropTypes.object,
     position: PropTypes.string,
