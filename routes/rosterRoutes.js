@@ -70,8 +70,9 @@ module.exports = app => {
         res.status(200).send(response);
     });
 
-    app.get(`/api/checkLockPeriod`, async (req, res) => {
-        const lockPeriod = await rosterHandler.checkLockPeriod();
+    app.get(`/api/locked/:week/:team`, async (req, res) => {
+        const { week, team } = req.params;
+        const lockPeriod = await rosterHandler.checkLockPeriod(+week, team);
         res.status(200).send(lockPeriod);
     });
 

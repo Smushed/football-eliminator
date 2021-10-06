@@ -304,9 +304,16 @@ module.exports = {
         }
         return roster.R;
     },
-    checkLockPeriod: async () => {
-        const lockPeroid = await db.SeasonAndWeek.findOne();
-        return lockPeroid;
+    checkLockPeriod: async (week, team) => {
+        try {
+            const { ST } = await db.TeamLocked.findOne({ T: team, W: week });
+            const currDate = new Date();
+            console.log(typeof (ST));
+            return false;
+        } catch (err) {
+            console.log(err);
+            return false;
+        }
     },
     getTotalScore: async (userId) => {
         const { season } = await userHandler.pullSeasonAndWeekFromDB();

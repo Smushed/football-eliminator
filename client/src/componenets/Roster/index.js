@@ -15,7 +15,7 @@ import * as Routes from '../../constants/routes';
 
 const Alert = withReactContent(Swal);
 
-const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, username, userId, history, noGroup }) => {
+const Roster = ({ latestLockWeek, week, season, match, username, userId, history, noGroup }) => {
     const [userRoster, updateUserRoster] = useState([]);
     const [availablePlayers, updateAvaliablePlayers] = useState([]);
     const [positionSelect, updatePositionSelect] = useState(`QB`); //This is the default value for the position search
@@ -163,16 +163,17 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
             });
     };
 
-    const checkLockPeriod = async () => {
-        const response = await axios.get(`/api/checkLockPeriod`);
-        updateLockWeekOnPull(response.data.LW);
-        if (response.data.LW === 0) {
-            return true;
-        }
-        if (weekOnPage <= response.data.LW) {
-            return false;
-        }
-        return true;
+    const checkLockPeriod = async (team) => {
+        console.log(team, weekOnPage)
+        const { data } = await axios.get(`/api/checkLockPeriod/${weekOnPage}/${team}`);
+        return data;
+        // if (response.data. === 0) {
+        //     return true;
+        // }
+        // if (weekOnPage <= response.data.LW) {
+        //     return false;
+        // }
+        // return true;
     };
 
     const positionSearch = (e) => {
@@ -241,7 +242,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
         }
     };
 
-    const addDropPlayer = async (mySportsId, addOrDrop) => {
+    const addDropPlayer = async (mySportsId, team, addOrDrop) => {
         if (!currentUser) {
             Alert.fire({
                 title: `Not your roster!`,
@@ -249,7 +250,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
             });
             return;
         }
-        const isLocked = await checkLockPeriod();
+        const isLocked = await checkLockPeriod(team);
         if (!isLocked) {
             Alert.fire({
                 title: `Week is locked!`,
@@ -415,7 +416,7 @@ const CurrentRosterRow = ({ evenOrOddRow, player, position, addDropPlayer, pastL
                                 {player.SC.toFixed(2)}
                             </div> :
                             addDropPlayer &&
-                            <button className='custom-button' onClick={() => addDropPlayer(player.M, 'drop')}>
+                            <button className='custom-button' onClick={() => addDropPlayer(player.M, player.T, 'drop')}>
                                 Drop
                             </button>
                         }
@@ -451,10 +452,14 @@ const PlayerDisplayRow = ({ evenOrOddRow, player, addDropPlayer, sortedMatchups 
                 {player.T && player.T}
             </div>
             <div className='posCol'>
-                {sortedMatchups && `${sortedMatchups[player.T].h ? 'v' : '@'} ${sortedMatchups[player.T].v}`}
+                {sortedMatchups &&
+                    sortedMatchups[player.T] ?
+                    `${sortedMatchups[player.T].h ? 'v' : '@'} ${sortedMatchups[player.T].v}`
+                    :
+                    `BYE`}
             </div>
             {addDropPlayer &&
-                <button className='custom-button' onClick={() => addDropPlayer(player.M, 'add')}>
+                <button className='custom-button' onClick={() => addDropPlayer(player.M, player.T, 'add')}>
                     Add
                 </button>
             }
@@ -502,7 +507,6 @@ InjuryCol.propTypes = {
 
 Roster.propTypes = {
     latestLockWeek: PropTypes.number,
-    updateLockWeekOnPull: PropTypes.func,
     week: PropTypes.number,
     season: PropTypes.string,
     match: PropTypes.any,

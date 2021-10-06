@@ -25,10 +25,5 @@ Some key features are listed below:
 - The rosters lock before the Thursday game
 - Users can see view others rosters
 - There is a leaderboard to compare scores
-
-### Future Ideas & Improvements
-- Send out an email, or host a page for "Match Ups" a summary by week of the players each person is playing
-- Add groups so users can organize any way they see fit
-    - Add scoring for each group individually so they can customize their points & rosters
-- Add D/ST as an option to be played
-- Scores are displayed for players when a user looks back at their own roster over time
+- Users are sent out a weekly email with the current Leaderboard and last week's ideal roster
+- How groups are scored and the positions they have can be customized

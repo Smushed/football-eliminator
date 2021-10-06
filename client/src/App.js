@@ -31,7 +31,6 @@ const App = ({ firebase }) => {
   const [currentSeason, updateCurrentSeason] = useState(``);
   const [currentGroup, updateCurrentGroup] = useState({});
   const [showSideBar, updateShowSideBar] = useState(false);
-  const [latestLockWeek, updateLockWeek] = useState(0);
 
   const listener = useRef(null);
 
@@ -96,15 +95,11 @@ const App = ({ firebase }) => {
   };
 
   const getSeasonAndWeek = async () => {
-    const seasonAndWeek = await axios.get(`/api/currentSeasonAndWeek`);
-    updateCurrentSeason(seasonAndWeek.data.season);
-    updateCurrentWeek(seasonAndWeek.data.week);
-    updateLockWeek(seasonAndWeek.data.lockWeek)
+    const { data } = await axios.get(`/api/currentSeasonAndWeek`);
+    updateCurrentSeason(data.season);
+    updateCurrentWeek(data.week);
   };
 
-  const updateLockWeekOnPull = (pulledLockWeek) => {
-    updateLockWeek(pulledLockWeek);
-  };
 
   const userHasGroup = (user) => (user.GL.length > 0);
 
@@ -193,8 +188,6 @@ const App = ({ firebase }) => {
               path={Routes.roster}
               render={() =>
                 <Roster
-                  latestLockWeek={latestLockWeek}
-                  updateLockWeekOnPull={updateLockWeekOnPull}
                   username={currentUser.username}
                   userId={currentUser.userId}
                   week={currentWeek}

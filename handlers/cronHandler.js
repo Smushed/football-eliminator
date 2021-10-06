@@ -12,7 +12,7 @@ const moment = require(`moment-timezone`);
 schedule.scheduleJob('22 * * 1,9-12 *', async function () {
     //Need to update which week we're currently in
     const currDate = moment.utc(new Date()).tz(`America/Chicago`).toDate();
-    console.log(`Checking start week and lock week ${currDate}`)
+    console.log(`Checking start week and lock week ${currDate}`);
 
     const currDBWeeks = await userHandler.pullSeasonAndWeekFromDB();
 
@@ -46,7 +46,7 @@ schedule.scheduleJob('0 0-5 * 1,9-12 2,5', async function () {
 schedule.scheduleJob('0 17-23 * 1,9-12 0', async function () {
     console.log(`Running bi-hourly Sunday job`);
     const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
-    updatePlayerData(season, week)
+    updatePlayerData(season, week);
 });
 
 //Right before the Leaderboard is sent out update the ideal roster
