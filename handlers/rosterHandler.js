@@ -304,14 +304,25 @@ module.exports = {
         }
         return roster.R;
     },
-    checkLockPeriod: async (week, team) => {
+    lockPeroid: async () => {
         try {
-            const { ST } = await db.TeamLocked.findOne({ T: team, W: week });
-            const currDate = new Date();
-            console.log(typeof (ST));
-            return false;
+            const currData = await db.SeasonAndWeek.findOne();
+            return { LW: currData.LW };
         } catch (err) {
-            console.log(err);
+            return false;
+        }
+    },
+    checkTeamLock: async (season, week, team) => {
+        try {
+            let teamStart = await db.TeamLocked.findOne({ T: team, W: week, S: season });
+            if (!teamStart) {
+                await mySportsHandler.checkGameStarted(season, week);
+                teamStart = await db.TeamLocked.findOne({ T: team, W: week, S: season });
+            }
+            const currDate = new Date();
+            return (currDate < teamStart.ST);
+        } catch (err) {
+            console.log(err)
             return false;
         }
     },

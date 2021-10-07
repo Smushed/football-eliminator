@@ -697,17 +697,24 @@ module.exports = {
             }
         });
         for (const game of search.data.games) {
-            const homeTeamLockSearch = await db.TeamLocked.findOne({ T: game.schedule.homeTeam.abbreviation, W: week });
+            const homeTeamLockSearch = await db.TeamLocked.findOne({ T: game.schedule.homeTeam.abbreviation, W: week, S: season });
             if (!homeTeamLockSearch) {
-                const newRecord = new db.TeamLocked({ T: game.schedule.homeTeam.abbreviation, ST: game.schedule.startTime, W: week });
+                const newRecord = new db.TeamLocked({ T: game.schedule.homeTeam.abbreviation, ST: game.schedule.startTime, W: week, S: season });
                 newRecord.save();
+            } else {
+                homeTeamLockSearch.ST = game.schedule.startTime;
+                homeTeamLockSearch.save();
             }
 
-            const awayTeamLockSearch = await db.TeamLocked.findOne({ T: game.schedule.awayTeam.abbreviation, W: week });
+            const awayTeamLockSearch = await db.TeamLocked.findOne({ T: game.schedule.awayTeam.abbreviation, W: week, S: season });
             if (!awayTeamLockSearch) {
-                const newRecord = new db.TeamLocked({ T: game.schedule.awayTeam.abbreviation, ST: game.schedule.startTime, W: week });
+                const newRecord = new db.TeamLocked({ T: game.schedule.awayTeam.abbreviation, ST: game.schedule.startTime, W: week, S: season });
                 newRecord.save();
+            } else {
+                awayTeamLockSearch.ST = game.schedule.startTime;
+                awayTeamLockSearch.save();
             }
         }
+        return;
     }
 };

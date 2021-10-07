@@ -14,6 +14,10 @@ const TeamLockedSchema = new Schema({
     W: { //Week this time is for
         type: Number,
         required: true
+    },
+    S: {
+        type: String,
+        required: true
     }
 });
 

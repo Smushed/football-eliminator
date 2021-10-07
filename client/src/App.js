@@ -31,6 +31,7 @@ const App = ({ firebase }) => {
   const [currentSeason, updateCurrentSeason] = useState(``);
   const [currentGroup, updateCurrentGroup] = useState({});
   const [showSideBar, updateShowSideBar] = useState(false);
+  const [lockWeek, updateLockWeek] = useState(0);
 
   const listener = useRef(null);
 
@@ -98,6 +99,7 @@ const App = ({ firebase }) => {
     const { data } = await axios.get(`/api/currentSeasonAndWeek`);
     updateCurrentSeason(data.season);
     updateCurrentWeek(data.week);
+    updateLockWeek(data.lockWeek);
   };
 
 
@@ -193,6 +195,8 @@ const App = ({ firebase }) => {
                   week={currentWeek}
                   season={currentSeason}
                   noGroup={noGroup}
+                  appLevelLockWeek={lockWeek}
+                  updateLockWeek={updateLockWeek}
                 />
               }
             />
