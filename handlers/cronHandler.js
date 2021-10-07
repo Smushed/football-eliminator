@@ -12,12 +12,11 @@ const moment = require(`moment-timezone`);
 schedule.scheduleJob('22 * * 1,9-12 *', async function () {
     //Need to update which week we're currently in
     const currDate = moment.utc(new Date()).tz(`America/Chicago`).toDate();
-    console.log(`Checking start week and lock week ${currDate}`)
+    console.log(`Checking start week and lock week ${currDate}`);
 
     const currDBWeeks = await userHandler.pullSeasonAndWeekFromDB();
 
     startWeek(currDate, currDBWeeks, 1);
-    lockWeek(currDate, currDBWeeks, 0);
 });
 
 // Update Scores every day at 3am Chicago time
@@ -26,6 +25,8 @@ schedule.scheduleJob('0 9 * 1,9-12 *', async function () {
     const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
     await mySportsHandler.updateRoster(season);
     await updatePlayerData(season, week);
+
+    allScheduledGames(season);
 
     //Rank the players
     const clapper = await groupHandler.getGroupData(`The Clapper`);  //Default to the clapper as the 'main' group
@@ -46,7 +47,7 @@ schedule.scheduleJob('0 0-5 * 1,9-12 2,5', async function () {
 schedule.scheduleJob('0 17-23 * 1,9-12 0', async function () {
     console.log(`Running bi-hourly Sunday job`);
     const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
-    updatePlayerData(season, week)
+    updatePlayerData(season, week);
 });
 
 //Right before the Leaderboard is sent out update the ideal roster
@@ -66,6 +67,12 @@ schedule.scheduleJob('30 9 * 1,9-12 2', async function () {
     }
 });
 
+const allScheduledGames = (season) => {
+    for (let i = 1; i <= 17; i++) {
+        mySportsHandler.checkGameStarted(season, i);
+    }
+}
+
 const updatePlayerData = async (season, week) => {
     await mySportsHandler.getWeeklyData(season, week);
     await rosterHandler.scoreAllGroups(season, week);
@@ -81,17 +88,6 @@ const startWeek = (currDate, currDBWeeks, currWeek) => {
     }
     if (currDBWeeks.week !== currWeek) {
         userHandler.updateCurrWeek(currWeek);
-    }
-};
-
-const lockWeek = (currDate, currDBWeeks, currWeek) => {
-    for (let i = 17; i >= 0; i--) {
-        if (currDate > dates.lockWeek2021[i]) {
-            currWeek = i + 1;
-            break;
-        }
-    }
-    if (currDBWeeks.lockWeek !== currWeek) {
-        userHandler.updateLockWeek(currWeek);
+        userHandler.updateLockWeek(currWeek - 1);
     }
 };

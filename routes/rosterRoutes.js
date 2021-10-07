@@ -70,8 +70,14 @@ module.exports = app => {
         res.status(200).send(response);
     });
 
-    app.get(`/api/checkLockPeriod`, async (req, res) => {
-        const lockPeriod = await rosterHandler.checkLockPeriod();
+    app.get(`/api/lock/general`, async (req, res) => {
+        const lockWeek = await rosterHandler.lockPeroid();
+        res.status(200).send(lockWeek);
+    });
+
+    app.get(`/api/lock/:season/:week/:team`, async (req, res) => {
+        const { season, week, team } = req.params;
+        const lockPeriod = await rosterHandler.checkTeamLock(season, +week, team);
         res.status(200).send(lockPeriod);
     });
 

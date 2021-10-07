@@ -304,9 +304,27 @@ module.exports = {
         }
         return roster.R;
     },
-    checkLockPeriod: async () => {
-        const lockPeroid = await db.SeasonAndWeek.findOne();
-        return lockPeroid;
+    lockPeroid: async () => {
+        try {
+            const currData = await db.SeasonAndWeek.findOne();
+            return { LW: currData.LW };
+        } catch (err) {
+            return false;
+        }
+    },
+    checkTeamLock: async (season, week, team) => {
+        try {
+            let teamStart = await db.TeamLocked.findOne({ T: team, W: week, S: season });
+            if (!teamStart) {
+                await mySportsHandler.checkGameStarted(season, week);
+                teamStart = await db.TeamLocked.findOne({ T: team, W: week, S: season });
+            }
+            const currDate = new Date();
+            return (currDate < teamStart.ST);
+        } catch (err) {
+            console.log(err)
+            return false;
+        }
     },
     getTotalScore: async (userId) => {
         const { season } = await userHandler.pullSeasonAndWeekFromDB();

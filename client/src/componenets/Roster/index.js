@@ -15,7 +15,7 @@ import * as Routes from '../../constants/routes';
 
 const Alert = withReactContent(Swal);
 
-const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, username, userId, history, noGroup }) => {
+const Roster = ({ appLevelLockWeek, week, season, match, username, userId, history, noGroup, updateLockWeek }) => {
     const [userRoster, updateUserRoster] = useState([]);
     const [availablePlayers, updateAvaliablePlayers] = useState([]);
     const [positionSelect, updatePositionSelect] = useState(`QB`); //This is the default value for the position search
@@ -163,16 +163,11 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
             });
     };
 
-    const checkLockPeriod = async () => {
-        const response = await axios.get(`/api/checkLockPeriod`);
-        updateLockWeekOnPull(response.data.LW);
-        if (response.data.LW === 0) {
-            return true;
-        }
-        if (weekOnPage <= response.data.LW) {
-            return false;
-        }
-        return true;
+    const checkLockPeriod = async (team) => {
+        axios.get(`/api/lock/general`)
+            .then(res => updateLockWeek(res.data.LW));
+        const { data } = await axios.get(`/api/lock/${season}/${weekOnPage}/${team}`);
+        return data;
     };
 
     const positionSearch = (e) => {
@@ -241,7 +236,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
         }
     };
 
-    const addDropPlayer = async (mySportsId, addOrDrop) => {
+    const addDropPlayer = async (mySportsId, team, addOrDrop) => {
         if (!currentUser) {
             Alert.fire({
                 title: `Not your roster!`,
@@ -249,12 +244,12 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
             });
             return;
         }
-        const isLocked = await checkLockPeriod();
+        const isLocked = await checkLockPeriod(team);
         if (!isLocked) {
             Alert.fire({
-                title: `Week is locked!`,
+                title: `Locked!`,
                 type: `warning`,
-                text: `Week ${weekOnPage} is locked. Please search a different week`,
+                text: `${team} has started for week ${weekOnPage}. Select a different player or week`,
             });
             return;
         }
@@ -343,7 +338,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                             {mustDrop ? `Too Many Players, drop one` : `Week ${weekOnPage} Roster`}
                         </div>
                         <RosterDisplay
-                            pastLockWeek={latestLockWeek >= weekOnPage}
+                            pastLockWeek={appLevelLockWeek >= weekOnPage}
                             groupPositions={groupPositions}
                             addDropPlayer={addDropPlayer}
                             roster={mustDrop ? possiblePlayers : userRoster}
@@ -355,7 +350,8 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                             </div>
                             {currentPositionUsedPlayers.map((player, i) => (
                                 <PlayerDisplayRow
-                                    player={player} key={i}
+                                    player={player}
+                                    key={i}
                                     evenOrOddRow={i % 2}
                                 />
                             ))}
@@ -367,7 +363,8 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
                         </div>
                         {availablePlayers.map((player, i) => (
                             <PlayerDisplayRow
-                                player={player} key={i}
+                                player={player}
+                                key={i}
                                 addDropPlayer={mustDrop ? false : addDropPlayer}
                                 evenOrOddRow={i % 2}
                                 sortedMatchups={sortedMatchups}
@@ -380,7 +377,7 @@ const Roster = ({ latestLockWeek, updateLockWeekOnPull, week, season, match, use
     );
 };
 
-const CurrentRosterRow = ({ evenOrOddRow, player, position, addDropPlayer, pastLockWeek, mustDrop }) => {
+const CurrentRosterRow = ({ evenOrOddRow, player, position, addDropPlayer, pastLockWeek }) => {
     const showInjury = async () => {
         const playingProb = player.I.PP.toLowerCase();
         Alert.fire({
@@ -414,8 +411,8 @@ const CurrentRosterRow = ({ evenOrOddRow, player, position, addDropPlayer, pastL
                             <div className='scoreCol'>
                                 {player.SC.toFixed(2)}
                             </div> :
-                            mustDrop &&
-                            <button className='custom-button' onClick={() => addDropPlayer(player.M, 'drop')}>
+                            addDropPlayer &&
+                            <button className='custom-button' onClick={() => addDropPlayer(player.M, player.T, 'drop')}>
                                 Drop
                             </button>
                         }
@@ -426,43 +423,42 @@ const CurrentRosterRow = ({ evenOrOddRow, player, position, addDropPlayer, pastL
     </div>
 };
 
-const PlayerDisplayRow = ({ evenOrOddRow, player, addDropPlayer, sortedMatchups }) => {
+const PlayerDisplayRow = ({ evenOrOddRow, player, addDropPlayer, sortedMatchups = false }) => {
     const showInjury = async () => {
         const playingProb = player.I.PP.toLowerCase();
         Alert.fire({
             title: `${player.N} is ${playingProb} with a ${player.I.D} injury`,
         });
     };
-    return <>
-        <div className={evenOrOddRow === 0 ? 'playerRow' : 'playerRow oddRow'}>
-
-            <div className='playerCol flex'>
-                <div className='injuryCol'>
-                    {player.I &&
-                        <InjuryCol
-                            injury={player.I}
-                            showInjury={showInjury}
-                        />
-                    }
-                </div>
-                {player.N && player.N}
-            </div>
-            <div className='teamCol'>
-                {player.T && player.T}
-            </div>
-            <div className='posCol'>
-                {sortedMatchups &&
-                    sortedMatchups[player.T] ?
-                    `${sortedMatchups[player.T].h ? 'v' : '@'} ${sortedMatchups[player.T].v}` : `BYE`
+    return <div className={evenOrOddRow === 0 ? 'playerRow' : 'playerRow oddRow'}>
+        <div className='playerCol flex'>
+            <div className='injuryCol'>
+                {player.I &&
+                    <InjuryCol
+                        injury={player.I}
+                    // showInjury={showInjury}
+                    />
                 }
             </div>
-            {addDropPlayer &&
-                <button className='custom-button' onClick={() => addDropPlayer(player.M, 'add')}>
-                    Add
-                </button>
-            }
+            {player.N && player.N}
         </div>
-    </>
+        <div className='teamCol'>
+            {player.T && player.T}
+        </div>
+        {sortedMatchups &&
+            <div className='posCol'>
+                {sortedMatchups[player.T] ?
+                    `${sortedMatchups[player.T].h ? 'v' : '@'} ${sortedMatchups[player.T].v}`
+                    :
+                    `BYE`}
+            </div>
+        }
+        {addDropPlayer &&
+            <button className='custom-button' onClick={() => addDropPlayer(player.M, player.T, 'add')}>
+                Add
+            </button>
+        }
+    </div>
 };
 
 const RosterDisplay = ({ groupPositions, roster, addDropPlayer, mustDrop, pastLockWeek }) =>
@@ -475,7 +471,6 @@ const RosterDisplay = ({ groupPositions, roster, addDropPlayer, mustDrop, pastLo
                 addDropPlayer={addDropPlayer}
                 evenOrOddRow={i % 2}
                 pastLockWeek={pastLockWeek}
-                mustDrop={mustDrop}
             />) :
         groupPositions.map((position, i) => (
             <CurrentRosterRow
@@ -506,8 +501,8 @@ InjuryCol.propTypes = {
 }
 
 Roster.propTypes = {
-    latestLockWeek: PropTypes.number,
-    updateLockWeekOnPull: PropTypes.func,
+    updateLockWeek: PropTypes.func,
+    appLevelLockWeek: PropTypes.number,
     week: PropTypes.number,
     season: PropTypes.string,
     match: PropTypes.any,

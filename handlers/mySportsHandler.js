@@ -687,5 +687,34 @@ module.exports = {
     },
     singleWeekPlayerScore: async (playerId, season, week, groupScore) => {
         return await playerScoreHandler(playerId, season, week, groupScore);
+    },
+    checkGameStarted: async (season, week) => {
+        console.log(`Pulling Weekly Game Times`)
+        const search = await axios.get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${week}/games.json`, {
+            auth: {
+                username: mySportsFeedsAPI,
+                password: `MYSPORTSFEEDS`
+            }
+        });
+        for (const game of search.data.games) {
+            const homeTeamLockSearch = await db.TeamLocked.findOne({ T: game.schedule.homeTeam.abbreviation, W: week, S: season });
+            if (!homeTeamLockSearch) {
+                const newRecord = new db.TeamLocked({ T: game.schedule.homeTeam.abbreviation, ST: game.schedule.startTime, W: week, S: season });
+                newRecord.save();
+            } else {
+                homeTeamLockSearch.ST = game.schedule.startTime;
+                homeTeamLockSearch.save();
+            }
+
+            const awayTeamLockSearch = await db.TeamLocked.findOne({ T: game.schedule.awayTeam.abbreviation, W: week, S: season });
+            if (!awayTeamLockSearch) {
+                const newRecord = new db.TeamLocked({ T: game.schedule.awayTeam.abbreviation, ST: game.schedule.startTime, W: week, S: season });
+                newRecord.save();
+            } else {
+                awayTeamLockSearch.ST = game.schedule.startTime;
+                awayTeamLockSearch.save();
+            }
+        }
+        return;
     }
 };
