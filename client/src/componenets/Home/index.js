@@ -21,6 +21,8 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
     const [weeklyGroupRosters, updateWeeklyGroupRosters] = useState([]);
     const [groupPositions, updateGroupPositions] = useState([]);
 
+    const axiosCancel = axios.CancelToken.source();
+
     useEffect(() => {
         if (noGroup) { history.push(Routes.groupPage); return; }
 
@@ -28,6 +30,11 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
             if (currentUser.username) {
                 getRostersForHome(season, week, group._id);
                 getRoster(season, week, group.N, currentUser.username);
+            }
+        }
+        return function cancelAPICalls() {
+            if (axiosCancel) {
+                axiosCancel.cancel(`Unmounted`);
             }
         }
     }, [week, season, currentUser.username, group, noGroup]);
@@ -40,50 +47,68 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
     };
 
     const getLeaderBoard = (season, week, groupId) => {
-        axios.get(`/api/group/leaderboard/${season}/${week}/${groupId}`)
+        axios.get(`/api/group/leaderboard/${season}/${week}/${groupId}`, { cancelToken: axiosCancel.token })
             .then(res => {
                 updateLeaderboard(res.data.leaderboard);
                 getLeaderAvatar(res.data.leaderboard[0].UID);
                 return;
+            })
+            .catch(err => {
+                if (err.message !== `Unmounted`) { console.log(err) }
             });
     };
 
     const getRoster = (season, week, groupname, username) => {
-        axios.get(`/api/roster/user/${season}/${week}/${groupname}/${username}`)
+        axios.get(`/api/roster/user/${season}/${week}/${groupname}/${username}`, { cancelToken: axiosCancel.token })
             .then(res => {
                 updateGroupPositions(res.data.groupPositions)
                 return;
+            })
+            .catch(err => {
+                if (err.message !== `Unmounted`) { console.log(err) }
             });
     };
 
     const getIdealRoster = (season, week, groupId) => {
-        axios.get(`/api/roster/ideal/${season}/${week}/${groupId}`)
+        axios.get(`/api/roster/ideal/${season}/${week}/${groupId}`, { cancelToken: axiosCancel.token })
             .then(res => {
                 updateIdealRoster(res.data)
+            })
+            .catch(err => {
+                if (err.message !== `Unmounted`) { console.log(err) }
             });
     };
 
     const getBestCurrLeadRoster = (season, week, groupId) => {
         //This gets both the best roster from the previous week as well as the current leader's roster for the current week
-        axios.get(`/api/group/roster/bestAndLead/${season}/${week}/${groupId}`)
+        axios.get(`/api/group/roster/bestAndLead/${season}/${week}/${groupId}`, { cancelToken: axiosCancel.token })
             .then(res => {
                 updateBestRosterUser(res.data.bestRoster.U);
                 updateBestRoster(res.data.bestRoster.R);
                 updateLeaderRoster(res.data.leaderRoster); //No need to set username here, already have it with leaderboard
+            })
+            .catch(err => {
+                if (err.message !== `Unmounted`) { console.log(err) }
             });
     };
 
     const getAllRostersForWeek = (season, week, groupId) => {
-        axios.get(`/api/roster/group/all/${season}/${week}/${groupId}`)
+        axios.get(`/api/roster/group/all/${season}/${week}/${groupId}`, { cancelToken: axiosCancel.token })
             .then(res => {
                 updateWeeklyGroupRosters(res.data);
+            })
+            .catch(err => {
+                if (err.message !== `Unmounted`) { console.log(err) }
             });
     };
 
     const getLeaderAvatar = (leaderId) => {
-        axios.get(`/api/avatar/${leaderId}`)
+        axios.get(`/api/avatar/${leaderId}`, { cancelToken: axiosCancel.token })
             .then(res => {
                 updateLeaderAvatar(res.data);
+            })
+            .catch(err => {
+                if (err.message !== `Unmounted`) { console.log(err) }
             });
     };
 
