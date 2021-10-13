@@ -82,7 +82,7 @@ module.exports = {
                 }
             });
         }
-        return { status: 200, message: `Updated` }
+        return { status: 200, message: `Updated`, UN: request.UN }
     },
     updateToAdmin: async (userId) => {
         let dbResponse = ``;

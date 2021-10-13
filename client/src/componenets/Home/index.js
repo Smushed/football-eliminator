@@ -17,7 +17,6 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
     const [bestRoster, updateBestRoster] = useState([]);
     const [bestRosterUser, updateBestRosterUser] = useState(``);
     const [leaderAvatar, updateLeaderAvatar] = useState(``);
-    const [leaderRoster, updateLeaderRoster] = useState([]);
     const [weeklyGroupRosters, updateWeeklyGroupRosters] = useState([]);
     const [groupPositions, updateGroupPositions] = useState([]);
 
@@ -85,7 +84,6 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
             .then(res => {
                 updateBestRosterUser(res.data.bestRoster.U);
                 updateBestRoster(res.data.bestRoster.R);
-                updateLeaderRoster(res.data.leaderRoster); //No need to set username here, already have it with leaderboard
             })
             .catch(err => {
                 if (err.message !== `Unmounted`) { console.log(err) }
@@ -164,8 +162,6 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
                             bestRoster={bestRoster}
                             groupPositions={groupPositions}
                             idealRoster={idealRoster}
-                            leaderboard={leaderboard}
-                            leaderRoster={leaderRoster}
                         />
                     </div>
                 </div>

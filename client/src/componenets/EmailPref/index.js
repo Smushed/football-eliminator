@@ -8,32 +8,39 @@ import { EmailToggleInput } from '../Profile/ProfileInputs';
 const EmailPref = ({
     match,
     history }) => {
+
     const [user, updateUser] = useState({});
     const [emailPref, updateEmailPref] = useState({});
 
+    const axiosCancel = axios.CancelToken.source();
+
     useEffect(() => {
         getUser(match.params.userId);
-        getUserEmailPref(match.params.userId)
+        getUserEmailPref(match.params.userId);
+
+        return function cancelAPICalls() {
+            if (axiosCancel) {
+                axiosCancel.cancel(`Unmounted`);
+            }
+        }
     }, [match.params.userId]);
 
     const { addToast } = useToasts();
 
-    const getUser = async (userId) => {
-        try {
-            const user = await axios.get(`/api/user/id/${userId}`);
-            updateUser(user.data);
-        } catch (err) {
-            history.push(`/404`);
-        }
+    const getUser = (userId) => {
+        axios.get(`/api/user/id/${userId}`, { cancelToken: axiosCancel.token })
+            .then(res => updateUser(res.data))
+            .catch(err => {
+                if (err.message !== `Unmounted`) { history.push(`/404`); }
+            });
     };
 
-    const getUserEmailPref = async (userId) => {
-        try {
-            const emailPref = await axios.get(`/api/user/emailPref/${userId}`);
-            updateEmailPref(emailPref.data);
-        } catch (err) {
-            history.push(`/404`);
-        }
+    const getUserEmailPref = (userId) => {
+        axios.get(`/api/user/emailPref/${userId}`, { cancelToken: axiosCancel.token })
+            .then(res => updateEmailPref(res.data))
+            .catch(err => {
+                if (err.message !== `Unmounted`) { history.push(`/404`); }
+            });
     };
 
     const handleChange = (e) => {

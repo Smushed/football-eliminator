@@ -424,19 +424,13 @@ const CurrentRosterRow = ({ evenOrOddRow, player, position, addDropPlayer, pastL
 };
 
 const PlayerDisplayRow = ({ evenOrOddRow, player, addDropPlayer, sortedMatchups = false }) => {
-    const showInjury = async () => {
-        const playingProb = player.I.PP.toLowerCase();
-        Alert.fire({
-            title: `${player.N} is ${playingProb} with a ${player.I.D} injury`,
-        });
-    };
+
     return <div className={evenOrOddRow === 0 ? 'playerRow' : 'playerRow oddRow'}>
         <div className='playerCol flex'>
             <div className='injuryCol'>
                 {player.I &&
                     <InjuryCol
                         injury={player.I}
-                    // showInjury={showInjury}
                     />
                 }
             </div>

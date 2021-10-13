@@ -174,6 +174,7 @@ const Profile = ({
                         updatedFields={updatedFields}
                         authUser={authUser}
                         currentUser={currentUser}
+                        history={history}
                     />
                     :
                     modalState === `avatar` ?

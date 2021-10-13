@@ -10,8 +10,6 @@ const RosterCarousel = ({
     bestRoster,
     groupPositions,
     idealRoster,
-    leaderboard,
-    leaderRoster
 }) =>
     <Carousel
         autoPlay
@@ -37,18 +35,6 @@ const RosterCarousel = ({
                 <RosterDisplay
                     groupPositions={groupPositions}
                     roster={idealRoster}
-                    pastLockWeek={true}
-                />
-            }
-        </div>
-        <div>
-            <div className='rosterHomePageTitle'>
-                Current Lead Week {week} {leaderboard[0] && leaderboard[0].UN}
-            </div>
-            {leaderRoster.length > 0 &&
-                <RosterDisplay
-                    groupPositions={groupPositions}
-                    roster={leaderRoster}
                     pastLockWeek={true}
                 />
             }
