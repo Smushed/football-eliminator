@@ -36,6 +36,8 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
     const [possiblePlayer, updatePossiblePlayer] = useState(0);
     const [possiblePlayers, updatePossiblePlayers] = useState([]);
 
+    const axiosCancel = axios.CancelToken.source();
+
     useEffect(() => {
         if (noGroup) { history.push(Routes.groupPage); return; }
 
@@ -50,11 +52,11 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
 
 
     const getUsedPlayers = () => {
-        axios.get(`/api/players/used/${match.params.username}/${season}/${match.params.groupname}`)
+        axios.get(`/api/players/used/${match.params.username}/${season}/${match.params.groupname}`, { cancelToken: axiosCancel.token })
             .then(res => {
                 updateUsedPlayers(res.data);
             }).catch(err => {
-                console.log(err);
+                if (err.message !== `Unmounted`) { console.log(err); }
             });
     };
 
@@ -66,11 +68,14 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
         }
     };
 
-    const getWeeklyMatchUps = async (weekInput) => {
-        axios.get(`/api/matchups/${season}/${weekInput}`)
+    const getWeeklyMatchUps = (weekInput) => {
+        axios.get(`/api/matchups/${season}/${weekInput}`, { cancelToken: axiosCancel.token })
             .then(res => {
                 updateWeeklyMatchups(res.data.matchups);
                 updateSortedMatchups(res.data.sortedMatchups);
+            })
+            .catch(err => {
+                if (err.message !== `Unmounted`) { console.log(err); }
             });
 
     };
@@ -80,7 +85,7 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
         updateWeekOnPage(weekInput);
         if (week !== 0 && season !== ``) {
             loading();
-            axios.get(`/api/roster/user/${season}/${weekInput}/${match.params.groupname}/${match.params.username}`)
+            axios.get(`/api/roster/user/${season}/${weekInput}/${match.params.groupname}/${match.params.username}`, { cancelToken: axiosCancel.token })
                 .then(res => {
                     const { userRoster, groupPositions, groupMap, positionArray } = res.data;
                     updateUserRoster(userRoster);
@@ -89,12 +94,13 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
                     updatePositionArray(positionArray);
                     doneLoading();
                 }).catch(err => {
+                    if (err.message !== `Unmounted`) { console.log(err); }
                     console.log(`roster data error`, err);
                 });
         }
     };
 
-    const tooManyPlayers = async (currentRoster, allowedMap, addedPlayer) => {
+    const tooManyPlayers = (currentRoster, allowedMap, addedPlayer) => {
         window.scrollTo(0, 0)
         const possibleDrops = [];
         for (let i = 0; i < allowedMap.length; i++) { //Allowed Map is an array of bool which will map to the rosters to be able to pick players
@@ -150,22 +156,25 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
         }
     };
 
-    const saveRosterToDb = async (roster, droppedPlayer, addedPlayer) => {
+    const saveRosterToDb = (roster, droppedPlayer, addedPlayer) => {
         loading()
         axios.put(`/api/user/roster`,
-            { userId: userId, roster, droppedPlayer, addedPlayer, week: weekSelect, season: season, groupname: match.params.groupname })
+            { userId: userId, roster, droppedPlayer, addedPlayer, week: weekSelect, season: season, groupname: match.params.groupname }, { cancelToken: axiosCancel.token })
             .then(res => {
                 doneLoading();
                 updateUserRoster(res.data);
                 return;
             }).catch(err => {
-                console.log(err)//TODO Better error handling
+                if (err.message !== `Unmounted`) { console.log(err); }
             });
     };
 
     const checkLockPeriod = async (team) => {
-        axios.get(`/api/lock/general`)
-            .then(res => updateLockWeek(res.data.LW));
+        axios.get(`/api/lock/general`, { cancelToken: axiosCancel.token })
+            .then(res => updateLockWeek(res.data.LW))
+            .catch(err => {
+                if (err.message !== `Unmounted`) { console.log(err); }
+            });
         const { data } = await axios.get(`/api/lock/${season}/${weekOnPage}/${team}`);
         return data;
     };
@@ -175,7 +184,10 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
 
         loading();
         axios.get(`/api/roster/players/available`,
-            { params: { userId, searchedPosition: positionSelect, season: season, groupId: match.params.groupId } })
+            {
+                params: { userId, searchedPosition: positionSelect, season: season, groupId: match.params.groupId },
+                cancelToken: axiosCancel.token
+            })
             .then(res => {
                 updateLastPosSearch(positionSelect);
                 updateAvaliablePlayers(res.data);
@@ -185,6 +197,9 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
                     updateCurrentPositionUsedPlayers(usedPlayers[positionSelect])
                 }
                 doneLoading();
+            })
+            .catch(err => {
+                if (err.message !== `Unmounted`) { console.log(err); }
             });
     };
 

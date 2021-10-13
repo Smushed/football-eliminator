@@ -175,6 +175,7 @@ const Profile = ({
                         authUser={authUser}
                         currentUser={currentUser}
                         history={history}
+                        pullUserData={pullUserData}
                     />
                     :
                     modalState === `avatar` ?

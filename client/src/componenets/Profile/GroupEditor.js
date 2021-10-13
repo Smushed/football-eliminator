@@ -51,7 +51,7 @@ const GroupEditor = ({
     };
 
     const getRosterPositions = () => {
-        axios.get(`/api/roster/positions`)
+        axios.get(`/api/roster/positions`, { cancelToken: axiosCancel.token })
             .then(res => {
                 const { rosterPositions, positionMap, maxOfPosition } = res.data;
                 updateRosterPositions(rosterPositions);
@@ -203,7 +203,7 @@ const GroupEditor = ({
         if (updatedFields.groupDesc !== ``) {
             data.groupDesc = updatedFields.groupDesc;
         }
-        axios.put(`/api/group`, { data, id: groupInfo._id })
+        axios.put(`/api/group`, { data, id: groupInfo._id }, { cancelToken: axiosCancel.token })
             .then(() => {
                 if (updatedFields.groupName !== ``) {
                     changeGroup(updatedFields.groupName);
@@ -215,10 +215,16 @@ const GroupEditor = ({
                         updateGroupInfo(res.data.group);
                         updateGroupPositions(res.data.positions);
                         openCloseModal();
+                    }, { cancelToken: axiosCancel.token })
+                    .catch(err => {
+                        if (err.message !== 'Unmounted') {
+                            addToast('Error occured while saving', { appearance: 'warning', autoDismiss: true })
+                        }
                     });
             }).catch(err => {
-                console.log(err)
-                addToast('Error occured while saving', { appearance: 'warning', autoDismiss: true })
+                if (err.message !== 'Unmounted') {
+                    addToast('Error occured while saving', { appearance: 'warning', autoDismiss: true })
+                }
             });
     };
 

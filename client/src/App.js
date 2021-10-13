@@ -10,7 +10,6 @@ import SignInOut from './componenets/SignInOut';
 import NavBar from './componenets/NavBar/';
 import Home from './componenets/Home';
 import Profile from './componenets/Profile';
-import SeasonLongScore from './componenets/SeasonLongScore';
 import Roster from './componenets/Roster';
 import AdminPanel from './componenets/AdminPanel';
 import UpdateWeek from './componenets/AdminPanel/UpdateWeek';
@@ -178,13 +177,8 @@ const App = ({ firebase }) => {
                 <Profile
                   pullUserData={pullUserData}
                   authUser={authUser}
-                  currentUser={currentUser} />}
-            />
-            <Route
-              path={Routes.seasonLongScore}
-              render={() =>
-                <SeasonLongScore
-                  season={currentSeason} />}
+                  currentUser={currentUser}
+                />}
             />
             <Route
               path={Routes.roster}

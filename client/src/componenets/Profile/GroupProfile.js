@@ -49,7 +49,7 @@ const GroupProfile = ({
     }, [currentUser, groupInfo.UL])
 
     const pullGroupInfo = () => {
-        axios.get(`/api/group/profile?name=${groupName}&avatar=true&positions=true`)
+        axios.get(`/api/group/profile?name=${groupName}&avatar=true&positions=true`, { cancelToken: axiosCancel.token })
             .then(res => {
                 updateGroupInfo(res.data.group);
                 updateAvatar(res.data.avatar);
