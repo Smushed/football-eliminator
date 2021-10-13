@@ -19,14 +19,30 @@ const UserProfile = ({
     pullUserData,
     currUserEmail
 }) => {
+
+    const axiosCancel = axios.CancelToken.source();
+
     useEffect(() => {
-        axios.get(`/api/user/name/${username}`)
-            .then(res => {
-                updateAvatar(res.data.avatar);
-            });
+        userProfilePull();
+
+        return function cancelAPICalls() {
+            if (axiosCancel) {
+                axiosCancel.cancel(`Unmounted`);
+            }
+        }
     }, [updateAvatar, username]);
 
     const isCurrentUser = username === currentUser.username;
+
+    const userProfilePull = () => {
+        axios.get(`/api/user/name/${username}`, { cancelToken: axiosCancel.token })
+            .then(res => {
+                updateAvatar(res.data.avatar);
+            })
+            .catch(err => {
+                if (err.message !== `Unmounted`) { console.log(err); }
+            });
+    };
 
     const repullUser = () => pullUserData(currUserEmail);
 

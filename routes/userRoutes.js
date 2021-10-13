@@ -123,7 +123,7 @@ module.exports = app => {
             rosterHandler.getTotalScore(userId),
             userHandler.getUserByID(userId)])
             .then(([avatar, totalScore, user]) =>
-                res.status(200).send({ name: user.UN, avatar, score: totalScore })
+                res.status(200).send({ name: user.response.UN, avatar, score: totalScore })
             );
     });
 

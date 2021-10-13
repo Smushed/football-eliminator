@@ -26,26 +26,40 @@ const DisplayBox = ({
 
     const [displayData, updateDisplayData] = useState({});
 
+    const axiosCancel = axios.CancelToken.source();
+
     useEffect(() => {
         type === `user` && getUserData();
         type === `group` && getGroupData();
+
+        return function cancelAPICalls() {
+            if (axiosCancel) {
+                axiosCancel.cancel(`Unmounted`);
+            }
+        }
     }, [type]);
 
     const { addToast } = useToasts();
 
     const getUserData = () => {
-        axios.get(`/api/user/profile/box/${boxContent}`)
+        axios.get(`/api/user/profile/box/${boxContent}`, { cancelToken: axiosCancel.token })
             .then(res => {
                 const { name, avatar, score } = res.data;
                 updateDisplayData({ name, avatar, score: score.toFixed(2) });
+            })
+            .catch(err => {
+                if (err.message !== `Unmounted`) { console.log(err) }
             });
     };
 
     const getGroupData = () => {
-        axios.get(`/api/group/profile/box/${boxContent}`)
+        axios.get(`/api/group/profile/box/${boxContent}`, { cancelToken: axiosCancel.token })
             .then(res => {
                 const { name, avatar, score } = res.data;
                 updateDisplayData({ name, avatar, score: score.toFixed(2) });
+            })
+            .catch(err => {
+                if (err.message !== `Unmounted`) { console.log(err) }
             });
     };
 
@@ -80,13 +94,14 @@ const DisplayBox = ({
 
     const adminCheck = async () => {
         try {
-            const onlyAdmin = await axios.get(`/api/group/admin/verify/${currPageId}/${boxContent}`);
+            const onlyAdmin = await axios.get(`/api/group/admin/verify/${currPageId}/${boxContent}`, { cancelToken: axiosCancel.token });
             if (onlyAdmin.status === 210) {
                 adminPrompt(onlyAdmin.data);
             } else {
                 leaveGroup();
             }
         } catch (err) {
+            if (err.message !== `Unmounted`) { console.log(err) }
             addToast('Error verifying admins, contact Kevin', { appearance: 'error', autoDismiss: true });
         }
     };
@@ -99,7 +114,7 @@ const DisplayBox = ({
             inputOptions:
                 possibleAdmins
         });
-        console.log(nonAdmins[adminChoice.value])
+
         try {
             await axios.put(`/api/group/admin/upgrade/${nonAdmins[adminChoice.value]._id}/${boxContent}`);
             leaveGroup();

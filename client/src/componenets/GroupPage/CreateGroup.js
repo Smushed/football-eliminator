@@ -29,6 +29,8 @@ const CreateGroup = ({
     const [scoringMap, updateScoringMap] = useState({});
     const [enteredScore, updateEnteredScore] = useState({});
 
+    const axiosCancel = axios.CancelToken.source();
+
     useEffect(() => {
         getRosterPositions();
     }, []);
@@ -48,10 +50,16 @@ const CreateGroup = ({
     const { addToast } = useToasts();
 
     const getRosterPositions = async () => {
-        const dbResponse = await axios.get(`/api/roster/positions`);
-        updateRosterPositions(dbResponse.data.rosterPositions);
-        updatePositionMap(dbResponse.data.positionMap);
-        updateMaxOfPosition(dbResponse.data.maxOfPosition);
+        await axios.get(`/api/roster/positions`, { cancelToken: axiosCancel.token })
+            .then(res => {
+                updateRosterPositions(res.data.rosterPositions);
+                updatePositionMap(res.data.positionMap);
+                updateMaxOfPosition(res.data.maxOfPosition);
+            })
+            .catch(err => {
+                if (err.message !== `Unmounted`) { console.log(err) }
+            });
+
     };
 
     const handleSubmit = async event => {
@@ -213,19 +221,23 @@ const CreateGroup = ({
         }
     };
 
-    const openScore = async () => {
+    const openScore = () => {
         const newGroupScore = {};
-        const dbResponse = await axios.get(`/api/getScoring`);
-        updateScoringMap(dbResponse.data);
-
-        //Create the new group scoring object
-        for (const bucket of dbResponse.data.buckets) {
-            newGroupScore[bucket] = {};
-            for (const key of dbResponse.data[bucket]) {
-                newGroupScore[bucket][key] = dbResponse.data.defaultScores[bucket][key];
-            }
-        }
-        await updateEnteredScore(newGroupScore);
+        axios.get(`/api/getScoring`, { cancelToken: axiosCancel.token })
+            .then(res => {
+                updateScoringMap(res.data);
+                //Create the new group scoring object
+                for (const bucket of res.data.buckets) {
+                    newGroupScore[bucket] = {};
+                    for (const key of res.data[bucket]) {
+                        newGroupScore[bucket][key] = res.data.defaultScores[bucket][key];
+                    }
+                }
+            })
+            .catch(err => {
+                if (err.message !== `Unmounted`) { console.log(err) }
+            });
+        updateEnteredScore(newGroupScore);
         updateShowScore(true);
     };
 

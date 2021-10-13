@@ -8,16 +8,28 @@ const GroupScoreRow = ({ groupId, editable, changeGroupScoreField }) => {
     const [groupScore, updateGroupScore] = useState({});
     const [posDescMap, updatePosDescMap] = useState({});
 
+    const axiosCancel = axios.CancelToken.source();
+
     useEffect(() => {
         if (groupId) {
             pullGroupScoring(groupId);
         }
+        return function cancelAPICalls() {
+            if (axiosCancel) {
+                axiosCancel.cancel(`Unmounted`);
+            }
+        }
     }, [groupId]);
 
-    const pullGroupScoring = async (groupId) => {
-        const groupScoring = await axios.get(`/api/group/scoring/${groupId}?withDesc=true`);
-        updateGroupScore(groupScoring.data.groupScore);
-        updatePosDescMap({ bucketMap: groupScoring.data.bucketMap, posMap: groupScoring.data.map });
+    const pullGroupScoring = (groupId) => {
+        axios.get(`/api/group/scoring/${groupId}?withDesc=true`, { cancelToken: axiosCancel.token })
+            .then(res => {
+                updateGroupScore(res.data.groupScore);
+                updatePosDescMap({ bucketMap: res.data.bucketMap, posMap: res.data.map });
+            })
+            .catch(err => {
+                if (err.message !== `Unmounted`) { console.log(err) }
+            });
     };
 
     const handleChange = (e) => {

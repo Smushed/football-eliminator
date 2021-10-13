@@ -29,9 +29,16 @@ const GroupProfile = ({
 
     const [leaderboard, updateLeaderboard] = useState([]);
 
+    const axiosCancel = axios.CancelToken.source();
+
     useEffect(() => {
         if (groupName) {
             pullGroupInfo()
+        }
+        return function cancelAPICalls() {
+            if (axiosCancel) {
+                axiosCancel.cancel(`Unmounted`);
+            }
         }
     }, [groupName]);
 
@@ -42,7 +49,7 @@ const GroupProfile = ({
     }, [currentUser, groupInfo.UL])
 
     const pullGroupInfo = () => {
-        axios.get(`/api/group/profile?name=${groupName}&avatar=true&positions=true`)
+        axios.get(`/api/group/profile?name=${groupName}&avatar=true&positions=true`, { cancelToken: axiosCancel.token })
             .then(res => {
                 updateGroupInfo(res.data.group);
                 updateAvatar(res.data.avatar);
@@ -51,6 +58,9 @@ const GroupProfile = ({
                 if (currentUser.userId) {
                     checkForAdmin(res.data.group, currentUser.userId.toString());
                 }
+            })
+            .catch(err => {
+                if (err.message !== `Unmounted`) { console.log(err); }
             });
     };
 
@@ -62,15 +72,21 @@ const GroupProfile = ({
     };
 
     const getLeaderboard = (groupId) => {
-        axios.get(`/api/currentSeasonAndWeek`)
+        axios.get(`/api/currentSeasonAndWeek`, { cancelToken: axiosCancel.token })
             .then(res => {
                 const { season, week } = res.data;
                 updateWeek(week);
                 updateSeason(season);
 
                 axios.get(`/api/group/leaderboard/${season}/${week}/${groupId}`)
-                    .then(res2 => updateLeaderboard(res2.data.leaderboard));
+                    .then(res2 => updateLeaderboard(res2.data.leaderboard))
+                    .catch(err => {
+                        if (err.message !== `Unmounted`) { console.log(err); }
+                    });
 
+            })
+            .catch(err => {
+                if (err.message !== `Unmounted`) { console.log(err); }
             });
     };
 

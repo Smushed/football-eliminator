@@ -24,9 +24,17 @@ const GroupPage = ({
 
     const [groupList, updateGroupList] = useState([]);
 
+    const axiosCancel = axios.CancelToken.source();
+
     useEffect(() => {
         if (noGroup) { welcomeModal() }
-        getGroupList()
+        getGroupList();
+
+        return function cancelAPICalls() {
+            if (axiosCancel) {
+                axiosCancel.cancel(`Unmounted`);
+            }
+        }
     }, [noGroup]);
 
     const welcomeModal = () => {
@@ -48,8 +56,11 @@ const GroupPage = ({
     };
 
     const getGroupList = async () => {
-        const res = await axios.get(`/api/group/list`);
-        updateGroupList(res.data);
+        axios.get(`/api/group/list`, { cancelToken: axiosCancel.token })
+            .then(res => updateGroupList(res.data))
+            .catch(err => {
+                if (err.message !== `Unmounted`) { console.log(err); }
+            });
     };
 
     const joinGroup = (groupId) => {
@@ -97,6 +108,8 @@ const GroupRow = ({ group, joinGroup, season, userId }) => {
     const [ulTooltip, updateULTooltip] = useState(``);
     const [isInGroup, updateIsInGroup] = useState(false);
 
+    const axiosCancel = axios.CancelToken.source();
+
     useEffect(() => {
         getAvatar(group.id);
         getTopScore(group.id, season);
@@ -104,19 +117,31 @@ const GroupRow = ({ group, joinGroup, season, userId }) => {
         if (group.UL.length >= 1 && userId) {
             checkInGroup(userId);
         }
+
+        return function cancelAPICalls() {
+            if (axiosCancel) {
+                axiosCancel.cancel(`Unmounted`);
+            }
+        }
     }, [group.id, group.UL, season, userId]);
 
     const getAvatar = (groupId) => {
-        axios.get(`/api/avatar/${groupId}`)
+        axios.get(`/api/avatar/${groupId}`, { cancelToken: axiosCancel.token })
             .then(res => {
                 updateGroupAvatar(res.data);
+            })
+            .catch(err => {
+                if (err.message !== `Unmounted`) { console.log(err); }
             });
     };
 
     const getTopScore = (groupId, season) => {
-        axios.get(`/api/group/topScore/${groupId}/${season}`)
+        axios.get(`/api/group/topScore/${groupId}/${season}`, { cancelToken: axiosCancel.token })
             .then(res => {
                 updateTopScore(res.data.TS)
+            })
+            .catch(err => {
+                if (err.message !== `Unmounted`) { console.log(err); }
             });
     };
 

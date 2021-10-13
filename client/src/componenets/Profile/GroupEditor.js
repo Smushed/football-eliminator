@@ -22,31 +22,58 @@ const GroupEditor = ({
 
     const { addToast } = useToasts();
 
+    const axiosCancel = axios.CancelToken.source();
+
     useEffect(() => {
         if (groupInfo._id) {
             pullGroupScoring(groupInfo._id);
             getRosterPositions();
             getGroupPositions(groupInfo._id);
         }
+        return function cancelAPICalls() {
+            if (axiosCancel) {
+                axiosCancel.cancel(`Unmounted`);
+            }
+        }
     }, [groupInfo._id]);
 
-    const pullGroupScoring = async (groupId) => {
-        const groupScoring = await axios.get(`/api/group/scoring/${groupId}?withDesc=true`);
-        updateGroupScore(groupScoring.data.groupScore);
-        updatePosDescMap({ bucketMap: groupScoring.data.bucketMap, posMap: groupScoring.data.map });
+    const pullGroupScoring = (groupId) => {
+        axios.get(`/api/group/scoring/${groupId}?withDesc=true`, { cancelToken: axiosCancel.token })
+            .then(res => {
+                updateGroupScore(res.data.groupScore);
+                updatePosDescMap({ bucketMap: res.data.bucketMap, posMap: res.data.map });
+            })
+            .catch(err => {
+                if (err.message !== `Unmounted`) {
+                    console.log(err);
+                }
+            });
     };
 
-    const getRosterPositions = async () => {
-        const dbResponse = await axios.get(`/api/roster/positions`);
-        const { rosterPositions, positionMap, maxOfPosition } = dbResponse.data;
-        updateRosterPositions(rosterPositions);
-        updatePositionMap(positionMap);
-        updateMaxOfPosition(maxOfPosition);
+    const getRosterPositions = () => {
+        axios.get(`/api/roster/positions`, { cancelToken: axiosCancel.token })
+            .then(res => {
+                const { rosterPositions, positionMap, maxOfPosition } = res.data;
+                updateRosterPositions(rosterPositions);
+                updatePositionMap(positionMap);
+                updateMaxOfPosition(maxOfPosition);
+            })
+            .catch(err => {
+                if (err.message !== `Unmounted`) {
+                    console.log(err);
+                }
+            });
     };
 
-    const getGroupPositions = async (groupId) => {
-        const dbResponse = await axios.get(`/api/group/positions/${groupId}`);
-        updateGroupPositions(dbResponse.data);
+    const getGroupPositions = (groupId) => {
+        axios.get(`/api/group/positions/${groupId}`, { cancelToken: axiosCancel.token })
+            .then(res => updateGroupPositions(res.data))
+            .catch(err => {
+                if (err.message !== `Unmounted`) {
+                    console.log(err);
+                }
+            });
+
     };
 
     const handleChange = (e) => {
@@ -176,7 +203,7 @@ const GroupEditor = ({
         if (updatedFields.groupDesc !== ``) {
             data.groupDesc = updatedFields.groupDesc;
         }
-        axios.put(`/api/group`, { data, id: groupInfo._id })
+        axios.put(`/api/group`, { data, id: groupInfo._id }, { cancelToken: axiosCancel.token })
             .then(() => {
                 if (updatedFields.groupName !== ``) {
                     changeGroup(updatedFields.groupName);
@@ -188,10 +215,16 @@ const GroupEditor = ({
                         updateGroupInfo(res.data.group);
                         updateGroupPositions(res.data.positions);
                         openCloseModal();
+                    }, { cancelToken: axiosCancel.token })
+                    .catch(err => {
+                        if (err.message !== 'Unmounted') {
+                            addToast('Error occured while saving', { appearance: 'warning', autoDismiss: true })
+                        }
                     });
             }).catch(err => {
-                console.log(err)
-                addToast('Error occured while saving', { appearance: 'warning', autoDismiss: true })
+                if (err.message !== 'Unmounted') {
+                    addToast('Error occured while saving', { appearance: 'warning', autoDismiss: true })
+                }
             });
     };
 

@@ -9,10 +9,10 @@ import * as Routes from '../../constants/routes';
 import './usedPlayerStyle.css';
 
 const UsedPlayers = ({ match, season, history, noGroup }) => {
-
-
     const [usedPlayers, updateUsedPlayers] = useState({});
     const [usernameOfPage, updateUsernameOfPage] = useState(``);
+
+    const axiosCancel = axios.CancelToken.source();
 
     useEffect(() => {
         if (noGroup) { history.push(Routes.groupPage); return; }
@@ -20,16 +20,22 @@ const UsedPlayers = ({ match, season, history, noGroup }) => {
             getUsedPlayers();
             updateUsernameOfPage(match.params.username);
         }
+
+        return function cancelAPICalls() {
+            if (axiosCancel) {
+                axiosCancel.cancel(`Unmounted`);
+            }
+        }
     }, [season, match.params.username])
 
     const getUsedPlayers = () => {
         loading(true);
-        axios.get(`/api/players/used/${match.params.username}/${season}/${match.params.groupname}`)
+        axios.get(`/api/players/used/${match.params.username}/${season}/${match.params.groupname}`, { cancelToken: axiosCancel })
             .then(res => {
                 updateUsedPlayers(res.data);
                 doneLoading();
             }).catch(err => {
-                console.log(err)
+                if (err.message !== `Unmounted`) { console.log(err); }
             });
     };
 
