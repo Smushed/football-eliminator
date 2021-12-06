@@ -6,7 +6,6 @@ const Alert = withReactContent(Swal);
 export const loading = () => {
     Alert.fire({
         title: 'Loading',
-        text: 'Loading available players',
         imageUrl: 'https://media.giphy.com/media/3o7aDczpCChShEG27S/giphy.gif',
         imageWidth: 200,
         imageHeight: 200,
