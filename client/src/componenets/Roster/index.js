@@ -3,6 +3,7 @@ import { withAuthorization } from '../Session';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import ReactTooltip from 'react-tooltip';
+import fuzzysort from 'fuzzysort';
 
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -35,6 +36,9 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
     const [mustDrop, updateMustDrop] = useState(false);
     const [possiblePlayer, updatePossiblePlayer] = useState(0);
     const [possiblePlayers, updatePossiblePlayers] = useState([]);
+    const [activePlayerSearch, updateActivatePlayerSearch] = useState(false);
+    const [playerSearch, updatePlayerSearch] = useState(``);
+    const [availPlayersToShow, updateAvailPlayersToShow] = useState([]);
 
     const axiosCancel = axios.CancelToken.source();
 
@@ -42,14 +46,27 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
         if (noGroup) { history.push(Routes.groupPage); return; }
 
         if (week !== 0 && season !== '') {
-            updateWeekSelect(+week);
-            updateUsernameOfPage(match.params.username);
-            getRosterData(week);
-            getUsedPlayers();
-            checkCurrentUser();
+            primaryPull(+week, match.params.username);
         }
     }, [week, season, match.params.username, noGroup]);
 
+    useEffect(() => {
+        if (playerSearch === '') {
+            updateAvailPlayersToShow(availablePlayers);
+            return;
+        }
+        const results = fuzzysort.go(playerSearch, availablePlayers, { key: 'N' });
+        console.log(results)
+        updateAvailPlayersToShow(results.map(player => player.obj));
+    }, [playerSearch]);
+
+    const primaryPull = (week, username) => {
+        updateWeekSelect(week);
+        updateUsernameOfPage(username);
+        getRosterData(week);
+        getUsedPlayers();
+        checkCurrentUser()
+    }
 
     const getUsedPlayers = () => {
         axios.get(`/api/players/used/${match.params.username}/${season}/${match.params.groupname}`, { cancelToken: axiosCancel.token })
@@ -191,6 +208,7 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
             .then(res => {
                 updateLastPosSearch(positionSelect);
                 updateAvaliablePlayers(res.data);
+                updateAvailPlayersToShow(res.data);
                 if (!usedPlayers[positionSelect]) {
                     getUsedPlayers();
                 } else {
@@ -214,6 +232,7 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
     };
 
     const handleChange = (e) => {
+        e.target.name === 'playerSearch' && updatePlayerSearch(e.target.value);
         e.target.name === 'weekSelect' && updateWeekSelect(e.target.value);
         e.target.name === 'positionSelect' && updatePositionSelect(e.target.value);
     };
@@ -343,8 +362,11 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
                     <div className='searchRow noMargin oneFlexLine smallerSearchHeight'>
                         <button className='btn btn-success' disabled={mustDrop} onClick={() => toggleShowUsedPlayers()}>Show Used Players</button>
                     </div>
-                    <div className='searchRow smallerSearchHeight'>
+                    <div className='searchRow'>
                         <button className='btn btn-success' onClick={() => showMatchUps()}>Match Ups</button>
+                    </div>
+                    <div className='searchRow'>
+                        <button className='btn btn-success' onClick={() => updateActivatePlayerSearch(!activePlayerSearch)}>Show Player Search</button>
                     </div>
                 </div>
                 <div className='rosterContainer'>
@@ -373,10 +395,18 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
                         </div>
                     </div>
                     <div className={`rosterCol ${mustDrop && `thirtyTransparent`}`}>
+                        {activePlayerSearch &&
+                            <div className='playerSearchBox input-group input-group-lg'>
+                                <span className='input-group-text rosterFieldDescription'>
+                                    Player:
+                                </span>
+                                <input className='form-control' name='playerSearch' value={playerSearch} type='text' onChange={handleChange} />
+                            </div>
+                        }
                         <div className='sectionHeader'>
                             Available Players
                         </div>
-                        {availablePlayers.map((player, i) => (
+                        {availPlayersToShow.map((player, i) => (
                             <PlayerDisplayRow
                                 player={player}
                                 key={i}

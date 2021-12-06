@@ -317,6 +317,13 @@
     margin-left: 15px;
 }
 
+.playerSearchBox {
+    animation: pop-in 0.25s;
+    -webkit-animation: pop-in 0.25s;
+    -moz-animation: pop-in 0.25s;
+    -ms-animation: pop-in 0.25s;
+}
+
 /* MODAL */
 .groupModalHeight {
     top: 48%;
