@@ -5,13 +5,14 @@ const Schema = mongoose.Schema;
 const UsedPlayerSchema = new Schema({
     U: { //UserId
         type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
         required: true
     },
     S: { //Season
         type: String,
         required: true
     },
-    G: {
+    G: { //GroupId
         type: mongoose.Schema.Types.ObjectId,
         required: true
     },

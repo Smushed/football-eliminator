@@ -196,7 +196,7 @@ const CreateGroup = ({
         if (tooMany.length > 0) {
             let errorMessage = '';
             for (let iiii = 0; iiii < tooMany.length; iiii++) {
-                errorMessage += ` ${tooMany[iiii]}`;
+                errorMessage += `Too Many ${tooMany[iiii]}`;
             }
             addToast(errorMessage, { appearance: 'warning', autoDismiss: true })
             return false;
@@ -233,12 +233,12 @@ const CreateGroup = ({
                         newGroupScore[bucket][key] = res.data.defaultScores[bucket][key];
                     }
                 }
+                updateEnteredScore(newGroupScore);
+                updateShowScore(true);
             })
             .catch(err => {
                 if (err.message !== `Unmounted`) { console.log(err) }
             });
-        updateEnteredScore(newGroupScore);
-        updateShowScore(true);
     };
 
     const groupValid = (groupNameValid & groupDescValid & groupPosValid);
@@ -275,10 +275,10 @@ const CreateGroup = ({
                                     Update Roster Spots
                                 </div>
                                 <div className='createGroupPrompt'>
-                                    <button type='button' className='btn btn-outline-info btn-sm' onClick={() => addPosition()}>
+                                    <button type='button' className='btn btn-outline-primary btn-sm' onClick={() => addPosition()}>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z" /></svg>
                                     </button>
-                                    <button type='button' className='btn btn-outline-info btn-sm removePosButton' onClick={() => removePosition()}>
+                                    <button type='button' className='btn btn-outline-primary btn-sm removePosButton' onClick={() => removePosition()}>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 10h24v4h-24z" /></svg>
                                     </button>
                                 </div>
@@ -290,11 +290,13 @@ const CreateGroup = ({
                             </div>
                             <div>
                                 {groupPosChoose.map((position, i) => {
-                                    return <div className='positionSelectBox' key={`groupPosWrapper-${i}`}>
-                                        <select className='form-control' onChange={handleRosterUpdate} name={i} key={`groupPos-${i}`} value={groupPosChoose[i]}>
-                                            {rosterPositions.map((possiblePos, ii) => <option value={possiblePos.N} key={`possiblePos-${ii}`}>{possiblePos.N}</option>)}
-                                        </select>
-                                    </div>
+                                    return (
+                                        <div className='form-group' key={`groupPosWrapper-${i}`}>
+                                            <select className='form-select' onChange={handleRosterUpdate} name={i} key={`groupPos-${i}`} value={groupPosChoose[i]}>
+                                                {rosterPositions.map((possiblePos, ii) => <option value={possiblePos.N} key={`possiblePos-${ii}`}>{possiblePos.N}</option>)}
+                                            </select>
+                                        </div>
+                                    )
                                 })}
                             </div>
                         </div>

@@ -6,6 +6,7 @@ const TeamLockedSchema = new Schema({
     T: { //Team
         type: String,
         required: true,
+        trim: true
     },
     ST: { //Locked for Week (AKA they started playing)
         type: Date,
@@ -15,9 +16,10 @@ const TeamLockedSchema = new Schema({
         type: Number,
         required: true
     },
-    S: {
+    S: { //Season
         type: String,
-        required: true
+        required: true,
+        trim: true
     }
 });
 

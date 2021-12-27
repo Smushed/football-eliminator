@@ -7,6 +7,7 @@ const GroupSchema = new Schema({
         type: String,
         unique: true,
         required: true,
+        trim: true
     },
     D: String, //Description
     UL: [ //Userlist

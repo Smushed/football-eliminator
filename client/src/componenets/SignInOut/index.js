@@ -109,7 +109,7 @@ const SignUpFormBase = ({ history, firebase, showPassword, toggleShowPassword })
                     })
                     .catch(err => {
                         console.log(err)
-                        updateError(err);
+                        updateError(err.message);
                     });
             }
         }

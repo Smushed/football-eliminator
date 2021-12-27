@@ -13,7 +13,6 @@ import Profile from './componenets/Profile';
 import Roster from './componenets/Roster';
 import AdminPanel from './componenets/AdminPanel';
 import UpdateWeek from './componenets/AdminPanel/UpdateWeek';
-import UpgradeToAdmin from './componenets/AdminPanel/UpgradeToAdmin';
 import UsedPlayers from './componenets/UsedPlayers';
 import GroupPage from './componenets/GroupPage/';
 import CreateGroup from './componenets/GroupPage/CreateGroup';
@@ -82,8 +81,7 @@ const App = ({ firebase }) => {
       const res = await axios.get(`/api/group/details/${user.MG}`);
       updateCurrentGroup({ N: res.data.N, _id: user.MG });
     } else {
-      axios.put(`/api/group/main/${user.GL[0]._id}/${user._id}`);
-      updateCurrentUser({ ...currentUser, MG: user.GL[0]._id });
+      axios.put(`/api/user/group/main/${user.GL[0]._id}/${user._id}`);
       updateCurrentGroup({ N: user.GL[0].N, _id: user.GL[0]._id });
     }
     getSeasonAndWeek();
@@ -147,7 +145,8 @@ const App = ({ firebase }) => {
                   currentUser={currentUser}
                   week={currentWeek}
                   season={currentSeason}
-                  groupId={currentGroup._id} />}
+                  groupId={currentGroup._id}
+                />}
             />
             <Route
               exact
@@ -193,11 +192,6 @@ const App = ({ firebase }) => {
                   updateLockWeek={updateLockWeek}
                 />
               }
-            />
-            <Route
-              path={Routes.upgradeToAdmin}
-              render={() =>
-                <UpgradeToAdmin />}
             />
             <Route
               path={Routes.usedPlayers}

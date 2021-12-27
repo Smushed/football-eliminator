@@ -56,9 +56,17 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
             return;
         }
         const results = fuzzysort.go(playerSearch, availablePlayers, { key: 'N' });
-        console.log(results)
+
         updateAvailPlayersToShow(results.map(player => player.obj));
     }, [playerSearch]);
+
+    useEffect(() => {
+        return function cancelAPICalls() {
+            if (axiosCancel) {
+                axiosCancel.cancel(`Unmounted`);
+            }
+        }
+    }, [])
 
     const primaryPull = (week, username) => {
         updateWeekSelect(week);

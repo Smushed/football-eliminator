@@ -1,41 +1,18 @@
-import React, { Component } from 'react';
-import { withAuthorization } from '../Session';
+import React from 'react';
 import axios from 'axios';
-import { Button, Row, Col } from 'reactstrap';
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 import PropTypes from 'prop-types';
 
 const Alert = withReactContent(Swal);
 
-class PlayerEditor extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {};
-    }
+const PlayerEditor = ({ season, week, groupId }) => {
 
-    loading() {
-        Alert.fire({
-            title: 'Loading',
-            text: 'Working your request',
-            imageUrl: 'https://media.giphy.com/media/3o7aDczpCChShEG27S/giphy.gif',
-            imageWidth: 200,
-            imageHeight: 200,
-            imageAlt: 'Loading Football',
-            showConfirmButton: false,
-            showCancelButton: false
-        });
-    }
+    const updateNFLRoster = () => {
+        axios.get(`/api/updateTeams/${season}`)
+    };
 
-    doneLoading() {
-        Alert.close()
-    }
-
-    updateNFLRoster = () => {
-        axios.get(`/api/updateTeams/${this.props.season}`)
-    }
-
-    getMassData = () => {
+    const getMassData = () => {
         Alert.fire({
             type: `warning`,
             title: `Are you sure?`,
@@ -44,68 +21,58 @@ class PlayerEditor extends Component {
         }).then(async result => {
             if (result.value) {
                 Alert.fire(`Success`, `This will be a while. Go play some games?`, `success`);
-                this.loading(); // This successfully updates the database but doneLoading doesn't work
-                const response = await axios.get(`/api/massPlayerUpdate/${this.props.season}/`);
-                this.doneLoading();
+                const response = await axios.get(`/api/massPlayerUpdate/${season}/`);
                 console.log(response);
             }
         });
-    }
+    };
 
-    getWeeklyData = async () => {
-        this.loading();
+    const getWeeklyData = async () => {
         try {
-            await axios.get(`/api/updatePlayers/${this.props.season}/${this.props.week}`);
-
-            this.doneLoading();
+            await axios.get(`/api/updatePlayers/${season}/${week}`);
         } catch (err) {
             console.log(err)
         }
-        this.doneLoading();
     };
 
-    rankPlayers = async () => {
+    const rankPlayers = async () => {
         try {
-            await axios.get(`/api/rankPlayers/${this.props.season}/${this.props.week}/${this.props.groupId}`)
+            await axios.get(`/api/rankPlayers/${season}/${week}/${groupId}`)
         } catch (err) {
             console.log(err);
         }
     };
 
-    render() {
-        return (
-            <Row>
-                <Col>
-                    <Button color='warning' onClick={this.getMassData}>
-                        Mass Update All Players
-                    </Button>
-                    <br />
-                    <br />
-                    <Button color='secondary' onClick={this.updateNFLRoster}>
-                        Update NFL Roster
-                    </Button>
-                    <br />
-                    <br />
-                    <Button color='secondary' onClick={this.getWeeklyData}>
-                        Update Get Weekly Data
-                    </Button>
-                    <br />
-                    <br />
-                    <Button color='primary' onClick={this.rankPlayers}>
-                        Rank Players
-                    </Button>
-                </Col>
-            </Row>
-        );
-    }
-}
+    return (
+        <div className='row'>
+            <div className='col-12'>
+                <button className='btn btn-warning' onClick={() => getMassData()}>
+                    Mass Update All Players
+                </button>
+                <br />
+                <br />
+                <button className='btn btn-secondary' onClick={() => updateNFLRoster()}>
+                    Update NFL Roster
+                </button>
+                <br />
+                <br />
+                <button className='btn btn-secondary' onClick={() => getWeeklyData()}>
+                    Update Get Weekly Data
+                </button>
+                <br />
+                <br />
+                <button className='btn btn-primary' onClick={() => rankPlayers()}>
+                    Rank Players
+                </button>
+            </div>
+        </div>
+    );
+};
 
 PlayerEditor.propTypes = {
     season: PropTypes.string,
-    week: PropTypes.number,
+    week: PropTypes.string,
     groupId: PropTypes.string
 };
 
-const condition = authUser => !!authUser;
-
-export default withAuthorization(condition)(PlayerEditor);
+export default PlayerEditor;

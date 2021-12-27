@@ -5,11 +5,13 @@ const Schema = mongoose.Schema;
 const UserSchema = new Schema({
     UN: { //Username
         type: String,
-        unique: true
+        unique: true,
+        trim: true
     },
     E: { //Email
         type: String,
         unique: true,
+        trim: true
     },
     GL: [mongoose.Schema.Types.ObjectId], //GroupList
     A: { //Admin

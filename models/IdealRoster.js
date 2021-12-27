@@ -6,6 +6,7 @@ const IdealRosterSchema = new Schema({
 
     G: { //GroupId
         type: mongoose.Schema.Types.ObjectId,
+        ref: 'Group',
         required: true,
     },
     W: { //Week
@@ -15,6 +16,7 @@ const IdealRosterSchema = new Schema({
     S: { //Season
         type: String,
         required: true,
+        trim: true
     },
     R: [ //Roster
         {
