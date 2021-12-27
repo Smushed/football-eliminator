@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { withAuthorization } from '../Session';
-import { Label, Input, Container, Button, Row, Col } from 'reactstrap';
 import * as Routes from '../../constants/routes';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 
 import PlayerEditor from './PlayerEditor';
-import UserEditor from './UserEditor';
 import GroupEditor from './GroupEditor';
 
 const AdminPanel = ({ currentUser, season, week, groupId }) => {
 
-    const [userEditor, setUserEditor] = useState(false);
     const [playerEditor, setPlayerEditor] = useState(false);
     const [groupEditor, setGroupEditor] = useState(false);
     const [weekSelect, setWeekSelect] = useState(1);
@@ -37,29 +34,19 @@ const AdminPanel = ({ currentUser, season, week, groupId }) => {
 
     const showPlayerEditor = () => {
         setPlayerEditor(true);
-        setUserEditor(false);
-        setGroupEditor(false);
-    };
-
-    const showUserEditor = () => {
-        setPlayerEditor(false);
-        setUserEditor(true);
         setGroupEditor(false);
     };
 
     const showGroupEditor = () => {
         setPlayerEditor(false);
-        setUserEditor(false);
         setGroupEditor(true);
     };
-
 
     const getMatchups = async () => {
         const dbResponse = await axios.post(`/api/pullMatchUpsForDB/${seasonSelect}/${weekSelect}`);
         console.log(dbResponse);
     };
 
-    //This is to handle the change for the Input Type in the position search below
     const handleChange = (e) => {
         e.target.name === `seasonSelect` && setSeasonSelect(e.target.value);
         e.target.name === `weekSelect` && setWeekSelect(e.target.value);
@@ -109,9 +96,6 @@ const AdminPanel = ({ currentUser, season, week, groupId }) => {
                         </button>
                         <br />
                         <br />
-                        <button className='btn btn-primary' onClick={() => showUserEditor()}>User Editor</button>
-                        <br />
-                        <br />
                         <button className='btn btn-primary' onClick={() => showGroupEditor()}>Group Editor</button>
                         <br />
                         <br />
@@ -120,9 +104,6 @@ const AdminPanel = ({ currentUser, season, week, groupId }) => {
                     <div className='col-sm-12 col-md-9'>
                         {playerEditor &&
                             <PlayerEditor week={weekSelect} season={seasonSelect} groupId={groupId} />
-                        }
-                        {userEditor &&
-                            <UserEditor week={weekSelect} season={seasonSelect} />
                         }
                         {groupEditor &&
                             <GroupEditor week={weekSelect} season={seasonSelect} />

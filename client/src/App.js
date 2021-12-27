@@ -13,7 +13,6 @@ import Profile from './componenets/Profile';
 import Roster from './componenets/Roster';
 import AdminPanel from './componenets/AdminPanel';
 import UpdateWeek from './componenets/AdminPanel/UpdateWeek';
-import UpgradeToAdmin from './componenets/AdminPanel/UpgradeToAdmin';
 import UsedPlayers from './componenets/UsedPlayers';
 import GroupPage from './componenets/GroupPage/';
 import CreateGroup from './componenets/GroupPage/CreateGroup';
@@ -193,11 +192,6 @@ const App = ({ firebase }) => {
                   updateLockWeek={updateLockWeek}
                 />
               }
-            />
-            <Route
-              path={Routes.upgradeToAdmin}
-              render={() =>
-                <UpgradeToAdmin />}
             />
             <Route
               path={Routes.usedPlayers}
