@@ -47,15 +47,14 @@ module.exports = app => {
         res.status(200).send(groupInfo);
     });
 
-    app.post(`/api/createClapper/:pass`, async (req, res) => {
+    app.post(`/api/initSeason/:pass`, async (req, res) => {
         const { pass } = req.params;
         if (pass !== process.env.DB_ADMIN_PASS) {
             res.status(401).send(`Get Outta Here!`);
             return;
         }
-        groupHandler.createClapper();
         userHandler.initSeasonAndWeekInDB();
-        res.sendStatus(200);
+        res.status(200).send('Season And Week Init');
     });
 
     app.get(`/api/group/positions/:groupId`, async (req, res) => {

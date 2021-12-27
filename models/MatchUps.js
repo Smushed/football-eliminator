@@ -5,7 +5,8 @@ const Schema = mongoose.Schema;
 const MatchUpsSchema = new Schema({
     S: { //Season
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     W: { //Week
         type: Number,

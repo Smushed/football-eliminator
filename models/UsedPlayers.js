@@ -11,7 +11,7 @@ const UsedPlayerSchema = new Schema({
         type: String,
         required: true
     },
-    G: {
+    G: { //GroupId
         type: mongoose.Schema.Types.ObjectId,
         required: true
     },

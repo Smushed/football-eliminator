@@ -3,7 +3,6 @@ const userHandler = require(`../handlers/userHandler`);
 const rosterHandler = require(`../handlers/rosterHandler`);
 const s3Handler = require(`../handlers/s3Handler`);
 const groupHandler = require(`../handlers/groupHandler`);
-const emailHandler = require(`../handlers/emailHandler`);
 
 module.exports = app => {
     app.put(`/api/updateProfile`, async (req, res) => {

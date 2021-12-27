@@ -15,6 +15,7 @@ const IdealRosterSchema = new Schema({
     S: { //Season
         type: String,
         required: true,
+        trim: true
     },
     R: [ //Roster
         {

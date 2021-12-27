@@ -13,7 +13,8 @@ const PlayerStatsSchema = new Schema({
     },
     S: { //Season
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     P: { //Passing
         T: { //PassTD

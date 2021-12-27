@@ -83,7 +83,6 @@ const App = ({ firebase }) => {
       updateCurrentGroup({ N: res.data.N, _id: user.MG });
     } else {
       axios.put(`/api/group/main/${user.GL[0]._id}/${user._id}`);
-      updateCurrentUser({ ...currentUser, MG: user.GL[0]._id });
       updateCurrentGroup({ N: user.GL[0].N, _id: user.GL[0]._id });
     }
     getSeasonAndWeek();
@@ -147,7 +146,8 @@ const App = ({ firebase }) => {
                   currentUser={currentUser}
                   week={currentWeek}
                   season={currentSeason}
-                  groupId={currentGroup._id} />}
+                  groupId={currentGroup._id}
+                />}
             />
             <Route
               exact

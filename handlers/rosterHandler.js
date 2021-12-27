@@ -48,7 +48,7 @@ const sortPlayersByRank = (playerArray) => {
 };
 
 const getUsedPlayers = async (userId, season, groupId) => {
-    const currentUser = await db.UsedPlayers.findOne({ U: userId, S: season }).exec();
+    const currentUser = await db.UsedPlayers.findOne({ U: userId, S: season, G: groupId }).exec();
     if (currentUser === null) {
         const createdUsedPlayers = await createUsedPlayers(userId, season, groupId);
         return createdUsedPlayers.UP;
@@ -205,7 +205,7 @@ module.exports = {
 
         //usedPlayers is the array from the database of all players that the user has used
         //We need to grab ALL the playerIds that are currently active in the database and pull out any that are in the usedPlayers array
-        const searchedPlayers = await db.PlayerData.find({ A: true, P: searchedPosition }, { M: 1, N: 1, P: 1, R: 1, T: 1, I: 1 });
+        const searchedPlayers = await db.PlayerData.find({ A: true, P: searchedPosition }, { M: 1, N: 1, P: 1, R: 1, T: 1, I: 1 }).exec();
         const availablePlayers = checkForAvailablePlayers(usedPlayers, searchedPlayers);
 
         return availablePlayers;

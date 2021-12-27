@@ -6,7 +6,8 @@ const SeasonAndWeekSchema = new Schema({
     S: { //Current Season
         type: String,
         required: true,
-        default: '2020-2021-regular'
+        default: '2021-2022-regular',
+        trim: true
     },
     W: { //Current Week
         type: Number,

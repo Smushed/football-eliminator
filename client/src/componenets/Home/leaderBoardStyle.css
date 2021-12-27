@@ -60,13 +60,13 @@
 }
 
 .rightHeader {
-    padding-right: 20px;
+    padding-right: 30px;
 }
 
 .headerText {
+    margin-top: 3px;
     font-size: 28px;
     font-weight: 600;
-    align-self: flex-end;
 }
 
 .leaderboardRow {
