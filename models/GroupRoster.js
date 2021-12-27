@@ -5,6 +5,7 @@ const Schema = mongoose.Schema;
 const GroupRosterSchema = new Schema({
     G: { //GroupId
         type: mongoose.Schema.Types.ObjectId,
+        ref: 'Group',
         unique: true,
         required: true
     },

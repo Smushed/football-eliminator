@@ -5,6 +5,7 @@ const Schema = mongoose.Schema;
 const UsedPlayerSchema = new Schema({
     U: { //UserId
         type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
         required: true
     },
     S: { //Season

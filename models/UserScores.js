@@ -6,10 +6,12 @@ const UserScoresSchema = new Schema({
 
     U: { //User ID
         type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
         required: true
     },
     G: { //GroupID
         type: mongoose.Schema.Types.ObjectId,
+        ref: 'Group',
         required: true
     },
     S: { //Season
@@ -89,5 +91,15 @@ const UserScoresSchema = new Schema({
         default: 0
     },
 });
+
+UserScoresSchema.index(
+    {
+        U: 1,
+        G: -1,
+        S: -1
+    },
+    {
+        'unique': true
+    });
 
 module.exports = mongoose.model(`UserScores`, UserScoresSchema);

@@ -5,7 +5,8 @@ const Schema = mongoose.Schema;
 const GroupScoreSchema = new Schema({
     G: { //GroupID
         type: mongoose.Types.ObjectId,
-        required: true
+        required: true,
+        ref: 'Group'
     },
     P: {//Passing
         T: { //TD

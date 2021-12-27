@@ -6,6 +6,7 @@ const IdealRosterSchema = new Schema({
 
     G: { //GroupId
         type: mongoose.Schema.Types.ObjectId,
+        ref: 'Group',
         required: true,
     },
     W: { //Week
