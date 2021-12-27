@@ -96,11 +96,6 @@ module.exports = app => {
             const bestRoster = { R: blankRoster, U: `` }; //Filling out dummy data for the front end to display
             res.status(200).send({ bestRoster, leaderRoster: blankRoster });
             return;
-        } else if (+dbSeasonWeek.W < +week) {
-            const blankRoster = await groupHandler.getBlankRoster(groupId);
-            const bestRoster = { R: blankRoster, U: `` }; //Filling out dummy data for the front end to display
-            res.status(200).send({ bestRoster, leaderRoster: blankRoster });
-            return;
         } else {
             const userScores = await groupHandler.getCurrAndLastWeekScores(groupId, season, +week);
             Promise.all([
