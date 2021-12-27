@@ -368,7 +368,8 @@ module.exports = {
         const scoresCopy = [...userScores];
         const topWeekScore = await getTopScorerForWeek(scoresCopy, lastWeek);
         //Doing this here because rosterHandler.js doesn't want to be exported to any other file for some reason
-        let topUserRoster = await findOneRoster(topWeekScore.U, lastWeek, season, groupId);
+        const topUserRoster = await findOneRoster(topWeekScore.U, lastWeek, season, groupId);
+        if (!topUserRoster) { return null; }
         const foundUser = await findOneUserById(topWeekScore.U);
         const R = await mySportsHandler.fillUserRoster(topUserRoster.R);
         return { R, U: foundUser.UN }; //Short hand for roster and user

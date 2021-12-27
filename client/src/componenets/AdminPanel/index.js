@@ -11,7 +11,7 @@ const AdminPanel = ({ currentUser, season, week, groupId }) => {
 
     const [playerEditor, setPlayerEditor] = useState(false);
     const [groupEditor, setGroupEditor] = useState(false);
-    const [weekSelect, setWeekSelect] = useState(1);
+    const [weekSelect, setWeekSelect] = useState(`1`);
     const [seasonSelect, setSeasonSelect] = useState(``);
 
     useEffect(() => {

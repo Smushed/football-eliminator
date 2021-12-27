@@ -28,15 +28,11 @@ const PlayerEditor = ({ season, week, groupId }) => {
     };
 
     const getWeeklyData = async () => {
-        this.loading();
         try {
             await axios.get(`/api/updatePlayers/${season}/${week}`);
-
-            this.doneLoading();
         } catch (err) {
             console.log(err)
         }
-        this.doneLoading();
     };
 
     const rankPlayers = async () => {
@@ -75,7 +71,7 @@ const PlayerEditor = ({ season, week, groupId }) => {
 
 PlayerEditor.propTypes = {
     season: PropTypes.string,
-    week: PropTypes.number,
+    week: PropTypes.string,
     groupId: PropTypes.string
 };
 

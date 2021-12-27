@@ -88,8 +88,15 @@ module.exports = app => {
 
     app.get(`/api/group/roster/bestAndLead/:season/:week/:groupId`, async (req, res) => {
         const { season, week, groupId } = req.params;
+        const dbSeasonWeek = await userHandler.pullSeasonAndWeekFromDB();
+
         if (+week === 1) {
             //Setting this blank roster if we are currently in week 1 there is no previous week to compare
+            const blankRoster = await groupHandler.getBlankRoster(groupId);
+            const bestRoster = { R: blankRoster, U: `` }; //Filling out dummy data for the front end to display
+            res.status(200).send({ bestRoster, leaderRoster: blankRoster });
+            return;
+        } else if (+dbSeasonWeek.W < +week) {
             const blankRoster = await groupHandler.getBlankRoster(groupId);
             const bestRoster = { R: blankRoster, U: `` }; //Filling out dummy data for the front end to display
             res.status(200).send({ bestRoster, leaderRoster: blankRoster });
@@ -184,7 +191,6 @@ module.exports = app => {
         const onlyAdmin = await groupHandler.singleAdminCheck(group, userId);
         if (onlyAdmin.status) {
             res.status(210).send(onlyAdmin.nonAdmins);
-            // res.status(100).send('Only Admin in group! Pick another before leaving');
         } else {
             res.sendStatus(200)
         }
