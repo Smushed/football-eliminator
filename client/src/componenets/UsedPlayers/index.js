@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { PlayerDisplayRow } from '../Roster';
+import { PlayerDisplayRow } from '../Roster/RosterDisplay';
 import { withAuthorization } from '../Session';
 import PropTypes from 'prop-types';
 

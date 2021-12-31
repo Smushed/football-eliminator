@@ -2,57 +2,59 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-import './leaderBoardStyle.css'
+import './leaderboardStyle.css';
 
 const Leaderboard = ({ groupName, week, leaderboard }) => (
-    <div className='leaderboardContainter'>
-        <div className='leaderboard'>
-            <div className='leaderboardHeader'>
-                <Link to={`/profile/group/${groupName}`}>
-                    <span className='headerText leftHeader'>
+    <table className='leaderboardContainter table table-striped table-hover'>
+        <thead>
+            <tr className='fs-3 text-center'>
+                <th>
+                    <Link to={`/profile/group/${groupName}`}>
                         {groupName}
-                    </span>
-                </Link>
-                <span className='leaderboardTitle'>
+                    </Link>
+                </th>
+                <th>
                     Leaderboard
-                </span>
-                <span className='headerText rightHeader'>
+                </th>
+                <th className='d-none d-md-block'>
                     Week {week}
-                </span>
-            </div>
-            <div className='leaderboardRow'>
-                <div className='firstCol'>
+                </th>
+            </tr>
+            <tr>
+                <th scope='col'>
                     Name
-                </div>
-                <div className='secondCol'>
+                </th>
+                <th scope='col'>
                     Last Week
-                </div>
-                <div className='thirdCol'>
+                </th>
+                <th scope='col' className='d-none d-md-block'>
                     Curr Week
-                </div>
-                <div className='fourthCol'>
+                </th>
+                <th scope='col'>
                     Total
-                </div>
-            </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
             {leaderboard &&
-                leaderboard.map((user, i) => (
-                    <div className={i % 2 ? 'leaderboardRow' : 'leaderboardRow oddRow'} key={user.UN}>
-                        <div className='firstCol wordOverflow'>
+                leaderboard.map(user => (
+                    <tr key={user.UN}>
+                        <td>
                             {user.UN}
-                        </div>
-                        <div className='secondCol wordOverflow'>
+                        </td>
+                        <td>
                             {user.LW.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
-                        </div>
-                        <div className='thirdCol wordOverflow'>
+                        </td>
+                        <td className='d-none d-md-block'>
                             {user.CW.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
-                        </div>
-                        <div className='fourthCol wordOverflow'>
+                        </td>
+                        <td>
                             {user.TS.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
-                        </div>
-                    </div>
+                        </td>
+                    </tr>
                 ))}
-        </div>
-    </div>
+        </tbody>
+    </table>
 )
 
 Leaderboard.propTypes = {

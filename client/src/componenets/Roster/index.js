@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { withAuthorization } from '../Session';
 import axios from 'axios';
 import PropTypes from 'prop-types';
-import ReactTooltip from 'react-tooltip';
 import fuzzysort from 'fuzzysort';
+
+import { RosterDisplay, PlayerDisplayRow } from './RosterDisplay';
 
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -210,7 +211,7 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
         loading();
         axios.get(`/api/roster/players/available`,
             {
-                params: { userId, searchedPosition: positionSelect, season: season, groupId: match.params.groupId },
+                params: { userId, searchedPosition: positionSelect, season: season, groupname: match.params.groupname },
                 cancelToken: axiosCancel.token
             })
             .then(res => {
@@ -430,123 +431,6 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
     );
 };
 
-const CurrentRosterRow = ({ evenOrOddRow, player, position, addDropPlayer, pastLockWeek }) => {
-    const showInjury = async () => {
-        const playingProb = player.I.PP.toLowerCase();
-        Alert.fire({
-            title: `${player.N} is ${playingProb} with a ${player.I.D} injury`,
-        });
-    };
-    return <div className={evenOrOddRow === 0 ? 'playerRow' : 'playerRow oddRow'}>
-        <div className='positionBox'>
-            {position}
-        </div>
-        <div className='playerContainer'>
-            {player &&
-                (player.M !== 0 ?
-                    <div className='hasPlayerContainer'>
-                        <div className='playerCol flex'>
-                            <div className='injuryCol'>
-                                {!pastLockWeek &&
-                                    player.I &&
-                                    <InjuryCol
-                                        injury={player.I}
-                                        showInjury={showInjury}
-                                    />
-                                }
-                            </div>
-                            {player.N && player.N}
-                        </div>
-                        <div className='teamCol'>
-                            {player.T}
-                        </div>
-                        {pastLockWeek === true ?
-                            <div className='scoreCol'>
-                                {player.SC.toFixed(2)}
-                            </div> :
-                            addDropPlayer &&
-                            <button className='custom-button' onClick={() => addDropPlayer(player.M, player.T, 'drop')}>
-                                Drop
-                            </button>
-                        }
-                    </div>
-                    : ``
-                )}
-        </div>
-    </div>
-};
-
-const PlayerDisplayRow = ({ evenOrOddRow, player, addDropPlayer, sortedMatchups = false }) => {
-
-    return <div className={evenOrOddRow === 0 ? 'playerRow' : 'playerRow oddRow'}>
-        <div className='playerCol flex'>
-            <div className='injuryCol'>
-                {player.I &&
-                    <InjuryCol
-                        injury={player.I}
-                    />
-                }
-            </div>
-            {player.N && player.N}
-        </div>
-        <div className='teamCol'>
-            {player.T && player.T}
-        </div>
-        {sortedMatchups &&
-            <div className='posCol'>
-                {sortedMatchups[player.T] ?
-                    `${sortedMatchups[player.T].h ? 'v' : '@'} ${sortedMatchups[player.T].v}`
-                    :
-                    `BYE`}
-            </div>
-        }
-        {addDropPlayer &&
-            <button className='custom-button' onClick={() => addDropPlayer(player.M, player.T, 'add')}>
-                Add
-            </button>
-        }
-    </div>
-};
-
-const RosterDisplay = ({ groupPositions, roster, addDropPlayer, mustDrop, pastLockWeek }) =>
-    mustDrop ?
-        roster.map((player, i) =>
-            <CurrentRosterRow
-                key={i}
-                position={player.P}
-                player={player}
-                addDropPlayer={addDropPlayer}
-                evenOrOddRow={i % 2}
-                pastLockWeek={pastLockWeek}
-            />) :
-        groupPositions.map((position, i) => (
-            <CurrentRosterRow
-                key={i}
-                pastLockWeek={pastLockWeek}
-                position={position.N}
-                player={roster[i]}
-                addDropPlayer={addDropPlayer}
-                evenOrOddRow={i % 2}
-            />
-        ));
-
-const InjuryCol = ({ injury, showInjury }) => {
-    return <>
-        <ReactTooltip />
-        <div className='redText'
-            data-tip={injury.D}
-            onClick={showInjury}
-        >
-            {injury.PP[0]}
-        </div>
-    </>
-}
-
-InjuryCol.propTypes = {
-    injury: PropTypes.object,
-    showInjury: PropTypes.func
-}
-
 Roster.propTypes = {
     updateLockWeek: PropTypes.func,
     appLevelLockWeek: PropTypes.number,
@@ -557,15 +441,6 @@ Roster.propTypes = {
     userId: PropTypes.string,
     history: PropTypes.object,
     noGroup: PropTypes.bool
-};
-
-CurrentRosterRow.propTypes = {
-    mustDrop: PropTypes.bool,
-    evenOrOddRow: PropTypes.number,
-    player: PropTypes.object,
-    position: PropTypes.string,
-    addDropPlayer: PropTypes.func,
-    pastLockWeek: PropTypes.bool
 };
 
 PlayerDisplayRow.propTypes = {
@@ -589,4 +464,3 @@ RosterDisplay.propTypes = {
 const condition = authUser => !!authUser;
 
 export default withAuthorization(condition)(Roster);
-export { RosterDisplay, PlayerDisplayRow };

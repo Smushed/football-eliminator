@@ -12,7 +12,8 @@ module.exports = app => {
     });
 
     app.get(`/api/roster/players/available`, async (req, res) => {
-        const { userId, searchedPosition, season, groupId } = req.query;
+        const { userId, searchedPosition, season, groupname } = req.query;
+        const groupId = await groupHandler.getGroupData(groupname);
         const availablePlayers = await rosterHandler.availablePlayers(userId, searchedPosition, season, groupId);
         res.status(200).send(availablePlayers);
     });

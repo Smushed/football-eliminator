@@ -1,32 +1,3 @@
-.wrapper {
-    margin: auto;
-    width: 60%;
-}
-
-.homeSectionWrapper {
-    display: flex;
-    justify-content: space-evenly;
-    margin-top: 10px;
-    border: 1px solid lightgray;
-    min-height: 300px;
-    border-radius: 2px;
-}
-
-.wrapperBorder {
-    height: 100%;
-    background-color: lightgray;
-    width: 2px;
-    margin-top: auto;
-    margin-bottom: auto;
-    min-height: 275px;
-}
-
-.userAvatarWrapper {
-    margin-top: auto;
-    margin-bottom: auto;
-    text-align: center;
-}
- 
 .rosterRowWrapper {
     display: flex;
     justify-content: space-evenly;
@@ -57,28 +28,6 @@
     margin-top: 15px;
     font-size: 26px;
     border-bottom: 1px solid lightgray;
-}
-
-.bottomMargin {
-    margin-bottom: 15px;
-}
-
-.weekSearchInputOnHome {
-    justify-self: start;
-}
-
-.centerText {
-    text-align: center
-}
-
-.topMargin {
-    margin-top: 25px;
-}
-
-.usernameHeader {
-    margin-top: 25px;
-    font-size: 36px;
-    font-weight: 600;
 }
 
 .userLinkButton {
@@ -166,10 +115,6 @@
 
 .flexOn {
     display: flex;
-}
-
-.carouselWrapper {
-    width: 750px;
 }
 
 /* MEDIUM SCREENS */

@@ -1,3 +1,7 @@
+.rosterPosition {
+    max-width: 150px;
+}
+
 .rosterPageContainer {
     display: flex;
 }

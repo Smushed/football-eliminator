@@ -3,7 +3,7 @@ import axios from 'axios';
 import { withAuthorization } from '../Session';
 import { Link } from 'react-router-dom';
 
-import { RosterDisplay } from '../Roster';
+import { RosterDisplay } from '../Roster/RosterDisplay';
 import './homeStyle.css';
 import Leaderboard from './Leaderboard';
 import PropTypes from 'prop-types';
@@ -112,58 +112,57 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
 
     const weekForLeaderboard = week === 0 ? 1 : week;
     return (
-        <div className='wrapper'>
-            <div className='homeSectionWrapper'>
-                <div className='userAvatarWrapper'>
-                    <div className='leaderName'>
-                        <div className='leaderTitle'>Current Leader</div>
+        <div className='container'>
+            <div className='row border justify-around pb-2 mb-2'>
+                <div className='col-lg-4 col-md-12 text-center'>
+                    <div className='fs-3'>
+                        <div className='fw-bold'>
+                            Current Leader
+                        </div>
                         {leaderboard.length > 0 &&
                             leaderboard[0].UN
                         }
                     </div>
-                    <img className='userAvatar' src={leaderAvatar} />
+                    <img className='img-fluid rounded' src={leaderAvatar} />
                 </div>
-                <div className='wrapperBorder'></div>
-                <Leaderboard
-                    week={weekForLeaderboard}
-                    season={season}
-                    leaderboard={leaderboard}
-                    groupName={group.N}
-                />
+                <div className='col-lg-8 col-md-12'>
+                    <Leaderboard
+                        week={weekForLeaderboard}
+                        season={season}
+                        leaderboard={leaderboard}
+                        groupName={group.N}
+                    />
+                </div>
             </div>
-            <div className='homeSectionWrapper'>
-                <div>
-                    <div className='largeScreenShow flexOn'>
-                        <div className='rosterWrapper'>
-                            <div className='rosterHomePageTitle'>
-                                Last Week&apos;s Ideal Roster
-                            </div>
+            <div className='row border pt-2'>
+                <div className='col-lg-6 d-none d-lg-block'>
+                    <RosterDisplay
+                        headerText='Last Week&apos;s Ideal Roster'
+                        groupPositions={groupPositions}
+                        roster={idealRoster}
+                        pastLockWeek={true}
+                    />
+                </div>
+                <div className='col-lg-6 d-none d-lg-block'>
+                    <div className='row'>
+                        <div className='col-12'>
                             <RosterDisplay
-                                groupPositions={groupPositions}
-                                roster={idealRoster}
-                                pastLockWeek={true}
-                            />
-                        </div>
-                        <div className='rosterWrapper'>
-                            <div className='rosterHomePageTitle'>
-                                Best from Week {week - 1} - {bestRosterUser}
-                            </div>
-                            <RosterDisplay
+                                headerText={`Best from Week ${week - 1} - ${bestRosterUser}`}
                                 groupPositions={groupPositions}
                                 roster={bestRoster}
                                 pastLockWeek={true}
                             />
                         </div>
                     </div>
-                    <div className='medScreenShow carouselWrapper'>
-                        <RosterCarousel
-                            week={weekForLeaderboard}
-                            bestRosterUser={bestRosterUser}
-                            bestRoster={bestRoster}
-                            groupPositions={groupPositions}
-                            idealRoster={idealRoster}
-                        />
-                    </div>
+                </div>
+                <div className='col-md-12 d-block d-lg-none'>
+                    <RosterCarousel
+                        week={weekForLeaderboard}
+                        bestRosterUser={bestRosterUser}
+                        bestRoster={bestRoster}
+                        groupPositions={groupPositions}
+                        idealRoster={idealRoster}
+                    />
                 </div>
             </div>
             <div className='homeSectionWrapper'>

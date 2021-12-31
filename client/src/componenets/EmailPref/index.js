@@ -7,7 +7,8 @@ import { EmailToggleInput } from '../Profile/ProfileInputs';
 
 const EmailPref = ({
     match,
-    history }) => {
+    history
+}) => {
 
     const [user, updateUser] = useState({});
     const [emailPref, updateEmailPref] = useState({});
@@ -28,7 +29,10 @@ const EmailPref = ({
     const { addToast } = useToasts();
 
     const getUser = (userId) => {
-        axios.get(`/api/user/id/${userId}`, { cancelToken: axiosCancel.token })
+        axios.get(`/api/user/id/${userId}`,
+            {
+                cancelToken: axiosCancel.token
+            })
             .then(res => updateUser(res.data))
             .catch(err => {
                 if (err.message !== `Unmounted`) { history.push(`/404`); }
@@ -36,7 +40,10 @@ const EmailPref = ({
     };
 
     const getUserEmailPref = (userId) => {
-        axios.get(`/api/user/emailPref/${userId}`, { cancelToken: axiosCancel.token })
+        axios.get(`/api/user/emailPref/${userId}`,
+            {
+                cancelToken: axiosCancel.token
+            })
             .then(res => updateEmailPref(res.data))
             .catch(err => {
                 if (err.message !== `Unmounted`) { history.push(`/404`); }
@@ -49,7 +56,6 @@ const EmailPref = ({
             handleSubmit(updatedVal, emailPref.RE);
         } else {
             handleSubmit(emailPref.LE, updatedVal);
-
         }
     };
 
@@ -57,7 +63,7 @@ const EmailPref = ({
         try {
             await axios.put(`/api/user/emailPref/${user._id}/${LE}/${RE}`);
         } catch (err) {
-            addToast('Save Error - Contact Kevin', { appearance: 'warning', autoDismiss: true });
+            addToast('Save Error - Contact Admin - smushedcode@gmail.com', { appearance: 'warning' });
         }
         addToast('Email Preference Saved', { appearance: 'success', autoDismiss: true });
         getUserEmailPref(user._id);

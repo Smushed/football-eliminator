@@ -88,8 +88,6 @@ module.exports = app => {
 
     app.get(`/api/group/roster/bestAndLead/:season/:week/:groupId`, async (req, res) => {
         const { season, week, groupId } = req.params;
-        const dbSeasonWeek = await userHandler.pullSeasonAndWeekFromDB();
-
         if (+week === 1) {
             //Setting this blank roster if we are currently in week 1 there is no previous week to compare
             const blankRoster = await groupHandler.getBlankRoster(groupId);
