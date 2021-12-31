@@ -4,7 +4,7 @@ import axios from 'axios';
 import PropTypes from 'prop-types';
 import fuzzysort from 'fuzzysort';
 
-import { RosterDisplay, PlayerDisplayRow } from './RosterDisplay';
+import { RosterDisplay, PlayerDisplayRow, PlayerDisplayTable } from './RosterDisplay';
 
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -346,44 +346,60 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
     };
 
     return (
-        <div>
-            <div className='centerText headerFont usernameRow'>
-                {usernameOfPage}&apos;s Roster
+        <div className='container'>
+            <div className='row'>
+                <div className='col-12 fs-3 text-center'>
+                    {usernameOfPage}&apos;s Roster
+                </div>
             </div>
-            <div className='rosterPageContainer'>
-                <div className='leftSearchRow'>
-                    <div className='searchRow'>
-                        Change Week
+            <div className='row'>
+                <div className='col-12'>
+                    <div className='row justify-content-center mt-2 mb-2'>
+                        <div className='col-sm-12 col-md-4 col-lg-2 text-center'>
+                            <button className='btn btn-success' disabled={mustDrop} onClick={() => toggleShowUsedPlayers()}>Show Used Players</button>
+                        </div>
+                        <div className='col-sm-12 col-md-4 col-lg-2 text-center'>
+                            <button className='btn btn-success' onClick={() => showMatchUps()}>Match Ups</button>
+                        </div>
+                        <div className='col-sm-12 col-md-4 col-lg-2 text-center'>
+                            <button className='btn btn-success' onClick={() => updateActivatePlayerSearch(!activePlayerSearch)}>Show Player Search</button>
+                        </div>
+                    </div>
+                </div>
+                <div className='row justify-content-center'>
+                    <div className='col-4'>
+                        <div className='row'>
+                            <div className='col-12 text-center'>
+                                Change Week
+                            </div>
+                        </div>
                         <WeekSearch
                             weekSelect={weekSelect}
                             handleChange={handleChange}
                             customSeasonWeekSearch={customSeasonWeekSearch}
                             disabled={mustDrop} />
                     </div>
-                    <div className='searchRow'>
-                        Position Search
-                        <PositionSearch
-                            positionSelect={positionSelect}
-                            handleChange={handleChange}
-                            positionSearch={positionSearch}
-                            disabled={mustDrop} />
-                    </div>
-                    <div className='searchRow noMargin oneFlexLine smallerSearchHeight'>
-                        <button className='btn btn-success' disabled={mustDrop} onClick={() => toggleShowUsedPlayers()}>Show Used Players</button>
-                    </div>
-                    <div className='searchRow'>
-                        <button className='btn btn-success' onClick={() => showMatchUps()}>Match Ups</button>
-                    </div>
-                    <div className='searchRow'>
-                        <button className='btn btn-success' onClick={() => updateActivatePlayerSearch(!activePlayerSearch)}>Show Player Search</button>
+                    <div className='col-4'>
+                        <div className='row'>
+                            <div className='col-sm-12 col-md-8 text-center'>
+                                Position Search
+                            </div>
+                        </div>
+                        <div className='row'>
+                            <PositionSearch
+                                positionSelect={positionSelect}
+                                handleChange={handleChange}
+                                positionSearch={positionSearch}
+                                disabled={mustDrop} />
+                        </div>
                     </div>
                 </div>
-                <div className='rosterContainer'>
+            </div>
+            <div className='row justify-content-center'>
+                <div className='col-sm-12 col-md-4 me-3'>
                     <div className={`rosterCol ${mustDrop && `adjustRosterSpacing`}`}>
-                        <div className='sectionHeader'>
-                            {mustDrop ? `Too Many Players, drop one` : `Week ${weekOnPage} Roster`}
-                        </div>
                         <RosterDisplay
+                            headerText={mustDrop ? `Too Many Players, drop one` : `Week ${weekOnPage} Roster`}
                             pastLockWeek={appLevelLockWeek >= weekOnPage}
                             groupPositions={groupPositions}
                             addDropPlayer={addDropPlayer}
@@ -391,18 +407,14 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
                             mustDrop={mustDrop}
                         />
                         <div className={`usedPlayerCol ${mustDrop && `rosterHide`} ${!showUsedPlayers && ` zeroTransparent`}`}>
-                            <div className='sectionHeader'>
-                                Used {lastPosSearch ? lastPosSearch : 'Player'}s
-                            </div>
-                            {currentPositionUsedPlayers.map((player, i) => (
-                                <PlayerDisplayRow
-                                    player={player}
-                                    key={i}
-                                    evenOrOddRow={i % 2}
-                                />
-                            ))}
+                            <PlayerDisplayTable
+                                headerText={`Used ${lastPosSearch ? lastPosSearch : 'Player'}s`}
+                                playerList={currentPositionUsedPlayers}
+                            />
                         </div>
                     </div>
+                </div>
+                <div className='col-sm-12 col-md-4'>
                     <div className={`rosterCol ${mustDrop && `thirtyTransparent`}`}>
                         {activePlayerSearch &&
                             <div className='playerSearchBox input-group input-group-lg'>
@@ -412,22 +424,24 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
                                 <input className='form-control' name='playerSearch' value={playerSearch} type='text' onChange={handleChange} />
                             </div>
                         }
-                        <div className='sectionHeader'>
-                            Available Players
-                        </div>
-                        {availPlayersToShow.map((player, i) => (
+                        <PlayerDisplayTable
+                            headerText='Available Players'
+                            playerList={availPlayersToShow}
+                            sortedMatchups={sortedMatchups}
+                            addDropPlayer={mustDrop ? false : addDropPlayer}
+                        />
+                        {/* {availPlayersToShow.map((player, i) => (
                             <PlayerDisplayRow
                                 player={player}
                                 key={i}
                                 addDropPlayer={mustDrop ? false : addDropPlayer}
-                                evenOrOddRow={i % 2}
                                 sortedMatchups={sortedMatchups}
                             />
-                        ))}
+                        ))} */}
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

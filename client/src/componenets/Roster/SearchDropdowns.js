@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 import './rosterStyle.css';
 
 const WeekSearch = ({ weekSelect, handleChange, customSeasonWeekSearch, disabled }) => (
-    <div className='selectContainer'>
-        <div className='inputLength'>
-            <select value={weekSelect} type='select' name='weekSelect' id='weekSelect' className='form-select searchDropdown' onChange={handleChange}>
+    <div className='row justify-content-center'>
+        <div className='col-sm-12 col-md-6'>
+            <select value={weekSelect} type='select' name='weekSelect' id='weekSelect' className='form-select' onChange={handleChange}>
                 <option>1</option>
                 <option>2</option>
                 <option>3</option>
@@ -26,9 +26,11 @@ const WeekSearch = ({ weekSelect, handleChange, customSeasonWeekSearch, disabled
                 <option>17</option>
             </select>
         </div>
-        <button className='btn btn-success submitButton' onClick={customSeasonWeekSearch} disabled={disabled} >
-            Search
-        </button>
+        <div className='col-sm-7 col-md-2'>
+            <button className='btn btn-success' onClick={customSeasonWeekSearch} disabled={disabled} >
+                Search
+            </button>
+        </div>
     </div>
 );
 
@@ -77,9 +79,9 @@ const TeamSearch = ({ teamSelect, handleChange, searchByTeam }) => (
 );
 
 const PositionSearch = ({ positionSelect, handleChange, disabled, positionSearch }) => (
-    <div className='selectContainer'>
-        <div className='inputLength'>
-            <select value={positionSelect} type='select' name='positionSelect' className='form-select searchDropdown' onChange={handleChange}>
+    <div className='row justify-content-center'>
+        <div className='col-sm-12 col-md-6'>
+            <select value={positionSelect} type='select' name='positionSelect' className='form-select' onChange={handleChange}>
                 <option>QB</option>
                 <option>RB</option>
                 <option>WR</option>
@@ -87,9 +89,11 @@ const PositionSearch = ({ positionSelect, handleChange, disabled, positionSearch
                 <option>K</option>
             </select>
         </div>
-        <button className='btn btn-success submitButton' onClick={positionSearch} disabled={disabled}>
-            Search
-        </button>
+        <div className='col-sm-7 col-md-6'>
+            <button className='btn btn-success' onClick={positionSearch} disabled={disabled}>
+                Search
+            </button>
+        </div>
     </div>
 );
 
