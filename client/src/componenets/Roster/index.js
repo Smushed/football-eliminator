@@ -354,91 +354,90 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
             </div>
             <div className='row'>
                 <div className='col-12'>
-                    <div className='row justify-content-center mt-2 mb-2'>
-                        <div className='col-sm-12 col-md-4 col-lg-2 text-center'>
-                            <button className='btn btn-success' disabled={mustDrop} onClick={() => toggleShowUsedPlayers()}>Show Used Players</button>
-                        </div>
-                        <div className='col-sm-12 col-md-4 col-lg-2 text-center'>
-                            <button className='btn btn-success' onClick={() => showMatchUps()}>Match Ups</button>
-                        </div>
-                        <div className='col-sm-12 col-md-4 col-lg-2 text-center'>
-                            <button className='btn btn-success' onClick={() => updateActivatePlayerSearch(!activePlayerSearch)}>Show Player Search</button>
-                        </div>
-                    </div>
-                </div>
-                <div className='row justify-content-center'>
-                    <div className='col-4'>
-                        <div className='row'>
-                            <div className='col-12 text-center'>
-                                Change Week
+                    <div className='row'>
+                        <div className='col-12'>
+                            <div className='row justify-content-center mt-2 mb-2'>
+                                <div className='col-sm-12 col-md-4 col-lg-2 text-center'>
+                                    <button className='btn btn-success' disabled={mustDrop} onClick={() => toggleShowUsedPlayers()}>Show Used Players</button>
+                                </div>
+                                <div className='col-sm-12 col-md-4 col-lg-2 text-center'>
+                                    <button className='btn btn-success' onClick={() => showMatchUps()}>Match Ups</button>
+                                </div>
+                                <div className='col-sm-12 col-md-4 col-lg-2 text-center'>
+                                    <button className='btn btn-success' onClick={() => updateActivatePlayerSearch(!activePlayerSearch)}>Show Player Search</button>
+                                </div>
                             </div>
                         </div>
-                        <WeekSearch
-                            weekSelect={weekSelect}
-                            handleChange={handleChange}
-                            customSeasonWeekSearch={customSeasonWeekSearch}
-                            disabled={mustDrop} />
                     </div>
-                    <div className='col-4'>
-                        <div className='row'>
-                            <div className='col-sm-12 col-md-8 text-center'>
-                                Position Search
-                            </div>
+
+                    <div className='row justify-content-center'>
+                        <div className='col-6 mt-1 mb-2'>
+                            {activePlayerSearch &&
+                                <div className='playerSearchBox input-group input-group-lg'>
+                                    <span className='input-group-text rosterFieldDescription'>
+                                        Player:
+                                    </span>
+                                    <input className='form-control' name='playerSearch' value={playerSearch} type='text' onChange={handleChange} />
+                                </div>
+                            }
                         </div>
-                        <div className='row'>
-                            <PositionSearch
-                                positionSelect={positionSelect}
+                    </div>
+
+                    <div className='row justify-content-center'>
+                        <div className='col-4'>
+                            <div className='row'>
+                                <div className='col-12 text-center'>
+                                    Change Week
+                                </div>
+                            </div>
+                            <WeekSearch
+                                weekSelect={weekSelect}
                                 handleChange={handleChange}
-                                positionSearch={positionSearch}
+                                customSeasonWeekSearch={customSeasonWeekSearch}
                                 disabled={mustDrop} />
+                        </div>
+                        <div className='col-4'>
+                            <div className='row'>
+                                <div className='col-sm-12 col-md-8 text-center'>
+                                    Position Search
+                                </div>
+                            </div>
+                            <div className='row'>
+                                <PositionSearch
+                                    positionSelect={positionSelect}
+                                    handleChange={handleChange}
+                                    positionSearch={positionSearch}
+                                    disabled={mustDrop} />
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
             <div className='row justify-content-center'>
-                <div className='col-sm-12 col-md-4 me-3'>
-                    <div className={`rosterCol ${mustDrop && `adjustRosterSpacing`}`}>
-                        <RosterDisplay
-                            headerText={mustDrop ? `Too Many Players, drop one` : `Week ${weekOnPage} Roster`}
-                            pastLockWeek={appLevelLockWeek >= weekOnPage}
-                            groupPositions={groupPositions}
-                            addDropPlayer={addDropPlayer}
-                            roster={mustDrop ? possiblePlayers : userRoster}
-                            mustDrop={mustDrop}
+                <div className='col-sm-12 col-md-4 me-3 rosterTransition'>
+                    <RosterDisplay
+                        headerText={mustDrop ? `Too Many Players, drop one` : `Week ${weekOnPage} Roster`}
+                        pastLockWeek={appLevelLockWeek >= weekOnPage}
+                        groupPositions={groupPositions}
+                        addDropPlayer={addDropPlayer}
+                        roster={mustDrop ? possiblePlayers : userRoster}
+                        mustDrop={mustDrop}
+                    />
+                    <div className={`usedPlayerCol ${mustDrop && `rosterHide`} ${!showUsedPlayers && ` zeroTransparent`}`}>
+                        <PlayerDisplayTable
+                            headerText={`Used ${lastPosSearch ? lastPosSearch : 'Player'}s`}
+                            playerList={currentPositionUsedPlayers}
                         />
-                        <div className={`usedPlayerCol ${mustDrop && `rosterHide`} ${!showUsedPlayers && ` zeroTransparent`}`}>
-                            <PlayerDisplayTable
-                                headerText={`Used ${lastPosSearch ? lastPosSearch : 'Player'}s`}
-                                playerList={currentPositionUsedPlayers}
-                            />
-                        </div>
                     </div>
                 </div>
-                <div className='col-sm-12 col-md-4'>
-                    <div className={`rosterCol ${mustDrop && `thirtyTransparent`}`}>
-                        {activePlayerSearch &&
-                            <div className='playerSearchBox input-group input-group-lg'>
-                                <span className='input-group-text rosterFieldDescription'>
-                                    Player:
-                                </span>
-                                <input className='form-control' name='playerSearch' value={playerSearch} type='text' onChange={handleChange} />
-                            </div>
-                        }
-                        <PlayerDisplayTable
-                            headerText='Available Players'
-                            playerList={availPlayersToShow}
-                            sortedMatchups={sortedMatchups}
-                            addDropPlayer={mustDrop ? false : addDropPlayer}
-                        />
-                        {/* {availPlayersToShow.map((player, i) => (
-                            <PlayerDisplayRow
-                                player={player}
-                                key={i}
-                                addDropPlayer={mustDrop ? false : addDropPlayer}
-                                sortedMatchups={sortedMatchups}
-                            />
-                        ))} */}
-                    </div>
+                <div className={`col-sm-12 col-md-4 rosterTransition ${mustDrop && `rosterHide`}`}>
+                    <PlayerDisplayTable
+                        headerText='Available Players'
+                        playerList={availPlayersToShow}
+                        sortedMatchups={sortedMatchups}
+                        addDropPlayer={mustDrop ? false : addDropPlayer}
+                    />
                 </div>
             </div>
         </div >

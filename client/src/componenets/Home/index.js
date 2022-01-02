@@ -60,7 +60,6 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
     const getGroupPositions = (groupId) => {
         axios.get(`/api/group/positions/${groupId}`, { cancelToken: axiosCancel.token })
             .then(res => {
-                console.log(res.data)
                 updateGroupPositions(res.data)
                 return;
             })

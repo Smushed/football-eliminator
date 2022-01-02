@@ -41,7 +41,7 @@ const CurrentRosterRow = ({ player, position, addDropPlayer, pastLockWeek }) => 
                     {player && player.SC.toFixed(2)}
                 </td>
                 :
-                <td className='p-0'>
+                <td className='pb-0'>
                     {(player && player.M && addDropPlayer) ?
                         <button className='custom-button' onClick={() => addDropPlayer(player.M, player.T, 'drop')}>
                             Drop

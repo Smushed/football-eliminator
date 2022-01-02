@@ -2,6 +2,16 @@
     max-width: 60px;
 }
 
+.rosterHide {
+    opacity: .30;
+    -webkit-touch-callout: none; 
+    -webkit-user-select: none; 
+    -khtml-user-select: none; 
+    -moz-user-select: none;  
+    -ms-user-select: none; 
+    user-select: none; 
+}
+
 /* OLD STUFF BELOW */
 
 .rosterPageContainer {
@@ -16,9 +26,7 @@
     opacity: 0;
 }
 
-.rosterHide {
-    opacity: 0;
-}
+
 
 .noXScale {
     transform: scaleX(0);
@@ -125,9 +133,7 @@
     margin-right: 15%;
 }
 
-.rosterCol {
-    width: 30%;
-    min-width: 400px;
+.rosterTransition {
     transition: 1s;
 }
 
