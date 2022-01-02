@@ -28,7 +28,7 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
         if (week !== 0 && season !== ``) {
             if (currentUser.username) {
                 getRostersForHome(season, week, group._id);
-                getRoster(season, week, group.N, currentUser.username);
+                getGroupPositions(group._id);
             }
         }
         return function cancelAPICalls() {
@@ -57,10 +57,11 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
             });
     };
 
-    const getRoster = (season, week, groupname, username) => {
-        axios.get(`/api/roster/user/${season}/${week}/${groupname}/${username}`, { cancelToken: axiosCancel.token })
+    const getGroupPositions = (groupId) => {
+        axios.get(`/api/group/positions/${groupId}`, { cancelToken: axiosCancel.token })
             .then(res => {
-                updateGroupPositions(res.data.groupPositions)
+                console.log(res.data)
+                updateGroupPositions(res.data)
                 return;
             })
             .catch(err => {
