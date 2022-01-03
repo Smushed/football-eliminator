@@ -83,8 +83,12 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
     }
 
     const getUsedPlayers = () => {
-        axios.get(`/api/players/used/${match.params.username}/${season}/${match.params.groupname}`, { cancelToken: axiosCancel.token })
+        axios.get(`/api/roster/players/used/${match.params.username}/${season}/${match.params.groupname}`,
+            {
+                cancelToken: axiosCancel.token
+            })
             .then(res => {
+                console.log(res.data)
                 updateUsedPlayers(res.data);
             }).catch(err => {
                 if (err.message !== `Unmounted`) { console.log(err); }
@@ -188,7 +192,6 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
     };
 
     const saveRosterToDb = (roster, droppedPlayer, addedPlayer) => {
-        console.log({ roster, droppedPlayer, addedPlayer })
         loading()
         axios.put(`/api/user/roster`,
             {

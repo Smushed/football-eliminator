@@ -250,11 +250,18 @@ module.exports = {
         const sortedPlayers = { 'QB': [], 'RB': [], 'WR': [], 'TE': [], 'K': [] };
 
         const usedPlayers = await getUsedPlayers(userId, season, groupId);
+        let dbSearch;
 
-        for (let playerId of usedPlayers) {
-            const player = await db.PlayerData.findOne({ M: playerId }, { N: 1, P: 1, T: 1, M: 1 });
-            sortedPlayers[player.P].push(player);
+        try {
+            dbSearch = await db.PlayerData.find({ M: { $in: usedPlayers } }, { N: 1, P: 1, T: 1, M: 1 });
+        } catch (err) {
+            console.log(err);
+            return { status: 500, res: 'DB Searching Error' };
         }
+
+        dbSearch.forEach(player => {
+            sortedPlayers[player.P].push(player);
+        });
 
         return sortedPlayers;
     },
