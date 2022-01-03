@@ -21,6 +21,7 @@
     ],
     "rules": {
         "no-unused-vars": "warn",
+        "no-unreachable": "warn",
         "no-extra-boolean-cast": "off",
         "no-async-promise-executor": "off",
         "react-hooks/exhaustive-deps": "off"

@@ -193,7 +193,8 @@ PlayerDisplayRow.propTypes = {
     ]),
     sortedMatchups: PropTypes.oneOfType([
         PropTypes.object,
-        PropTypes.array
+        PropTypes.array,
+        PropTypes.bool
     ]),
 };
 

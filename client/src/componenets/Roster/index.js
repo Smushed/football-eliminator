@@ -183,9 +183,21 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
     };
 
     const saveRosterToDb = (roster, droppedPlayer, addedPlayer) => {
+        console.log({ roster, droppedPlayer, addedPlayer })
         loading()
         axios.put(`/api/user/roster`,
-            { userId: userId, roster, droppedPlayer, addedPlayer, week: weekSelect, season: season, groupname: match.params.groupname }, { cancelToken: axiosCancel.token })
+            {
+                userId: userId,
+                roster,
+                droppedPlayer,
+                addedPlayer,
+                week: weekSelect,
+                season: season,
+                groupname: match.params.groupname
+            },
+            {
+                cancelToken: axiosCancel.token
+            })
             .then(res => {
                 doneLoading();
                 updateUserRoster(res.data);
@@ -196,6 +208,7 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
     };
 
     const checkLockPeriod = async (team) => {
+        return true;
         axios.get(`/api/lock/general`, { cancelToken: axiosCancel.token })
             .then(res => updateLockWeek(res.data.LW))
             .catch(err => {
@@ -280,6 +293,7 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
     };
 
     const addDropPlayer = async (mySportsId, team, addOrDrop) => {
+        console.log({ mySportsId, team, addOrDrop })
         if (!currentUser) {
             Alert.fire({
                 title: `Not your roster!`,
