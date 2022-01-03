@@ -62,6 +62,11 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
     }, [playerSearch]);
 
     useEffect(() => {
+        const availPlayers = [...availablePlayers];
+        updateAvailPlayersToShow(availPlayers);
+    }, [availablePlayers]);
+
+    useEffect(() => {
         return function cancelAPICalls() {
             if (axiosCancel) {
                 axiosCancel.cancel(`Unmounted`);
@@ -293,7 +298,6 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
     };
 
     const addDropPlayer = async (mySportsId, team, addOrDrop) => {
-        console.log({ mySportsId, team, addOrDrop })
         if (!currentUser) {
             Alert.fire({
                 title: `Not your roster!`,
@@ -378,52 +382,53 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
                                     <button className='btn btn-success' onClick={() => showMatchUps()}>Match Ups</button>
                                 </div>
                                 <div className='col-sm-12 col-md-4 col-lg-2 text-center'>
-                                    <button className='btn btn-success' onClick={() => updateActivatePlayerSearch(!activePlayerSearch)}>Show Player Search</button>
+                                    <button className='btn btn-success' onClick={() => updateActivatePlayerSearch(!activePlayerSearch)}>{activePlayerSearch ? `Hide` : `Show`} Player Search</button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div className='row justify-content-center'>
-                        <div className='col-6 mt-1 mb-2'>
-                            {activePlayerSearch &&
+                        {activePlayerSearch ?
+                            <div className='col-6 my-2'>
                                 <div className='playerSearchBox input-group input-group-lg'>
                                     <span className='input-group-text rosterFieldDescription'>
                                         Player:
                                     </span>
                                     <input className='form-control' name='playerSearch' value={playerSearch} type='text' onChange={handleChange} />
                                 </div>
-                            }
-                        </div>
-                    </div>
+                            </div>
+                            :
+                            <>
+                                <div className='col-4'>
+                                    <div className='row'>
+                                        <div className='col-12 text-center'>
+                                            Change Week
+                                        </div>
+                                    </div>
+                                    <WeekSearch
+                                        weekSelect={weekSelect}
+                                        handleChange={handleChange}
+                                        customSeasonWeekSearch={customSeasonWeekSearch}
+                                        disabled={mustDrop} />
+                                </div>
+                                <div className='col-4'>
+                                    <div className='row'>
+                                        <div className='col-sm-12 col-md-8 text-center'>
+                                            Position Search
+                                        </div>
+                                    </div>
+                                    <div className='row'>
+                                        <PositionSearch
+                                            positionSelect={positionSelect}
+                                            handleChange={handleChange}
+                                            positionSearch={positionSearch}
+                                            disabled={mustDrop} />
+                                    </div>
+                                </div>
+                            </>
+                        }
 
-                    <div className='row justify-content-center'>
-                        <div className='col-4'>
-                            <div className='row'>
-                                <div className='col-12 text-center'>
-                                    Change Week
-                                </div>
-                            </div>
-                            <WeekSearch
-                                weekSelect={weekSelect}
-                                handleChange={handleChange}
-                                customSeasonWeekSearch={customSeasonWeekSearch}
-                                disabled={mustDrop} />
-                        </div>
-                        <div className='col-4'>
-                            <div className='row'>
-                                <div className='col-sm-12 col-md-8 text-center'>
-                                    Position Search
-                                </div>
-                            </div>
-                            <div className='row'>
-                                <PositionSearch
-                                    positionSelect={positionSelect}
-                                    handleChange={handleChange}
-                                    positionSearch={positionSearch}
-                                    disabled={mustDrop} />
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
