@@ -88,7 +88,6 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
                 cancelToken: axiosCancel.token
             })
             .then(res => {
-                console.log(res.data)
                 updateUsedPlayers(res.data);
             }).catch(err => {
                 if (err.message !== `Unmounted`) { console.log(err); }
