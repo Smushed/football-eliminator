@@ -23,5 +23,4 @@ const UsedPlayerSchema = new Schema({
     UP: [Number] //Used Players (MySportsId)
 });
 
-
 module.exports = mongoose.model(`UsedPlayers`, UsedPlayerSchema);

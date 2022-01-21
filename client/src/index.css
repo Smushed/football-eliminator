@@ -35,3 +35,8 @@ body {
 .flexWrap {
   flex-wrap: wrap;
 }
+
+.smallImg {
+  height: 120px;
+  width: 120px;
+}

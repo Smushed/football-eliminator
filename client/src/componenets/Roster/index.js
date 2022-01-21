@@ -215,7 +215,6 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
     };
 
     const checkLockPeriod = async (team) => {
-        return true;
         axios.get(`/api/lock/general`, { cancelToken: axiosCancel.token })
             .then(res => updateLockWeek(res.data.LW))
             .catch(err => {

@@ -48,12 +48,7 @@
     color: #000
 }
 
-.groupDisplayAvatar {
-    height: 120px;
-    width: 120px;
-    border-radius: 2px;
-    padding-top: 5px;
-}
+
 
 .groupDisplayRow {
     justify-content: center;
@@ -85,10 +80,6 @@
 
 .joinGroupButton {
     height: 40px;
-}
-
-.createGroupPrompt {
-    text-align: center;
 }
 
 .createGroupButton {

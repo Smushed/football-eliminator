@@ -113,7 +113,7 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
     const weekForLeaderboard = week === 0 ? 1 : week;
     return (
         <div className='container'>
-            <div className='row border justify-around pb-2 mb-2'>
+            <div className='row border border-top-0 justify-around pb-2 mb-2'>
                 <div className='col-lg-4 col-md-12 text-center'>
                     <div className='fs-3'>
                         <div className='fw-bold'>

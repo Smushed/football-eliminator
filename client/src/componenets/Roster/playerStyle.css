@@ -1,92 +1,9 @@
-.playerRow {
-    display: flex;
-    justify-content: space-evenly;
-    border-bottom: 1px solid lightgrey;
-    border-radius: 2px;
-    background-color: transparent;
-    width: 93%;
-    height: 36px;
-    font-weight: 500;
-    overflow: hidden;
-}
-
-.usedPlayerButton {
-    margin: 10px 0;
-    display: flex;
-    justify-content: center;
-}
-
 .injuryCol {
     width: 15px;
     margin-right: 5px;
     cursor: pointer;
 }
 
-.oddRow {
-    background-color: rgb(208, 236, 208);
-}
-
 .redText {
     color: red;
-}
-
-.positionBox {
-    padding-top: 8px;
-    width: 15%;
-    text-align: center;
-    padding-left: 10px;
-}
-
-.hasPlayerContainer {
-    width: 100%;
-    display: flex;
-    justify-content: space-evenly;
-}
-
-.playerContainer {
-    width: 80%;
-}
-
-.fullWidth {
-    display: flex;
-    width: 100%;
-}
-
-.playerCol {
-    padding-top: 8px;
-    padding-bottom: 8px;
-    min-width: 165px;
-}
-
-.teamCol {
-    padding-top: 8px;
-    padding-bottom: 8px;
-    min-width: 40px;
-}
-
-.posCol {
-    padding-top: 8px;
-    padding-bottom: 8px;
-    min-width: 50px;
-}
-
-.scoreCol {
-    padding-top: 8px;
-    padding-bottom: 8px;
-    min-width: 40px;
-}
-
-@media only screen and (max-width: 767px) {
-    .playerRow {
-        width: 100%;
-    }
-    .hasPlayerContainer {
-        width: 100%;
-    }
-}
-
-@media only screen and (max-width: 450px) {
-    .teamCol {
-        display: none;
-    }
 }
