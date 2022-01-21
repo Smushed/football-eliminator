@@ -240,11 +240,11 @@ const GroupRow = ({ group, joinGroup, season, userId }) => {
                         </div>
                     </div>
                     <div className='col-12 col-md-4 text-center'>
-                        {/* {isInGroup && */}
-                        <button className='btn btn-outline-primary mb-2 btn-sm' onClick={() => joinGroup(group.id)} >
-                            Join
-                        </button>
-                        {/* } */}
+                        {isInGroup &&
+                            <button className='btn btn-outline-primary mb-2 btn-sm' onClick={() => joinGroup(group.id)} >
+                                Join
+                            </button>
+                        }
                     </div>
                 </div>
             </div>

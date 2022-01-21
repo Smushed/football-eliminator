@@ -244,61 +244,78 @@ const CreateGroup = ({
     const groupValid = (groupNameValid & groupDescValid & groupPosValid);
 
     return (
-        <>
-            <div className='groupPageHeader'>
-                Create group
+        <div className='container'>
+            <div className='row'>
+                <h2 className='col-12 text-center mt-3'>
+                    Create group
+                </h2>
             </div>
             <form onSubmit={handleSubmit}>
-                <div className='wrapper'>
+                <div className='row'>
 
-                    <div className='groupFlex createGroupCenter'>
-                        <div className='form-group'>
-                            <div className='groupNameInputContainer createGroupPrompt inputInfo'>
+                    <div className='col-12 col-md-6 form-group d-flex justify-content-md-end justify-content-center'>
+                        <div className='row'>
+                            <h5 className='col-12 text-center mb-0'>
                                 Group Name
-                                <div className='smallFieldDesc'>Minimum 6 characters</div>
+                            </h5>
+                            <div className='col-12 text-center'>
+                                <label htmlFor='groupName'>
+                                    <small>
+                                        Minimum 6 characters
+                                    </small>
+                                </label>
                                 <input className='form-control' type='text' name='groupName' placeholder='Dragons of Doom' value={groupName} onChange={handleChange} />
-                            </div>
-                        </div>
-                        <div className='form-group'>
-                            <div className='groupDescInputContainer createGroupPrompt inputInfo'>
-                                Group Description
-                                <div className='smallFieldDesc'>Minimum 6 characters</div>
-                                <textarea className='form-control' type='text' name='groupDesc' placeholder='Burninating the Competition' value={groupDesc} onChange={handleChange} />
                             </div>
                         </div>
                     </div>
 
-                    <div className='groupFlex createGroupCenter'>
-                        <div className='groupPosContainer groupFlex'>
-                            <div>
-                                <div className='inputInfo createGroupPrompt'>
-                                    Update Roster Spots
-                                </div>
-                                <div className='createGroupPrompt'>
-                                    <button type='button' className='btn btn-outline-primary btn-sm' onClick={() => addPosition()}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z" /></svg>
-                                    </button>
-                                    <button type='button' className='btn btn-outline-primary btn-sm removePosButton' onClick={() => removePosition()}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 10h24v4h-24z" /></svg>
-                                    </button>
-                                </div>
-                                <div className='createGroupPrompt enterScoreButton'>
-                                    <button type='button' className='btn btn-primary' onClick={() => openScore()} disabled={!groupValid}>
-                                        Enter Scores
-                                    </button>
-                                </div>
+                    <div className='col-12 col-md-6 form-group d-flex justify-content-md-start justify-content-center mt-3 mt-md-0'>
+                        <div className='row'>
+                            <h5 className='col-12 text-center'>
+                                Group Description
+                            </h5>
+                            <div className='col-12 text-center'>
+                                <label htmlFor='groupDesc'>
+                                    <small>
+                                        Minimum 6 characters
+                                    </small>
+                                </label>
+                                <textarea className='form-control' type='text' name='groupDesc' placeholder='Burninating the Competition' value={groupDesc} onChange={handleChange} />
                             </div>
-                            <div>
-                                {groupPosChoose.map((position, i) => {
-                                    return (
-                                        <div className='form-group' key={`groupPosWrapper-${i}`}>
-                                            <select className='form-select' onChange={handleRosterUpdate} name={i} key={`groupPos-${i}`} value={groupPosChoose[i]}>
-                                                {rosterPositions.map((possiblePos, ii) => <option value={possiblePos.N} key={`possiblePos-${ii}`}>{possiblePos.N}</option>)}
-                                            </select>
-                                        </div>
-                                    )
-                                })}
+                        </div>
+                    </div>
+                </div>
+
+                <div className='groupFlex createGroupCenter'>
+                    <div className='groupPosContainer groupFlex'>
+                        <div>
+                            <div className='inputInfo createGroupPrompt'>
+                                Update Roster Spots
                             </div>
+                            <div className='createGroupPrompt'>
+                                <button type='button' className='btn btn-outline-primary btn-sm' onClick={() => addPosition()}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z" /></svg>
+                                </button>
+                                <button type='button' className='btn btn-outline-primary btn-sm removePosButton' onClick={() => removePosition()}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 10h24v4h-24z" /></svg>
+                                </button>
+                            </div>
+                            <div className='createGroupPrompt enterScoreButton'>
+                                <button type='button' className='btn btn-primary' onClick={() => openScore()} disabled={!groupValid}>
+                                    Enter Scores
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            {groupPosChoose.map((position, i) => {
+                                return (
+                                    <div className='form-group' key={`groupPosWrapper-${i}`}>
+                                        <select className='form-select' onChange={handleRosterUpdate} name={i} key={`groupPos-${i}`} value={groupPosChoose[i]}>
+                                            {rosterPositions.map((possiblePos, ii) => <option value={possiblePos.N} key={`possiblePos-${ii}`}>{possiblePos.N}</option>)}
+                                        </select>
+                                    </div>
+                                )
+                            })}
                         </div>
                     </div>
                 </div>
@@ -333,8 +350,7 @@ const CreateGroup = ({
                     </div>
                 }
             </form>
-
-        </>
+        </div>
     );
 }
 
