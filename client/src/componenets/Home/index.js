@@ -165,27 +165,23 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
                     />
                 </div>
             </div>
-            <div className='homeSectionWrapper'>
-                <div>
-                    <div className='rosterGroupHeader'>
-                        {group.N} Week {week} Rosters
-                    </div>
-                    <div className='rosterRowWrapper'>
-                        {weeklyGroupRosters.map(inGroupRoster =>
-                            <div className='bottomMargin rosterWrapper' key={inGroupRoster.UN}>
-                                <div>
-                                    <div className='rosterHomePageTitle'>
-                                        <Link to={`/roster/${group.N}/${inGroupRoster.UN}`}>{inGroupRoster.UN}</Link> Roster
-                                    </div>
-                                    <RosterDisplay
-                                        groupPositions={groupPositions}
-                                        roster={inGroupRoster.R}
-                                        pastLockWeek={true}
-                                    />
-                                </div>
+            <div className='row'>
+                <div className='text-center fs-3 fw-bold pt-2 col-12'>
+                    {group.N} Week {week} Rosters
+                </div>
+                <div className='d-flex flex-wrap justify-content-evenly row'>
+                    {weeklyGroupRosters.map(inGroupRoster =>
+                        <div className='col-xs-12 col-lg-6' key={inGroupRoster.UN}>
+                            <div className='text-center fs-3'>
+                                <Link to={`/roster/${group.N}/${inGroupRoster.UN}`}>{inGroupRoster.UN}</Link> Roster
                             </div>
-                        )}
-                    </div>
+                            <RosterDisplay
+                                groupPositions={groupPositions}
+                                roster={inGroupRoster.R}
+                                pastLockWeek={true}
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

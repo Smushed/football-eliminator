@@ -17,8 +17,8 @@ const RosterCarousel = ({
         interval={10000}
         showThumbs={false}
     >
-        <div>
-            <div className='rosterHomePageTitle'>
+        <div className='row'>
+            <div className='text-center fs-3 fw-bold col-12'>
                 Best from Week {week - 1} - {bestRosterUser}
             </div>
             <RosterDisplay
@@ -27,8 +27,8 @@ const RosterCarousel = ({
                 pastLockWeek={true}
             />
         </div>
-        <div>
-            <div className='rosterHomePageTitle'>
+        <div className='row'>
+            <div className='text-center fs-3 fw-bold col-12'>
                 Last Week&apos;s Ideal Roster
             </div>
             {idealRoster.length > 0 &&

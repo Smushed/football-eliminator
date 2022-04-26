@@ -8,7 +8,7 @@ const TeamLockedSchema = new Schema({
         required: true,
         trim: true
     },
-    ST: { //Locked for Week (AKA they started playing)
+    ST: { //Starting Time
         type: Date,
         required: true,
     },
