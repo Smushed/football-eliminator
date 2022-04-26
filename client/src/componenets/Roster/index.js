@@ -375,24 +375,24 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
                 <div className='col-12'>
                     <div className='row'>
                         <div className='col-12'>
-                            <div className='row justify-content-center mt-2 mb-2'>
-                                <div className='col-sm-12 col-md-4 col-lg-2 text-center'>
+                            <div className='row justify-content-center'>
+                                <div className='col-sm-12 col-md-4 col-lg-2 text-center mt-1 mb-1'>
                                     <button className='btn btn-success' disabled={mustDrop} onClick={() => toggleShowUsedPlayers()}>Show Used Players</button>
                                 </div>
-                                <div className='col-sm-12 col-md-4 col-lg-2 text-center'>
-                                    <button className='btn btn-success' onClick={() => showMatchUps()}>Match Ups</button>
-                                </div>
-                                <div className='col-sm-12 col-md-4 col-lg-2 text-center'>
+                                <div className='col-sm-12 col-md-4 col-lg-2 text-center mt-1 mb-1'>
                                     <button className='btn btn-success' onClick={() => updateActivatePlayerSearch(!activePlayerSearch)}>{activePlayerSearch ? `Hide` : `Show`} Player Search</button>
+                                </div>
+                                <div className='col-sm-12 col-md-4 col-lg-2 text-center mt-1 mb-1'>
+                                    <button className='btn btn-success' onClick={() => showMatchUps()}>Show Match Ups</button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className='row justify-content-center'>
+                    <div className='row justify-content-center mt-2 mb-1'>
                         {activePlayerSearch ?
-                            <div className='col-6 my-2'>
-                                <div className='playerSearchBox input-group input-group-lg'>
+                            <div className='col-6'>
+                                <div className='playerSearchBox input-group input-group-lg mt-2 mb-1'>
                                     <span className='input-group-text rosterFieldDescription'>
                                         Player:
                                     </span>
@@ -401,7 +401,7 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
                             </div>
                             :
                             <>
-                                <div className='col-4'>
+                                <div className='col-6 col-lg-4'>
                                     <div className='row'>
                                         <div className='col-12 text-center'>
                                             Change Week
@@ -413,7 +413,7 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
                                         customSeasonWeekSearch={customSeasonWeekSearch}
                                         disabled={mustDrop} />
                                 </div>
-                                <div className='col-4'>
+                                <div className='col-6 col-lg-4'>
                                     <div className='row'>
                                         <div className='col-sm-12 col-md-8 text-center'>
                                             Position Search

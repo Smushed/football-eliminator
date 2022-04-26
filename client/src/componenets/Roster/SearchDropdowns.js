@@ -5,7 +5,7 @@ import './rosterStyle.css';
 
 const WeekSearch = ({ weekSelect, handleChange, customSeasonWeekSearch, disabled }) => (
     <div className='row justify-content-center'>
-        <div className='col-sm-12 col-md-6'>
+        <div className='col-12 col-md-6'>
             <select value={weekSelect} type='select' name='weekSelect' id='weekSelect' className='form-select' onChange={handleChange}>
                 <option>1</option>
                 <option>2</option>
@@ -26,7 +26,7 @@ const WeekSearch = ({ weekSelect, handleChange, customSeasonWeekSearch, disabled
                 <option>17</option>
             </select>
         </div>
-        <div className='col-sm-7 col-md-2'>
+        <div className='text-center col-12 col-md-2 mt-1 mt-md-0'>
             <button className='btn btn-success' onClick={customSeasonWeekSearch} disabled={disabled} >
                 Search
             </button>
@@ -79,8 +79,8 @@ const TeamSearch = ({ teamSelect, handleChange, searchByTeam }) => (
 );
 
 const PositionSearch = ({ positionSelect, handleChange, disabled, positionSearch }) => (
-    <div className='row justify-content-center'>
-        <div className='col-sm-12 col-md-6'>
+    <div className='row'>
+        <div className='col-12 col-md-6'>
             <select value={positionSelect} type='select' name='positionSelect' className='form-select' onChange={handleChange}>
                 <option>QB</option>
                 <option>RB</option>
@@ -89,7 +89,7 @@ const PositionSearch = ({ positionSelect, handleChange, disabled, positionSearch
                 <option>K</option>
             </select>
         </div>
-        <div className='col-sm-7 col-md-6'>
+        <div className='text-center col-12 col-md-2 mt-1 mt-md-0'>
             <button className='btn btn-success' onClick={positionSearch} disabled={disabled}>
                 Search
             </button>
@@ -105,19 +105,19 @@ WeekSearch.propTypes = {
     handleChange: PropTypes.func,
     customSeasonWeekSearch: PropTypes.func,
     disabled: PropTypes.bool
-}
+};
 
 TeamSearch.propTypes = {
     teamSelect: PropTypes.string,
     handleChange: PropTypes.func,
     searchByTeam: PropTypes.func
-}
+};
 
 PositionSearch.propTypes = {
     positionSelect: PropTypes.string,
     handleChange: PropTypes.func,
     disabled: PropTypes.bool,
     positionSearch: PropTypes.func
-}
+};
 
 export { PositionSearch, TeamSearch, WeekSearch };
