@@ -83,7 +83,10 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
     }
 
     const getUsedPlayers = () => {
-        axios.get(`/api/players/used/${match.params.username}/${season}/${match.params.groupname}`, { cancelToken: axiosCancel.token })
+        axios.get(`/api/roster/players/used/${match.params.username}/${season}/${match.params.groupname}`,
+            {
+                cancelToken: axiosCancel.token
+            })
             .then(res => {
                 updateUsedPlayers(res.data);
             }).catch(err => {
@@ -188,7 +191,6 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
     };
 
     const saveRosterToDb = (roster, droppedPlayer, addedPlayer) => {
-        console.log({ roster, droppedPlayer, addedPlayer })
         loading()
         axios.put(`/api/user/roster`,
             {
@@ -213,7 +215,6 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
     };
 
     const checkLockPeriod = async (team) => {
-        return true;
         axios.get(`/api/lock/general`, { cancelToken: axiosCancel.token })
             .then(res => updateLockWeek(res.data.LW))
             .catch(err => {

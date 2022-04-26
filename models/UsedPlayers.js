@@ -16,8 +16,11 @@ const UsedPlayerSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true
     },
+    P: { //Position
+        type: String,
+        required: true
+    },
     UP: [Number] //Used Players (MySportsId)
 });
-
 
 module.exports = mongoose.model(`UsedPlayers`, UsedPlayerSchema);

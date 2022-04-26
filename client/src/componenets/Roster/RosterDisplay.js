@@ -134,7 +134,7 @@ const PlayerDisplayRow = ({ player, addDropPlayer, sortedMatchups }) => (
     </tr>
 );
 
-const PlayerDisplayTable = ({ headerText, playerList, sortedMatchups = false, addDropPlayer }) => (
+const PlayerDisplayTable = ({ headerText, playerList, sortedMatchups = null, addDropPlayer }) => (
     <table className='table table-striped table-hover'>
         <thead>
             <tr className='fs-3 text-center'>

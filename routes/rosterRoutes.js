@@ -82,13 +82,14 @@ module.exports = app => {
         res.status(200).send(lockPeriod);
     });
 
-    app.get(`/api/players/used/:username/:season/:groupname`, async (req, res) => {
+    app.get(`/api/roster/players/used/:username/:season/:groupname`, async (req, res) => {
         const { username, season, groupname } = req.params;
         Promise.all([groupHandler.findGroupIdByName(groupname), userHandler.getUserByUsername(username)])
             .then(async ([groupId, user]) => {
                 const usedPlayers = await rosterHandler.usedPlayersByPosition(user._id, season, groupId);
                 res.status(200).send(usedPlayers);
-            });
+            })
+            .catch(err => console.log(err));
     });
 
     app.get(`/api/getPlayersByTeam/:groupId/:userId/:team/:season`, async (req, res) => {

@@ -36,6 +36,11 @@ body {
   flex-wrap: wrap;
 }
 
+.smallImg {
+  height: 120px;
+  width: 120px;
+}
+
 a:link {
   color: black;
 }

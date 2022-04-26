@@ -49,9 +49,7 @@ const GroupPage = ({
             - But, you can only play each player one time per season. 
             <br />
             <br />
-            Join a group or create one to begin filling out your roster.
-            <br />
-            If you run into any problems or bugs please email or text me.`,
+            Join a group or create one to begin filling out your roster.`
         });
     };
 
@@ -76,28 +74,41 @@ const GroupPage = ({
 
 
     return (
-        <div>
-            <div className='groupPageHeader'>
-                Active Groups
+        <div className='container'>
+            <div className='row'>
+                <h2 className='col-12 text-center header mt-3'>
+                    Active Groups
+                </h2>
             </div>
-            <div className='createGroupPrompt'>
-                Not seeing a group that interests you?
-                <div className='createGroupButton'>
+            <div className='row'>
+                <div className='text-muted col-12 text-center'>
+                    Not seeing a group that interests you?
+                </div>
+            </div>
+            <div className='row mt-1'>
+                <div className='col-12 text-center'>
                     <Link to={`/group/create`}>
-                        <button className='btn btn-outline-primary btn-sm'>Create Group</button>
+                        <button className='btn btn-outline-success btn-sm'>
+                            Create Group
+                        </button>
                     </Link>
                 </div>
             </div>
-            {groupList.map(group =>
-                <GroupRow
-                    season={season}
-                    key={group.id}
-                    group={group}
-                    joinGroup={joinGroup}
-                    userId={userId}
-                />)}
-
-        </div>
+            <div className='row justify-content-center'>
+                <div className='col-12 col-xl-8'>
+                    {
+                        groupList.map(group =>
+                            <GroupRow
+                                season={season}
+                                key={group.id}
+                                group={group}
+                                joinGroup={joinGroup}
+                                userId={userId}
+                            />)
+                    }
+                </div>
+            </div>
+        </div >
     )
 };
 
@@ -161,59 +172,83 @@ const GroupRow = ({ group, joinGroup, season, userId }) => {
     const firstAdmin = group.UL.find(user => user.A === true);
 
     return (
-        <div className='largeScreenFlex groupDisplayRow'>
+        <div className='row border rounded mt-3'>
             <ReactTooltip html={true} />
-            <img alt={`${group.N} Avatar`} className='groupDisplayAvatar' src={groupAvatar} />
-            <div>
-                <div className='groupHeader'>
-                    <Link to={`/profile/group/${group.N}`}>
-                        {group.N}
-                    </Link>
+            <div className='col-sm-12 col-md-2 m-2'>
+                <div className='row d-flex justify-content-center'>
+                    <div className='col-5 col-md-12'>
+                        <img alt={`${group.N} Avatar`} className='smallImg' src={groupAvatar} />
+                    </div>
+                    <div className='col-6 d-md-none'>
+                        <Link to={`/profile/group/${group.N}`} className='link-dark'>
+                            <h4>
+                                {group.N}
+                            </h4>
+                        </Link>
+                    </div>
                 </div>
-                <div className='largeScreenFlex'>
-                    <div className='groupDescription groupFirstCol'>
-                        <div className='groupInfo'>
-                            {group.D}
+            </div>
+            <div className='col-sm-12 col-md-9'>
+                <div className='row'>
+                    <div className='d-none d-md-block col-12 text-center'>
+                        <Link to={`/profile/group/${group.N}`} className='link-dark'>
+                            <h4>
+                                {group.N}
+                            </h4>
+                        </Link>
+                    </div>
+                </div>
+                <div className='row'>
+                    <h6 className='col-12 col-md-6 text-center text-md-start'>
+                        {group.D}
+                    </h6>
+                    <div className='col-12 col-md-4'>
+                        <div className='row'>
+                            <div className='col-6 col-md-12'>
+                                <div className='row'>
+                                    <div className='col-6'>
+                                        <strong>
+                                            Admin:
+                                        </strong>
+                                    </div>
+                                    <div className='col-6'>
+                                        {firstAdmin && firstAdmin.UN}
+                                    </div>
+                                    <div className='col-6' data-tip={ulTooltip}>
+                                        <strong>
+                                            Users:
+                                        </strong>
+                                    </div>
+                                    <div className='col-6' data-tip={ulTooltip}>
+                                        {group.UL.length}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className='col-6 col-md-12'>
+                                <div className='row'>
+                                    <div className='col-6'>
+                                        <strong>
+                                            Top Score:
+                                        </strong>
+                                    </div>
+                                    <div className='col-6'>
+                                        {topScore && topScore.toFixed(2)}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div className=''>
-                        <div className='groupFlex groupInfoSmallScreen'>
-                            <div className='groupFieldDescription'>
-                                Admin:
-                            </div>
-                            <div>
-                                {firstAdmin && firstAdmin.UN}
-                            </div>
-                        </div>
-                        <div className='groupFlex pointer groupInfoSmallScreen' data-tip={ulTooltip}>
-                            <div className='groupFieldDescription'>
-                                Users:
-                            </div>
-                            <div>
-                                {group.UL.length}
-                            </div>
-                        </div>
-                        <div className='groupFlex groupInfoSmallScreen'>
-                            <div className='groupFieldDescription'>
-                                Top Score:
-                            </div>
-                            <div>
-                                {topScore && topScore.toFixed(2)}
-                            </div>
-                        </div>
-                    </div>
-                    <div className='groupRowThirdCol'>
+                    <div className='col-12 col-md-4 text-center'>
                         {isInGroup &&
-                            <div className='joinButtonContainer'>
-                                <button className='btn btn-outline-primary joinGroupButton' onClick={() => joinGroup(group.id)} >
-                                    Join
-                                </button>
-                            </div>
+                            <button className='btn btn-outline-primary mb-2 btn-sm' onClick={() => joinGroup(group.id)} >
+                                Join
+                            </button>
                         }
                     </div>
                 </div>
             </div>
-        </div >
+        </div>
     )
 };
 
