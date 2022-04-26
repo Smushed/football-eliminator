@@ -35,3 +35,11 @@ body {
 .flexWrap {
   flex-wrap: wrap;
 }
+
+a:link {
+  color: black;
+}
+
+a:visited {
+  color: maroon;
+}
