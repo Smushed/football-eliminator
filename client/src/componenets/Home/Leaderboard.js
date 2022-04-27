@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-import './leaderboardStyle.css';
+import './leaderBoardStyle.css';
 
 const Leaderboard = ({ groupName, week, leaderboard }) => (
     <table className='leaderboardContainter table table-striped table-hover'>

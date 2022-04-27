@@ -435,7 +435,7 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
             </div>
 
             <div className='row justify-content-center'>
-                <div className='col-sm-12 col-md-6 col-xl-4 rosterTransition'>
+                <div className={`col-sm-12 col-md-6 col-xl-4 fadeOut`}>
                     <RosterDisplay
                         headerText={mustDrop ? `Too Many Players, drop one` : `Week ${weekOnPage} Roster`}
                         pastLockWeek={appLevelLockWeek >= weekOnPage}
@@ -444,14 +444,15 @@ const Roster = ({ appLevelLockWeek, week, season, match, username, userId, histo
                         roster={mustDrop ? possiblePlayers : userRoster}
                         mustDrop={mustDrop}
                     />
-                    <div className={`usedPlayerCol ${mustDrop && `rosterHide`} ${!showUsedPlayers && ` zeroTransparent`}`}>
+                    {console.log(mustDrop)}
+                    <div className={`usedPlayerCol fadeOut ${mustDrop && `zeroTransparent`} ${!showUsedPlayers && ` thirtyTransparent`}`}>
                         <PlayerDisplayTable
                             headerText={`Used ${lastPosSearch ? lastPosSearch : 'Player'}s`}
                             playerList={currentPositionUsedPlayers}
                         />
                     </div>
                 </div>
-                <div className={`col-sm-12 col-md-6 col-xl-4 rosterTransition ${mustDrop && `rosterHide`}`}>
+                <div className={`col-sm-12 col-md-6 col-xl-4 fadeOut ${mustDrop && 'thirtyTransparent'}`}>
                     <PlayerDisplayTable
                         headerText='Available Players'
                         playerList={availPlayersToShow}

@@ -48,3 +48,15 @@ a:link {
 a:visited {
   color: maroon;
 }
+
+.fadeOut {
+  transition: 0.5s;
+}
+
+.zeroTransparent {
+  opacity: 0;
+}
+
+.thirtyTransparent {
+  opacity: .4;
+}
