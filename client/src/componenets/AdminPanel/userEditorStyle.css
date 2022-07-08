@@ -1,32 +1,32 @@
 .positionColumn {
-    text-align: right;
+  text-align: right;
 }
 
 .playerIdInput {
-    margin-left: 50px;
-    width: 300px;
+  margin-left: 50px;
+  width: 300px;
 }
 
 .selectedUser {
-    width: 250px;
-    margin: 0 auto;
+  width: 250px;
+  margin: 0 auto;
 }
 
 .userEditorButton {
-    margin-top: 50px;
+  margin-top: 50px;
 }
 
 .rightButton {
-    margin-left: 10px;
+  margin-left: 10px;
 }
 
 .calculateScoreButton {
-    margin-top: 10px;
-    margin-left: 45%;
+  margin-top: 10px;
+  margin-left: 45%;
 }
 
 @media screen and (max-width: 770px) {
-    .userEditorButton {
-        margin-top: 0;
-    }
+  .userEditorButton {
+    margin-top: 0;
+  }
 }

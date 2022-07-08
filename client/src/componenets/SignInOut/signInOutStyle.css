@@ -1,137 +1,137 @@
 .signInUpContainer {
-    height: 75vh;
-    width: 70%;
-    margin: 12vh 15%;
-    border-radius: 5px;
-    border: 1px solid lightgray;
-    box-shadow: 0 0 40px 15px rgb(189, 189, 189);
-    overflow: hidden;
-    display: flex;
+  height: 75vh;
+  width: 70%;
+  margin: 12vh 15%;
+  border-radius: 5px;
+  border: 1px solid lightgray;
+  box-shadow: 0 0 40px 15px rgb(189, 189, 189);
+  overflow: hidden;
+  display: flex;
 }
 
 .loginFormContainer {
-    text-align: center;
+  text-align: center;
 }
 
 .loginForms {
-    width: 45%;
+  width: 45%;
 }
 
 .signInHeader {
-    font-size: 28px;
-    font-weight: 600;
-    text-align: center;
-    margin-left: 10%;
-    margin-right: 10%;
-    margin-bottom: 5px;
-    box-shadow: 0 7px 5px -5px lightgray;
+  font-size: 28px;
+  font-weight: 600;
+  text-align: center;
+  margin-left: 10%;
+  margin-right: 10%;
+  margin-bottom: 5px;
+  box-shadow: 0 7px 5px -5px lightgray;
 }
 
 .signInFormContainer {
-    display: flex;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
 }
 
 .switchViewHeader {
-    font-size: 18px;
-    margin-left: 20%;
-    margin-right: 20%;
-    margin-top: 30px;
+  font-size: 18px;
+  margin-left: 20%;
+  margin-right: 20%;
+  margin-top: 30px;
 }
 
 .switchViewBtn {
-    background-color: rgb(0, 228, 205) !important;
+  background-color: rgb(0, 228, 205) !important;
 }
 
 .switchViewBtn:hover {
-    background-color: rgb(110, 226, 215) !important;
-    border: 1px solid grey;
+  background-color: rgb(110, 226, 215) !important;
+  border: 1px solid grey;
 }
 
 .errorMessages {
-    text-align: center;
+  text-align: center;
 }
 
 .signInOutLogo {
-    margin-top: 55px;
-    margin-bottom: 35px;
-    height: 125px;
-    max-width: 100%;
+  margin-top: 55px;
+  margin-bottom: 35px;
+  height: 125px;
+  max-width: 100%;
 }
 
 .switchView {
-    margin-top: 2.2%;
-    margin-left: 100px;
-    margin-right: 100px;
+  margin-top: 2.2%;
+  margin-left: 100px;
+  margin-right: 100px;
 }
 
 .signInButtonContainer {
-    margin-top: 15px;
-    margin-bottom: 15px;
+  margin-top: 15px;
+  margin-bottom: 15px;
 }
 
 .signInUpBtnColor {
-    background-color: rgb(0, 172, 0) !important;
-    color: white !important;
+  background-color: rgb(0, 172, 0) !important;
+  color: white !important;
 }
 
 .signInUpBtnColor:hover {
-    background-color: rgb(0, 128, 0) !important;
+  background-color: rgb(0, 128, 0) !important;
 }
 
 .forgotPassBtn {
-    margin-left: 20px;
-    background-color: whitesmoke !important;
-    border: 1px solid grey !important;
+  margin-left: 20px;
+  background-color: whitesmoke !important;
+  border: 1px solid grey !important;
 }
 
 .forgotPassBtn:hover {
-    background-color: grey !important;
-    color: white !important;
+  background-color: grey !important;
+  color: white !important;
 }
 
 .signInUpBtn {
-    width: 150px;
+  width: 150px;
 }
 
 @media only screen and (max-width: 1700px) {
-    .signInUpContainer {
-        margin-left: 7%;
-        margin-right: 7%;
-        width: 85%;
-    }
+  .signInUpContainer {
+    margin-left: 7%;
+    margin-right: 7%;
+    width: 85%;
+  }
 }
 
 @media only screen and (max-width: 1450px) {
-    .signInUpContainer {
-        margin-left: 0;
-        margin-right: 0;
-        width: 100%;
-    }
+  .signInUpContainer {
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+  }
 }
 
 @media only screen and (max-width: 1200px) {
-    .largeScreenImage {
-        width: 40%;
-    }
-    .loginForms {
-        width: 60%;
-    }
+  .largeScreenImage {
+    width: 40%;
+  }
+  .loginForms {
+    width: 60%;
+  }
 }
 
 /* FOR SMARTPHONES */
 @media only screen and (max-width: 767px) {
-    .signInUpContainer {
-        width: 100%;
-        height: 100vh;
-        margin: 0;
-        box-shadow: none;
-    }
-    .loginForms {
-        width: 100%;
-        margin: 0 10px;
-    }
-    .largeScreenImage {
-        display: none;
-    }
+  .signInUpContainer {
+    width: 100%;
+    height: 100vh;
+    margin: 0;
+    box-shadow: none;
+  }
+  .loginForms {
+    width: 100%;
+    margin: 0 10px;
+  }
+  .largeScreenImage {
+    display: none;
+  }
 }

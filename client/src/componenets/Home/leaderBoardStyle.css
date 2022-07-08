@@ -1,12 +1,12 @@
 .leaderboardContainter {
-    z-index: 0.8;
-    max-width: 700px;
-    max-height: 5000px;
-    overflow-y: scroll;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+  z-index: 0.8;
+  max-width: 700px;
+  max-height: 5000px;
+  overflow-y: scroll;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .leaderboardContainter::-webkit-scrollbar {
-    display: none;
+  display: none;
 }

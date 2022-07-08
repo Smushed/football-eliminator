@@ -1,37 +1,38 @@
 .rosterPosition {
-    max-width: 67px;
+  max-width: 67px;
 }
 
 .rosterHide {
-    opacity: .30;
-    -webkit-touch-callout: none; 
-    -webkit-user-select: none; 
-    -khtml-user-select: none; 
-    -moz-user-select: none;  
-    -ms-user-select: none; 
-    user-select: none; 
+  opacity: 0.3;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .custom-button {
-    text-align: center;
-    user-select: none;
-    background-color: transparent;
-    border: 1px solid transparent;
-    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    height: 28px;
-    font-size: 14px;
-    border-radius: 0.2rem;
-    cursor: pointer;
-    color: #17a2b8;
-    border-color: #17a2b8;
+  text-align: center;
+  user-select: none;
+  background-color: transparent;
+  border: 1px solid transparent;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  height: 28px;
+  font-size: 14px;
+  border-radius: 0.2rem;
+  cursor: pointer;
+  color: #17a2b8;
+  border-color: #17a2b8;
 }
 
 .custom-button:hover {
-    color: #fff;
-    background-color: #17a2b8;
-    border-color: #17a2b8;
+  color: #fff;
+  background-color: #17a2b8;
+  border-color: #17a2b8;
 }
 
 .rosterHide {
-    opacity: 0;
+  opacity: 0;
 }
