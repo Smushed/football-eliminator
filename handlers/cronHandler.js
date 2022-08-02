@@ -73,9 +73,13 @@ schedule.scheduleJob('30 9 * 1,9-12 2', async function () {
 });
 
 const allScheduledGames = (season) => {
-  for (let i = 1; i <= 17; i++) {
+  let i = 1;
+  const gameTimer = setInterval(async () => {
     mySportsHandler.checkGameStarted(season, i);
-  }
+    if (i > 17) {
+      clearInterval(gameTimer);
+    }
+  }, 6000);
 };
 
 const updatePlayerData = async (season, week) => {
@@ -86,7 +90,7 @@ const updatePlayerData = async (season, week) => {
 
 const startWeek = (currDate, currDBWeeks, currWeek) => {
   for (let i = 17; i >= 0; i--) {
-    if (currDate > dates.startWeek2021[i]) {
+    if (currDate > dates.startWeek2022[i]) {
       currWeek = i + 1;
       break;
     }
@@ -96,3 +100,13 @@ const startWeek = (currDate, currDBWeeks, currWeek) => {
     userHandler.updateLockWeek(currWeek - 1);
   }
 };
+
+const test = async () => {
+  const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
+  await mySportsHandler.updateRoster(season);
+  // await updatePlayerData(season, week);
+
+  allScheduledGames(season);
+};
+
+// test();

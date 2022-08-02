@@ -302,7 +302,6 @@ const parseRoster = async (playerArray, team) => {
       position === `K`
     ) {
       let dbPlayer = await findPlayerInDB(playerArray[i].player.id);
-      console.log(playerArray[i].player);
       if (dbPlayer === false || dbPlayer === undefined || dbPlayer === null) {
         console.log('inside undef');
         dbPlayer = await addPlayerData(playerArray[i].player, team);
@@ -321,7 +320,6 @@ const parseRoster = async (playerArray, team) => {
           position
         );
       }
-      console.log(dbPlayer);
       totalPlayerArray.push(dbPlayer.M);
     }
   }
@@ -734,13 +732,13 @@ module.exports = {
     return rankedPlayersByPosition;
   },
   savePlayerRank: async (rankedPlayersByPosition) => {
-    //Get them into 7 different categories, each 10 big until the 7th rank, which is just all the rest
+    //Get them into 7 different categories, each 10 big until the 8th rank, which is just all the rest
     for (const position in rankedPlayersByPosition) {
       const rankingArray = [...rankedPlayersByPosition[position]];
       console.log(`Saving ${position}`);
-      for (let i = 1; i <= 7; i++) {
+      for (let i = 1; i <= 8; i++) {
         let currentRank = [];
-        if (i !== 7) {
+        if (i !== 8) {
           currentRank = rankingArray.splice(0, 9);
         } else {
           currentRank = rankingArray;

@@ -9,7 +9,8 @@ const checkDuplicateRoster = async (
   userId,
   groupId,
   season,
-  week
+  week,
+  position
 ) => {
   let result = false;
   let searched;
@@ -35,6 +36,7 @@ const checkDuplicateRoster = async (
           U: userId,
           S: season,
           G: groupId,
+          P: position,
         }).exec();
         if (searched !== null) {
           return true;
@@ -66,38 +68,46 @@ const sortPlayersByRank = (playerArray) => {
   return playerArray;
 };
 
-const getUsedPlayers = async (userId, season, groupId) => {
+const getUsedPlayers = async (userId, season, groupId, position) => {
   const currentUser = await db.UsedPlayers.findOne({
     U: userId,
     S: season,
     G: groupId,
+    P: position,
   }).exec();
   if (currentUser === null) {
-    const createdUsedPlayers = await createUsedPlayers(userId, season, groupId);
+    const createdUsedPlayers = await createUsedPlayers(
+      userId,
+      season,
+      groupId,
+      position
+    );
     return createdUsedPlayers.UP;
   } else {
     return currentUser.UP;
   }
 };
 
-const createUsedPlayers = (userId, season, groupId) => {
+const createUsedPlayers = (userId, season, groupId, position) => {
   return new Promise(async (res, rej) => {
     const isDupe = await checkDuplicateRoster(
       `usedPlayers`,
       userId,
       groupId,
       season,
-      null
+      null,
+      position
     );
-    let newRecord;
     if (!isDupe) {
-      newRecord = await db.UsedPlayers.create({
-        U: userId,
-        S: season,
-        G: groupId,
-      });
+      res(
+        await db.UsedPlayers.create({
+          U: userId,
+          S: season,
+          G: groupId,
+          P: position,
+        })
+      );
     }
-    res(newRecord);
   });
 };
 
@@ -168,7 +178,7 @@ const sortUsersByScore = async (userRosterArray, groupId, season) => {
     for (let user of userRosterArray) {
       const userScore = await db.UserScores.findOne(
         { U: user.UID, G: groupId, S: season },
-        "TS"
+        'TS'
       ).exec();
       if (!userScore) {
         continue;
@@ -194,7 +204,7 @@ const pullGroupRostersForScoring = async (season, week, groupId) => {
 
 module.exports = {
   byRoster: async () => {
-    const players = await db.FantasyStats.find({ team: "CHI" });
+    const players = await db.FantasyStats.find({ team: 'CHI' });
 
     return players;
   },
@@ -280,7 +290,12 @@ module.exports = {
     return responseRoster;
   },
   availablePlayers: async (userId, searchedPosition, season, groupId) => {
-    const usedPlayers = await getUsedPlayers(userId, season, groupId);
+    const usedPlayers = await getUsedPlayers(
+      userId,
+      season,
+      groupId,
+      searchedPosition
+    );
 
     //usedPlayers is the array from the database of all players that the user has used
     //We need to grab ALL the playerIds that are currently active in the database and pull out any that are in the usedPlayers array
@@ -302,14 +317,24 @@ module.exports = {
     droppedPlayer,
     addedPlayer,
     week,
-    season
+    season,
+    position
   ) => {
     return new Promise(async (res, rej) => {
-      const usedPlayers = await db.UsedPlayers.findOne({
+      let usedPlayers = await db.UsedPlayers.findOne({
         U: userId,
         S: season,
         G: groupId,
+        P: position,
       });
+      if (usedPlayers === null) {
+        usedPlayers = await createUsedPlayers(
+          userId,
+          season,
+          groupId,
+          position
+        );
+      }
       let newUsedPlayers = [];
       for (const playerId of usedPlayers.UP) {
         if (playerId !== +droppedPlayer) {
@@ -352,11 +377,8 @@ module.exports = {
       res(sortedUsers);
     });
   },
-  usedPlayersByPosition: async (userId, season, groupId) => {
-    const sortedPlayers = { QB: [], RB: [], WR: [], TE: [], K: [] };
-
-    const usedPlayers = await getUsedPlayers(userId, season, groupId);
-    let dbSearch;
+  usedPlayersByPosition: async (userId, season, groupId, position) => {
+    const usedPlayers = await getUsedPlayers(userId, season, groupId, position);
 
     try {
       dbSearch = await db.PlayerData.find(
@@ -365,30 +387,27 @@ module.exports = {
       );
     } catch (err) {
       console.log(err);
-      return { status: 500, res: "DB Searching Error" };
+      return { status: 500, res: 'DB Searching Error' };
     }
 
-    dbSearch.forEach((player) => {
-      sortedPlayers[player.P].push(player);
-    });
-
-    return sortedPlayers;
+    return dbSearch;
   },
-  searchPlayerByTeam: async (groupId, userId, team, season) => {
-    const usedPlayers = await getUsedPlayers(userId, season, groupId);
+  // searchPlayerByTeam: async (groupId, userId, team, season) => {
+  //Currently not working
+  //   const usedPlayers = await getUsedPlayers(userId, season, groupId);
 
-    const playersByTeam = await db.PlayerData.find(
-      { A: true, T: team },
-      { M: 1, N: 1, P: 1, R: 1, T: 1 }
-    );
+  //   const playersByTeam = await db.PlayerData.find(
+  //     { A: true, T: team },
+  //     { M: 1, N: 1, P: 1, R: 1, T: 1 }
+  //   );
 
-    const availablePlayers = checkForAvailablePlayers(
-      usedPlayers,
-      playersByTeam
-    );
+  //   const availablePlayers = checkForAvailablePlayers(
+  //     usedPlayers,
+  //     playersByTeam
+  //   );
 
-    return availablePlayers;
-  },
+  //   return availablePlayers;
+  // },
   allSeasonRoster: async function (userId, season) {
     //This goes through a users data and get each week
     const scoredAllSeason = [];

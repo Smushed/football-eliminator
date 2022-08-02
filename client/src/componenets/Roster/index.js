@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from "react";
-import { withAuthorization } from "../Session";
-import axios from "axios";
-import PropTypes from "prop-types";
-import fuzzysort from "fuzzysort";
+import React, { useState, useEffect } from 'react';
+import { withAuthorization } from '../Session';
+import axios from 'axios';
+import PropTypes from 'prop-types';
+import fuzzysort from 'fuzzysort';
 
 import {
   RosterDisplay,
   PlayerDisplayRow,
   PlayerDisplayTable,
-} from "./RosterDisplay";
+} from './RosterDisplay';
 
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
-import "./rosterStyle.css";
-import "./playerStyle.css";
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import './rosterStyle.css';
+import './playerStyle.css';
 
-import { loading, doneLoading } from "../LoadingAlert";
-import { WeekSearch, PositionSearch } from "./SearchDropdowns";
-import * as Routes from "../../constants/routes";
+import { loading, doneLoading } from '../LoadingAlert';
+import { WeekSearch, PositionSearch } from './SearchDropdowns';
+import * as Routes from '../../constants/routes';
 
 const Alert = withReactContent(Swal);
 
@@ -39,13 +39,11 @@ const Roster = ({
   const [weekSelect, updateWeekSelect] = useState(0);
   const [weekOnPage, updateWeekOnPage] = useState(0); //The week and season are here when the player searches for their roster. This updates ONLY when the player actually refreshes their roster
   const [currentUser, updateCurrentUser] = useState(false);
-  const [usernameOfPage, updateUsernameOfPage] = useState("");
+  const [usernameOfPage, updateUsernameOfPage] = useState('');
   const [groupPositions, updateGroupPositions] = useState([]);
   const [positionArray, updatePositionArray] = useState([]);
-  const [usedPlayers, updateUsedPlayers] = useState({});
+  const [usedPlayers, updateUsedPlayers] = useState([]);
   const [showUsedPlayers, updateShowUsedPlayers] = useState(true);
-  const [currentPositionUsedPlayers, updateCurrentPositionUsedPlayers] =
-    useState([]);
   const [positionMap, updatePositionMap] = useState([]);
   const [weeklyMatchups, updateWeeklyMatchups] = useState([]);
   const [sortedMatchups, updateSortedMatchups] = useState([]);
@@ -64,17 +62,17 @@ const Roster = ({
       return;
     }
 
-    if (week !== 0 && season !== "") {
+    if (week !== 0 && season !== '') {
       primaryPull(+week, match.params.username);
     }
   }, [week, season, match.params.username, noGroup]);
 
   useEffect(() => {
-    if (playerSearch === "") {
+    if (playerSearch === '') {
       updateAvailPlayersToShow(availablePlayers);
       return;
     }
-    const results = fuzzysort.go(playerSearch, availablePlayers, { key: "N" });
+    const results = fuzzysort.go(playerSearch, availablePlayers, { key: 'N' });
 
     updateAvailPlayersToShow(results.map((player) => player.obj));
   }, [playerSearch]);
@@ -96,14 +94,13 @@ const Roster = ({
     updateWeekSelect(week);
     updateUsernameOfPage(username);
     getRosterData(week);
-    getUsedPlayers();
     checkCurrentUser();
   };
 
   const getUsedPlayers = () => {
     axios
       .get(
-        `/api/roster/players/used/${match.params.username}/${season}/${match.params.groupname}`,
+        `/api/roster/players/used/${match.params.username}/${season}/${match.params.groupname}/${positionSelect}`,
         {
           cancelToken: axiosCancel.token,
         }
@@ -217,14 +214,19 @@ const Roster = ({
         T: possiblePlayer.T,
       };
 
-      const usedPlayers = currentPositionUsedPlayers.filter(
+      const newUsedPlayers = usedPlayers.filter(
         (player) => player.M !== droppedPlayer.M
       );
-      usedPlayers.push(possiblePlayer);
+      newUsedPlayers.push(possiblePlayer);
 
-      saveRosterToDb(currentRoster, droppedPlayer.M, possiblePlayer.M);
+      saveRosterToDb(
+        currentRoster,
+        droppedPlayer.M,
+        possiblePlayer.M,
+        droppedPlayer.P
+      );
       updateAvaliablePlayers(availablePlayersCopy);
-      updateCurrentPositionUsedPlayers(usedPlayers);
+      updateUsedPlayers(newUsedPlayers);
       updateMustDrop(false);
     } else {
       //The user has selected the player who is not on their team
@@ -233,7 +235,7 @@ const Roster = ({
     }
   };
 
-  const saveRosterToDb = (roster, droppedPlayer, addedPlayer) => {
+  const saveRosterToDb = (roster, droppedPlayer, addedPlayer, pos) => {
     loading();
     axios
       .put(
@@ -246,6 +248,7 @@ const Roster = ({
           week: weekSelect,
           season: season,
           groupname: match.params.groupname,
+          position: pos,
         },
         {
           cancelToken: axiosCancel.token,
@@ -296,11 +299,7 @@ const Roster = ({
         updateLastPosSearch(positionSelect);
         updateAvaliablePlayers(res.data);
         updateAvailPlayersToShow(res.data);
-        if (!usedPlayers[positionSelect]) {
-          getUsedPlayers();
-        } else {
-          updateCurrentPositionUsedPlayers(usedPlayers[positionSelect]);
-        }
+        getUsedPlayers(positionSelect);
         doneLoading();
       })
       .catch((err) => {
@@ -321,9 +320,9 @@ const Roster = ({
   };
 
   const handleChange = (e) => {
-    e.target.name === "playerSearch" && updatePlayerSearch(e.target.value);
-    e.target.name === "weekSelect" && updateWeekSelect(e.target.value);
-    e.target.name === "positionSelect" && updatePositionSelect(e.target.value);
+    e.target.name === 'playerSearch' && updatePlayerSearch(e.target.value);
+    e.target.name === 'weekSelect' && updateWeekSelect(e.target.value);
+    e.target.name === 'positionSelect' && updatePositionSelect(e.target.value);
   };
 
   const addPlayerToRoster = async (
@@ -355,12 +354,9 @@ const Roster = ({
     if (!added) {
       tooManyPlayers(sortedUpdatedRoster, allowedMap, addedPlayer);
     } else {
-      saveRosterToDb(sortedUpdatedRoster, 0, addedPlayer.M);
-      const newUsedPlayers = { ...usedPlayers };
-      if (!newUsedPlayers[addedPlayer.P]) {
-        newUsedPlayers[addedPlayer.P] = [];
-      }
-      newUsedPlayers[addedPlayer.P].push(addedPlayer);
+      saveRosterToDb(sortedUpdatedRoster, 0, addedPlayer.M, addedPlayer.P);
+      const newUsedPlayers = [...usedPlayers];
+      newUsedPlayers.push(addedPlayer);
       updateAvaliablePlayers(newAvailablePlayers);
       updateUsedPlayers(newUsedPlayers);
     }
@@ -418,7 +414,7 @@ const Roster = ({
       newAvailablePlayers.unshift(droppedPlayer);
 
       updateAvaliablePlayers(newAvailablePlayers);
-      saveRosterToDb(newRoster, mySportsId, false);
+      saveRosterToDb(newRoster, mySportsId, false, droppedPlayer.P);
     }
   };
 
@@ -434,29 +430,29 @@ const Roster = ({
   };
 
   return (
-    <div className="container">
-      <div className="row">
-        <div className="col-12 fs-3 fw-bold text-center mt-2 mb-2">
+    <div className='container'>
+      <div className='row'>
+        <div className='col-12 fs-3 fw-bold text-center mt-2 mb-2'>
           {usernameOfPage}&apos;s Roster
         </div>
       </div>
-      <div className="row">
-        <div className="col-12">
-          <div className="row">
-            <div className="col-12">
-              <div className="row justify-content-center">
-                <div className="col-sm-12 col-md-4 col-lg-2 text-center mt-1 mb-1">
+      <div className='row'>
+        <div className='col-12'>
+          <div className='row'>
+            <div className='col-12'>
+              <div className='row justify-content-center'>
+                <div className='col-sm-12 col-md-4 col-lg-2 text-center mt-1 mb-1'>
                   <button
-                    className="btn btn-success"
+                    className='btn btn-success'
                     disabled={mustDrop}
                     onClick={() => toggleShowUsedPlayers()}
                   >
                     Show Used Players
                   </button>
                 </div>
-                <div className="col-sm-12 col-md-4 col-lg-2 text-center mt-1 mb-1">
+                <div className='col-sm-12 col-md-4 col-lg-2 text-center mt-1 mb-1'>
                   <button
-                    className="btn btn-success"
+                    className='btn btn-success'
                     onClick={() =>
                       updateActivatePlayerSearch(!activePlayerSearch)
                     }
@@ -464,9 +460,9 @@ const Roster = ({
                     {activePlayerSearch ? `Hide` : `Show`} Player Search
                   </button>
                 </div>
-                <div className="col-sm-12 col-md-4 col-lg-2 text-center mt-1 mb-1">
+                <div className='col-sm-12 col-md-4 col-lg-2 text-center mt-1 mb-1'>
                   <button
-                    className="btn btn-success"
+                    className='btn btn-success'
                     onClick={() => showMatchUps()}
                   >
                     Show Match Ups
@@ -476,27 +472,27 @@ const Roster = ({
             </div>
           </div>
 
-          <div className="row justify-content-center mt-2 mb-1">
+          <div className='row justify-content-center mt-2 mb-1'>
             {activePlayerSearch ? (
-              <div className="col-6">
-                <div className="playerSearchBox input-group input-group-lg mt-2 mb-1">
-                  <span className="input-group-text rosterFieldDescription">
+              <div className='col-6'>
+                <div className='playerSearchBox input-group input-group-lg mt-2 mb-1'>
+                  <span className='input-group-text rosterFieldDescription'>
                     Player:
                   </span>
                   <input
-                    className="form-control"
-                    name="playerSearch"
+                    className='form-control'
+                    name='playerSearch'
                     value={playerSearch}
-                    type="text"
+                    type='text'
                     onChange={handleChange}
                   />
                 </div>
               </div>
             ) : (
               <>
-                <div className="col-6 col-lg-4">
-                  <div className="row">
-                    <div className="col-12 text-center">Change Week</div>
+                <div className='col-6 col-lg-4'>
+                  <div className='row'>
+                    <div className='col-12 text-center'>Change Week</div>
                   </div>
                   <WeekSearch
                     weekSelect={weekSelect}
@@ -505,13 +501,13 @@ const Roster = ({
                     disabled={mustDrop}
                   />
                 </div>
-                <div className="col-6 col-lg-4">
-                  <div className="row">
-                    <div className="col-sm-12 col-md-8 text-center">
+                <div className='col-6 col-lg-4'>
+                  <div className='row'>
+                    <div className='col-sm-12 col-md-8 text-center'>
                       Position Search
                     </div>
                   </div>
-                  <div className="row">
+                  <div className='row'>
                     <PositionSearch
                       positionSelect={positionSelect}
                       handleChange={handleChange}
@@ -526,7 +522,7 @@ const Roster = ({
         </div>
       </div>
 
-      <div className="row justify-content-center">
+      <div className='row justify-content-center fadeOut'>
         <div className={`col-sm-12 col-md-6 col-xl-4 fadeOut`}>
           <RosterDisplay
             headerText={
@@ -540,25 +536,24 @@ const Roster = ({
             roster={mustDrop ? possiblePlayers : userRoster}
             mustDrop={mustDrop}
           />
-          {console.log(mustDrop)}
           <div
             className={`usedPlayerCol fadeOut ${
-              mustDrop && `zeroTransparent`
-            } ${!showUsedPlayers && ` thirtyTransparent`}`}
+              mustDrop && `thirtyTransparent`
+            } ${!showUsedPlayers && ` zeroTransparent`}`}
           >
             <PlayerDisplayTable
-              headerText={`Used ${lastPosSearch ? lastPosSearch : "Player"}s`}
-              playerList={currentPositionUsedPlayers}
+              headerText={`Used ${lastPosSearch ? lastPosSearch : 'Player'}s`}
+              playerList={usedPlayers}
             />
           </div>
         </div>
         <div
           className={`col-sm-12 col-md-6 col-xl-4 fadeOut ${
-            mustDrop && "thirtyTransparent"
+            mustDrop && 'rosterHide'
           }`}
         >
           <PlayerDisplayTable
-            headerText="Available Players"
+            headerText='Available Players'
             playerList={availPlayersToShow}
             sortedMatchups={sortedMatchups}
             addDropPlayer={mustDrop ? false : addDropPlayer}

@@ -79,7 +79,7 @@ module.exports = (app) => {
 
   app.put(`/api/dummyRoster/`, async (req, res) => {
     const { userId, groupId, week, season, dummyRoster } = req.body;
-    if (userId === undefined || groupId === "") {
+    if (userId === undefined || groupId === '') {
       res.status(500).send(`Select Someone!`);
       return;
     }
@@ -103,6 +103,7 @@ module.exports = (app) => {
       week,
       season,
       groupname,
+      position,
     } = req.body;
     const groupId = await groupHandler.findGroupIdByName(groupname);
     const updatedRoster = await rosterHandler.updateUserRoster(
@@ -112,7 +113,8 @@ module.exports = (app) => {
       droppedPlayer,
       addedPlayer,
       week,
-      season
+      season,
+      position
     );
     const response = await mySportsHandler.fillUserRoster(updatedRoster);
     res.status(200).send(response);
@@ -130,9 +132,9 @@ module.exports = (app) => {
   });
 
   app.get(
-    `/api/roster/players/used/:username/:season/:groupname`,
+    `/api/roster/players/used/:username/:season/:groupname/:position`,
     async (req, res) => {
-      const { username, season, groupname } = req.params;
+      const { username, season, groupname, position } = req.params;
       Promise.all([
         groupHandler.findGroupIdByName(groupname),
         userHandler.getUserByUsername(username),
@@ -141,7 +143,8 @@ module.exports = (app) => {
           const usedPlayers = await rosterHandler.usedPlayersByPosition(
             user._id,
             season,
-            groupId
+            groupId,
+            position
           );
           res.status(200).send(usedPlayers);
         })
@@ -149,21 +152,22 @@ module.exports = (app) => {
     }
   );
 
-  app.get(
-    `/api/getPlayersByTeam/:groupId/:userId/:team/:season`,
-    async (req, res) => {
-      const { groupId, userId, team, season } = req.params;
+  //Currently not working
+  // app.get(
+  //   `/api/getPlayersByTeam/:groupId/:userId/:team/:season`,
+  //   async (req, res) => {
+  //     const { groupId, userId, team, season } = req.params;
 
-      const playersByTeam = await rosterHandler.searchPlayerByTeam(
-        groupId,
-        userId,
-        team,
-        season
-      );
+  //     const playersByTeam = await rosterHandler.searchPlayerByTeam(
+  //       groupId,
+  //       userId,
+  //       team,
+  //       season
+  //     );
 
-      res.status(200).send(playersByTeam);
-    }
-  );
+  //     res.status(200).send(playersByTeam);
+  //   }
+  // );
 
   app.get(`/api/seasonLongScore/:userId/:season`, async (req, res) => {
     const { userId, season } = req.params;
