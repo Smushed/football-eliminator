@@ -1,24 +1,24 @@
-import React, { useEffect, useState } from "react";
-import { withRouter } from "react-router-dom";
-import { compose } from "recompose";
-import { withFirebase } from "../Firebase";
-import * as Routes from "../../constants/routes";
-import axios from "axios";
-import PropTypes from "prop-types";
+import React, { useEffect, useState } from 'react';
+import { withRouter } from 'react-router-dom';
+import { compose } from 'recompose';
+import { withFirebase } from '../Firebase';
+import * as Routes from '../../constants/routes';
+import axios from 'axios';
+import PropTypes from 'prop-types';
 
-import "./signInOutStyle.css";
-import ElimLogo from "../../constants/elimLogos/LargeElimLogo.png";
-import Stadium from "../../constants/elimLogos/stadium.jpg";
+import './signInOutStyle.css';
+import ElimLogo from '../../constants/elimLogos/LargeElimLogo.png';
+import Stadium from '../../constants/elimLogos/stadium.jpg';
 
 import {
   EmailInput,
   PasswordInput,
   UsernameInput,
   ConfirmPasswordInput,
-} from "../Profile/ProfileInputs";
+} from '../Profile/ProfileInputs';
 
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 
 const Alert = withReactContent(Swal);
 
@@ -38,10 +38,10 @@ const SignInOut = () => {
   };
 
   return (
-    <div className="signInUpContainer">
-      <div className="loginFormContainer loginForms">
-        <img className="signInOutLogo" src={ElimLogo} alt={`Home`} />
-        <div className="signInHeader">{showSignIn ? "Sign In" : "Sign Up"}</div>
+    <div className='signInUpContainer'>
+      <div className='loginFormContainer loginForms'>
+        <img className='signInOutLogo' src={ElimLogo} alt={`Home`} />
+        <div className='signInHeader'>{showSignIn ? 'Sign In' : 'Sign Up'}</div>
         {showSignIn ? (
           <SignInForm
             showPassword={showPassword}
@@ -60,18 +60,18 @@ const SignInOut = () => {
         />
       </div>
 
-      <img className="largeScreenImage" src={Stadium} alt="Football Stadium" />
+      <img className='largeScreenImage' src={Stadium} alt='Football Stadium' />
     </div>
   );
 };
 
 const SwitchSignInUp = ({ showSignIn, switchView }) => (
   <div>
-    <div className="switchViewHeader">
-      {showSignIn ? "Need an account?" : "Have an account?"}
+    <div className='switchViewHeader'>
+      {showSignIn ? 'Need an account?' : 'Have an account?'}
     </div>
-    <button className="btn switchViewBtn" onClick={() => switchView()}>
-      {showSignIn ? "Sign Up" : "Sign In"}
+    <button className='btn switchViewBtn' onClick={() => switchView()}>
+      {showSignIn ? 'Sign Up' : 'Sign In'}
     </button>
   </div>
 );
@@ -205,46 +205,42 @@ const SignUpFormBase = ({
 
   return (
     <div>
-      <div className="signInUpWrapper signInFormContainer">
-        <form onSubmit={handleSubmit}>
-          <div className="errorMessages">
-            {error}
-            {validMessage.length > 0 &&
-              validMessage.map((message, i) => <div key={i}>{message}</div>)}
-          </div>
-          <EmailInput
-            authUser={false}
-            handleChange={handleChange}
-            email={email}
-            modalOpen={false}
-          />
-          <UsernameInput
-            handleChange={handleChange}
-            username={username}
-            currentUser={null}
-            modalOpen={false}
-          />
-          <PasswordInput
-            handleChange={handleChange}
-            toggleShowPassword={toggleShowPassword}
-            password={password}
-            showPassword={showPassword}
-            modalOpen={false}
-          />
-          <ConfirmPasswordInput
-            handleChange={handleChange}
-            toggleShowPassword={toggleShowConfirmPassword}
-            password={confirmPassword}
-            showPassword={showConfirmPass}
-            modalOpen={false}
-          />
-          <div className="inputContainer signInButtonContainer">
-            <button className="signInUpBtn btn signInUpBtnColor">
-              Sign Up
-            </button>
-          </div>
-        </form>
-      </div>
+      <form onSubmit={handleSubmit}>
+        <div className='errorMessages'>
+          {error}
+          {validMessage.length > 0 &&
+            validMessage.map((message, i) => <div key={i}>{message}</div>)}
+        </div>
+        <EmailInput
+          authUser={false}
+          handleChange={handleChange}
+          email={email}
+          modalOpen={false}
+        />
+        <UsernameInput
+          handleChange={handleChange}
+          username={username}
+          currentUser={null}
+          modalOpen={false}
+        />
+        <PasswordInput
+          handleChange={handleChange}
+          toggleShowPassword={toggleShowPassword}
+          password={password}
+          showPassword={showPassword}
+          modalOpen={false}
+        />
+        <ConfirmPasswordInput
+          handleChange={handleChange}
+          toggleShowPassword={toggleShowConfirmPassword}
+          password={confirmPassword}
+          showPassword={showConfirmPass}
+          modalOpen={false}
+        />
+        <div className='mt-4 mb-1'>
+          <button className='signInUpBtnWidth btn btn-success'>Sign Up</button>
+        </div>
+      </form>
     </div>
   );
 };
@@ -304,10 +300,10 @@ const SignInFormBase = ({
 
   const forgotPassword = async () => {
     const { value: modalEmail } = await Alert.fire({
-      title: "Input Email Address",
-      input: "email",
+      title: 'Input Email Address',
+      input: 'email',
       inputValue: email,
-      inputPlaceholder: "email@email.com",
+      inputPlaceholder: 'email@email.com',
     });
     if (!modalEmail) {
       return;
@@ -319,9 +315,9 @@ const SignInFormBase = ({
   };
 
   return (
-    <div className="signInFormContainer">
+    <div className='d-flex justify-content-center'>
       <form onSubmit={handleSubmit}>
-        <div className="errorMessages">{error}</div>
+        <div className='text-center fw-bold'>{error}</div>
         <EmailInput
           authUser={false}
           handleChange={handleChange}
@@ -335,14 +331,20 @@ const SignInFormBase = ({
           showPassword={showPassword}
           modalOpen={false}
         />
-        <div className="inputContainer signInButtonContainer">
-          <button className="signInUpBtn btn signInUpBtnColor">Sign In</button>
-          <input
-            type="button"
-            className="forgotPassBtn btn"
-            onClick={forgotPassword}
-            value="Forgot Password?"
-          />
+        <div className='mt-4 mb-1 row'>
+          <div className='d-flex col-12 col-lg-6 justify-content-end'>
+            <button className='signInUpBtnWidth btn btn-success'>
+              Sign In
+            </button>
+          </div>
+          <div className='d-flex col-12 col-lg-6 justify-content-start'>
+            <input
+              type='button'
+              className='forgotPassBtn btn'
+              onClick={forgotPassword}
+              value='Forgot Password?'
+            />
+          </div>
         </div>
       </form>
     </div>

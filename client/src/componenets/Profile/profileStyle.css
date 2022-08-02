@@ -62,9 +62,7 @@
 }
 
 .editField {
-  display: flex;
   font-size: 22px;
-  margin-top: 10px;
 }
 
 .lowerOpacity {
@@ -74,6 +72,7 @@
 .largeCheckbox {
   height: 23px;
   width: 23px;
+  cursor: pointer;
 }
 
 .profileName {
@@ -244,7 +243,7 @@
 .groupScoreBucketDesc {
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: "-";
+  text-overflow: '-';
   border-bottom: 1px lightgray solid;
 }
 

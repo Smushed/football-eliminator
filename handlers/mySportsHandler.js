@@ -116,7 +116,7 @@ const newWeeklyStats = (mySportsId, stats, season, week) => {
       I: stats.passing.passInt || 0,
       A: stats.passing.passAttempts || 0,
       C: stats.passing.passCompletions || 0,
-      "2P": stats.twoPointAttempts.twoPtPassMade || 0,
+      '2P': stats.twoPointAttempts.twoPtPassMade || 0,
     };
   } else {
     player.P = {
@@ -125,7 +125,7 @@ const newWeeklyStats = (mySportsId, stats, season, week) => {
       I: 0,
       A: 0,
       C: 0,
-      "2P": 0,
+      '2P': 0,
     };
   }
 
@@ -137,7 +137,7 @@ const newWeeklyStats = (mySportsId, stats, season, week) => {
       20: stats.rushing.rush20Plus || 0,
       40: stats.rushing.rush40Plus || 0,
       F: stats.rushing.rushFumbles || 0,
-      "2P": stats.twoPointAttempts.twoPtRushMade || 0,
+      '2P': stats.twoPointAttempts.twoPtRushMade || 0,
     };
   } else {
     player.RU = {
@@ -147,7 +147,7 @@ const newWeeklyStats = (mySportsId, stats, season, week) => {
       20: 0,
       40: 0,
       F: 0,
-      "2P": 0,
+      '2P': 0,
     };
   }
 
@@ -160,7 +160,7 @@ const newWeeklyStats = (mySportsId, stats, season, week) => {
       20: stats.receiving.rec20Plus || 0,
       40: stats.receiving.rec40Plus || 0,
       F: stats.receiving.recFumbles || 0,
-      "2P": stats.twoPointAttempts.twoPtPassRec || 0,
+      '2P': stats.twoPointAttempts.twoPtPassRec || 0,
     };
   } else {
     player.RE = {
@@ -171,7 +171,7 @@ const newWeeklyStats = (mySportsId, stats, season, week) => {
       20: 0,
       40: 0,
       F: 0,
-      "2P": 0,
+      '2P': 0,
     };
   }
 
@@ -222,7 +222,7 @@ const updateWeekStats = (player, stats) => {
       I: stats.passing.passInt || 0,
       A: stats.passing.passAttempts || 0,
       C: stats.passing.passCompletions || 0,
-      "2P": stats.twoPointAttempts.twoPtPassMade || 0,
+      '2P': stats.twoPointAttempts.twoPtPassMade || 0,
     };
   }
 
@@ -234,7 +234,7 @@ const updateWeekStats = (player, stats) => {
       20: stats.rushing.rush20Plus || 0,
       40: stats.rushing.rush40Plus || 0,
       F: stats.rushing.rushFumbles || 0,
-      "2P": stats.twoPointAttempts.twoPtRushMade || 0,
+      '2P': stats.twoPointAttempts.twoPtRushMade || 0,
     };
   }
 
@@ -247,7 +247,7 @@ const updateWeekStats = (player, stats) => {
       20: stats.receiving.rec20Plus || 0,
       40: stats.receiving.rec40Plus || 0,
       F: stats.receiving.recFumbles || 0,
-      "2P": stats.twoPointAttempts.twoPtPassRec || 0,
+      '2P': stats.twoPointAttempts.twoPtPassRec || 0,
     };
   }
 
@@ -304,7 +304,7 @@ const parseRoster = async (playerArray, team) => {
       let dbPlayer = await findPlayerInDB(playerArray[i].player.id);
       console.log(playerArray[i].player);
       if (dbPlayer === false || dbPlayer === undefined || dbPlayer === null) {
-        console.log("inside undef");
+        console.log('inside undef');
         dbPlayer = await addPlayerData(playerArray[i].player, team);
       } else {
         let injury = null;
@@ -531,7 +531,7 @@ const pullTeamData = async (season, team) => {
 module.exports = {
   updateTestRoster: async (season) => {
     console.log(season);
-    const team = "PHI";
+    const team = 'PHI';
     console.log(`Requesting ${team}`);
     await axios
       .get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
@@ -789,7 +789,7 @@ module.exports = {
         const parsedGames = search.data.games.map((game) => {
           const H = game.schedule.homeTeam.abbreviation;
           const A = game.schedule.awayTeam.abbreviation;
-          let W = "";
+          let W = '';
           if (game.schedule.weather) {
             W = game.schedule.weather.description;
           }

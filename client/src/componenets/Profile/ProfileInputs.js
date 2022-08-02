@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const AvatarInput = ({ handleChange, fileInputRef }) => (
-  <div className='editField'>
+  <div className='d-flex mt-3 '>
     <div className='input-group input-group-lg'>
       <span className='input-group-text fieldDescription'>Avatar:</span>
       <div>
@@ -23,7 +23,7 @@ const AvatarInput = ({ handleChange, fileInputRef }) => (
 );
 
 const UsernameInput = ({ handleChange, username, currentUserName }) => (
-  <div className='editField'>
+  <div className='d-flex mt-3'>
     <div className='input-group input-group-lg'>
       <span className='input-group-text fieldDescription'>Username:</span>
       <input
@@ -44,7 +44,7 @@ const PasswordInput = ({
   showPassword,
   toggleShowPassword,
 }) => (
-  <div className='editField'>
+  <div className='d-flex mt-3'>
     <div className='input-group input-group-lg'>
       <span className='input-group-text fieldDescription'>Password:</span>
       <input
@@ -75,7 +75,7 @@ const ConfirmPasswordInput = ({
   showPassword,
   toggleShowPassword,
 }) => (
-  <div className='editField'>
+  <div className='d-flex mt-3'>
     <div className='input-group input-group-lg'>
       <span className='input-group-text fieldDescription'>Confirm:</span>
       <input
@@ -101,7 +101,7 @@ const ConfirmPasswordInput = ({
 );
 
 const EmailInput = ({ email, handleChange, authUser }) => (
-  <div className='editField'>
+  <div className='d-flex mt-3'>
     <div className='input-group input-group-lg'>
       <span className='input-group-text fieldDescription'>Email:</span>
       <input
@@ -117,7 +117,7 @@ const EmailInput = ({ email, handleChange, authUser }) => (
 );
 
 const MainGroupInput = ({ currentUser, mainGroup, handleChange }) => (
-  <div className='editField'>
+  <div className='d-flex mt-3'>
     <div className='input-group input-group-lg flex'>
       <span className='input-group-text fieldDescription'>Main Group:</span>
       <select
@@ -142,7 +142,7 @@ const EmailToggleInput = ({
   reminderEmailPref,
   handleChange,
 }) => (
-  <div className='editField centerFlex'>
+  <div className='d-flex centerFlex mt-3'>
     <div>
       <span>Leaderboard Emails:</span>
       <select
