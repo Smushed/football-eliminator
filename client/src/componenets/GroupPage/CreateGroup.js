@@ -1,21 +1,42 @@
-import React, { useState, useEffect } from "react";
-import { withAuthorization } from "../Session";
-import axios from "axios";
-import PropTypes from "prop-types";
-import { useToasts } from "react-toast-notifications";
+import React, { useState, useEffect } from 'react';
+import { withAuthorization } from '../Session';
+import axios from 'axios';
+import PropTypes from 'prop-types';
+import { useToasts } from 'react-toast-notifications';
 
-import "./groupStyle.css";
-import * as Routes from "../../constants/routes";
+import './groupStyle.css';
+import * as Routes from '../../constants/routes';
+
+import UpArrow from '../../constants/SVG/upArrow.svg';
+import DownArrow from '../../constants/SVG/downArrow.svg';
+import Plus from '../../constants/SVG/plus.svg';
+import Minus from '../../constants/SVG/minus.svg';
+
+import ReactTooltip from 'react-tooltip';
 
 const CreateGroup = ({ email, pullUserData, userId, changeGroup, history }) => {
   const [rosterPositions, updateRosterPositions] = useState([]);
   const [positionMap, updatePositionMap] = useState([]);
   const [maxOfPosition, updateMaxOfPosition] = useState([]);
-  const [groupName, updateGroupName] = useState("");
-  const [groupDesc, updateGroupDesc] = useState("");
-  const [groupPosChoose, updateGroupPosChoose] = useState(["QB"]);
+  const [groupName, updateGroupName] = useState('');
+  const [groupDesc, updateGroupDesc] = useState('');
+  const [groupPosChoose, updateGroupPosChoose] = useState([
+    'QB',
+    'RB',
+    'RB',
+    'WR',
+    'WR',
+    'TE',
+    'Flex',
+  ]);
   const [dbReadyGroupPos, updateDbReadyGroupPos] = useState([
-    { I: 1, N: "QB" },
+    { I: 0, N: 'QB' },
+    { I: 1, N: `RB` },
+    { I: 1, N: `RB` },
+    { I: 2, N: `WR` },
+    { I: 2, N: `WR` },
+    { I: 3, N: `TE` },
+    { I: 6, N: `Flex` },
   ]);
   const [groupNameValid, updateGroupNameValid] = useState(false);
   const [groupDescValid, updateGroupDescValid] = useState(false);
@@ -38,7 +59,7 @@ const CreateGroup = ({ email, pullUserData, userId, changeGroup, history }) => {
 
   useEffect(() => {
     if (rosterPositions.length !== 0 && positionMap.length !== 0) {
-      validateForm("groupPos", dbReadyGroupPos);
+      validateForm('groupPos', dbReadyGroupPos);
     }
   }, [dbReadyGroupPos, rosterPositions, positionMap]);
 
@@ -93,11 +114,11 @@ const CreateGroup = ({ email, pullUserData, userId, changeGroup, history }) => {
     const { name, value } = e.target;
 
     switch (name) {
-      case "groupDesc": {
+      case 'groupDesc': {
         updateGroupDesc(value);
         break;
       }
-      case "groupName": {
+      case 'groupName': {
         updateGroupName(value);
         break;
       }
@@ -192,11 +213,11 @@ const CreateGroup = ({ email, pullUserData, userId, changeGroup, history }) => {
       }
     }
     if (tooMany.length > 0) {
-      let errorMessage = "";
+      let errorMessage = '';
       for (let iiii = 0; iiii < tooMany.length; iiii++) {
-        errorMessage += `Too Many ${tooMany[iiii]}`;
+        errorMessage += `Too Many ${tooMany[iiii]}s`;
       }
-      addToast(errorMessage, { appearance: "warning", autoDismiss: true });
+      addToast(errorMessage, { appearance: 'warning', autoDismiss: true });
       return false;
     } else {
       return true;
@@ -206,7 +227,7 @@ const CreateGroup = ({ email, pullUserData, userId, changeGroup, history }) => {
   const addPosition = () => {
     const groupPositions = groupPosChoose.slice(0);
     if (groupPositions.length < 12) {
-      groupPositions.push("QB");
+      groupPositions.push('QB');
       updateGroupPosChoose(groupPositions);
     }
   };
@@ -242,27 +263,47 @@ const CreateGroup = ({ email, pullUserData, userId, changeGroup, history }) => {
       });
   };
 
+  const adjustPosOrder = (order, index) => {
+    const groupPositions = groupPosChoose.slice(0);
+    let newPos;
+    if (order === 'up') {
+      if (index === 0) {
+        return;
+      }
+      newPos = index--;
+    } else {
+      if (index === groupPositions.length) {
+        return;
+      }
+      newPos = index++;
+    }
+    const itemMoved = groupPositions.splice(index, 1)[0];
+    groupPositions.splice(newPos, 0, itemMoved);
+    updateGroupPosChoose(groupPositions);
+  };
+
   const groupValid = groupNameValid & groupDescValid & groupPosValid;
 
   return (
-    <div className="container">
-      <div className="row">
-        <h2 className="col-12 text-center mt-3">Create group</h2>
+    <div className='container'>
+      <ReactTooltip html={true} />
+      <div className='row mb-2'>
+        <h2 className='col-12 text-center mt-3'>Create group</h2>
       </div>
       <form onSubmit={handleSubmit}>
-        <div className="row">
-          <div className="col-12 col-md-6 form-group d-flex justify-content-md-end justify-content-center">
-            <div className="row">
-              <h5 className="col-12 text-center mb-0">Group Name</h5>
-              <div className="col-12 text-center">
-                <label htmlFor="groupName">
+        <div className='row mb-4'>
+          <div className='col-12 col-md-6 form-group d-flex justify-content-md-end justify-content-center'>
+            <div className='row'>
+              <h5 className='col-12 text-center mb-0'>Group Name</h5>
+              <div className='col-12 text-center'>
+                <label htmlFor='groupName'>
                   <small>Minimum 6 characters</small>
                 </label>
                 <input
-                  className="form-control"
-                  type="text"
-                  name="groupName"
-                  placeholder="Dragons of Doom"
+                  className='form-control'
+                  type='text'
+                  name='groupName'
+                  placeholder='Dragons of Doom'
                   value={groupName}
                   onChange={handleChange}
                 />
@@ -270,18 +311,18 @@ const CreateGroup = ({ email, pullUserData, userId, changeGroup, history }) => {
             </div>
           </div>
 
-          <div className="col-12 col-md-6 form-group d-flex justify-content-md-start justify-content-center mt-3 mt-md-0">
-            <div className="row">
-              <h5 className="col-12 text-center">Group Description</h5>
-              <div className="col-12 text-center">
-                <label htmlFor="groupDesc">
+          <div className='col-12 col-md-6 form-group d-flex justify-content-md-start justify-content-center mt-3 mt-md-0'>
+            <div className='row'>
+              <h5 className='col-12 text-center'>Group Description</h5>
+              <div className='col-12 text-center'>
+                <label htmlFor='groupDesc'>
                   <small>Minimum 6 characters</small>
                 </label>
                 <textarea
-                  className="form-control"
-                  type="text"
-                  name="groupDesc"
-                  placeholder="Burninating the Competition"
+                  className='form-control'
+                  type='text'
+                  name='groupDesc'
+                  placeholder='Burninating the Competition'
                   value={groupDesc}
                   onChange={handleChange}
                 />
@@ -290,70 +331,71 @@ const CreateGroup = ({ email, pullUserData, userId, changeGroup, history }) => {
           </div>
         </div>
 
-        <div className="groupFlex createGroupCenter">
-          <div className="groupPosContainer groupFlex">
-            <div>
-              <div className="inputInfo createGroupPrompt">
-                Update Roster Spots
-              </div>
-              <div className="createGroupPrompt">
-                <button
-                  type="button"
-                  className="btn btn-outline-primary btn-sm"
-                  onClick={() => addPosition()}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z" />
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-outline-primary btn-sm removePosButton"
-                  onClick={() => removePosition()}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M0 10h24v4h-24z" />
-                  </svg>
-                </button>
-              </div>
-              <div className="createGroupPrompt enterScoreButton">
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={() => openScore()}
-                  disabled={!groupValid}
-                >
-                  Enter Scores
-                </button>
-              </div>
+        <div className='row justify-content-center'>
+          <div className='col-12 col-md-4'>
+            <div className='row'>
+              <h3 className='col-12 text-center'>Add / Remove Roster Spots</h3>
             </div>
-            <div>
+            <div className='col-12 text-center'>
+              <button
+                type='button'
+                className='btn btn-info btn-sm circleButton border'
+                onClick={() => addPosition()}
+              >
+                <img src={Plus} />
+              </button>
+              <button
+                type='button'
+                className='btn btn-info btn-sm circleButton border ms-2'
+                onClick={() => removePosition()}
+              >
+                <img src={Minus} />
+              </button>
+            </div>
+          </div>
+
+          <div className='col-12 col-md-4'>
+            <div className='row'>
               {groupPosChoose.map((position, i) => {
                 return (
-                  <div className="form-group" key={`groupPosWrapper-${i}`}>
-                    <select
-                      className="form-select"
-                      onChange={handleRosterUpdate}
-                      name={i}
-                      key={`groupPos-${i}`}
-                      value={groupPosChoose[i]}
-                    >
-                      {rosterPositions.map((possiblePos, ii) => (
-                        <option value={possiblePos.N} key={`possiblePos-${ii}`}>
-                          {possiblePos.N}
-                        </option>
-                      ))}
-                    </select>
+                  <div
+                    className='form-group row justify-content-center'
+                    key={`groupPosWrapper-${i}`}
+                  >
+                    <div className='col-8'>
+                      <select
+                        className='form-select mb-1 col-8'
+                        onChange={handleRosterUpdate}
+                        name={i}
+                        key={`groupPos-${i}`}
+                        value={groupPosChoose[i]}
+                      >
+                        {rosterPositions.map((possiblePos, ii) => (
+                          <option
+                            value={possiblePos.N}
+                            key={`possiblePos-${ii}`}
+                          >
+                            {possiblePos.N}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className='col-4'>
+                      <button
+                        type='button'
+                        className='btn btn-outline-info btn-sm circleButton border ms-2'
+                        onClick={() => adjustPosOrder('up', i)}
+                      >
+                        <img src={UpArrow} />
+                      </button>
+                      <button
+                        type='button'
+                        className='btn btn-outline-info btn-sm circleButton border ms-2'
+                        onClick={() => adjustPosOrder('down', i)}
+                      >
+                        <img src={DownArrow} />
+                      </button>
+                    </div>
                   </div>
                 );
               })}
@@ -361,18 +403,38 @@ const CreateGroup = ({ email, pullUserData, userId, changeGroup, history }) => {
           </div>
         </div>
 
+        <div className='row mt-2 justify-content-center'>
+          <div
+            className='col-2 text-center'
+            data-tip={`${
+              !groupValid ? 'Please clear errors before proceeding' : ''
+            }`}
+          >
+            <button
+              type='button'
+              className='btn btn-primary'
+              onClick={() => openScore()}
+              disabled={!groupValid}
+            >
+              Enter Scores
+            </button>
+          </div>
+        </div>
+
         {showScore && (
-          <div className="form-group">
-            <div className="smallFieldDesc">
-              Scores must range from -100 to 100 and cannot go more than two
-              places past the decimal
+          <div className='form-group'>
+            <div className='row'>
+              <div className='col-12 text-center'>
+                <small>
+                  Scores must range from -100 to 100 and cannot go more than two
+                  places past the decimal
+                </small>
+              </div>
             </div>
-            <div className="scoringGroup">
+            <div className='row justify-content-center'>
               {scoringMap.buckets.map((bucket, i) => (
-                <div key={bucket}>
-                  <div className="scoringHeader">
-                    {scoringMap.bucketDescription[i]}
-                  </div>
+                <div className='col-12 col-sm-4 col-md-2' key={bucket}>
+                  <h4>{scoringMap.bucketDescription[i]}</h4>
                   {scoringMap[bucket].map((bucketKey, ii) => (
                     <ScoringRow
                       description={scoringMap[`${bucket}Description`][ii]}
@@ -387,10 +449,15 @@ const CreateGroup = ({ email, pullUserData, userId, changeGroup, history }) => {
               ))}
             </div>
 
-            <div className="createGroupButton">
-              <button className="btn btn-success btn-lg" disabled={!groupValid}>
-                Create Group!
-              </button>
+            <div className='row'>
+              <div className='col-12 text-center'>
+                <button
+                  className='btn btn-success btn-lg'
+                  disabled={!groupValid}
+                >
+                  Create Group!
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -400,11 +467,11 @@ const CreateGroup = ({ email, pullUserData, userId, changeGroup, history }) => {
 };
 
 const ScoringRow = ({ description, bucket, bucketKey, val, handleChange }) => (
-  <div className="groupScoreRow">
-    <div className="groupScoreDesc">{description}</div>
+  <div className='groupScoreRow'>
+    <div className='groupScoreDesc'>{description}</div>
     <input
-      className="form-control groupScoreConfigInput"
-      type="text"
+      className='form-control groupScoreConfigInput'
+      type='text'
       name={`${bucket}-${bucketKey}`}
       value={val}
       onChange={handleChange}

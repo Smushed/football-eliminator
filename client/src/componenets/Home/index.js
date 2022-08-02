@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { withAuthorization } from "../Session";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { withAuthorization } from '../Session';
+import { Link } from 'react-router-dom';
 
-import { RosterDisplay } from "../Roster/RosterDisplay";
-import "./homeStyle.css";
-import Leaderboard from "./Leaderboard";
-import PropTypes from "prop-types";
-import RosterCarousel from "./RosterCarousel";
-import * as Routes from "../../constants/routes";
+import { RosterDisplay } from '../Roster/RosterDisplay';
+import './homeStyle.css';
+import Leaderboard from './Leaderboard';
+import PropTypes from 'prop-types';
+import RosterCarousel from './RosterCarousel';
+import * as Routes from '../../constants/routes';
 
 const Home = ({ season, group, week, currentUser, noGroup, history }) => {
   const [leaderboard, updateLeaderboard] = useState([]);
@@ -150,16 +150,16 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
 
   const weekForLeaderboard = week === 0 ? 1 : week;
   return (
-    <div className="container">
-      <div className="row border justify-around pb-2 mb-2 mt-2">
-        <div className="col-lg-4 col-md-12 text-center">
-          <div className="fs-3">
-            <div className="fw-bold">Current Leader</div>
+    <div className='container'>
+      <div className='row border justify-around pb-2 mb-2 mt-2'>
+        <div className='col-lg-4 col-md-12 text-center'>
+          <div className='fs-3'>
+            <div className='fw-bold'>Current Leader</div>
             {leaderboard.length > 0 && leaderboard[0].UN}
           </div>
-          <img className="img-fluid rounded" src={leaderAvatar} />
+          <img className='img-fluid rounded' src={leaderAvatar} />
         </div>
-        <div className="col-lg-8 col-md-12">
+        <div className='col-lg-8 col-md-12'>
           <Leaderboard
             week={weekForLeaderboard}
             season={season}
@@ -168,8 +168,8 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
           />
         </div>
       </div>
-      <div className="row border pt-2">
-        <div className="col-lg-6 d-none d-lg-block">
+      <div className='row border pt-2'>
+        <div className='col-lg-6 d-none d-lg-block'>
           <RosterDisplay
             headerText="Last Week's Ideal Roster"
             groupPositions={groupPositions}
@@ -177,9 +177,9 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
             pastLockWeek={true}
           />
         </div>
-        <div className="col-lg-6 d-none d-lg-block">
-          <div className="row">
-            <div className="col-12">
+        <div className='col-lg-6 d-none d-lg-block'>
+          <div className='row'>
+            <div className='col-12'>
               <RosterDisplay
                 headerText={`Best from Week ${week - 1} - ${bestRosterUser}`}
                 groupPositions={groupPositions}
@@ -189,7 +189,7 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
             </div>
           </div>
         </div>
-        <div className="col-md-12 d-block d-lg-none">
+        <div className='col-md-12 d-block d-lg-none'>
           <RosterCarousel
             week={weekForLeaderboard}
             bestRosterUser={bestRosterUser}
@@ -199,17 +199,17 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
           />
         </div>
       </div>
-      <div className="row">
-        <div className="text-center fs-3 fw-bold pt-2 col-12">
+      <div className='row'>
+        <div className='text-center fs-3 fw-bold pt-2 col-12'>
           {group.N} Week {week} Rosters
         </div>
-        <div className="d-flex flex-wrap justify-content-evenly row">
+        <div className='d-flex flex-wrap justify-content-evenly row'>
           {weeklyGroupRosters.map((inGroupRoster) => (
-            <div className="col-xs-12 col-lg-6" key={inGroupRoster.UN}>
-              <div className="text-center fs-3">
+            <div className='col-xs-12 col-lg-6' key={inGroupRoster.UN}>
+              <div className='text-center fs-3'>
                 <Link to={`/roster/${group.N}/${inGroupRoster.UN}`}>
                   {inGroupRoster.UN}
-                </Link>{" "}
+                </Link>{' '}
                 Roster
               </div>
               <RosterDisplay

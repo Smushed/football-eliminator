@@ -1,17 +1,23 @@
-import React, { useState, useEffect } from "react";
-import { withAuthorization } from "../Session";
-import * as Routes from "../../constants/routes";
-import axios from "axios";
-import PropTypes from "prop-types";
+import React, { useState, useEffect } from 'react';
+import { withAuthorization } from '../Session';
+import * as Routes from '../../constants/routes';
+import axios from 'axios';
+import PropTypes from 'prop-types';
 
-import PlayerEditor from "./PlayerEditor";
-import GroupEditor from "./GroupEditor";
+import PlayerEditor from './PlayerEditor';
+import GroupEditor from './GroupEditor';
+
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+
+const Alert = withReactContent(Swal);
 
 const AdminPanel = ({ currentUser, season, week, groupId }) => {
   const [playerEditor, setPlayerEditor] = useState(false);
   const [groupEditor, setGroupEditor] = useState(false);
   const [weekSelect, setWeekSelect] = useState(`1`);
   const [seasonSelect, setSeasonSelect] = useState(``);
+  const [adminPass, setAdminPass] = useState(``);
 
   useEffect(() => {
     setSeasonSelect(season);
@@ -49,20 +55,52 @@ const AdminPanel = ({ currentUser, season, week, groupId }) => {
   };
 
   const handleChange = (e) => {
-    e.target.name === `seasonSelect` && setSeasonSelect(e.target.value);
-    e.target.name === `weekSelect` && setWeekSelect(e.target.value);
+    const { name, value } = e.target;
+    name === `seasonSelect` && setSeasonSelect(value);
+    name === `weekSelect` && setWeekSelect(value);
+    name === `adminPass` && setAdminPass(value);
+  };
+
+  const tryKillDB = () => {
+    axios
+      .post(`/api/purgeUserAndGroupDB/${adminPass}`)
+      .then((res) => console.log(res))
+      .catch(
+        async (err) =>
+          await Alert.fire({
+            title: `Really? Get outta here!`,
+            type: `error`,
+            showConfirmButton: false,
+          })
+      );
   };
 
   return currentUser.isAdmin ? (
-    <div className="container-fluid">
-      <div className="row">
-        <div className="col-sm-12 col-md-3 form-group">
-          <label htmlFor="seasonSelect">Select Season</label>
+    <div className='container-fluid'>
+      <div className='row'>
+        <div className='col-12 col-md-3 form-group'>
+          <div className='row'>
+            <div className='col-12 mt-3 mb-3 text-center'>
+              <input
+                className='form-control'
+                value={adminPass}
+                onChange={handleChange}
+                name='adminPass'
+              />
+              <button
+                className='btn btn-primary mt-1'
+                onClick={() => tryKillDB()}
+              >
+                Nuke the DB
+              </button>
+            </div>
+          </div>
+          <label htmlFor='seasonSelect'>Select Season</label>
           <select
-            className="form-select"
+            className='form-select'
             value={seasonSelect}
-            type="select"
-            name="seasonSelect"
+            type='select'
+            name='seasonSelect'
             onChange={handleChange}
           >
             <option>2019-2020-regular</option>
@@ -70,12 +108,12 @@ const AdminPanel = ({ currentUser, season, week, groupId }) => {
             <option>2021-2022-regular</option>
           </select>
 
-          <label htmlFor="weekSelect">Select Week</label>
+          <label htmlFor='weekSelect'>Select Week</label>
           <select
-            className="form-select"
+            className='form-select'
             value={weekSelect}
-            type="select"
-            name="weekSelect"
+            type='select'
+            name='weekSelect'
             onChange={handleChange}
           >
             <option>1</option>
@@ -99,23 +137,23 @@ const AdminPanel = ({ currentUser, season, week, groupId }) => {
           <br />
           <br />
           <button
-            className="btn btn-primary"
+            className='btn btn-primary'
             onClick={() => showPlayerEditor()}
           >
             Player Editor
           </button>
           <br />
           <br />
-          <button className="btn btn-primary" onClick={() => showGroupEditor()}>
+          <button className='btn btn-primary' onClick={() => showGroupEditor()}>
             Group Editor
           </button>
           <br />
           <br />
-          <button className="btn btn-primary" onClick={() => getMatchups()}>
+          <button className='btn btn-primary' onClick={() => getMatchups()}>
             Get Matchups
           </button>
         </div>
-        <div className="col-sm-12 col-md-9">
+        <div className='col-sm-12 col-md-9'>
           {playerEditor && (
             <PlayerEditor
               week={weekSelect}

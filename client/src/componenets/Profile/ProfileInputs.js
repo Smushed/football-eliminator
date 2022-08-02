@@ -1,20 +1,20 @@
-import React from "react";
-import PropTypes from "prop-types";
+import React from 'react';
+import PropTypes from 'prop-types';
 
 const AvatarInput = ({ handleChange, fileInputRef }) => (
-  <div className="editField">
-    <div className="input-group input-group-lg">
-      <span className="input-group-text fieldDescription">Avatar:</span>
+  <div className='editField'>
+    <div className='input-group input-group-lg'>
+      <span className='input-group-text fieldDescription'>Avatar:</span>
       <div>
-        <label htmlFor="avatarInput" className="customFileUploadButton">
+        <label htmlFor='avatarInput' className='customFileUploadButton'>
           Upload Avatar
         </label>
       </div>
       <input
-        type="file"
-        name="avatar"
-        id="avatarInput"
-        className="avatarInputButton"
+        type='file'
+        name='avatar'
+        id='avatarInput'
+        className='avatarInputButton'
         onChange={handleChange}
         ref={fileInputRef}
       />
@@ -23,14 +23,14 @@ const AvatarInput = ({ handleChange, fileInputRef }) => (
 );
 
 const UsernameInput = ({ handleChange, username, currentUserName }) => (
-  <div className="editField">
-    <div className="input-group input-group-lg">
-      <span className="input-group-text fieldDescription">Username:</span>
+  <div className='editField'>
+    <div className='input-group input-group-lg'>
+      <span className='input-group-text fieldDescription'>Username:</span>
       <input
-        className="form-control"
-        name="username"
+        className='form-control'
+        name='username'
         value={username}
-        type="text"
+        type='text'
         onChange={handleChange}
         placeholder={currentUserName}
       />
@@ -44,26 +44,26 @@ const PasswordInput = ({
   showPassword,
   toggleShowPassword,
 }) => (
-  <div className="editField">
-    <div className="input-group input-group-lg">
-      <span className="input-group-text fieldDescription">Password:</span>
+  <div className='editField'>
+    <div className='input-group input-group-lg'>
+      <span className='input-group-text fieldDescription'>Password:</span>
       <input
-        className="form-control"
-        name="password"
+        className='form-control'
+        name='password'
         value={password}
         type={showPassword}
         onChange={handleChange}
-        placeholder="Password"
+        placeholder='Password'
       />
-      <span className="input-group-text fieldDescription inputCheckbox">
+      <span className='input-group-text fieldDescription inputCheckbox'>
         <input
-          className="largeCheckbox input-group-text fieldDescription"
-          type="checkbox"
+          className='largeCheckbox input-group-text fieldDescription'
+          type='checkbox'
           value={showPassword}
-          name="togglePassword"
+          name='togglePassword'
           onChange={toggleShowPassword}
         />
-        <div className="largeTogglePass">&nbsp;Show</div>
+        <div className='largeTogglePass'>&nbsp;Show</div>
       </span>
     </div>
   </div>
@@ -75,54 +75,54 @@ const ConfirmPasswordInput = ({
   showPassword,
   toggleShowPassword,
 }) => (
-  <div className="editField">
-    <div className="input-group input-group-lg">
-      <span className="input-group-text fieldDescription">Confirm:</span>
+  <div className='editField'>
+    <div className='input-group input-group-lg'>
+      <span className='input-group-text fieldDescription'>Confirm:</span>
       <input
-        className="form-control"
-        name="confirmPassword"
+        className='form-control'
+        name='confirmPassword'
         value={password}
         type={showPassword}
         onChange={handleChange}
-        placeholder="Confirm Password"
+        placeholder='Confirm Password'
       />
-      <span className="input-group-text fieldDescription inputCheckbox">
+      <span className='input-group-text fieldDescription inputCheckbox'>
         <input
-          className="largeCheckbox input-group-text"
-          type="checkbox"
+          className='largeCheckbox input-group-text'
+          type='checkbox'
           value={showPassword}
-          name="togglePassword"
+          name='togglePassword'
           onChange={toggleShowPassword}
         />
-        <div className="largeTogglePass">&nbsp;Show</div>
+        <div className='largeTogglePass'>&nbsp;Show</div>
       </span>
     </div>
   </div>
 );
 
 const EmailInput = ({ email, handleChange, authUser }) => (
-  <div className="editField">
-    <div className="input-group input-group-lg">
-      <span className="input-group-text fieldDescription">Email:</span>
+  <div className='editField'>
+    <div className='input-group input-group-lg'>
+      <span className='input-group-text fieldDescription'>Email:</span>
       <input
-        className="form-control"
-        name="email"
+        className='form-control'
+        name='email'
         value={email}
-        type="email"
+        type='email'
         onChange={handleChange}
-        placeholder={authUser ? authUser.email : "Email"}
+        placeholder={authUser ? authUser.email : 'Email'}
       />
     </div>
   </div>
 );
 
 const MainGroupInput = ({ currentUser, mainGroup, handleChange }) => (
-  <div className="editField">
-    <div className="input-group input-group-lg flex">
-      <span className="input-group-text fieldDescription">Main Group:</span>
+  <div className='editField'>
+    <div className='input-group input-group-lg flex'>
+      <span className='input-group-text fieldDescription'>Main Group:</span>
       <select
-        className="form-select"
-        name="mainGroup"
+        className='form-select'
+        name='mainGroup'
         value={mainGroup}
         onChange={handleChange}
       >
@@ -142,12 +142,12 @@ const EmailToggleInput = ({
   reminderEmailPref,
   handleChange,
 }) => (
-  <div className="editField centerFlex">
+  <div className='editField centerFlex'>
     <div>
       <span>Leaderboard Emails:</span>
       <select
-        className="form-select"
-        name="leaderboardEmail"
+        className='form-select'
+        name='leaderboardEmail'
         value={leaderboardEmailPref}
         onChange={handleChange}
       >
@@ -155,11 +155,11 @@ const EmailToggleInput = ({
         <option value={false}>Off</option>
       </select>
     </div>
-    <div className="dropdownSpace">
+    <div className='dropdownSpace'>
       <span>Reminder Emails:</span>
       <select
-        className="form-select"
-        name="reminderEmail"
+        className='form-select'
+        name='reminderEmail'
         value={reminderEmailPref}
         onChange={handleChange}
       >

@@ -183,7 +183,7 @@ module.exports = {
     groupDesc,
     groupPositions
   ) => {
-    const dupe = await checkDuplicate("group", groupName);
+    const dupe = await checkDuplicate('group', groupName);
     if (dupe) {
       return false;
     }
@@ -263,7 +263,7 @@ module.exports = {
   createClapper: async function () {
     //TODO Break this out to use the Create Group function above. Just not sure about the mod part
     //If there is no Dupe general group we are good to go ahead and add it
-    if (!checkDuplicate("group", "Clapper")) {
+    if (!checkDuplicate('group', 'Clapper')) {
       return false;
     }
     const clapper = {
@@ -291,7 +291,7 @@ module.exports = {
       return dbResponse.P;
     } catch (err) {
       console.log(`Error: ${err}`);
-      return Error("Cannot Find Group Positions");
+      return Error('Cannot Find Group Positions');
     }
   },
   groupPositionsForDisplay: async (rawPositionData) => {
@@ -348,7 +348,7 @@ module.exports = {
         UL: [],
       };
       for (let ii = 0; ii < groupResponse[i].UL.length; ii++) {
-        const user = await db.User.findById(groupResponse[i].UL[ii].ID, "UN");
+        const user = await db.User.findById(groupResponse[i].UL[ii].ID, 'UN');
         filledData[i].UL.push({
           UN: user.UN,
           A: groupResponse[i].UL[ii].A,
@@ -380,7 +380,7 @@ module.exports = {
           );
           res(updatedIdealRoster);
         } catch (err) {
-          res(Error("Ideal Roster could not be created!"));
+          res(Error('Ideal Roster could not be created!'));
         }
       } else {
         res(idealRosterResponse);
@@ -408,7 +408,7 @@ module.exports = {
         this.getGroupPositions(groupId),
       ]).then(async ([groupScore, groupPositions]) => {
         if (groupPositions.length === 0 || !groupPositions) {
-          return Error("Group Positions not found!");
+          return Error('Group Positions not found!');
         }
 
         Promise.all([
@@ -452,6 +452,7 @@ module.exports = {
     const blankRoster = groupPositions.map((position) => ({
       M: 0,
       P: position.N,
+      SC: 0,
     }));
     return blankRoster;
   },
@@ -546,7 +547,7 @@ module.exports = {
         (user) => user.ID.toString() === delUserId.toString()
       );
       if (!userInGroup) {
-        res({ status: false, message: "User not found in group." });
+        res({ status: false, message: 'User not found in group.' });
       }
 
       const userPos = group.UL.map((user) => user.ID.toString()).indexOf(
@@ -585,9 +586,9 @@ module.exports = {
           await group.save();
         }
       } catch (err) {
-        res({ status: false, message: "Saving error, contact Kevin" });
+        res({ status: false, message: 'Saving error, contact Kevin' });
       }
-      res({ status: true, message: "User removed from group" });
+      res({ status: true, message: 'User removed from group' });
     });
   },
   singleAdminCheck: async (group, userId) => {
