@@ -2,7 +2,7 @@ module.exports = {
   User: require(`./User`),
   UserRoster: require(`./UserRoster`),
   UserScores: require(`./UserScores`),
-  UserEmailSettings: require(`./UserEmailSetting`),
+  UserEmailSettings: require(`./UserEmailSettings`),
   UsedPlayers: require(`./UsedPlayers`),
   SeasonAndWeek: require(`./SeasonAndWeek`),
   MatchUps: require(`./MatchUps`),

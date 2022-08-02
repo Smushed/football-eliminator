@@ -13,8 +13,8 @@ const Cors = require(`cors`);
 const mongoose = require(`mongoose`);
 
 app.use(Cors());
-app.use(bodyParser.urlencoded({ extended: true, limit: "5mb" }));
-app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '5mb' }));
+app.use(bodyParser.json({ limit: '50mb' }));
 app.use(cookieParser());
 
 let MONGODB_URI = ``;
