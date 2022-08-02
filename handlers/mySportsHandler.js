@@ -49,17 +49,17 @@ const addPlayerData = (player, team, stats, season, week) => {
         R: 7,
         I: player.currentInjury,
       },
-      function (err, player) {
+      function (err, newPlayer) {
         if (err) {
           console.log(err);
         }
         //If we are adding a new player from the weekly update we cascade it down to add their stats
         if (stats) {
-          addWeeksStats(player.M, stats, season, week);
+          addWeeksStats(newPlayer.M, stats, season, week);
         }
+        res(newPlayer.M);
       }
     );
-    res(player.M);
   });
 };
 
@@ -302,7 +302,9 @@ const parseRoster = async (playerArray, team) => {
       position === `K`
     ) {
       let dbPlayer = await findPlayerInDB(playerArray[i].player.id);
+      console.log(playerArray[i].player);
       if (dbPlayer === false || dbPlayer === undefined || dbPlayer === null) {
+        console.log("inside undef");
         dbPlayer = await addPlayerData(playerArray[i].player, team);
       } else {
         let injury = null;
@@ -319,6 +321,7 @@ const parseRoster = async (playerArray, team) => {
           position
         );
       }
+      console.log(dbPlayer);
       totalPlayerArray.push(dbPlayer.M);
     }
   }
@@ -558,12 +561,17 @@ module.exports = {
   updateRoster: (season) => {
     return new Promise(async (res, rej) => {
       // This loops through the array of all the teams above and gets the current rosters
-      for (const team of nflTeams.teams) {
-        if (team === `UNK`) {
-          continue;
+      let i = 0;
+      const rosterTimer = setInterval(async () => {
+        const team = nflTeams.teams[i];
+        if (team !== `UNK`) {
+          await pullTeamData(season, team);
         }
-        await pullTeamData(season, team);
-      }
+        i++;
+        if (i >= 33) {
+          clearInterval(rosterTimer);
+        }
+      }, 6000);
 
       //TODO Better response
       res({ text: `Rosters updated!` });
@@ -766,7 +774,8 @@ module.exports = {
   },
   pullMatchUpsForDB: async (season, week) => {
     return new Promise(async (res, rej) => {
-      for (let i = 1; i <= week; i++) {
+      let i = 1;
+      const matchUpTimer = setInterval(async () => {
         console.log(`requesting matchups for ${season}, week ${i}`);
         const search = await axios.get(
           `https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${i}/games.json`,
@@ -788,7 +797,11 @@ module.exports = {
         });
 
         await saveOrUpdateMatchups(parsedGames, season, i);
-      }
+        i++;
+        if (i > week) {
+          clearInterval(matchUpTimer);
+        }
+      }, 6000);
       res(`Completed`);
     });
   },
@@ -814,16 +827,20 @@ module.exports = {
     return await playerScoreHandler(playerId, season, week, groupScore);
   },
   checkGameStarted: async (season, week) => {
-    console.log(`Pulling Weekly Game Times`);
-    const search = await axios.get(
-      `https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${week}/games.json`,
-      {
-        auth: {
-          username: mySportsFeedsAPI,
-          password: `MYSPORTSFEEDS`,
-        },
-      }
-    );
+    let search;
+    try {
+      search = await axios.get(
+        `https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${week}/games.json`,
+        {
+          auth: {
+            username: mySportsFeedsAPI,
+            password: `MYSPORTSFEEDS`,
+          },
+        }
+      );
+    } catch (err) {
+      console.log(`Error pulling weekly game schedule! ${err}`);
+    }
     for (const game of search.data.games) {
       const homeTeamLockSearch = await db.TeamLocked.findOne({
         T: game.schedule.homeTeam.abbreviation,

@@ -39,6 +39,12 @@
         "popper.js": "^1.16.1",
         "table": "^6.8.0"
     },
+    "prettier": {
+        "tabWidth": 2,
+        "semi": true,
+        "singleQuote": true,
+        "jsxSingleQuote": true
+    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/football-eliminator/football-eliminator.git"

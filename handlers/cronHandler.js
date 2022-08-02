@@ -7,7 +7,7 @@ const groupHandler = require(`../handlers/groupHandler`);
 const emailHandler = require(`../handlers/emailHandler`);
 const moment = require(`moment-timezone`);
 
-// Schedule a job for thge 22nd minute of each hour
+// Schedule a job for the 22nd minute of each hour
 // Doing this every hour rather than daily in case Heroku isn't working
 schedule.scheduleJob("22 * * 1,9-12 *", async function () {
   //Need to update which week we're currently in
