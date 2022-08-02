@@ -95,6 +95,7 @@ const Roster = ({
     updateUsernameOfPage(username);
     getRosterData(week);
     checkCurrentUser();
+    pullPlayers();
   };
 
   const getUsedPlayers = () => {
@@ -283,7 +284,11 @@ const Roster = ({
 
   const positionSearch = (e) => {
     e.preventDefault();
+    //Spelling this out so we can do it with and without the event listener
+    pullPlayers();
+  };
 
+  const pullPlayers = () => {
     loading();
     axios
       .get(`/api/roster/players/available`, {
@@ -473,7 +478,35 @@ const Roster = ({
           </div>
 
           <div className='row justify-content-center mt-2 mb-1'>
-            {activePlayerSearch ? (
+            <>
+              <div className='col-6 col-lg-4'>
+                <div className='row'>
+                  <div className='col-12 text-center'>Change Week</div>
+                </div>
+                <WeekSearch
+                  weekSelect={weekSelect}
+                  handleChange={handleChange}
+                  customSeasonWeekSearch={customSeasonWeekSearch}
+                  disabled={mustDrop}
+                />
+              </div>
+              <div className='col-6 col-lg-4'>
+                <div className='row'>
+                  <div className='col-sm-12 col-md-8 text-center'>
+                    Position Search
+                  </div>
+                </div>
+                <div className='row'>
+                  <PositionSearch
+                    positionSelect={positionSelect}
+                    handleChange={handleChange}
+                    positionSearch={positionSearch}
+                    disabled={mustDrop}
+                  />
+                </div>
+              </div>
+            </>
+            {activePlayerSearch && (
               <div className='col-6'>
                 <div className='playerSearchBox input-group input-group-lg mt-2 mb-1'>
                   <span className='input-group-text rosterFieldDescription'>
@@ -488,35 +521,6 @@ const Roster = ({
                   />
                 </div>
               </div>
-            ) : (
-              <>
-                <div className='col-6 col-lg-4'>
-                  <div className='row'>
-                    <div className='col-12 text-center'>Change Week</div>
-                  </div>
-                  <WeekSearch
-                    weekSelect={weekSelect}
-                    handleChange={handleChange}
-                    customSeasonWeekSearch={customSeasonWeekSearch}
-                    disabled={mustDrop}
-                  />
-                </div>
-                <div className='col-6 col-lg-4'>
-                  <div className='row'>
-                    <div className='col-sm-12 col-md-8 text-center'>
-                      Position Search
-                    </div>
-                  </div>
-                  <div className='row'>
-                    <PositionSearch
-                      positionSelect={positionSelect}
-                      handleChange={handleChange}
-                      positionSearch={positionSearch}
-                      disabled={mustDrop}
-                    />
-                  </div>
-                </div>
-              </>
             )}
           </div>
         </div>
