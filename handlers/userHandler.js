@@ -132,7 +132,7 @@ module.exports = {
     try {
       response = await db.User.findById(userID);
     } catch (err) {
-      response = "No User Found!";
+      response = 'No User Found!';
       status = 400;
     }
     return { response, status };
@@ -207,6 +207,20 @@ module.exports = {
         console.log(`Season & Week Deleted`);
       }
     });
+    db.UsedPlayers.deleteMany({}, (err, res) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(`UsedPlayers Deleted`);
+      }
+    });
+    db.UserEmailSettings.deleteMany({}, (err, res) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(`UserEmailSetting Deleted`);
+      }
+    });
   },
   updateSeasonWeek: (season, currentWeek, lockWeek) => {
     return new Promise(async (res, rej) => {
@@ -247,11 +261,11 @@ module.exports = {
   addGroupToList: async (userId, groupId) => {
     const isInGroup = await checkDuplicateUser(`group`, userId, groupId);
     if (isInGroup) {
-      return { status: 409, message: "Group already added to user!" };
+      return { status: 409, message: 'Group already added to user!' };
     } else {
       await db.User.findByIdAndUpdate([userId], { $push: { GL: groupId } });
     }
-    return { status: 200, message: "All Good" };
+    return { status: 200, message: 'All Good' };
   },
   groupUserList: function (userList) {
     return new Promise(async (res) => {

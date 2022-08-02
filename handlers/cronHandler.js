@@ -100,13 +100,3 @@ const startWeek = (currDate, currDBWeeks, currWeek) => {
     userHandler.updateLockWeek(currWeek - 1);
   }
 };
-
-const test = async () => {
-  const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
-  await mySportsHandler.updateRoster(season);
-  // await updatePlayerData(season, week);
-
-  allScheduledGames(season);
-};
-
-// test();
