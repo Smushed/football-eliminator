@@ -1,211 +1,38 @@
-.rosterPageContainer {
-    display: flex;
-}
-
-.thirtyTransparent {
-    opacity: 30%;
-}
-
-.zeroTransparent {
-    opacity: 0;
+.rosterPosition {
+  max-width: 67px;
 }
 
 .rosterHide {
-    opacity: 0;
-}
-
-.noXScale {
-    transform: scaleX(0);
-}
-
-.adjustRosterSpacing {
-    margin-left: 30%;
-    margin-right: 50px;
-}
-
-.leftSearchRow {
-    margin-left: 5%;
-}
-
-.searchDropdown {
-    margin-bottom: 0;
-    float: left;
-}
-
-.usernameRow {
-    margin-bottom: 30px;
-}
-
-.pointer {
-    cursor: pointer;
+  opacity: 0.3;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .custom-button {
-    text-align: center;
-    vertical-align: middle;
-    user-select: none;
-    background-color: transparent;
-    border: 1px solid transparent;
-    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    height: 28px;
-    font-size: 14px;
-    border-radius: 0.2rem;
-    cursor: pointer;
-    color: #17a2b8;
-    border-color: #17a2b8;
-    margin-top: 4px;
+  text-align: center;
+  user-select: none;
+  background-color: transparent;
+  border: 1px solid transparent;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  height: 28px;
+  font-size: 14px;
+  border-radius: 0.2rem;
+  cursor: pointer;
+  color: #17a2b8;
+  border-color: #17a2b8;
 }
 
 .custom-button:hover {
-    color: #fff;
-    background-color: #17a2b8;
-    border-color: #17a2b8;
+  color: #fff;
+  background-color: #17a2b8;
+  border-color: #17a2b8;
 }
 
-.sectionHeader {
-    font-size: 20px;
-    text-align: center;
-    margin-top: 5px;
-    border-bottom: 1px solid lightgray;
-}
-
-.inputLength {
-    width: 150px;
-}
-
-.submitButton {
-    margin-bottom: 25px;
-    margin-left: 10px;
-    float: left;
-}
-
-.selectContainer {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-}
-
-.columnStyle {
-    margin: 8px;
-    border: 1px solid lightgrey;
-    border-radius: 2px;
-    min-height: 250px;
-    display: flex;
-    flex-direction: column;
-}
-
-.colHeader {
-    text-align: center;
-    font-size: 22px;
-}
-
-.title {
-    padding: 8px;
-}
-
-.searchRow {
-    text-align: center;
-    margin-top: 15px;
-}
-
-.noMargin {
-    margin: 0;
-}
-
-.searchLabel {
-    width: 150px;
-}
-
-.floatRight {
-    float:right;
-}
-
-.rosterContainer {
-    display: flex;
-    width: 100%;
-    justify-content: space-evenly;
-    margin-right: 15%;
-}
-
-.rosterCol {
-    width: 30%;
-    min-width: 400px;
-    transition: 1s;
-}
-
-.usedPlayerCol {
-    margin-top: 65px;
-    transition: 0.5s;
-}
-
-.smallSearchContainer {
-    display: none;
-}
-
-.largeScreenShow {
-    display: block;
-}
-
-.rosterFieldDescription {
-    width: auto;
-}
-
-/* MEDIUM SIZE */
-@media only screen and (max-width: 1100px) {
-    .rosterPageContainer {
-        display: block;
-    }
-    .leftSearchRow {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    .searchRow {
-        margin-top: 0;
-        margin-left: 15px;
-    }
-}
-
-/* FOR SMARTPHONES */
-@media only screen and (max-width: 767px) {
-    .leftSearchRow {
-        margin-left: 0;
-    }
-    .smallSearchContainer {
-        display: block
-    }
-    .largeScreenShow {
-        display: none;
-    }
-    .searchRow {
-        text-align: center;
-        margin-top: 0;
-        height: 75px;
-    }
-    .smallerSearchHeight {
-        height: 50px;
-    }
-    .rosterCol {
-        width: 100%;
-        margin-top: 15px;
-        min-width: 0;
-    }
-    .rosterContainer {
-        display: block;
-    }
-    .selectContainer {
-        flex-wrap: wrap;
-    }
-    .oneFlexLine {
-        flex-basis: 100%;
-    }
-    .usedPlayerCol {
-        margin-top: 15px;
-    }
-    .rosterPageContainer {
-        width: 100%;
-    }
-    .adjustRosterSpacing {
-        margin: 0;
-    }
+.rosterHide {
+  visibility: hidden;
 }

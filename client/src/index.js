@@ -2,11 +2,11 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
-import Firebase, { FirebaseContext } from './componenets/Firebase';
-import 'bootstrap/dist/css/bootstrap.css';
+import Firebase, { FirebaseContext } from "./componenets/Firebase";
+import "bootstrap/dist/css/bootstrap.css";
 ReactDOM.render(
-	<FirebaseContext.Provider value={new Firebase()}>
-		<App />
-	</FirebaseContext.Provider>,
-	document.getElementById('root')
-)
+  <FirebaseContext.Provider value={new Firebase()}>
+    <App />
+  </FirebaseContext.Provider>,
+  document.getElementById("root")
+);

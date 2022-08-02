@@ -1,51 +1,51 @@
 .displayBoxAvatarWrapper {
-    display: flex;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
 }
 
 .displayBoxAvatar {
-    height: 150px;
-    width: 150px;
-    border-radius: 5px;
+  height: 150px;
+  width: 150px;
+  border-radius: 5px;
 }
 
 .displayBox {
-    height: 225px;
-    width: 214px;
-    border: 1px darkgray solid;
-    border-radius: 5px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    margin-left: 20px;
-    padding-left: 5px;
-    padding-right: 7px;
+  height: 225px;
+  width: 214px;
+  border: 1px darkgray solid;
+  border-radius: 5px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 20px;
+  padding-left: 5px;
+  padding-right: 7px;
 }
 
 .displayBoxName {
-    font-size: 24px;
-    font-weight: 600;
-    text-align: center;
-    height: 34px;
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  height: 34px;
 }
 
 .displayBoxScoreWrapper {
-    font-size: 18px;
-    display: flex;
-    justify-content: space-around;
-    font-weight: 600;
+  font-size: 18px;
+  display: flex;
+  justify-content: space-around;
+  font-weight: 600;
 }
 
 .withButtonHeight {
-    height: 265px;
+  height: 265px;
 }
 
 .closeSVGFit {
-    margin-top: -5px;
-    margin-left: 5px;
-    height: 15px;
-    width: 15px;
+  margin-top: -5px;
+  margin-left: 5px;
+  height: 15px;
+  width: 15px;
 }
 
 .addRemoveButton {
-    margin-top: 10px;
+  margin-top: 10px;
 }

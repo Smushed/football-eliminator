@@ -1,370 +1,386 @@
 .greyBackdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgb(85, 85, 85);
-    opacity: 0.7;
-    z-index: .9;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgb(85, 85, 85);
+  opacity: 0.7;
+  z-index: 0.9;
 }
 
 .profileWrapper {
-    margin: 0 auto;
-    margin-top: 20px;
-    width: 862px;
+  margin: 0 auto;
+  margin-top: 20px;
+  width: 862px;
 }
 
 .profileModal {
-    position: absolute;
-    top: 45%;
-    left: 50%;
-    transform: translate(-50%, -50%); 
-    height: 500px;
-    width: 900px;
-    background-color: whitesmoke;
-    border-radius: 5px;
-    border: 1px lightgray solid;
-    padding: 10px 50px;
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 500px;
+  width: 900px;
+  background-color: whitesmoke;
+  border-radius: 5px;
+  border: 1px lightgray solid;
+  padding: 10px 50px;
 }
 
 .ReactModal__Content {
-    overflow-y: auto;
+  overflow-y: auto;
 }
 
 .ReactModal__Overlay {
-    opacity: 0;
-    animation: pop-in 0.15s;
-    -webkit-animation: pop-in 0.15s;
-    -moz-animation: pop-in 0.15s;
-    -ms-animation: pop-in 0.15s;
+  opacity: 0;
+  animation: pop-in 0.15s;
+  -webkit-animation: pop-in 0.15s;
+  -moz-animation: pop-in 0.15s;
+  -ms-animation: pop-in 0.15s;
 }
 
-.ReactModal__Overlay--after-open{
-    opacity: 1;
+.ReactModal__Overlay--after-open {
+  opacity: 1;
 }
 
-.ReactModal__Overlay--before-close{
-    opacity: 0;
+.ReactModal__Overlay--before-close {
+  opacity: 0;
 }
 
 .modalOverlay {
-    position:fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .fieldDescription {
-    width: 127px;
-    padding-left: 12px !important;
+  width: 127px;
+  padding-left: 12px !important;
 }
 
 .editField {
-    display: flex;
-    font-size: 22px;
-    margin-top: 10px;
+  font-size: 22px;
 }
 
 .lowerOpacity {
-    opacity: 0.3;
+  opacity: 0.3;
 }
 
 .largeCheckbox {
-    height: 23px;
-    width: 23px;
+  height: 23px;
+  width: 23px;
+  cursor: pointer;
 }
 
 .profileName {
-    font-size: 38px;
-    font-weight: 600;
+  font-size: 38px;
+  font-weight: 600;
 }
 
 .profileDesc {
-    font-size: 20px;
+  font-size: 20px;
 }
 
 .profileAvatarWrapper {
-    text-align: center;
-    height: 200px;
-    width: 200px;
-    position: relative;
+  text-align: center;
+  height: 200px;
+  width: 200px;
+  position: relative;
 }
 
 .profileAvatar {
-    border-radius: 10px;
+  border-radius: 10px;
 }
 
 .editAvatar {
-    filter: brightness(100%);
-    -webkit-filter: brightness(100%);
-    cursor: pointer;
+  filter: brightness(100%);
+  -webkit-filter: brightness(100%);
+  cursor: pointer;
 }
 
 .editAvatar:hover {
-    filter: brightness(60%);
-    -webkit-filter: brightness(60%);
-    -webkit-transition: all 0.5s ease;
-    -moz-transition: all 0.5s ease;
-    -o-transition: all 0.5s ease;
-    -ms-transition: all 0.5s ease;
-    transition: all 0.5s ease;
+  filter: brightness(60%);
+  -webkit-filter: brightness(60%);
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  -ms-transition: all 0.5s ease;
+  transition: all 0.5s ease;
 }
 
 .editAvatarSVGWrapper {
-    background-color: #fff;
-    height: 15%;
-    width: 15%;
-    position: absolute;
-    bottom: 7px;
-    right: 7px;
-    border-radius: 50%;
-    z-index: 2;
-    opacity: 0;
-    transition: all 0.5s ease;
-    pointer-events: none;
+  background-color: #fff;
+  height: 15%;
+  width: 15%;
+  position: absolute;
+  bottom: 7px;
+  right: 7px;
+  border-radius: 50%;
+  z-index: 2;
+  opacity: 0;
+  transition: all 0.5s ease;
+  pointer-events: none;
 }
 
 #groupAvatar {
-    display: none
+  display: none;
 }
 
 .editAvatarSVG {
-    margin-top: 7%;
-    height: 75%;
-    width: 75%;
+  margin-top: 7%;
+  height: 75%;
+  width: 75%;
 }
 
 .profileAvatarWrapper:hover > .editAvatarSVGWrapper {
-    opacity: 1;
+  opacity: 1;
 }
 
 .submitButtonWrapper {
-    margin-top: 15px;
-    text-align: center;
+  margin-top: 15px;
+  text-align: center;
 }
 
 .cropperWrapper {
-    height: 350px;
-    width: 100%;
-    position: relative;
-    margin-top: 25px;
+  height: 350px;
+  width: 100%;
+  position: relative;
+  margin-top: 25px;
 }
 
 .sliderWrapper {
-    margin-top: 25px;
-    margin-bottom: 20px;
+  margin-top: 25px;
+  margin-bottom: 20px;
 }
 
 .profileButtonWrapper {
-    margin-top: 15px;
-    display: flex;
-    justify-content: space-evenly;
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-evenly;
 }
 
 .profileModalButton {
-    width: 125px;
+  width: 125px;
 }
 
 .reAuthHeader {
-    text-align: center;
-    font-size: 20px;
-    font-weight: 600;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 600;
 }
 
 .avatarInputButton {
-    display: none;
+  display: none;
 }
 
 .customFileUploadButton {
-    border: 1px solid #ccc;
-    padding: 6px 12px;
-    cursor: pointer;
-    margin-left: 0px;
+  border: 1px solid #ccc;
+  padding: 6px 12px;
+  cursor: pointer;
+  margin-left: 0px;
 }
 
 .customFileUploadButton:hover {
-    background-color: whitesmoke;
+  background-color: whitesmoke;
 }
 
 .groupPosHeader {
-    font-size: 26px;
-    font-weight: 600;
+  font-size: 26px;
+  font-weight: 600;
 }
 
 .groupPosDropdowns {
-    width: 150px !important;
+  width: 150px !important;
 }
 
 .groupProfileRow {
-    margin-top: 10px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
+  margin-top: 10px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .groupScoreBucket {
-    display: flex;
-    border: 1px solid darkgray;
-    border-radius: 5px;
-    min-height: 50px;
-    margin-top: 10px;
+  display: flex;
+  border: 1px solid darkgray;
+  border-radius: 5px;
+  min-height: 50px;
+  margin-top: 10px;
 }
 
 .groupScoreBucketName {
-    min-width: 100px;
-    border-right: 1px solid darkgray;
-    font-weight: 600;
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  min-width: 100px;
+  border-right: 1px solid darkgray;
+  font-weight: 600;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .groupScoreFields {
-    display: flex;
-    flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .groupScoreInput {
-    width: 100px !important;
+  width: 100px !important;
 }
 
 .groupScoreInputWrapper {
-    padding: 5px;
-    text-align: center;
-    width: 100px;
+  padding: 5px;
+  text-align: center;
+  width: 100px;
 }
 
 .groupScoreNoInput {
-    width: 95px;
+  width: 95px;
 }
 
 .groupScoreBucketDesc {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: '-';
-    border-bottom: 1px lightgray solid;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: '-';
+  border-bottom: 1px lightgray solid;
 }
 
 .groupEditorHeader {
-    font-size: 26px;
-    margin-left: 5px;
-    margin-top: 5px;
-    margin-bottom: -7px;
+  font-size: 26px;
+  margin-left: 5px;
+  margin-top: 5px;
+  margin-bottom: -7px;
 }
 
 .groupDescInput {
-    height: 100px;
+  height: 100px;
 }
 
 .descText {
-    margin-left: 5px;
+  margin-left: 5px;
 }
 
 .groupEditorHeaderWrapper {
-    display: flex;
-    justify-content: space-evenly;
+  display: flex;
+  justify-content: space-evenly;
 }
 
 .groupEditorHeaderHalf {
-    width: 45%;
+  width: 45%;
 }
 
 .groupEditorAvatarWrapper {
-    display: flex;
-    justify-content: center;
-    margin-top: 5px;
+  display: flex;
+  justify-content: center;
+  margin-top: 5px;
 }
 
 .groupPosHeaderWrapper {
-    margin-right: 50px;
+  margin-right: 50px;
 }
 
 .groupPosWrapper {
-    margin-top: 30px;
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: center;
+  margin-top: 30px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
 }
 
 .groupEditorAddRemoveButtons {
-    display: flex;
-    justify-content: space-around;
+  display: flex;
+  justify-content: space-around;
 }
 
 .largeTogglePass {
-    display: block;
+  display: block;
 }
 
 .groupProfileNameDesc {
-    text-align: center;
-    margin-right: 50px;
+  text-align: center;
+  margin-right: 50px;
 }
 
 .profileHeader {
-    margin-top: 25px;
+  margin-top: 25px;
 }
 
 .profileDisplayHeader {
-    text-align: center;
-    font-size: 32px;
-    margin-top: 20px;
+  text-align: center;
+  font-size: 32px;
+  margin-top: 20px;
 }
 
 .dropdownSpace {
-    margin-left: 15px;
+  margin-left: 15px;
 }
 
 .playerSearchBox {
-    animation: pop-in 0.25s;
-    -webkit-animation: pop-in 0.25s;
-    -moz-animation: pop-in 0.25s;
-    -ms-animation: pop-in 0.25s;
+  animation: pop-in 0.25s;
+  -webkit-animation: pop-in 0.25s;
+  -moz-animation: pop-in 0.25s;
+  -ms-animation: pop-in 0.25s;
 }
 
 /* MODAL */
 .groupModalHeight {
-    top: 48%;
-    height: 85%;
+  top: 48%;
+  height: 85%;
 }
 
-
 @media only screen and (max-width: 900px) {
-    .profileModal {
-        width: 100%;
-    }
+  .profileModal {
+    width: 100%;
+  }
 }
 
 @media only screen and (max-width: 862px) {
-    .profileWrapper {
-        width: 100%;
-    }
+  .profileWrapper {
+    width: 100%;
+  }
 }
 
 @media only screen and (max-width: 767px) {
-    .editField {
-        display: block;
-        text-align: center;
-    }
-    .largeTogglePass {
-        display: none;
-    }
-    .inputCheckbox {
-        width: 60px;
-    }
+  .editField {
+    display: block;
+    text-align: center;
+  }
+  .largeTogglePass {
+    display: none;
+  }
+  .inputCheckbox {
+    width: 60px;
+  }
 }
 
 @-webkit-keyframes pop-in {
-    0% { opacity: 0; -webkit-transform: scale(0.5); }
-    100% { opacity: 1; -webkit-transform: scale(1); }
+  0% {
+    opacity: 0;
+    -webkit-transform: scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: scale(1);
+  }
 }
 @-moz-keyframes pop-in {
-    0% { opacity: 0; -moz-transform: scale(0.5); }
-    100% { opacity: 1; -moz-transform: scale(1); }
+  0% {
+    opacity: 0;
+    -moz-transform: scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    -moz-transform: scale(1);
+  }
 }
 @keyframes pop-in {
-    0% { opacity: 0; transform: scale(0.5); }
-    100% { opacity: 1; transform: scale(1); }
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

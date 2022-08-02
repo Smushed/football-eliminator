@@ -1,11 +1,11 @@
 const { table, getBorderCharacters } = require(`table`);
 
 module.exports = {
-    idealRosterRow: (filledRoster, groupPos) => {
-        return new Promise(async (res, rej) => {
-            let rows = ``;
-            for (let i = 0; i < filledRoster.length; i++) {
-                rows += `<div style='display: flex;
+  idealRosterRow: (filledRoster, groupPos) => {
+    return new Promise(async (res, rej) => {
+      let rows = ``;
+      for (let i = 0; i < filledRoster.length; i++) {
+        rows += `<div style='display: flex;
                                     justify-content: space-evenly;
                                     border-bottom: 1px solid lightgrey;
                                     border-radius: 2px;
@@ -41,12 +41,12 @@ module.exports = {
                         </div>
                     </div>
                 </div >`;
-            }
-            res(rows);
-        });
-    },
-    idealRosterBuilder: async (rows, week) => {
-        return `<div style='width: 355px;
+      }
+      res(rows);
+    });
+  },
+  idealRosterBuilder: async (rows, week) => {
+    return `<div style='width: 355px;
                             border: 1px solid lightgray';
                             border-radius: 15px;>
                     <div style='background-color: rgb(166, 241, 166);
@@ -57,22 +57,27 @@ module.exports = {
                     </div>
                     ${rows}
                 </div>`;
-    },
-    idealRosterTextRows: async (filledRoster, groupPos) => {
-        let rows = [];
-        for (let i = 0; i < filledRoster.length; i++) {
-            rows.push([groupPos[i].N, filledRoster[i].N, filledRoster[i].T, filledRoster[i].SC.toFixed(2)]);
-        }
-        return rows;
-    },
-    idealRosterTextTemplate: async (rows, week) => {
-        const tableConfig = {
-            header: {
-                alignment: `center`,
-                content: `Ideal roster for ${week}`
-            },
-            border: getBorderCharacters('void')
-        }
-        return table(rows, tableConfig);
+  },
+  idealRosterTextRows: async (filledRoster, groupPos) => {
+    let rows = [];
+    for (let i = 0; i < filledRoster.length; i++) {
+      rows.push([
+        groupPos[i].N,
+        filledRoster[i].N,
+        filledRoster[i].T,
+        filledRoster[i].SC.toFixed(2),
+      ]);
     }
-}
+    return rows;
+  },
+  idealRosterTextTemplate: async (rows, week) => {
+    const tableConfig = {
+      header: {
+        alignment: `center`,
+        content: `Ideal roster for ${week}`,
+      },
+      border: getBorderCharacters("void"),
+    };
+    return table(rows, tableConfig);
+  },
+};

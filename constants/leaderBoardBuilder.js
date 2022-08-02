@@ -1,11 +1,11 @@
 const { table, getBorderCharacters } = require(`table`);
 
 module.exports = {
-    leaderBoardRowBuilder: (leaderboard) => {
-        return new Promise(async (res, rej) => {
-            let rows = ``;
-            for (let i = 0; i < leaderboard.length; i++) {
-                rows += `<div style='margin-left: 10px;
+  leaderBoardRowBuilder: (leaderboard) => {
+    return new Promise(async (res, rej) => {
+      let rows = ``;
+      for (let i = 0; i < leaderboard.length; i++) {
+        rows += `<div style='margin-left: 10px;
                                     margin-right: 10px;
                                     display: flex;
                                     justify-content: space-between;
@@ -21,21 +21,28 @@ module.exports = {
                 <div style='width: 25%;
                             text-align: center; 
                             text-overflow: ellipsis;'>
-                    ${leaderboard[i].LW.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
+                    ${leaderboard[i].LW.toLocaleString("en-US", {
+                      maximumFractionDigits: 2,
+                      minimumFractionDigits: 2,
+                    })}
                 </div>
                 <div style='width: 25%;
                             text-align: center;
                             padding-right: 20px; 
                             text-overflow: ellipsis;'>
-                    ${leaderboard[i].TS.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
+                    ${leaderboard[i].TS.toLocaleString("en-US", {
+                      maximumFractionDigits: 2,
+                      minimumFractionDigits: 2,
+                    })}
                 </div>
             </div>
-            `}
-            res(rows);
-        });
-    },
-    leaderBoardTemplate: (userRows, groupName, week) => {
-        return `<div style='width: 500px;'>
+            `;
+      }
+      res(rows);
+    });
+  },
+  leaderBoardTemplate: (userRows, groupName, week) => {
+    return `<div style='width: 500px;'>
             <div style='border: 1px solid lightgray;
                         border-radius: 10px;
                         margin: auto;
@@ -96,27 +103,36 @@ module.exports = {
                 </div>
                 ${userRows}
             </div>
-        </div>`
-    },
-    leaderBoardTextRows: (leaderboard) => {
-        return new Promise(async (res, rej) => {
-            let rows = [];
-            for (let i = 0; i < leaderboard.length; i++) {
-                const username = leaderboard[i].UN;
-                const lastWeek = leaderboard[i].LW.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
-                const totalScore = leaderboard[i].TS.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
-                rows.push([username, lastWeek, totalScore]);
-            }
-            res(rows);
+        </div>`;
+  },
+  leaderBoardTextRows: (leaderboard) => {
+    return new Promise(async (res, rej) => {
+      let rows = [];
+      for (let i = 0; i < leaderboard.length; i++) {
+        const username = leaderboard[i].UN;
+        const lastWeek = leaderboard[i].LW.toLocaleString("en-US", {
+          maximumFractionDigits: 2,
+          minimumFractionDigits: 2,
         });
-    },
-    leaderBoardTextTemplate: (rows, groupName, week) => {
-        const tableConfig = {
-            columns: { 1: { width: 20 } },
-            border: getBorderCharacters('void')
-        }
-        const textLeaderboard = [...rows];
-        textLeaderboard.unshift([groupName, `Leaderboard`, `Week ${week}`], [`Name`, `Last Week`, `Total`]);
-        return table(textLeaderboard, tableConfig);
-    }
-}
+        const totalScore = leaderboard[i].TS.toLocaleString("en-US", {
+          maximumFractionDigits: 2,
+          minimumFractionDigits: 2,
+        });
+        rows.push([username, lastWeek, totalScore]);
+      }
+      res(rows);
+    });
+  },
+  leaderBoardTextTemplate: (rows, groupName, week) => {
+    const tableConfig = {
+      columns: { 1: { width: 20 } },
+      border: getBorderCharacters("void"),
+    };
+    const textLeaderboard = [...rows];
+    textLeaderboard.unshift(
+      [groupName, `Leaderboard`, `Week ${week}`],
+      [`Name`, `Last Week`, `Total`]
+    );
+    return table(textLeaderboard, tableConfig);
+  },
+};
