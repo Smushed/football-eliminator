@@ -35,7 +35,8 @@ schedule.scheduleJob('0 9 * 1,9-12 *', async function () {
   const rankedPlayers = await mySportsHandler.rankPlayers(
     season,
     week,
-    groupScore
+    groupScore,
+    t
   );
   await mySportsHandler.savePlayerRank(rankedPlayers);
 });
