@@ -1,8 +1,8 @@
-import React from "react";
-import ReactTooltip from "react-tooltip";
-import PropTypes from "prop-types";
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
+import React from 'react';
+import ReactTooltip from 'react-tooltip';
+import PropTypes from 'prop-types';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 
 const Alert = withReactContent(Swal);
 
@@ -21,7 +21,7 @@ const CurrentRosterRow = ({
   };
   return (
     <tr>
-      <th scope="row" className="rosterPosition">
+      <th scope='row' className='rosterPosition'>
         {position}
       </th>
       <td>
@@ -34,11 +34,11 @@ const CurrentRosterRow = ({
       {pastLockWeek === true ? (
         <td>{player && player.SC.toFixed(2)}</td>
       ) : (
-        <td className="pb-0">
+        <td className='pb-0'>
           {player && player.M && addDropPlayer ? (
             <button
-              className="custom-button"
-              onClick={() => addDropPlayer(player.M, player.T, "drop")}
+              className='custom-button'
+              onClick={() => addDropPlayer(player.M, player.T, 'drop')}
             >
               Drop
             </button>
@@ -59,10 +59,10 @@ const RosterDisplay = ({
   pastLockWeek,
   headerText,
 }) => (
-  <table className="table table-striped table-hover">
+  <table className='table table-striped table-hover'>
     <thead>
-      <tr className="fs-3 text-center">
-        <th scope="col" colSpan={5}>
+      <tr className='fs-3 text-center'>
+        <th scope='col' colSpan={5}>
           {headerText}
         </th>
       </tr>
@@ -94,7 +94,7 @@ const RosterDisplay = ({
 const InjuryCol = ({ injury, showInjury }) => {
   return (
     <span
-      className="injuryCol redText"
+      className='injuryCol redText'
       data-tip={injury.D}
       onClick={showInjury}
     >
@@ -111,19 +111,19 @@ const PlayerDisplayRow = ({ player, addDropPlayer, sortedMatchups }) => (
     <td>{player.N && player.N}</td>
     <td>{player.T && player.T}</td>
     {sortedMatchups && (
-      <td>
+      <td className='oppWidth'>
         {sortedMatchups[player.T]
-          ? `${sortedMatchups[player.T].h ? "v" : "@"} ${
+          ? `${sortedMatchups[player.T].h ? 'v' : '@'} ${
               sortedMatchups[player.T].v
             }`
           : `BYE`}
       </td>
     )}
     {addDropPlayer && (
-      <td className="pb-0">
+      <td className='pb-0'>
         <button
-          className="custom-button"
-          onClick={() => addDropPlayer(player.M, player.T, "add")}
+          className='custom-button'
+          onClick={() => addDropPlayer(player.M, player.T, 'add')}
         >
           Add
         </button>
@@ -138,10 +138,10 @@ const PlayerDisplayTable = ({
   sortedMatchups = null,
   addDropPlayer,
 }) => (
-  <table className="table table-striped table-hover">
+  <table className='table table-striped table-hover'>
     <thead>
-      <tr className="fs-3 text-center">
-        <th scope="col" colSpan={5}>
+      <tr className='fs-3 text-center'>
+        <th scope='col' colSpan={5}>
           {headerText}
         </th>
       </tr>

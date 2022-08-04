@@ -143,7 +143,7 @@ module.exports = {
       .exec();
     return user;
   },
-  initSeasonAndWeekInDB: async () => {
+  initSeasonAndWeekInDB: () => {
     db.SeasonAndWeek.create({});
   },
   pullSeasonAndWeekFromDB: async () => {

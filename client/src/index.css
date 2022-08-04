@@ -60,3 +60,9 @@ a:visited {
 .thirtyTransparent {
   opacity: 0.4;
 }
+
+*,
+:after,
+:before {
+  box-sizing: border-box !important;
+}

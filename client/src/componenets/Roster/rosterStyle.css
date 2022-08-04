@@ -2,6 +2,10 @@
   max-width: 67px;
 }
 
+.oppWidth {
+  width: 67px;
+}
+
 .rosterHide {
   opacity: 0.3;
   -webkit-touch-callout: none;
