@@ -303,7 +303,6 @@ const parseRoster = async (playerArray, team) => {
     ) {
       let dbPlayer = await findPlayerInDB(playerArray[i].player.id);
       if (dbPlayer === false || dbPlayer === undefined || dbPlayer === null) {
-        console.log('inside undef');
         dbPlayer = await addPlayerData(playerArray[i].player, team);
       } else {
         let injury = null;

@@ -55,7 +55,7 @@ module.exports = (app) => {
       return;
     }
     userHandler.initSeasonAndWeekInDB();
-    res.status(200).send("Season And Week Init");
+    res.status(200).send('Season And Week Init');
   });
 
   app.get(`/api/group/positions/:groupId`, async (req, res) => {
@@ -64,7 +64,7 @@ module.exports = (app) => {
       const positions = await groupHandler.getGroupPositions(groupId);
       res.status(200).send(positions);
     } catch (err) {
-      res.status(406).send("Positions Not Found");
+      res.status(406).send('Positions Not Found');
     }
   });
 
@@ -263,7 +263,7 @@ module.exports = (app) => {
       );
       console.log(`done scoring week ${i}`);
     }
-    res.status(200).send("working");
+    res.status(200).send('working');
   });
 
   app.put(`/api/group/score/calculate/all`, async (req, res) => {

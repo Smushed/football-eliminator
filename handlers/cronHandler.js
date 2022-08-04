@@ -76,7 +76,7 @@ const allScheduledGames = (season) => {
   let i = 1;
   const gameTimer = setInterval(async () => {
     mySportsHandler.checkGameStarted(season, i);
-    if (i > 17) {
+    if (i > 18) {
       clearInterval(gameTimer);
     }
   }, 6000);

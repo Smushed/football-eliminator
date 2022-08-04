@@ -449,6 +449,9 @@ module.exports = {
   },
   getBlankRoster: async function (groupId) {
     const groupPositions = await this.getGroupPositions(groupId);
+    if (!groupPositions) {
+      return [{ M: 0, P: 'QB', SC: 0 }];
+    }
     const blankRoster = groupPositions.map((position) => ({
       M: 0,
       P: position.N,
