@@ -568,7 +568,7 @@ module.exports = {
         if (i >= 33) {
           clearInterval(rosterTimer);
         }
-      }, 6000);
+      }, 10000);
 
       //TODO Better response
       res({ text: `Rosters updated!` });
