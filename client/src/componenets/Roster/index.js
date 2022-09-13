@@ -414,7 +414,11 @@ const Roster = ({
           return player;
         }
       });
-
+      const copiedUsedPlayers = [...usedPlayers];
+      const newUsedPlayers = copiedUsedPlayers.filter(
+        (player) => player.M !== mySportsId
+      );
+      updateUsedPlayers(newUsedPlayers);
       newRoster[droppedPlayerIndex] = { M: 0, S: 0 };
       newAvailablePlayers.unshift(droppedPlayer);
 
