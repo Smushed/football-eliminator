@@ -29,7 +29,7 @@ schedule.scheduleJob('0 * * 1,9-12 0-1,4-6', async function () {
   allScheduledGames(season);
 
   //Rank the players
-  const clapper = await groupHandler.getGroupData(`Eliminator Challenge Pool`); //Default to the clapper as the 'main' group
+  const clapper = await groupHandler.getGroupData(`Eliminator`); //Default to the clapper as the 'main' group
   const groupScore = await groupHandler.getGroupScore(clapper._id);
 
   const rankedPlayers = await mySportsHandler.rankPlayers(
