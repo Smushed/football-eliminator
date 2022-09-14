@@ -1,7 +1,7 @@
-import React from "react";
-import PropTypes from "prop-types";
+import React from 'react';
+import PropTypes from 'prop-types';
 
-import "./rosterStyle.css";
+import './rosterStyle.css';
 
 const WeekSearch = ({
   weekSelect,
@@ -9,14 +9,14 @@ const WeekSearch = ({
   customSeasonWeekSearch,
   disabled,
 }) => (
-  <div className="row justify-content-center">
-    <div className="col-12 col-md-6">
+  <div className='row justify-content-center'>
+    <div className='col-12 col-md-6'>
       <select
         value={weekSelect}
-        type="select"
-        name="weekSelect"
-        id="weekSelect"
-        className="form-select"
+        type='select'
+        name='weekSelect'
+        id='weekSelect'
+        className='form-select'
         onChange={handleChange}
       >
         <option>1</option>
@@ -38,9 +38,9 @@ const WeekSearch = ({
         <option>17</option>
       </select>
     </div>
-    <div className="text-center col-12 col-md-2 mt-1 mt-md-0">
+    <div className='text-center col-12 col-md-2 mt-1 mt-md-0'>
       <button
-        className="btn btn-success"
+        className='btn btn-success'
         onClick={customSeasonWeekSearch}
         disabled={disabled}
       >
@@ -51,13 +51,13 @@ const WeekSearch = ({
 );
 
 const TeamSearch = ({ teamSelect, handleChange, searchByTeam }) => (
-  <div className="selectContainer">
-    <div className="inputLength">
+  <div className='selectContainer'>
+    <div className='inputLength'>
       <select
         value={teamSelect}
-        type="select"
-        name="teamSelect"
-        className="form-select searchDropdown"
+        type='select'
+        name='teamSelect'
+        className='form-select searchDropdown'
         onChange={handleChange}
       >
         <option>ARI</option>
@@ -94,7 +94,7 @@ const TeamSearch = ({ teamSelect, handleChange, searchByTeam }) => (
         <option>WAS</option>
       </select>
     </div>
-    <button className="btn btn-success submitButton" onClick={searchByTeam}>
+    <button className='btn btn-success submitButton' onClick={searchByTeam}>
       Search
     </button>
   </div>
@@ -106,25 +106,24 @@ const PositionSearch = ({
   disabled,
   positionSearch,
 }) => (
-  <div className="row">
-    <div className="col-12 col-md-6">
+  <div className='row'>
+    <div className='col-12 col-md-6'>
       <select
         value={positionSelect}
-        type="select"
-        name="positionSelect"
-        className="form-select"
+        type='select'
+        name='positionSelect'
+        className='form-select'
         onChange={handleChange}
       >
         <option>QB</option>
         <option>RB</option>
         <option>WR</option>
         <option>TE</option>
-        <option>K</option>
       </select>
     </div>
-    <div className="text-center col-12 col-md-2 mt-1 mt-md-0">
+    <div className='text-center col-12 col-md-2 mt-1 mt-md-0'>
       <button
-        className="btn btn-success"
+        className='btn btn-success'
         onClick={positionSearch}
         disabled={disabled}
       >
