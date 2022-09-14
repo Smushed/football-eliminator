@@ -76,8 +76,8 @@ module.exports = {
         alignment: `center`,
         content: `Ideal roster for ${week}`,
       },
-      border: getBorderCharacters("void"),
     };
+    console.log({ rows });
     return table(rows, tableConfig);
   },
 };

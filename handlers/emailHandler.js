@@ -116,6 +116,7 @@ const createIdealRoster = async (group, season, week) => {
     filledRoster,
     groupPos
   );
+
   const idealRosterText = await idealRosterBuilder.idealRosterTextTemplate(
     textRows,
     week
@@ -139,7 +140,7 @@ module.exports = {
     const { leaderBoardHTML, leaderBoardText } = await createLeaderBoard(
       group,
       season,
-      +week + 1
+      +week
     );
 
     const { idealRosterText, idealRosterHTML } = await createIdealRoster(

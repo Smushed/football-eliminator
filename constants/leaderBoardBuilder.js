@@ -21,7 +21,7 @@ module.exports = {
                 <div style='width: 25%;
                             text-align: center; 
                             text-overflow: ellipsis;'>
-                    ${leaderboard[i].LW.toLocaleString("en-US", {
+                    ${leaderboard[i].LW.toLocaleString('en-US', {
                       maximumFractionDigits: 2,
                       minimumFractionDigits: 2,
                     })}
@@ -30,7 +30,7 @@ module.exports = {
                             text-align: center;
                             padding-right: 20px; 
                             text-overflow: ellipsis;'>
-                    ${leaderboard[i].TS.toLocaleString("en-US", {
+                    ${leaderboard[i].TS.toLocaleString('en-US', {
                       maximumFractionDigits: 2,
                       minimumFractionDigits: 2,
                     })}
@@ -110,11 +110,11 @@ module.exports = {
       let rows = [];
       for (let i = 0; i < leaderboard.length; i++) {
         const username = leaderboard[i].UN;
-        const lastWeek = leaderboard[i].LW.toLocaleString("en-US", {
+        const lastWeek = leaderboard[i].LW.toLocaleString('en-US', {
           maximumFractionDigits: 2,
           minimumFractionDigits: 2,
         });
-        const totalScore = leaderboard[i].TS.toLocaleString("en-US", {
+        const totalScore = leaderboard[i].TS.toLocaleString('en-US', {
           maximumFractionDigits: 2,
           minimumFractionDigits: 2,
         });
@@ -126,13 +126,16 @@ module.exports = {
   leaderBoardTextTemplate: (rows, groupName, week) => {
     const tableConfig = {
       columns: { 1: { width: 20 } },
-      border: getBorderCharacters("void"),
     };
     const textLeaderboard = [...rows];
     textLeaderboard.unshift(
       [groupName, `Leaderboard`, `Week ${week}`],
       [`Name`, `Last Week`, `Total`]
     );
+    // let leaderBoard = ``;
+    // for (let i = 0; i < textLeaderboard.length; i++) {
+    //   leaderBoard += `${textLeaderboard[i][0]}  ${textLeaderboard[i][1]}  ${textLeaderboard[i][2]}`;
+    // }
     return table(textLeaderboard, tableConfig);
   },
 };
