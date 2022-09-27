@@ -140,7 +140,7 @@ module.exports = {
     const { leaderBoardHTML, leaderBoardText } = await createLeaderBoard(
       group,
       season,
-      +week
+      +week + 1
     );
 
     const { idealRosterText, idealRosterHTML } = await createIdealRoster(
