@@ -239,7 +239,7 @@ module.exports = {
   },
   getLeaderBoard: async (groupId, season, week) => {
     const arrayForLeaderBoard = [];
-    const weekAccessor = (week === 1 ? 1 : week - 1).toString();
+    const weekAccessor = (week === 1 ? 1 : week).toString();
     const userScoreList = await getUserScoreList(
       groupId,
       season,
