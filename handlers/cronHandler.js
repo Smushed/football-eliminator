@@ -20,15 +20,24 @@ schedule.scheduleJob('22 * * 1,9-12 *', async function () {
 });
 
 // Update Scores every day at 3am Chicago time
-schedule.scheduleJob('0 3 * 1,9-12 0-1,4-6', async function () {
-  console.log(`Running daily score update`);
+schedule.scheduleJob('0 3 * 1,9-12 *', async function () {
+  console.log(`Running player data update`);
   const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
   await mySportsHandler.updateRoster(season);
+
+  await mySportsHandler.getWeeklyData(season, week);
+
   await updatePlayerData(season, week);
 
   allScheduledGames(season);
+});
 
-  //Rank the players
+//Rank the Players
+schedule.scheduleJob('20 3 * 1,9-12 *', async function () {
+  console.log(`Running roster and score update`);
+  const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
+  await rosterHandler.scoreAllGroups(season, week);
+
   const clapper = await groupHandler.getGroupData(`Eliminator`); //Default to the clapper as the 'main' group
   const groupScore = await groupHandler.getGroupScore(clapper._id);
 
@@ -81,12 +90,6 @@ const allScheduledGames = (season) => {
       clearInterval(gameTimer);
     }
   }, 6000);
-};
-
-const updatePlayerData = async (season, week) => {
-  await mySportsHandler.getWeeklyData(season, week);
-  await rosterHandler.scoreAllGroups(season, week);
-  return;
 };
 
 const startWeek = (currDate, currDBWeeks, currWeek) => {
