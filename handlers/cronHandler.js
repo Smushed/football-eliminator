@@ -54,15 +54,16 @@ schedule.scheduleJob('20 3 * 1,9-12 *', async function () {
 schedule.scheduleJob('0 0-5 * 1,9-12 2,5', async function () {
   console.log(`Running bi-hourly Monday and Thursday game score`);
   const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
+  await mySportsHandler.getWeeklyData(season, week);
   updatePlayerData(season, week);
 });
 
-//Update most often on Sunday
-// schedule.scheduleJob('0 17-23 * 1,9-12 0', async function () {
-//   console.log(`Running bi-hourly Sunday job`);
-//   const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
-//   updatePlayerData(season, week);
-// });
+// Update most often on Sunday
+schedule.scheduleJob('0 17-23 * 1,9-12 0', async function () {
+  console.log(`Running bi-hourly Sunday job`);
+  const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
+  updatePlayerData(season, week);
+});
 
 //Right before the Leaderboard is sent out update the ideal roster
 schedule.scheduleJob('20 9 * 1,9-12 2', async function () {
@@ -103,4 +104,10 @@ const startWeek = (currDate, currDBWeeks, currWeek) => {
     userHandler.updateCurrWeek(currWeek);
     userHandler.updateLockWeek(currWeek - 1);
   }
+};
+
+const updatePlayerData = async (season, week) => {
+  await mySportsHandler.getWeeklyData(season, week);
+  await rosterHandler.scoreAllGroups(season, week);
+  return;
 };
