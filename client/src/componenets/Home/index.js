@@ -9,6 +9,7 @@ import Leaderboard from './Leaderboard';
 import PropTypes from 'prop-types';
 import RosterCarousel from './RosterCarousel';
 import * as Routes from '../../constants/routes';
+import { WeekSearch } from '../Roster/SearchDropdowns';
 
 const Home = ({ season, group, week, currentUser, noGroup, history }) => {
   const [leaderboard, updateLeaderboard] = useState([]);
@@ -18,6 +19,8 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
   const [leaderAvatar, updateLeaderAvatar] = useState(``);
   const [weeklyGroupRosters, updateWeeklyGroupRosters] = useState([]);
   const [groupPositions, updateGroupPositions] = useState([]);
+  const [weekSelect, updateWeekSelect] = useState(1);
+  const [weekOnPage, updateWeekOnPage] = useState(1);
 
   const axiosCancel = axios.CancelToken.source();
 
@@ -29,6 +32,8 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
 
     if (week !== 0 && season !== ``) {
       if (currentUser.username) {
+        updateWeekOnPage(week);
+        updateWeekSelect(week);
         getRostersForHome(season, week, group._id);
         getGroupPositions(group._id);
       }
@@ -148,6 +153,15 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
       });
   };
 
+  const handleChange = (e) => {
+    e.target.name === 'weekSelect' && updateWeekSelect(e.target.value);
+  };
+
+  const searchWeek = () => {
+    updateWeekOnPage(weekSelect);
+    getAllRostersForWeek(season, weekSelect, group._id);
+  };
+
   const weekForLeaderboard = week === 0 ? 1 : week;
   return (
     <div className='container'>
@@ -199,11 +213,22 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
           />
         </div>
       </div>
-      <div className='row'>
-        <div className='text-center fs-3 fw-bold pt-2 col-12'>
-          {group.N} Week {week} Rosters
+      <div className='row justify-content-center mt-1'>
+        <div className='text-center fs-3 fw-bold pt-2 col-4'>
+          {group.N} Week {weekOnPage} Rosters
         </div>
-        <div className='d-flex flex-wrap justify-content-evenly row'>
+        <div className='col-4'>
+          <div className='row'>
+            <div className='col-12 text-center'>Change Week</div>
+          </div>
+          <WeekSearch
+            weekSelect={weekSelect}
+            handleChange={handleChange}
+            customSeasonWeekSearch={searchWeek}
+            disabled={false}
+          />
+        </div>
+        <div className='d-flex flex-wrap justify-content-evenly row mt-1'>
           {weeklyGroupRosters.map((inGroupRoster) => (
             <div className='col-xs-12 col-lg-6' key={inGroupRoster.UN}>
               <div className='text-center fs-3'>
