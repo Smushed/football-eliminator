@@ -20,7 +20,7 @@ schedule.scheduleJob('22 * * 1,9-12 *', async function () {
 });
 
 // Update Scores every day at 3am Chicago time
-schedule.scheduleJob('0 3 * 1,9-12 *', async function () {
+schedule.scheduleJob('0 9 * 1,9-12 *', async function () {
   console.log(`Running player data update`);
   const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
   await mySportsHandler.updateRoster(season);
@@ -33,7 +33,7 @@ schedule.scheduleJob('0 3 * 1,9-12 *', async function () {
 });
 
 //Rank the Players
-schedule.scheduleJob('20 3 * 1,9-12 *', async function () {
+schedule.scheduleJob('20 9 * 1,9-12 *', async function () {
   console.log(`Running roster and score update`);
   const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
   await rosterHandler.scoreAllGroups(season, week);
@@ -66,14 +66,14 @@ schedule.scheduleJob('0 17-23 * 1,9-12 0', async function () {
 });
 
 //Right before the Leaderboard is sent out update the ideal roster
-schedule.scheduleJob('20 9 * 1,9-12 2', async function () {
+schedule.scheduleJob('20 12 * 1,9-12 2', async function () {
   console.log(`Updating Ideal Roster`);
   const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
   groupHandler.updateAllIdealRosters(season, +week - 1);
 });
 
 //Send out the Leaderboard every Tuesday
-schedule.scheduleJob('30 9 * 1,9-12 2', async function () {
+schedule.scheduleJob('30 12 * 1,9-12 2', async function () {
   console.log(`Sending out the weekly email`);
   const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
   const groups = await groupHandler.getAllGroups();
