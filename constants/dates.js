@@ -46,6 +46,7 @@ module.exports = {
     new Date('27 Sep 2022 00:00:00 GMT-0500'),
     new Date('04 Oct 2022 00:00:00 GMT-0500'),
     new Date('11 Oct 2022 00:00:00 GMT-0500'),
+    new Date('18 Oct 2022 00:00:00 GMT-0500'),
     new Date('25 Oct 2022 00:00:00 GMT-0500'),
     new Date('01 Nov 2022 00:00:00 GMT-0500'),
     new Date('08 Nov 2022 00:00:00 GMT-0500'),
