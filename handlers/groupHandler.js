@@ -360,7 +360,6 @@ module.exports = {
   },
   getIdealRoster: async function (groupId, season, week) {
     return new Promise(async (res) => {
-      console.log({ groupId, season, week });
       const idealRosterResponse = await db.IdealRoster.findOne({
         G: groupId,
         S: season,

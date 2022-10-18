@@ -163,7 +163,6 @@ module.exports = {
     for (let user of emailList) {
       const HTMLemail = await unsubscribe.appendHTML(HTMLTemplate, user.id);
       const textEmail = await unsubscribe.appendText(textTemplate, user.id);
-
       sendEmail(user.E, subject, HTMLemail, textEmail);
     }
   },
