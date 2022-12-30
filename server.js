@@ -22,7 +22,7 @@ if (process.env.NODE_ENV === `production`) {
   MONGODB_URI = `mongodb://127.0.0.1/fantasyEliminator`;
 }
 try {
-  mongoose.set('strictQuery', false);
+  mongoose.set('strictQuery', true);
   mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
