@@ -5,17 +5,13 @@ const path = require(`path`);
 const PORT = process.env.PORT || 8081;
 const app = express();
 
-const cookieParser = require(`cookie-parser`);
 const bodyParser = require(`body-parser`);
-const Cors = require(`cors`);
 
 //Setting up mongoose
 const mongoose = require(`mongoose`);
 
-app.use(Cors());
 app.use(bodyParser.urlencoded({ extended: true, limit: '5mb' }));
 app.use(bodyParser.json({ limit: '50mb' }));
-app.use(cookieParser());
 
 let MONGODB_URI = ``;
 
@@ -23,13 +19,13 @@ if (process.env.NODE_ENV === `production`) {
   app.use(express.static(path.join(__dirname, `./client/build`)));
   MONGODB_URI = process.env.MONGO_ATLUS;
 } else {
-  MONGODB_URI = `mongodb://localhost/fantasyEliminator`;
+  MONGODB_URI = `mongodb://127.0.0.1/fantasyEliminator`;
 }
 try {
+  mongoose.set('strictQuery', false);
   mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useCreateIndex: true,
   });
 } catch (err) {
   console.log(err);
