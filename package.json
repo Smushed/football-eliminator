@@ -1,6 +1,6 @@
 {
   "name": "footballeliminator",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "Fantasy Football Eliminator",
   "main": "server.js",
   "engines": {

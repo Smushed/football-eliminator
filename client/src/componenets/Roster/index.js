@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { withAuthorization } from '../Session';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import fuzzysort from 'fuzzysort';
@@ -9,6 +8,7 @@ import {
   PlayerDisplayRow,
   PlayerDisplayTable,
 } from './RosterDisplay';
+import Session from '../Session';
 
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
@@ -599,6 +599,4 @@ RosterDisplay.propTypes = {
   pastLockWeek: PropTypes.bool,
 };
 
-const condition = (authUser) => !!authUser;
-
-export default withAuthorization(condition)(Roster);
+export default Session(Roster);

@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import PropTypes from "prop-types";
-import axios from "axios";
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import axios from 'axios';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 
-import CloseSVG from "../../constants/SVG/close.svg";
-import "./displayBoxStyle.css";
+import CloseSVG from '../../constants/SVG/close.svg';
+import './displayBoxStyle.css';
 
-import { useToasts } from "react-toast-notifications";
+import toast, { Toaster } from 'react-hot-toast';
 
 const Alert = withReactContent(Swal);
 
@@ -37,8 +37,6 @@ const DisplayBox = ({
       }
     };
   }, [type]);
-
-  const { addToast } = useToasts();
 
   const getUserData = () => {
     axios
@@ -77,25 +75,25 @@ const DisplayBox = ({
       return;
     }
     const alertTitle = `Are you sure you want to ${
-      type === "user" ? "remove" : "leave"
+      type === 'user' ? 'remove' : 'leave'
     } ${displayData.name}?`;
     const alertText = `This is final. ${
-      type === "user" ? "Their" : "Your"
+      type === 'user' ? 'Their' : 'Your'
     } scores and rosters for this group will be deleted. There is no way to reverse this.`;
 
     Alert.fire({
       title: alertTitle,
       text: alertText,
-      type: "warning",
-      confirmButtonColor: "#DC3545",
+      type: 'warning',
+      confirmButtonColor: '#DC3545',
       showCancelButton: true,
-      confirmButtonText: "Delete",
+      confirmButtonText: 'Delete',
     }).then(async (res) => {
       if (res.value) {
-        if (type === "user") {
+        if (type === 'user') {
           kickUser();
         }
-        if (type === "group") {
+        if (type === 'group') {
           adminCheck();
         }
       }
@@ -109,7 +107,9 @@ const DisplayBox = ({
       );
       updatePage();
     } catch (err) {
-      addToast(err.response.data, { appearance: "error", autoDismiss: true });
+      toast.error(err.response.data, {
+        duration: 4000,
+      });
     }
   };
 
@@ -128,9 +128,8 @@ const DisplayBox = ({
       if (err.message !== `Unmounted`) {
         console.log(err);
       }
-      addToast("Error verifying admins, contact Kevin", {
-        appearance: "error",
-        autoDismiss: true,
+      toast.error('Error verifying admins, contact Kevin', {
+        duration: 4000,
       });
     }
   };
@@ -138,8 +137,8 @@ const DisplayBox = ({
   const adminPrompt = async (nonAdmins) => {
     const possibleAdmins = nonAdmins.map((user) => user.UN);
     const adminChoice = await Alert.fire({
-      title: "Select a user to be new admin of the group.",
-      input: "select",
+      title: 'Select a user to be new admin of the group.',
+      input: 'select',
       inputOptions: possibleAdmins,
     });
 
@@ -151,9 +150,8 @@ const DisplayBox = ({
       );
       leaveGroup();
     } catch (err) {
-      addToast("Error upgrading to admin, contact Kevin", {
-        appearance: "error",
-        autoDismiss: true,
+      toast.error('Error upgrading to admin, contact Kevin', {
+        duration: 4000,
       });
     }
   };
@@ -163,31 +161,33 @@ const DisplayBox = ({
       await axios.delete(`/api/user/group/${currPageId}/${boxContent}`);
       updatePage();
     } catch (err) {
-      addToast(err.response.data, { appearance: "error", autoDismiss: true });
+      toast.error(err.response.data, {
+        duration: 4000,
+      });
     }
   };
 
   return (
     <div className={`displayBox ` + (buttonActive && `withButtonHeight`)}>
       <Link to={`/profile/${type}/${displayData.name}`}>
-        <div className="displayBoxName">{displayData.name}</div>
+        <div className='displayBoxName'>{displayData.name}</div>
       </Link>
-      <div className="displayBoxAvatarWrapper">
-        <img className="displayBoxAvatar" src={displayData.avatar} />
+      <div className='displayBoxAvatarWrapper'>
+        <img className='displayBoxAvatar' src={displayData.avatar} />
       </div>
-      <div className="displayBoxScoreWrapper">
-        <div>{type === "user" ? "Score: " : "Top Score: "}</div>
+      <div className='displayBoxScoreWrapper'>
+        <div>{type === 'user' ? 'Score: ' : 'Top Score: '}</div>
         <div>{displayData.score}</div>
       </div>
       {buttonActive && (
-        <div className="textCenter addRemoveButton">
+        <div className='textCenter addRemoveButton'>
           {boxContent !== currUserId && (
             <button
-              className="btn btn-danger btn-sm"
+              className='btn btn-danger btn-sm'
               onClick={() => clickButton()}
             >
-              {type === "group" ? "Leave Group" : "Remove User"}
-              <img className="closeSVGFit" src={CloseSVG} />
+              {type === 'group' ? 'Leave Group' : 'Remove User'}
+              <img className='closeSVGFit' src={CloseSVG} />
             </button>
           )}
         </div>

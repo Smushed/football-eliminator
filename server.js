@@ -19,7 +19,7 @@ if (process.env.NODE_ENV === `production`) {
   app.use(express.static(path.join(__dirname, `./client/build`)));
   MONGODB_URI = process.env.MONGO_ATLUS;
 } else {
-  MONGODB_URI = `mongodb://127.0.0.1/fantasyEliminator`;
+  MONGODB_URI = `mongodb://127.0.0.1/test`;
 }
 try {
   mongoose.set('strictQuery', true);
