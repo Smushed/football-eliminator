@@ -1,22 +1,21 @@
-import React, { useEffect, useState, useRef } from "react";
-import Modal from "react-modal";
-import PropTypes from "prop-types";
-import { withFirebase } from "../Firebase";
-import { withAuthorization } from "../Session";
-import { useToasts } from "react-toast-notifications";
+import React, { useEffect, useState, useRef } from 'react';
+import Modal from 'react-modal';
+import PropTypes from 'prop-types';
+import toast from 'react-hot-toast';
+import Session from '../Session';
 
-import Jimp from "jimp";
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
+import Jimp from 'jimp';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 
-import "rc-slider/assets/index.css";
-import "./profileStyle.css";
+import 'rc-slider/assets/index.css';
+import './profileStyle.css';
 
-import { ReAuth, ImageEditor, UserEditor } from "./ModalWindows";
-import GroupEditor from "./GroupEditor";
-import UserProfile from "./UserProfile";
-import GroupProfile from "./GroupProfile";
-import FourOFour from "../404";
+import { ReAuth, ImageEditor, UserEditor } from './ModalWindows';
+import GroupEditor from './GroupEditor';
+import UserProfile from './UserProfile';
+import GroupProfile from './GroupProfile';
+import FourOFour from '../404';
 
 const Alert = withReactContent(Swal);
 
@@ -52,8 +51,6 @@ const Profile = ({
 
   const fileInputRef = useRef(null);
 
-  const { addToast } = useToasts();
-
   useEffect(() => {
     if (match.params.type === `user`) {
       changeUpdatedFields({ ...userFields, mainGroup: currentUser.MG });
@@ -85,7 +82,7 @@ const Profile = ({
         openCloseModal();
       } else {
         notAnImage();
-        e.target.value = "";
+        e.target.value = '';
       }
       return; //Don't want to set updated fields here in case the user cancels the crop
     }
@@ -115,12 +112,14 @@ const Profile = ({
     fetch(`/api/avatar/${idToUpdate}`, {
       method: `PUT`,
       headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({ image: updatedAvatar }),
     }).then(() =>
-      addToast("Avatar Saved", { appearance: "success", autoDismiss: true })
+      toast.success('Avatar Saved', {
+        duration: 4000,
+      })
     );
   };
 
@@ -139,7 +138,7 @@ const Profile = ({
 
   return (
     <>
-      <div className={modalOpen ? "greyBackdrop" : ""} />
+      <div className={modalOpen ? 'greyBackdrop' : ''} />
 
       {match.params.type === `user` ? (
         <UserProfile
@@ -173,11 +172,11 @@ const Profile = ({
       <Modal
         onRequestClose={requestCloseModal}
         isOpen={modalOpen}
-        contentLabel="profileModal"
+        contentLabel='profileModal'
         className={`profileModal ${
           modalState === `group` && `groupModalHeight`
         }`}
-        overlayClassName="modalOverlay"
+        overlayClassName='modalOverlay'
         ariaHideApp={false}
       >
         {modalState === `reAuth` ? (
@@ -247,6 +246,4 @@ Profile.propTypes = {
 
 // const SmallSentVerifyEmail = () => <div className='sentEmail smallSentEmail floatRight notifications'>Sent!</div>;
 
-const condition = (authUser) => !!authUser;
-
-export default withFirebase(withAuthorization(condition)(Profile));
+export default Session(Profile);

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { withAuthorization } from '../Session';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import axios from 'axios';
@@ -10,6 +9,7 @@ import withReactContent from 'sweetalert2-react-content';
 
 import './groupStyle.css';
 import * as Routes from '../../constants/routes';
+import Session from '../Session';
 
 const Alert = withReactContent(Swal);
 
@@ -270,6 +270,4 @@ GroupRow.propTypes = {
   userId: PropTypes.string,
 };
 
-const condition = (authUser) => !!authUser;
-
-export default withAuthorization(condition)(GroupPage);
+export default Session(GroupPage);

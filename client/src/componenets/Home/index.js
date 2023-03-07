@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { withAuthorization } from '../Session';
 import { Link } from 'react-router-dom';
 
 import { RosterDisplay } from '../Roster/RosterDisplay';
@@ -10,6 +9,7 @@ import PropTypes from 'prop-types';
 import RosterCarousel from './RosterCarousel';
 import * as Routes from '../../constants/routes';
 import { WeekSearch } from '../Roster/SearchDropdowns';
+import Session from '../Session';
 
 const Home = ({ season, group, week, currentUser, noGroup, history }) => {
   const [leaderboard, updateLeaderboard] = useState([]);
@@ -259,6 +259,4 @@ Home.propTypes = {
   history: PropTypes.any,
 };
 
-const condition = (authUser) => !!authUser;
-
-export default withAuthorization(condition)(Home);
+export default Session(Home);

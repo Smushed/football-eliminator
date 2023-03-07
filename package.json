@@ -1,57 +1,51 @@
 {
-    "name": "footballeliminator",
-    "version": "0.3.0",
-    "description": "Fantasy Football Eliminator",
-    "main": "server.js",
-    "engines": {
-        "node": "16.16.0"
-    },
-    "scripts": {
-        "start": "node server.js",
-        "start:dev": "concurrently \"nodemon --ignore client/\" \"npm run client\"",
-        "client": "cd ./client && npm run start",
-        "install": "cd ./client && npm install",
-        "build": "cd ./client && npm run build",
-        "heroku-postbuild": "npm run build"
-    },
-    "author": "Smushed",
-    "license": "ISC",
-    "devDependencies": {
-        "concurrently": "^5.3.0",
-        "nodemon": "^2.0.15",
-        "prettier": "^2.7.1"
-    },
-    "dependencies": {
-        "aws-sdk": "^2.1062.0",
-        "axios": "^0.21.1",
-        "body-parser": "^1.19.1",
-        "bootstrap": "^5.1.3",
-        "cookie-parser": "^1.4.6",
-        "cors": "^2.8.5",
-        "dotenv": "^6.2.0",
-        "express": "^4.17.2",
-        "if-env": "^1.0.4",
-        "jimp": "^0.16.1",
-        "jquery": "^3.6.0",
-        "moment-timezone": "^0.5.34",
-        "mongoose": "^5.13.14",
-        "node-schedule": "^2.1.0",
-        "popper.js": "^1.16.1",
-        "table": "^6.8.0"
-    },
-    "prettier": {
-        "tabWidth": 2,
-        "semi": true,
-        "singleQuote": true,
-        "jsxSingleQuote": true
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/football-eliminator/football-eliminator.git"
-    },
-    "keywords": [],
-    "bugs": {
-        "url": "https://github.com/football-eliminator/football-eliminator/issues"
-    },
-    "homepage": "https://github.com/football-eliminator/football-eliminator#readme"
+  "name": "footballeliminator",
+  "version": "1.0.0",
+  "description": "Fantasy Football Eliminator",
+  "main": "server.js",
+  "engines": {
+    "node": "18.12.1"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "start:dev": "concurrently \"nodemon --ignore client/\" \"npm run client\"",
+    "client": "cd ./client && npm run start",
+    "install": "cd ./client && npm install",
+    "build": "cd ./client && npm run build",
+    "heroku-postbuild": "npm run build"
+  },
+  "author": "Kevin Flerlage",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^7.6.0",
+    "nodemon": "^2.0.20",
+    "prettier": "^2.8.1"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.1285.0",
+    "axios": "^1.2.2",
+    "body-parser": "^1.20.1",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "jimp": "^0.16.2",
+    "moment-timezone": "^0.5.40",
+    "mongoose": "^6.8.2",
+    "node-schedule": "^2.1.0",
+    "table": "^6.8.1"
+  },
+  "prettier": {
+    "tabWidth": 2,
+    "semi": true,
+    "singleQuote": true,
+    "jsxSingleQuote": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/football-eliminator/football-eliminator.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/football-eliminator/football-eliminator/issues"
+  },
+  "homepage": "https://github.com/football-eliminator/football-eliminator#readme"
 }

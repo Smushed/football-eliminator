@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
-import axios from "axios";
-import { useToasts } from "react-toast-notifications";
+import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const GroupEditor = ({
   groupInfo,
@@ -19,8 +19,6 @@ const GroupEditor = ({
   const [groupScore, updateGroupScore] = useState({});
   const [posDescMap, updatePosDescMap] = useState({});
   const [newGroupPos, updateNewGroupPos] = useState([]);
-
-  const { addToast } = useToasts();
 
   const axiosCancel = axios.CancelToken.source();
 
@@ -139,13 +137,13 @@ const GroupEditor = ({
       }
     }
     if (tooMany.length > 0) {
-      let errorMessage = "";
+      let errorMessage = '';
       for (let iiii = 0; iiii < tooMany.length; iiii++) {
         errorMessage += ` ${tooMany[iiii]}`;
       }
-      addToast(`Too many ${errorMessage}`, {
-        appearance: "error",
-        autoDismiss: true,
+      toast.error(`Too many ${errorMessage}`, {
+        duration: 5000,
+        position: 'top-center',
       });
       return false;
     } else {
@@ -185,11 +183,11 @@ const GroupEditor = ({
     const updatedPositions = groupPositions.slice(0);
     if (updatedPositions.length < 12) {
       if (updatedPositions.length < 3) {
-        updatedPositions.push({ I: 0, N: "QB" });
+        updatedPositions.push({ I: 0, N: 'QB' });
       } else if (updatedPositions.length < 8) {
-        updatedPositions.push({ I: 1, N: "RB" });
+        updatedPositions.push({ I: 1, N: 'RB' });
       } else {
-        updatedPositions.push({ I: 2, N: "WR" });
+        updatedPositions.push({ I: 2, N: 'WR' });
       }
       updateNewGroupPos(updatedPositions);
       updateGroupPositions(updatedPositions);
@@ -246,19 +244,17 @@ const GroupEditor = ({
             { cancelToken: axiosCancel.token }
           )
           .catch((err) => {
-            if (err.message !== "Unmounted") {
-              addToast("Error occured while saving", {
-                appearance: "warning",
-                autoDismiss: true,
+            if (err.message !== 'Unmounted') {
+              toast.error('Error occured while saving', {
+                duration: 5000,
               });
             }
           });
       })
       .catch((err) => {
-        if (err.message !== "Unmounted") {
-          addToast("Error occured while saving", {
-            appearance: "warning",
-            autoDismiss: true,
+        if (err.message !== 'Unmounted') {
+          toast.error('Error occured while saving', {
+            duration: 5000,
           });
         }
       });
@@ -268,62 +264,62 @@ const GroupEditor = ({
 
   return (
     <>
-      <div className="groupEditorHeaderWrapper">
-        <div className="groupEditorHeaderHalf">
-          <div className="groupEditorHeader">Name</div>
-          <small className="descText">Must be at least 6 characters</small>
+      <div className='groupEditorHeaderWrapper'>
+        <div className='groupEditorHeaderHalf'>
+          <div className='groupEditorHeader'>Name</div>
+          <small className='descText'>Must be at least 6 characters</small>
           <input
-            className="form-control"
-            name="groupName"
-            type="text"
+            className='form-control'
+            name='groupName'
+            type='text'
             value={updatedFields.groupName}
             placeholder={groupInfo.N}
             onChange={handleChange}
           />
         </div>
-        <div className="groupEditorHeaderHalf">
-          <div className="groupEditorHeader">Description</div>
-          <small className="descText">Must be at least 6 characters</small>
+        <div className='groupEditorHeaderHalf'>
+          <div className='groupEditorHeader'>Description</div>
+          <small className='descText'>Must be at least 6 characters</small>
           <input
-            className="form-control groupDescInput"
-            name="groupDesc"
-            type="textbox"
+            className='form-control groupDescInput'
+            name='groupDesc'
+            type='textbox'
             value={updatedFields.groupDesc}
             placeholder={groupInfo.D}
             onChange={handleChange}
           />
         </div>
       </div>
-      <div className="groupPosWrapper">
-        <div className="groupPosHeaderWrapper">
-          <div className="groupPosHeader">Group Positions</div>
+      <div className='groupPosWrapper'>
+        <div className='groupPosHeaderWrapper'>
+          <div className='groupPosHeader'>Group Positions</div>
           <div>
             <small>Add or Remove Roster Spots</small>
-            <div className="groupEditorAddRemoveButtons">
+            <div className='groupEditorAddRemoveButtons'>
               <button
-                className="btn btn-outline-info btn-sm"
+                className='btn btn-outline-info btn-sm'
                 onClick={addPosition}
               >
                 <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
+                  xmlns='http://www.w3.org/2000/svg'
+                  width='24'
+                  height='24'
+                  viewBox='0 0 24 24'
                 >
-                  <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z" />
+                  <path d='M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z' />
                 </svg>
               </button>
               <button
-                className="btn btn-outline-info btn-sm"
+                className='btn btn-outline-info btn-sm'
                 onClick={removePosition}
               >
                 <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
+                  xmlns='http://www.w3.org/2000/svg'
+                  width='24'
+                  height='24'
+                  viewBox='0 0 24 24'
                 >
-                  <path d="M0 10h24v4h-24z" />
+                  <path d='M0 10h24v4h-24z' />
                 </svg>
               </button>
             </div>
@@ -332,9 +328,9 @@ const GroupEditor = ({
         <div>
           {groupPositions.length > 0 &&
             groupPositions.map((pos, i) => (
-              <div key={i} className="groupPos">
+              <div key={i} className='groupPos'>
                 <select
-                  className="form-select groupPosDropdowns"
+                  className='form-select groupPosDropdowns'
                   value={pos.N}
                   name={`rosterPos-${i}`}
                   onChange={handleChange}
@@ -351,16 +347,16 @@ const GroupEditor = ({
       </div>
       {posDescMap.bucketMap &&
         scoreBuckets.map((bucket) => (
-          <div key={bucket} className="groupScoreBucket">
-            <div className="groupScoreBucketName">
+          <div key={bucket} className='groupScoreBucket'>
+            <div className='groupScoreBucketName'>
               {posDescMap.bucketMap[bucket]}
             </div>
-            <div className="groupScoreFields">
+            <div className='groupScoreFields'>
               {Object.keys(groupScore[bucket]).map((scoreField) => (
-                <div key={scoreField} className="groupScoreInputWrapper">
+                <div key={scoreField} className='groupScoreInputWrapper'>
                   <div>{posDescMap.posMap[bucket][scoreField]} </div>
                   <input
-                    className="form-control groupScoreInput"
+                    className='form-control groupScoreInput'
                     name={`groupScore-${bucket}-${scoreField}`}
                     value={groupScore[bucket][scoreField]}
                     onChange={handleChange}
@@ -370,8 +366,8 @@ const GroupEditor = ({
             </div>
           </div>
         ))}
-      <div className="submitButtonWrapper">
-        <button className="btn btn-lg btn-info" onClick={updateGroup}>
+      <div className='submitButtonWrapper'>
+        <button className='btn btn-lg btn-info' onClick={updateGroup}>
           Update Group
         </button>
       </div>

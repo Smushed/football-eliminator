@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom';
-import { compose } from 'recompose';
 import { withFirebase } from '../Firebase';
 import * as Routes from '../../constants/routes';
 import axios from 'axios';
@@ -314,6 +313,11 @@ const SignInFormBase = ({
     }
   };
 
+  const enterMyCreds = () => {
+    updateEmail(`smushedcode@gmail.com`);
+    updatePassword(`kratos34`);
+  };
+
   return (
     <div className='d-flex justify-content-center'>
       <form onSubmit={handleSubmit}>
@@ -331,6 +335,7 @@ const SignInFormBase = ({
           showPassword={showPassword}
           modalOpen={false}
         />
+        <button onClick={() => enterMyCreds()}>Creds 4 Me</button>
         <div className='mt-4 mb-1 row'>
           <div className='d-flex col-12 col-lg-6 justify-content-end'>
             <button className='signInUpBtnWidth btn btn-success'>
@@ -370,7 +375,7 @@ SwitchSignInUp.propTypes = {
   showSignIn: PropTypes.bool,
 };
 
-const SignUpForm = compose(withRouter, withFirebase)(SignUpFormBase);
-const SignInForm = compose(withRouter, withFirebase)(SignInFormBase);
+const SignUpForm = withRouter(withFirebase(SignUpFormBase));
+const SignInForm = withRouter(withFirebase(SignInFormBase));
 
 export default SignInOut;

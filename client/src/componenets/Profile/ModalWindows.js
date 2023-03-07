@@ -1,11 +1,11 @@
-import React, { useState, useCallback, useEffect } from "react";
-import PropTypes from "prop-types";
+import React, { useState, useCallback, useEffect } from 'react';
+import PropTypes from 'prop-types';
 
-import Cropper from "react-easy-crop";
-import Slider from "rc-slider";
-import axios from "axios";
-import Jimp from "jimp";
-import { useToasts } from "react-toast-notifications";
+import Cropper from 'react-easy-crop';
+import Slider from 'rc-slider';
+import axios from 'axios';
+import Jimp from 'jimp';
+import toast from 'react-hot-toast';
 
 import {
   UsernameInput,
@@ -13,7 +13,7 @@ import {
   PasswordInput,
   MainGroupInput,
   EmailToggleInput,
-} from "./ProfileInputs";
+} from './ProfileInputs';
 
 const ReAuth = ({
   firebase,
@@ -86,7 +86,7 @@ const ReAuth = ({
 
   return (
     <>
-      <div className="reAuthHeader">
+      <div className='reAuthHeader'>
         Trying to update profile data, relogin required.
       </div>
       <div>{loginErr}</div>
@@ -97,15 +97,15 @@ const ReAuth = ({
         showPassword={showPassword}
         modalOpen={false}
       />
-      <div className="profileButtonWrapper">
+      <div className='profileButtonWrapper'>
         <button
-          className="btn btn-success profileModalButton"
+          className='btn btn-success profileModalButton'
           onClick={handleReAuth}
         >
           Re-Login
         </button>
         <button
-          className="btn btn-danger profileModalButton"
+          className='btn btn-danger profileModalButton'
           onClick={() => openCloseModal()}
         >
           Close
@@ -131,10 +131,8 @@ const ImageEditor = ({
   const [zoom, updateZoom] = useState(1);
   const sliderChange = (val) => updateZoom(val);
 
-  const { addToast } = useToasts();
-
   const saveAvatar = () => {
-    const bufferedAvatar = Buffer.from(tempAvatar.split(",")[1], "base64");
+    const bufferedAvatar = Buffer.from(tempAvatar.split(',')[1], 'base64');
     Jimp.read(bufferedAvatar)
       .then(async (img) => {
         const { x, y, width, height } = cropComplete;
@@ -147,13 +145,12 @@ const ImageEditor = ({
         );
         img.resize(200, 200);
         let mime = await img.getBase64Async(Jimp.MIME_JPEG);
-        fileInputRef.current.value = "";
+        fileInputRef.current.value = '';
         saveCroppedAvatar(mime);
       })
       .catch((err) => {
-        addToast("Error Reading File, Please upload again", {
-          appearance: "error",
-          autoDismiss: true,
+        toast.error('Error Reading File, Please upload again', {
+          duration: 4000,
         });
         console.log(`error`, err);
       });
@@ -164,13 +161,13 @@ const ImageEditor = ({
   }, []);
 
   const closeImageModal = () => {
-    fileInputRef.current.value = "";
+    fileInputRef.current.value = '';
     openCloseModal();
   };
 
   return (
     <>
-      <div className="cropperWrapper">
+      <div className='cropperWrapper'>
         <Cropper
           image={tempAvatar}
           crop={crop}
@@ -182,7 +179,7 @@ const ImageEditor = ({
           onZoomChange={updateZoom}
         />
       </div>
-      <div className="sliderWrapper">
+      <div className='sliderWrapper'>
         <Slider
           min={1}
           max={3}
@@ -191,31 +188,31 @@ const ImageEditor = ({
           step={0.1}
           railStyle={{
             height: 2,
-            backgroundColor: "lightgray",
+            backgroundColor: 'lightgray',
           }}
           handleStyle={{
             height: 20,
             width: 20,
             marginLeft: -6,
             marginTop: -8,
-            backgroundColor: "cyan",
+            backgroundColor: 'cyan',
             border: 0,
             opacity: 75,
           }}
           trackStyle={{
-            background: "cyan",
+            background: 'cyan',
           }}
         />
       </div>
-      <div className="profileButtonWrapper">
+      <div className='profileButtonWrapper'>
         <button
-          className="btn btn-success profileModalButton"
+          className='btn btn-success profileModalButton'
           onClick={() => saveAvatar()}
         >
           Save Avatar
         </button>
         <button
-          className="btn btn-danger profileModalButton"
+          className='btn btn-danger profileModalButton'
           onClick={() => closeImageModal()}
         >
           Close
@@ -233,8 +230,6 @@ const UserEditor = ({
   updateModalState,
   openCloseModal,
 }) => {
-  const { addToast } = useToasts();
-
   const [showPassword, updateShowPassword] = useState(`password`);
   const [emailPref, updateEmailPref] = useState({});
 
@@ -261,7 +256,7 @@ const UserEditor = ({
   const handleChange = (e) => {
     if (
       e.target.name === `leaderboardEmail` ||
-      e.target.name === "reminderEmail"
+      e.target.name === 'reminderEmail'
     ) {
       const updatedVal = e.target.value === `true`;
       changeUpdatedFields({ ...updatedFields, [e.target.name]: updatedVal });
@@ -279,9 +274,9 @@ const UserEditor = ({
         /^(([^<>()\]\\.,;:\s@']+(\.[^<>()\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
       );
       if (!checkEmail) {
-        addToast("Invalid Email - Please check", {
-          appearance: "warning",
-          autoDismiss: true,
+        toast.error('Invalid Email - Please check', {
+          duration: 5000,
+          position: 'top-center',
         });
         return;
       }
@@ -292,14 +287,12 @@ const UserEditor = ({
         await axios.put(
           `/api/user/group/main/${updatedFields.mainGroup}/${currentUser.userId}`
         );
-        addToast("Main group updated", {
-          appearance: "success",
-          autoDismiss: true,
+        toast.success('Main group updated', {
+          duration: 4000,
         });
       } catch (err) {
-        addToast("Error saving main group", {
-          appearance: "warning",
-          autoDismiss: true,
+        toast.error('Error saving main group', {
+          duration: 4000,
         });
       }
     }
@@ -318,7 +311,7 @@ const UserEditor = ({
       updatedFields.password !== `` ||
       updatedFields.username !== ``
     ) {
-      updateModalState("reAuth");
+      updateModalState('reAuth');
       return;
     }
     openCloseModal();
@@ -352,9 +345,9 @@ const UserEditor = ({
         reminderEmailPref={updatedFields.reminderEmail}
         handleChange={handleChange}
       />
-      <div className="submitButtonWrapper">
+      <div className='submitButtonWrapper'>
         <button
-          className="btn btn-primary btn-lg"
+          className='btn btn-primary btn-lg'
           onClick={() => handleSubmit()}
         >
           Save

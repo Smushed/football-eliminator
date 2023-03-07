@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { withAuthorization } from '../Session';
 import * as Routes from '../../constants/routes';
 import axios from 'axios';
 import PropTypes from 'prop-types';
+import Session from '../Session';
 
 import PlayerEditor from './PlayerEditor';
 import GroupEditor from './GroupEditor';
@@ -182,6 +182,4 @@ AdminPanel.propTypes = {
   groupId: PropTypes.string,
 };
 
-const condition = (authUser) => !!authUser;
-
-export default withAuthorization(condition)(AdminPanel);
+export default Session(AdminPanel);

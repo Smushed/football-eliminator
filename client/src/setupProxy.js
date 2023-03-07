@@ -1,10 +1,9 @@
-require(`dotenv`).config();
-const proxy = require("http-proxy-middleware");
+const { createProxyMiddleware } = require('http-proxy-middleware');
 
 module.exports = function (app) {
   app.use(
-    proxy("/api", {
-      target: process.env.REACT_PROXY,
+    createProxyMiddleware('/api', {
+      target: process.env.REACT_APP_REACT_PROXY,
       changeOrigin: true,
     })
   );

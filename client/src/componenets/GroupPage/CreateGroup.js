@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { withAuthorization } from '../Session';
 import axios from 'axios';
 import PropTypes from 'prop-types';
-import { useToasts } from 'react-toast-notifications';
+import toast from 'react-hot-toast';
 
 import './groupStyle.css';
 import * as Routes from '../../constants/routes';
@@ -13,6 +12,8 @@ import Plus from '../../constants/SVG/plus.svg';
 import Minus from '../../constants/SVG/minus.svg';
 
 import ReactTooltip from 'react-tooltip';
+
+import Session from '../Session';
 
 const CreateGroup = ({ email, pullUserData, userId, changeGroup, history }) => {
   const [rosterPositions, updateRosterPositions] = useState([]);
@@ -62,8 +63,6 @@ const CreateGroup = ({ email, pullUserData, userId, changeGroup, history }) => {
       validateForm('groupPos', dbReadyGroupPos);
     }
   }, [dbReadyGroupPos, rosterPositions, positionMap]);
-
-  const { addToast } = useToasts();
 
   const getRosterPositions = async () => {
     await axios
@@ -217,7 +216,9 @@ const CreateGroup = ({ email, pullUserData, userId, changeGroup, history }) => {
       for (let iiii = 0; iiii < tooMany.length; iiii++) {
         errorMessage += `Too Many ${tooMany[iiii]}s`;
       }
-      addToast(errorMessage, { appearance: 'warning', autoDismiss: true });
+      toast.error(errorMessage, {
+        duration: 4000,
+      });
       return false;
     } else {
       return true;
@@ -497,6 +498,4 @@ CreateGroup.propTypes = {
   history: PropTypes.object,
 };
 
-const condition = (authUser) => !!authUser;
-
-export default withAuthorization(condition)(CreateGroup);
+export default Session(CreateGroup);

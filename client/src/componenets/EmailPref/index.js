@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
-import axios from "axios";
-import { useToasts } from "react-toast-notifications";
+import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
+import axios from 'axios';
+import Session from '../Session';
 
-import { EmailToggleInput } from "../Profile/ProfileInputs";
+import { EmailToggleInput } from '../Profile/ProfileInputs';
+import { toast } from 'react-hot-toast';
 
 const EmailPref = ({ match, history }) => {
   const [user, updateUser] = useState({});
@@ -21,8 +22,6 @@ const EmailPref = ({ match, history }) => {
       }
     };
   }, [match.params.userId]);
-
-  const { addToast } = useToasts();
 
   const getUser = (userId) => {
     axios
@@ -63,13 +62,12 @@ const EmailPref = ({ match, history }) => {
     try {
       await axios.put(`/api/user/emailPref/${user._id}/${LE}/${RE}`);
     } catch (err) {
-      addToast("Save Error - Contact Admin - smushedcode@gmail.com", {
-        appearance: "warning",
+      toast.error('Save Error - Contact Admin - smushedcode@gmail.com', {
+        duration: 4000,
       });
     }
-    addToast("Email Preference Saved", {
-      appearance: "success",
-      autoDismiss: true,
+    toast.success('Email Preference Saved', {
+      duration: 4000,
     });
     getUserEmailPref(user._id);
   };
@@ -88,4 +86,4 @@ EmailPref.propTypes = {
   history: PropTypes.any,
 };
 
-export default EmailPref;
+export default Session(EmailPref);
