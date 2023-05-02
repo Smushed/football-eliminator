@@ -313,11 +313,6 @@ const SignInFormBase = ({
     }
   };
 
-  const enterMyCreds = () => {
-    updateEmail(`smushedcode@gmail.com`);
-    updatePassword(`kratos34`);
-  };
-
   return (
     <div className='d-flex justify-content-center'>
       <form onSubmit={handleSubmit}>
@@ -335,7 +330,6 @@ const SignInFormBase = ({
           showPassword={showPassword}
           modalOpen={false}
         />
-        <button onClick={() => enterMyCreds()}>Creds 4 Me</button>
         <div className='mt-4 mb-1 row'>
           <div className='d-flex col-12 col-lg-6 justify-content-end'>
             <button className='signInUpBtnWidth btn btn-success'>
