@@ -95,7 +95,7 @@ const allScheduledGames = (season) => {
 
 const startWeek = (currDate, currDBWeeks, currWeek) => {
   for (let i = 17; i >= 0; i--) {
-    if (currDate > dates.startWeek2022[i]) {
+    if (currDate > dates.startWeek2023[i]) {
       currWeek = i + 1;
       break;
     }
