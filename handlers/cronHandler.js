@@ -85,8 +85,11 @@ schedule.scheduleJob('30 12 * 1,9-12 2', async function () {
 
 const allScheduledGames = (season) => {
   let i = 1;
+  mySportsHandler.pullMatchUpsForDB(season, 18);
+
   const gameTimer = setInterval(async () => {
     mySportsHandler.checkGameStarted(season, i);
+    i++;
     if (i > 18) {
       clearInterval(gameTimer);
     }

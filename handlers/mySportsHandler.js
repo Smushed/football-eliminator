@@ -825,6 +825,7 @@ module.exports = {
   },
   checkGameStarted: async (season, week) => {
     let search;
+    console.log(`Searching for week ${week} in ${season}`);
     try {
       search = await axios.get(
         `https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${week}/games.json`,
