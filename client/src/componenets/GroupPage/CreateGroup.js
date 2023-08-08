@@ -11,7 +11,7 @@ import DownArrow from '../../constants/SVG/downArrow.svg';
 import Plus from '../../constants/SVG/plus.svg';
 import Minus from '../../constants/SVG/minus.svg';
 
-import ReactTooltip from 'react-tooltip';
+import { Tooltip } from 'react-tooltip';
 
 import Session from '../Session';
 
@@ -287,7 +287,7 @@ const CreateGroup = ({ email, pullUserData, userId, changeGroup, history }) => {
 
   return (
     <div className='container'>
-      <ReactTooltip html={true} />
+      <Tooltip id='groupValidCheckTooltip' />
       <div className='row mb-2'>
         <h2 className='col-12 text-center mt-3'>Create group</h2>
       </div>
@@ -407,9 +407,10 @@ const CreateGroup = ({ email, pullUserData, userId, changeGroup, history }) => {
         <div className='row mt-2 justify-content-center'>
           <div
             className='col-2 text-center'
-            data-tip={`${
+            data-tooltip-id='groupValidCheckTooltip'
+            data-tooltip-html={
               !groupValid ? 'Please clear errors before proceeding' : ''
-            }`}
+            }
           >
             <button
               type='button'

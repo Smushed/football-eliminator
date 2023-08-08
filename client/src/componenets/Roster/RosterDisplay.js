@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip } from 'react-tooltip';
 import PropTypes from 'prop-types';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
@@ -95,10 +95,10 @@ const InjuryCol = ({ injury, showInjury }) => {
   return (
     <span
       className='injuryCol redText'
-      data-tip={injury.D}
+      data-tip-id='injuryTooltip'
       onClick={showInjury}
     >
-      <ReactTooltip />
+      <Tooltip id='injuryTooltip'>{injury.D}</Tooltip>
       {injury.PP[0]}
     </span>
   );

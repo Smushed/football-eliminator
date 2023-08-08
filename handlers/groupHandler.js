@@ -349,11 +349,13 @@ module.exports = {
       };
       for (let ii = 0; ii < groupResponse[i].UL.length; ii++) {
         const user = await db.User.findById(groupResponse[i].UL[ii].ID, 'UN');
-        filledData[i].UL.push({
-          UN: user.UN,
-          A: groupResponse[i].UL[ii].A,
-          _id: user._id.toString(),
-        });
+        if (user) {
+          filledData[i].UL.push({
+            UN: user.UN,
+            A: groupResponse[i].UL[ii].A,
+            _id: user._id.toString(),
+          });
+        }
       }
     }
     return filledData;

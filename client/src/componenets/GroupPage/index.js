@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import axios from 'axios';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip } from 'react-tooltip';
 
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
@@ -182,7 +182,7 @@ const GroupRow = ({ group, joinGroup, season, userId }) => {
 
   return (
     <div className='row border rounded mt-3'>
-      <ReactTooltip html={true} />
+      <Tooltip id='userListTooltip' />
       <div className='col-sm-12 col-md-2 m-2'>
         <div className='row d-flex justify-content-center'>
           <div className='col-5 col-md-12'>
@@ -219,10 +219,18 @@ const GroupRow = ({ group, joinGroup, season, userId }) => {
                     <strong>Admin:</strong>
                   </div>
                   <div className='col-6'>{firstAdmin && firstAdmin.UN}</div>
-                  <div className='col-6' data-tip={ulTooltip}>
+                  <div
+                    className='col-6'
+                    data-tooltip-id='userListTooltip'
+                    data-tooltip-html={ulTooltip}
+                  >
                     <strong>Users:</strong>
                   </div>
-                  <div className='col-6' data-tip={ulTooltip}>
+                  <div
+                    className='col-6'
+                    data-tooltip-html={ulTooltip}
+                    data-tooltip-id='userListTooltip'
+                  >
                     {group.UL.length}
                   </div>
                 </div>
