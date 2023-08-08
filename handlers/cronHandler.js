@@ -25,8 +25,6 @@ schedule.scheduleJob('0 9 * 1,9-12 *', async function () {
   const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
   await mySportsHandler.updateRoster(season);
 
-  await mySportsHandler.getWeeklyData(season, week);
-
   await updatePlayerData(season, week);
 
   allScheduledGames(season);

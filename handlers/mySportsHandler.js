@@ -565,12 +565,11 @@ module.exports = {
           await pullTeamData(season, team);
         }
         i++;
-        if (i >= 33) {
+        if (i >= nflTeams.length) {
           clearInterval(rosterTimer);
         }
       }, 10000);
 
-      //TODO Better response
       res({ text: `Rosters updated!` });
     });
   },

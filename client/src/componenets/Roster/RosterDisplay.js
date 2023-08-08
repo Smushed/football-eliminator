@@ -95,7 +95,7 @@ const InjuryCol = ({ injury, showInjury }) => {
   return (
     <span
       className='injuryCol redText'
-      data-tip-id='injuryTooltip'
+      data-tooltip-id='injuryTooltip'
       onClick={showInjury}
     >
       <Tooltip id='injuryTooltip'>{injury.D}</Tooltip>
