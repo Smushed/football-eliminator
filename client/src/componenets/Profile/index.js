@@ -4,7 +4,9 @@ import PropTypes from 'prop-types';
 import toast from 'react-hot-toast';
 import Session from '../Session';
 
-import Jimp from 'jimp';
+import 'jimp';
+
+// import Jimp from 'jimp/browser/lib/jimp.js';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
@@ -73,6 +75,7 @@ const Profile = ({
         Jimp.read(URL.createObjectURL(e.target.files[0]), async (err, img) => {
           if (err) {
             console.log(err);
+            toast.error(`Error processing image!`);
             return;
           }
           const mime = await img.getBase64Async(Jimp.MIME_JPEG);

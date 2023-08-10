@@ -1,11 +1,11 @@
-import React, { useEffect } from "react";
-import PropTypes from "prop-types";
-import axios from "axios";
+import React, { useEffect } from 'react';
+import PropTypes from 'prop-types';
+import axios from 'axios';
 
-import "./profileStyle.css";
+import './profileStyle.css';
 
-import DisplayBox from "../DisplayBox";
-import PencilSVG from "../../constants/SVG/pencil.svg";
+import DisplayBox from '../DisplayBox';
+import PencilSVG from '../../constants/SVG/pencil.svg';
 
 const UserProfile = ({
   currentUser,
@@ -50,12 +50,12 @@ const UserProfile = ({
 
   return (
     <>
-      <div className="flex centerFlex profileHeader">
-        <div className="block marginHeightAuto groupProfileNameDesc">
-          <div className="profileName marginHeightAuto">{username}</div>
+      <div className='flex centerFlex profileHeader'>
+        <div className='block marginHeightAuto groupProfileNameDesc'>
+          <div className='profileName marginHeightAuto'>{username}</div>
           {isCurrentUser && (
             <button
-              className="btn btn-sm btn-info"
+              className='btn btn-sm btn-info'
               onClick={() => {
                 openCloseModal();
                 updateModalState(`user`);
@@ -66,22 +66,22 @@ const UserProfile = ({
           )}
         </div>
 
-        <div className="profileAvatarWrapper">
-          <div className="editAvatarSVGWrapper">
-            <img className="editAvatarSVG" src={PencilSVG} />
+        <div className='profileAvatarWrapper'>
+          <div className='editAvatarSVGWrapper'>
+            <img className='editAvatarSVG' src={PencilSVG} />
           </div>
-          <label htmlFor="groupAvatar">
+          <label htmlFor='groupAvatar'>
             <img
               className={`profileAvatar ${isCurrentUser ? `editAvatar` : ``}`}
-              name="avatar"
+              name='avatar'
               src={avatar}
             />
           </label>
           {isCurrentUser && (
             <input
-              id="groupAvatar"
-              name="avatar"
-              type="file"
+              id='groupAvatar'
+              name='avatar'
+              type='file'
               onChange={handleChange}
               ref={fileInputRef}
             />
@@ -89,14 +89,14 @@ const UserProfile = ({
         </div>
       </div>
 
-      <div className="profileDisplayHeader">Joined Groups:</div>
-      <div className="profileWrapper flex flexWrap centerFlex">
+      <div className='profileDisplayHeader'>Joined Groups:</div>
+      <div className='profileWrapper flex flexWrap centerFlex'>
         {currentUser.GL &&
           currentUser.GL.map((group) => (
             <DisplayBox
               key={group._id}
               boxContent={group._id}
-              type="group"
+              type='group'
               buttonActive={isCurrentUser}
               currUserId={currentUser.userId}
               updatePage={repullUser}
