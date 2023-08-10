@@ -1,28 +1,31 @@
 {
   "files": {
-    "main.css": "/static/css/main.de244e46.chunk.css",
-    "main.js": "/static/js/main.2301dca0.chunk.js",
-    "main.js.map": "/static/js/main.2301dca0.chunk.js.map",
-    "runtime-main.js": "/static/js/runtime-main.51558156.js",
-    "runtime-main.js.map": "/static/js/runtime-main.51558156.js.map",
-    "static/css/2.4dac0d46.chunk.css": "/static/css/2.4dac0d46.chunk.css",
-    "static/js/2.5793a1e2.chunk.js": "/static/js/2.5793a1e2.chunk.js",
-    "static/js/2.5793a1e2.chunk.js.map": "/static/js/2.5793a1e2.chunk.js.map",
+    "main.css": "/static/css/main.e3d3a1d5.css",
+    "main.js": "/static/js/main.3d5b80ac.js",
+    "static/media/ElimLogo.png": "/static/media/ElimLogo.5a39a66bc129e958692a.png",
+    "static/media/Champs.jpg": "/static/media/Champs.3a2647eed019acdf72fb.jpg",
+    "static/media/LargeElimLogo.png": "/static/media/LargeElimLogo.6043d95b863c402c2e24.png",
+    "static/media/stadium.jpg": "/static/media/stadium.2c48302a3e1c6e30278d.jpg",
+    "static/media/SignOut.png": "/static/media/SignOut.7603bb1121f7dd0de5ca.png",
+    "static/media/ElimLogoText.png": "/static/media/ElimLogoText.9f87754ff7fe882c5155.png",
+    "static/media/SmallElimLogoText.png": "/static/media/SmallElimLogoText.36bbc8aa83d88c2a4316.png",
+    "static/media/ranking.svg": "/static/media/ranking.f8b27abb6d6cb9ddbb1ae67d1dd20811.svg",
+    "static/media/player.svg": "/static/media/player.72ce52e7ec5e126597240b7953912515.svg",
+    "static/media/group.svg": "/static/media/group.35b154e7f9d694606e722f10a82623da.svg",
+    "static/media/user.svg": "/static/media/user.1a9d2c2583fd333ac36d30ee5664678b.svg",
+    "static/media/list.svg": "/static/media/list.19d5b9498c30a3a0ee9d98c0573534ba.svg",
+    "static/media/close.svg": "/static/media/close.419e11c8f3095d1c378643cfa2892ae4.svg",
+    "static/media/upArrow.svg": "/static/media/upArrow.a537d09ca7902ff914fb19c64d0aa2e7.svg",
+    "static/media/downArrow.svg": "/static/media/downArrow.39003679dd79a8ebf4a7c3f3524f98a7.svg",
     "index.html": "/index.html",
-    "precache-manifest.1c291279e6714b2f31d39774eb501823.js": "/precache-manifest.1c291279e6714b2f31d39774eb501823.js",
-    "service-worker.js": "/service-worker.js",
-    "static/css/2.4dac0d46.chunk.css.map": "/static/css/2.4dac0d46.chunk.css.map",
-    "static/css/main.de244e46.chunk.css.map": "/static/css/main.de244e46.chunk.css.map",
-    "static/media/Champs.jpg": "/static/media/Champs.e35b1081.jpg",
-    "static/media/ElimLogo.jpg": "/static/media/ElimLogo.5b1946b9.jpg",
-    "static/media/EliminatorSignInLogo.png": "/static/media/EliminatorSignInLogo.f0543dd4.png",
-    "static/media/SignOut.png": "/static/media/SignOut.781f5e34.png"
+    "static/media/pencil.svg": "/static/media/pencil.db3dd61aa3a0000fde3d9ffa2d8079a7.svg",
+    "static/media/plus.svg": "/static/media/plus.aefd556f27ee4bfb11555c944f9b6460.svg",
+    "static/media/minus.svg": "/static/media/minus.2095393a90fefdfe2d79ca12ad8b83b2.svg",
+    "main.e3d3a1d5.css.map": "/static/css/main.e3d3a1d5.css.map",
+    "main.3d5b80ac.js.map": "/static/js/main.3d5b80ac.js.map"
   },
   "entrypoints": [
-    "static/js/runtime-main.51558156.js",
-    "static/css/2.4dac0d46.chunk.css",
-    "static/js/2.5793a1e2.chunk.js",
-    "static/css/main.de244e46.chunk.css",
-    "static/js/main.2301dca0.chunk.js"
+    "static/css/main.e3d3a1d5.css",
+    "static/js/main.3d5b80ac.js"
   ]
 }

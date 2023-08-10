@@ -9,7 +9,7 @@
     "firebase": "^9.15.0",
     "fuzzysort": "^2.0.4",
     "http-proxy-middleware": "^2.0.6",
-    "jimp": "^0.22.7",
+    "jimp": "^0.22.10",
     "prop-types": "^15.8.1",
     "rc-slider": "^10.1.0",
     "react": "^16.14.0",

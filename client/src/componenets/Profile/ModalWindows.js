@@ -4,7 +4,8 @@ import PropTypes from 'prop-types';
 import Cropper from 'react-easy-crop';
 import Slider from 'rc-slider';
 import axios from 'axios';
-import Jimp from 'jimp';
+import 'jimp';
+// import Jimp from 'jimp/browser/lib/jimp.js';
 import toast from 'react-hot-toast';
 
 import {

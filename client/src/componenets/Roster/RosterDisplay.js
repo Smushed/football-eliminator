@@ -96,9 +96,9 @@ const InjuryCol = ({ injury, showInjury }) => {
     <span
       className='injuryCol redText'
       data-tooltip-id='injuryTooltip'
-      onClick={showInjury}
+      data-tooltip-html={injury.D}
     >
-      <Tooltip id='injuryTooltip'>{injury.D}</Tooltip>
+      <Tooltip id='injuryTooltip' data-tooltip />
       {injury.PP[0]}
     </span>
   );
