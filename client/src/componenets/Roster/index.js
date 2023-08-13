@@ -20,6 +20,8 @@ import { WeekSearch, PositionSearch, TeamSearch } from './SearchDropdowns';
 import * as Routes from '../../constants/routes';
 import { toast } from 'react-hot-toast';
 
+import useWindowDimensions from '../Tools/WindowDimensions';
+
 const Alert = withReactContent(Swal);
 
 const Roster = ({
@@ -57,6 +59,14 @@ const Roster = ({
   const [availPlayersToShow, updateAvailPlayersToShow] = useState([]);
 
   const axiosCancel = axios.CancelToken.source();
+
+  const { width } = useWindowDimensions();
+
+  useEffect(() => {
+    if (width < 768) {
+      updateShowUsedPlayers(false);
+    }
+  }, [width]);
 
   useEffect(() => {
     if (noGroup) {
@@ -493,7 +503,7 @@ const Roster = ({
                     disabled={mustDrop}
                     onClick={() => toggleShowUsedPlayers()}
                   >
-                    Show Used Players
+                    {showUsedPlayers ? 'Hide' : 'Show'} Used Players
                   </button>
                 </div>
                 <div className='col-sm-12 col-md-4 col-lg-2 text-center mt-1 mb-1'>
