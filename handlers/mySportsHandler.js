@@ -37,8 +37,23 @@ const calculateScore = (playerStat, groupScore) => {
   return playerStat * groupScore;
 };
 
+const capitalizeFirstLetter = (str) => {
+  const strArr = str.split(` `);
+  for (let i = 0; i < strArr.length; i++) {
+    strArr[i] = strArr[i].charAt(0).toUpperCase() + strArr[i].slice(1);
+  }
+  return strArr.join(` `);
+};
+
 const addPlayerData = (player, team, stats, season, week) => {
   return new Promise((res, rej) => {
+    let injury = null;
+    if (player.currentInjury) {
+      injury = {
+        PP: player.currentInjury.playingProbability,
+        D: capitalizeFirstLetter(player.currentInjury.description),
+      };
+    }
     db.PlayerData.create(
       {
         N: `${player.firstName} ${player.lastName}`,
@@ -47,7 +62,7 @@ const addPlayerData = (player, team, stats, season, week) => {
         P: player.primaryPosition || player.position,
         A: true,
         R: 7,
-        I: player.currentInjury,
+        I: injury,
       },
       function (err, newPlayer) {
         if (err) {
@@ -312,9 +327,12 @@ const parseRoster = async (playerArray, team) => {
             PP: playerArray[i].player.currentInjury.playingProbability,
           };
         }
+        const currTeam = playerArray[i].player.currentTeam
+          ? playerArray[i].player.currentTeam.abbreviation
+          : null;
         await updatePlayer(
           playerArray[i].player.id,
-          playerArray[i].player.currentTeam.abbreviation,
+          currTeam,
           injury,
           position
         );
@@ -372,9 +390,18 @@ const setPlayerToActive = (mySportsId) => {
 };
 
 const updatePlayer = async (mySportsId, team, injury, position) => {
+  let confInjury = null;
+  if (injury) {
+    confInjury = { PP: injury.PP, D: capitalizeFirstLetter(injury.D) };
+  }
   await db.PlayerData.findOneAndUpdate(
     { M: mySportsId },
-    { T: team, A: true, I: injury, P: position }
+    {
+      T: team,
+      A: true,
+      I: confInjury,
+      P: position,
+    }
   );
 };
 
@@ -519,8 +546,10 @@ const pullTeamData = async (season, team) => {
     .catch((err) => {
       //TODO Error handling if the AJAX failed
       console.log(`ERROR`, err, `GET ERROR`);
-      if (err.request.status === 502) {
-        setTimeout(pullTeamData(season), 60000);
+      if (err.request) {
+        if (err.request.status === 502 || err.request.status === 429) {
+          setTimeout(pullTeamData(season), 60000);
+        }
       }
     });
 };
@@ -559,13 +588,14 @@ module.exports = {
     return new Promise(async (res, rej) => {
       // This loops through the array of all the teams above and gets the current rosters
       let i = 0;
+
       const rosterTimer = setInterval(async () => {
         const team = nflTeams.teams[i];
         if (team !== `UNK`) {
           await pullTeamData(season, team);
         }
         i++;
-        if (i >= nflTeams.length) {
+        if (i > nflTeams.length) {
           clearInterval(rosterTimer);
         }
       }, 10000);

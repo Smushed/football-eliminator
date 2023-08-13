@@ -16,8 +16,11 @@ import './rosterStyle.css';
 import './playerStyle.css';
 
 import { loading, doneLoading } from '../LoadingAlert';
-import { WeekSearch, PositionSearch } from './SearchDropdowns';
+import { WeekSearch, PositionSearch, TeamSearch } from './SearchDropdowns';
 import * as Routes from '../../constants/routes';
+import { toast } from 'react-hot-toast';
+
+import useWindowDimensions from '../Tools/WindowDimensions';
 
 const Alert = withReactContent(Swal);
 
@@ -35,6 +38,7 @@ const Roster = ({
   const [userRoster, updateUserRoster] = useState([]);
   const [availablePlayers, updateAvaliablePlayers] = useState([]);
   const [positionSelect, updatePositionSelect] = useState(`QB`); //This is the default value for the position search
+  const [teamSelect, updateTeamSelect] = useState(`ARI`);
   const [lastPosSearch, updateLastPosSearch] = useState(``);
   const [weekSelect, updateWeekSelect] = useState(0);
   const [weekOnPage, updateWeekOnPage] = useState(0); //The week and season are here when the player searches for their roster. This updates ONLY when the player actually refreshes their roster
@@ -50,11 +54,19 @@ const Roster = ({
   const [mustDrop, updateMustDrop] = useState(false);
   const [possiblePlayer, updatePossiblePlayer] = useState(0);
   const [possiblePlayers, updatePossiblePlayers] = useState([]);
-  const [activePlayerSearch, updateActivatePlayerSearch] = useState(false);
+  const [activePlayerSearch, updateActivatePlayerSearch] = useState(true);
   const [playerSearch, updatePlayerSearch] = useState(``);
   const [availPlayersToShow, updateAvailPlayersToShow] = useState([]);
 
   const axiosCancel = axios.CancelToken.source();
+
+  const { width } = useWindowDimensions();
+
+  useEffect(() => {
+    if (width < 768) {
+      updateShowUsedPlayers(false);
+    }
+  }, [width]);
 
   useEffect(() => {
     if (noGroup) {
@@ -288,6 +300,23 @@ const Roster = ({
     pullPlayers();
   };
 
+  const searchByTeam = (e) => {
+    axios
+      .get(
+        `/api/getPlayersByTeam/${season}/${userId}/${match.params.groupname}/${teamSelect}`
+      )
+      .then((res) => {
+        updateAvaliablePlayers(res.data);
+        updateAvailPlayersToShow(res.data);
+      })
+      .catch((err) => {
+        if (err.message !== `Unmounted`) {
+          console.log(err);
+          toast.error(err.message);
+        }
+      });
+  };
+
   const pullPlayers = () => {
     loading();
     axios
@@ -328,6 +357,7 @@ const Roster = ({
     e.target.name === 'playerSearch' && updatePlayerSearch(e.target.value);
     e.target.name === 'weekSelect' && updateWeekSelect(e.target.value);
     e.target.name === 'positionSelect' && updatePositionSelect(e.target.value);
+    e.target.name === 'teamSelect' && updateTeamSelect(e.target.value);
   };
 
   const addPlayerToRoster = async (
@@ -360,10 +390,12 @@ const Roster = ({
       tooManyPlayers(sortedUpdatedRoster, allowedMap, addedPlayer);
     } else {
       saveRosterToDb(sortedUpdatedRoster, 0, addedPlayer.M, addedPlayer.P);
-      const newUsedPlayers = [...usedPlayers];
-      newUsedPlayers.push(addedPlayer);
       updateAvaliablePlayers(newAvailablePlayers);
-      updateUsedPlayers(newUsedPlayers);
+      if (addedPlayer.P === positionSelect) {
+        const newUsedPlayers = [...usedPlayers];
+        newUsedPlayers.push(addedPlayer);
+        updateUsedPlayers(newUsedPlayers);
+      }
     }
   };
 
@@ -418,7 +450,9 @@ const Roster = ({
       const newUsedPlayers = copiedUsedPlayers.filter(
         (player) => player.M !== mySportsId
       );
-      updateUsedPlayers(newUsedPlayers);
+      if (droppedPlayer.P === positionSelect) {
+        updateUsedPlayers(newUsedPlayers);
+      }
       newRoster[droppedPlayerIndex] = { M: 0, S: 0 };
       newAvailablePlayers.unshift(droppedPlayer);
 
@@ -445,6 +479,19 @@ const Roster = ({
           {usernameOfPage}&apos;s Roster
         </div>
       </div>
+      <div className='row justify-content-center mb-2'>
+        <div className='col-6 col-lg-4'>
+          <div className='row'>
+            <div className='col-12 text-center'>Change Week</div>
+          </div>
+          <WeekSearch
+            weekSelect={weekSelect}
+            handleChange={handleChange}
+            customSeasonWeekSearch={customSeasonWeekSearch}
+            disabled={mustDrop}
+          />
+        </div>
+      </div>
       <div className='row'>
         <div className='col-12'>
           <div className='row'>
@@ -456,7 +503,7 @@ const Roster = ({
                     disabled={mustDrop}
                     onClick={() => toggleShowUsedPlayers()}
                   >
-                    Show Used Players
+                    {showUsedPlayers ? 'Hide' : 'Show'} Used Players
                   </button>
                 </div>
                 <div className='col-sm-12 col-md-4 col-lg-2 text-center mt-1 mb-1'>
@@ -482,50 +529,35 @@ const Roster = ({
           </div>
 
           <div className='row justify-content-center mt-2 mb-1'>
-            <>
-              <div className='col-6 col-lg-4'>
-                <div className='row'>
-                  <div className='col-12 text-center'>Change Week</div>
+            <div className='col-12 col-md-4'>
+              <div className='row'>
+                <div className='col-sm-12 col-md-8 text-center'>
+                  Position Search
                 </div>
-                <WeekSearch
-                  weekSelect={weekSelect}
+              </div>
+              <div className='row'>
+                <PositionSearch
+                  positionSelect={positionSelect}
                   handleChange={handleChange}
-                  customSeasonWeekSearch={customSeasonWeekSearch}
+                  positionSearch={positionSearch}
                   disabled={mustDrop}
                 />
               </div>
-              <div className='col-6 col-lg-4'>
-                <div className='row'>
-                  <div className='col-sm-12 col-md-8 text-center'>
-                    Position Search
-                  </div>
-                </div>
-                <div className='row'>
-                  <PositionSearch
-                    positionSelect={positionSelect}
-                    handleChange={handleChange}
-                    positionSearch={positionSearch}
-                    disabled={mustDrop}
-                  />
+            </div>
+            <div className='col-12 col-md-4'>
+              <div className='row'>
+                <div className='col-sm-12 col-md-8 text-center'>
+                  Search by Team
                 </div>
               </div>
-            </>
-            {activePlayerSearch && (
-              <div className='col-6'>
-                <div className='playerSearchBox input-group input-group-lg mt-2 mb-1'>
-                  <span className='input-group-text rosterFieldDescription'>
-                    Player:
-                  </span>
-                  <input
-                    className='form-control'
-                    name='playerSearch'
-                    value={playerSearch}
-                    type='text'
-                    onChange={handleChange}
-                  />
-                </div>
+              <div className='row'>
+                <TeamSearch
+                  teamSelect={teamSelect}
+                  handleChange={handleChange}
+                  searchByTeam={searchByTeam}
+                />
               </div>
-            )}
+            </div>
           </div>
         </div>
       </div>
@@ -565,6 +597,9 @@ const Roster = ({
             playerList={availPlayersToShow}
             sortedMatchups={sortedMatchups}
             addDropPlayer={mustDrop ? false : addDropPlayer}
+            showInput={activePlayerSearch}
+            inputValue={playerSearch}
+            handleChange={handleChange}
           />
         </div>
       </div>

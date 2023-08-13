@@ -88,6 +88,32 @@ const getUsedPlayers = async (userId, season, groupId, position) => {
   }
 };
 
+const getUsedPlayersNoPosition = async (userId, season, groupId) => {
+  const usedPlayers = await db.UsedPlayers.find({
+    U: userId,
+    S: season,
+    G: groupId,
+  }).exec();
+  //If less than the max amount of used players, we need to make them here
+  if (usedPlayers.length < 4) {
+    const hasUsedPlayers = {
+      QB: false,
+      RB: false,
+      WR: false,
+      TE: false,
+    };
+    usedPlayers.forEach((dbUsedPlayer, i) => {
+      hasUsedPlayers[dbUsedPlayer.P] = true;
+    });
+    for (const key in hasUsedPlayers) {
+      if (!hasUsedPlayers[key]) {
+        createUsedPlayers(userId, season, groupId, key);
+      }
+    }
+  }
+  return usedPlayers;
+};
+
 const createUsedPlayers = (userId, season, groupId, position) => {
   return new Promise(async (res, rej) => {
     const isDupe = await checkDuplicateRoster(
@@ -392,22 +418,21 @@ module.exports = {
 
     return dbSearch;
   },
-  // searchPlayerByTeam: async (groupId, userId, team, season) => {
-  //Currently not working
-  //   const usedPlayers = await getUsedPlayers(userId, season, groupId);
+  searchAvailablePlayerByTeam: async (groupId, userId, team, season) => {
+    const usedPlayers = await getUsedPlayersNoPosition(userId, season, groupId);
 
-  //   const playersByTeam = await db.PlayerData.find(
-  //     { A: true, T: team },
-  //     { M: 1, N: 1, P: 1, R: 1, T: 1 }
-  //   );
+    const playersByTeam = await db.PlayerData.find(
+      { A: true, T: team, P: { $ne: 'K' } },
+      { M: 1, N: 1, P: 1, R: 1, T: 1, I: 1 }
+    );
 
-  //   const availablePlayers = checkForAvailablePlayers(
-  //     usedPlayers,
-  //     playersByTeam
-  //   );
+    const availablePlayers = checkForAvailablePlayers(
+      usedPlayers,
+      playersByTeam
+    );
 
-  //   return availablePlayers;
-  // },
+    return availablePlayers;
+  },
   allSeasonRoster: async function (userId, season) {
     //This goes through a users data and get each week
     const scoredAllSeason = [];

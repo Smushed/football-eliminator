@@ -1,10 +1,6 @@
 import React from 'react';
 import { Tooltip } from 'react-tooltip';
 import PropTypes from 'prop-types';
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
-
-const Alert = withReactContent(Swal);
 
 //SECTION Roster
 const CurrentRosterRow = ({
@@ -13,12 +9,6 @@ const CurrentRosterRow = ({
   addDropPlayer,
   pastLockWeek,
 }) => {
-  const showInjury = async () => {
-    const playingProb = player.I.PP.toLowerCase();
-    Alert.fire({
-      title: `${player.N} is ${playingProb} with a ${player.I.D} injury`,
-    });
-  };
   return (
     <tr>
       <th scope='row' className='rosterPosition'>
@@ -26,7 +16,7 @@ const CurrentRosterRow = ({
       </th>
       <td>
         {player && player.M !== 0 && !pastLockWeek && player.I && (
-          <InjuryCol injury={player.I} showInjury={showInjury} />
+          <InjuryCol injury={player.I} />
         )}
       </td>
       <td>{player && player.N && player.N}</td>
@@ -91,7 +81,7 @@ const RosterDisplay = ({
   </table>
 );
 
-const InjuryCol = ({ injury, showInjury }) => {
+const InjuryCol = ({ injury }) => {
   return (
     <span
       className='injuryCol redText'
@@ -137,26 +127,51 @@ const PlayerDisplayTable = ({
   playerList,
   sortedMatchups = null,
   addDropPlayer,
+  showInput = false,
+  inputValue,
+  handleChange,
 }) => (
-  <table className='table table-striped table-hover'>
-    <thead>
-      <tr className='fs-3 text-center'>
-        <th scope='col' colSpan={5}>
-          {headerText}
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      {playerList.map((player, i) => (
-        <PlayerDisplayRow
-          player={player}
-          key={i}
-          sortedMatchups={sortedMatchups}
-          addDropPlayer={addDropPlayer}
-        />
-      ))}
-    </tbody>
-  </table>
+  <>
+    <table className='table'>
+      <thead>
+        <tr className='fs-3 text-center'>
+          <th scope='col' colSpan={5}>
+            {headerText}
+          </th>
+        </tr>
+      </thead>
+    </table>
+    {showInput && (
+      <div className='row'>
+        <div className='col-12'>
+          <div className='playerSearchBox input-group input-group-lg mb-2'>
+            <span className='input-group-text rosterFieldDescription'>
+              Player:
+            </span>
+            <input
+              className='form-control'
+              name='playerSearch'
+              value={inputValue}
+              type='text'
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+      </div>
+    )}
+    <table className='table table-striped table-hover'>
+      <tbody>
+        {playerList.map((player, i) => (
+          <PlayerDisplayRow
+            player={player}
+            key={i}
+            sortedMatchups={sortedMatchups}
+            addDropPlayer={addDropPlayer}
+          />
+        ))}
+      </tbody>
+    </table>
+  </>
 );
 
 InjuryCol.propTypes = {
@@ -201,6 +216,9 @@ PlayerDisplayTable.propTypes = {
   playerList: PropTypes.array,
   sortedMatchups: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   addDropPlayer: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
+  showInput: PropTypes.bool,
+  inputValue: PropTypes.string,
+  handleChange: PropTypes.func,
 };
 
 export { RosterDisplay, PlayerDisplayRow, PlayerDisplayTable };

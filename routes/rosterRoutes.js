@@ -152,22 +152,22 @@ module.exports = (app) => {
     }
   );
 
-  //Currently not working
-  // app.get(
-  //   `/api/getPlayersByTeam/:groupId/:userId/:team/:season`,
-  //   async (req, res) => {
-  //     const { groupId, userId, team, season } = req.params;
+  app.get(
+    `/api/getPlayersByTeam/:season/:userId/:groupname/:team`,
+    async (req, res) => {
+      const { groupname, userId, team, season } = req.params;
 
-  //     const playersByTeam = await rosterHandler.searchPlayerByTeam(
-  //       groupId,
-  //       userId,
-  //       team,
-  //       season
-  //     );
+      const groupId = await groupHandler.findGroupIdByName(groupname);
+      const playersByTeam = await rosterHandler.searchAvailablePlayerByTeam(
+        groupId,
+        userId,
+        team,
+        season
+      );
 
-  //     res.status(200).send(playersByTeam);
-  //   }
-  // );
+      res.status(200).send(playersByTeam);
+    }
+  );
 
   app.get(`/api/seasonLongScore/:userId/:season`, async (req, res) => {
     const { userId, season } = req.params;
