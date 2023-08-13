@@ -9,8 +9,8 @@ const WeekSearch = ({
   customSeasonWeekSearch,
   disabled,
 }) => (
-  <div className='row justify-content-center'>
-    <div className='col-12 col-md-6'>
+  <div className='row mt-1 justify-content-center'>
+    <div className='col-10 col-md-6'>
       <select
         value={weekSelect}
         type='select'
@@ -38,7 +38,7 @@ const WeekSearch = ({
         <option>17</option>
       </select>
     </div>
-    <div className='text-center col-12 col-md-2 mt-1 mt-md-0'>
+    <div className='text-center col-2'>
       <button
         className='btn btn-success'
         onClick={customSeasonWeekSearch}
@@ -51,8 +51,8 @@ const WeekSearch = ({
 );
 
 const TeamSearch = ({ teamSelect, handleChange, searchByTeam }) => (
-  <div className='selectContainer'>
-    <div className='inputLength'>
+  <div className='row mt-1 justify-content-center'>
+    <div className='col-8'>
       <select
         value={teamSelect}
         type='select'
@@ -94,9 +94,11 @@ const TeamSearch = ({ teamSelect, handleChange, searchByTeam }) => (
         <option>WAS</option>
       </select>
     </div>
-    <button className='btn btn-success submitButton' onClick={searchByTeam}>
-      Search
-    </button>
+    <div className='text-center col-2'>
+      <button className='btn btn-success submitButton' onClick={searchByTeam}>
+        Search
+      </button>
+    </div>
   </div>
 );
 
@@ -106,8 +108,8 @@ const PositionSearch = ({
   disabled,
   positionSearch,
 }) => (
-  <div className='row'>
-    <div className='col-12 col-md-6'>
+  <div className='row mt-1 justify-content-center'>
+    <div className='col-8'>
       <select
         value={positionSelect}
         type='select'
@@ -121,7 +123,7 @@ const PositionSearch = ({
         <option>TE</option>
       </select>
     </div>
-    <div className='text-center col-12 col-md-2 mt-1 mt-md-0'>
+    <div className='text-center col-2'>
       <button
         className='btn btn-success'
         onClick={positionSearch}
