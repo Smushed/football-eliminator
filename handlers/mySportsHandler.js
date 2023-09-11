@@ -407,9 +407,8 @@ const updatePlayer = async (mySportsId, team, injury, position) => {
 
 const saveUserScore = async (userId, groupId, season, week, weekScore) => {
   let status = 200;
-  await db.UserScores.findOne(
-    { U: userId, G: groupId, S: season },
-    (err, userScore) => {
+  db.UserScores.findOne({ U: userId, G: groupId, S: season }).then(
+    (userScore) => {
       //First check if the userScore is not in the DB
       let totalScore = 0;
       if (userScore === null) {
@@ -443,14 +442,8 @@ const saveUserScore = async (userId, groupId, season, week, weekScore) => {
   return status;
 };
 
-const saveWeeklyUserScore = async (
-  userId,
-  groupId,
-  week,
-  season,
-  scoreArray
-) => {
-  await db.UserRoster.findOne(
+const saveWeeklyUserScore = (userId, groupId, week, season, scoreArray) =>
+  db.UserRoster.findOne(
     { U: userId, G: groupId, W: week, S: season },
     (err, weeklyUser) => {
       for (let i = 0; i < weeklyUser.R.length; i++) {
@@ -460,9 +453,9 @@ const saveWeeklyUserScore = async (
         err && console.log(err);
       });
     }
-  );
-};
-
+  )
+    .clone()
+    .exec();
 const saveOrUpdateMatchups = async (matchUpArray, season, week) => {
   const pulledWeek = await db.MatchUps.findOne({ W: week, S: season });
   if (pulledWeek === null || pulledWeek === undefined) {
@@ -506,8 +499,12 @@ const getAndSaveUserScore = async (
     weekScore += currentScoreNum;
     weeklyRosterScore[i] = currentScoreNum;
   }
-  saveWeeklyUserScore(userId, groupId, week, season, weeklyRosterScore);
-  saveUserScore(userId, groupId, season, week, weekScore);
+  try {
+    await saveWeeklyUserScore(userId, groupId, week, season, weeklyRosterScore);
+    await saveUserScore(userId, groupId, season, week, weekScore);
+  } catch (err) {
+    console.log('ERROR in getAndSaveUserScore', err);
+  }
   return;
 };
 

@@ -361,6 +361,9 @@ module.exports = {
           position
         );
       }
+
+      //Check User Roster Here
+
       let newUsedPlayers = [];
       for (const playerId of usedPlayers.UP) {
         if (playerId !== +droppedPlayer) {
@@ -540,13 +543,15 @@ module.exports = {
         );
         console.log(`done scoring week ${i}`);
       }
-      if (group.N === `The Clapper`) {
+      if (group.N === `Eliminator`) {
+        console.log('Starting to Rank players');
         const rankedPlayers = await mySportsHandler.rankPlayers(
           season,
           week,
           groupScore,
           true
         );
+        console.log('Saving player Ranks');
         await mySportsHandler.savePlayerRank(rankedPlayers);
       }
     }
