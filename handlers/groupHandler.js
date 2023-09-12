@@ -114,9 +114,7 @@ const findOneRoster = (userId, week, season, groupId) => {
   return db.UserRoster.findOne(
     { U: userId, W: week, S: season, G: groupId },
     { R: 1 }
-  )
-    .exec()
-    .clone();
+  ).exec();
 };
 
 const findOneUserById = (userId) => {
