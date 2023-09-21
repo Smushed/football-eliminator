@@ -407,8 +407,8 @@ const updatePlayer = async (mySportsId, team, injury, position) => {
 
 const saveUserScore = async (userId, groupId, season, week, weekScore) => {
   let status = 200;
-  db.UserScores.findOne({ U: userId, G: groupId, S: season }).then(
-    (userScore) => {
+  db.UserScores.findOne({ U: userId, G: groupId, S: season })
+    .then((userScore) => {
       //First check if the userScore is not in the DB
       let totalScore = 0;
       if (userScore === null) {
@@ -436,8 +436,12 @@ const saveUserScore = async (userId, groupId, season, week, weekScore) => {
           console.log(err);
         }
       });
-    }
-  );
+    })
+    .catch((err) =>
+      console.log(
+        `ERROR in saveUserScore userID: ${userId}, groupId: ${groupId}, ${error}`
+      )
+    );
 
   return status;
 };
@@ -705,7 +709,14 @@ module.exports = {
     groupScore
   ) => {
     for (const user of groupList) {
-      getAndSaveUserScore(user.R, season, week, user.U, groupScore, groupId);
+      await getAndSaveUserScore(
+        user.R,
+        season,
+        week,
+        user.U,
+        groupScore,
+        groupId
+      );
     }
 
     return;
