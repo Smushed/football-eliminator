@@ -196,7 +196,7 @@ const Roster = ({
     updatePossiblePlayers(possibleDrops);
   };
 
-  const chosePlayerForRoster = (chosenPlayer) => {
+  const chosePlayerForRoster = async (chosenPlayer) => {
     let droppedPlayerIndex = 0;
     const currentRoster = [...userRoster];
     const droppedPlayer = currentRoster.find((player, i) => {
@@ -232,15 +232,18 @@ const Roster = ({
       );
       newUsedPlayers.push(possiblePlayer);
 
-      saveRosterToDb(
+      const saveSuccessful = await saveRosterToDb(
         currentRoster,
         droppedPlayer.M,
         possiblePlayer.M,
         droppedPlayer.P
       );
-      updateAvaliablePlayers(availablePlayersCopy);
-      updateUsedPlayers(newUsedPlayers);
-      updateMustDrop(false);
+
+      if (saveSuccessful) {
+        updateAvaliablePlayers(availablePlayersCopy);
+        updateUsedPlayers(newUsedPlayers);
+        updateMustDrop(false);
+      }
     } else {
       //The user has selected the player who is not on their team
       updateUserRoster(currentRoster);
@@ -248,36 +251,45 @@ const Roster = ({
     }
   };
 
-  const saveRosterToDb = (roster, droppedPlayer, addedPlayer, pos) => {
-    loading();
-    axios
-      .put(
-        `/api/user/roster`,
-        {
-          userId: userId,
-          roster,
-          droppedPlayer,
-          addedPlayer,
-          week: weekSelect,
-          season: season,
-          groupname: match.params.groupname,
-          position: pos,
-        },
-        {
-          cancelToken: axiosCancel.token,
-        }
-      )
-      .then((res) => {
-        doneLoading();
-        updateUserRoster(res.data);
-        return;
-      })
-      .catch((err) => {
-        if (err.message !== `Unmounted`) {
-          console.log(err);
-        }
-      });
-  };
+  const saveRosterToDb = (roster, droppedPlayer, addedPlayer, pos) =>
+    new Promise((res, rej) => {
+      loading();
+      axios
+        .put(
+          `/api/user/roster`,
+          {
+            userId: userId,
+            roster,
+            droppedPlayer,
+            addedPlayer,
+            week: weekSelect,
+            season: season,
+            groupname: match.params.groupname,
+            position: pos,
+          },
+          {
+            cancelToken: axiosCancel.token,
+          }
+        )
+        .then((response) => {
+          doneLoading();
+          updateUserRoster(response.data);
+          if (mustDrop) {
+            updateMustDrop(false);
+            updatePossiblePlayer(0);
+            updatePossiblePlayers([]);
+          }
+          res(true);
+        })
+        .catch((err) => {
+          if (err.message !== `Unmounted`) {
+            doneLoading();
+            console.log({ err });
+            toast.error(`Roster can not be saved! ${err.response.data}`);
+          }
+          res(false);
+        });
+    });
 
   const checkLockPeriod = async (team) => {
     axios
@@ -389,12 +401,19 @@ const Roster = ({
     if (!added) {
       tooManyPlayers(sortedUpdatedRoster, allowedMap, addedPlayer);
     } else {
-      saveRosterToDb(sortedUpdatedRoster, 0, addedPlayer.M, addedPlayer.P);
-      updateAvaliablePlayers(newAvailablePlayers);
-      if (addedPlayer.P === positionSelect) {
-        const newUsedPlayers = [...usedPlayers];
-        newUsedPlayers.push(addedPlayer);
-        updateUsedPlayers(newUsedPlayers);
+      const saveSuccessful = await saveRosterToDb(
+        sortedUpdatedRoster,
+        0,
+        addedPlayer.M,
+        addedPlayer.P
+      );
+      if (saveSuccessful) {
+        updateAvaliablePlayers(newAvailablePlayers);
+        if (addedPlayer.P === positionSelect) {
+          const newUsedPlayers = [...usedPlayers];
+          newUsedPlayers.push(addedPlayer);
+          updateUsedPlayers(newUsedPlayers);
+        }
       }
     }
   };
@@ -456,8 +475,15 @@ const Roster = ({
       newRoster[droppedPlayerIndex] = { M: 0, S: 0 };
       newAvailablePlayers.unshift(droppedPlayer);
 
-      updateAvaliablePlayers(newAvailablePlayers);
-      saveRosterToDb(newRoster, mySportsId, false, droppedPlayer.P);
+      const saveSuccessful = await saveRosterToDb(
+        newRoster,
+        mySportsId,
+        false,
+        droppedPlayer.P
+      );
+      if (saveSuccessful) {
+        updateAvaliablePlayers(newAvailablePlayers);
+      }
     }
   };
 
@@ -577,9 +603,9 @@ const Roster = ({
             mustDrop={mustDrop}
           />
           <div
-            className={`usedPlayerCol fadeOut ${
-              mustDrop && `thirtyTransparent`
-            } ${!showUsedPlayers && ` zeroTransparent`}`}
+            className={`usedPlayerCol ${mustDrop && `thirtyTransparent`} ${
+              !showUsedPlayers && ` displayNone`
+            }`}
           >
             <PlayerDisplayTable
               headerText={`Used ${lastPosSearch ? lastPosSearch : 'Player'}s`}

@@ -585,8 +585,8 @@ module.exports = {
         console.log(`ERROR`, err, `GET ERROR`);
       });
   },
-  updateRoster: (season) => {
-    return new Promise(async (res, rej) => {
+  updateRoster: (season) =>
+    new Promise(async (res, rej) => {
       // This loops through the array of all the teams above and gets the current rosters
       let i = 0;
 
@@ -602,8 +602,7 @@ module.exports = {
       }, 10000);
 
       res({ text: `Rosters updated!` });
-    });
-  },
+    }),
   getMassData: async function (currentSeason) {
     //This loops through the the seasons and weeks and pulls through all of the data for the players
     const weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
@@ -626,10 +625,10 @@ module.exports = {
     };
     return testReturn;
   },
-  getWeeklyData: (season, week) => {
-    //This gets a specific week's worth of games and iterates through the list of players to come up with an array
-    //The array has player id, names, positions and stats in it. It then should feed an update a database
-    return new Promise(async (res, rej) => {
+  getWeeklyData: (season, week) =>
+    new Promise(async (res, rej) => {
+      //This gets a specific week's worth of games and iterates through the list of players to come up with an array
+      //The array has player id, names, positions and stats in it. It then should feed an update a database
       console.log(`requesting week ${week} data`);
       let search;
       try {
@@ -699,8 +698,7 @@ module.exports = {
       };
       console.log(`get weekly data done week ${week} season ${season}`);
       res(response);
-    });
-  },
+    }),
   calculateWeeklyScore: async (
     groupList,
     season,
@@ -806,8 +804,8 @@ module.exports = {
     });
     return filledRoster;
   },
-  pullMatchUpsForDB: async (season, week) => {
-    return new Promise(async (res, rej) => {
+  pullMatchUpsForDB: async (season, week) =>
+    new Promise(async (res, rej) => {
       let i = 1;
       const matchUpTimer = setInterval(async () => {
         console.log(`requesting matchups for ${season}, week ${i}`);
@@ -837,8 +835,7 @@ module.exports = {
         }
       }, 6000);
       res(`Completed`);
-    });
-  },
+    }),
   getMatchups: async function (season, week) {
     return new Promise(async (res, rej) => {
       const pulledWeek = await db.MatchUps.findOne({ W: week, S: season });

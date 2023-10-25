@@ -53,8 +53,8 @@ a:visited {
   transition: all 0.5s;
 }
 
-.zeroTransparent {
-  opacity: 0;
+.displayNone {
+  display: none;
 }
 
 .thirtyTransparent {
