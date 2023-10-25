@@ -146,16 +146,15 @@ module.exports = {
   initSeasonAndWeekInDB: () => {
     db.SeasonAndWeek.create({});
   },
-  pullSeasonAndWeekFromDB: async () => {
-    return new Promise(async (res, rej) => {
+  pullSeasonAndWeekFromDB: async () =>
+    new Promise(async (res, rej) => {
       const dbResponse = await db.SeasonAndWeek.find({}).exec();
       const season = dbResponse[0].S;
       const week = dbResponse[0].W;
       const lockWeek = dbResponse[0].LW;
 
       res({ season, week, lockWeek });
-    });
-  },
+    }),
   purgeDB: () => {
     //TODO If I make Admin Route and Handler, move this over
     db.User.deleteMany({}, (err, res) => {
@@ -222,8 +221,8 @@ module.exports = {
       }
     });
   },
-  updateSeasonWeek: (season, currentWeek, lockWeek) => {
-    return new Promise(async (res, rej) => {
+  updateSeasonWeek: (season, currentWeek, lockWeek) =>
+    new Promise(async (res, rej) => {
       try {
         await db.SeasonAndWeek.updateMany(
           {},
@@ -234,10 +233,9 @@ module.exports = {
         console.log(e);
         res(`failure, check logs!`);
       }
-    });
-  },
-  updateCurrWeek: (currentWeek) => {
-    return new Promise(async (res, rej) => {
+    }),
+  updateCurrWeek: (currentWeek) =>
+    new Promise(async (res, rej) => {
       try {
         await db.SeasonAndWeek.updateMany({}, { $set: { W: currentWeek } });
         res(`success!`);
@@ -245,10 +243,9 @@ module.exports = {
         console.log(e);
         res(`failure, check logs!`);
       }
-    });
-  },
-  updateLockWeek: (lockWeek) => {
-    return new Promise(async (res, rej) => {
+    }),
+  updateLockWeek: (lockWeek) =>
+    new Promise(async (res, rej) => {
       try {
         await db.SeasonAndWeek.updateMany({}, { $set: { LW: lockWeek } });
         res(`success!`);
@@ -256,8 +253,7 @@ module.exports = {
         console.log(e);
         res(`failure, check logs!`);
       }
-    });
-  },
+    }),
   addGroupToList: async (userId, groupId) => {
     const isInGroup = await checkDuplicateUser(`group`, userId, groupId);
     if (isInGroup) {
@@ -267,11 +263,11 @@ module.exports = {
     }
     return { status: 200, message: 'All Good' };
   },
-  groupUserList: function (userList) {
-    return new Promise(async (res) => {
+  groupUserList: (userList) =>
+    new Promise(async (res) => {
       const filledUserList = [];
       for (const user of userList) {
-        const userData = await await db.User.findById(user.ID);
+        const userData = await db.User.findById(user.ID).exec();
         filledUserList.push({
           A: user.A, //using the GroupList admin
           E: userData.E,
@@ -280,8 +276,7 @@ module.exports = {
         });
       }
       res(filledUserList);
-    });
-  },
+    }),
   getEmailSettings: async (userId) => {
     let emailSettings = await db.UserEmailSettings.findOne({
       U: userId,

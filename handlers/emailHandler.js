@@ -53,7 +53,7 @@ const composeWeeklyHTMLEmail = async (firstItem, secondItem, week) => {
   return `<div style='font-weight:600;
                         font-size: 24px;
                         margin-bottom: 15px;'>
-    Congrats on making it another week in the Eliminator! Onto week ${week + 1}
+    Onto week ${week + 1}
     </div>
 
     ${firstItem}
@@ -62,9 +62,7 @@ const composeWeeklyHTMLEmail = async (firstItem, secondItem, week) => {
 };
 
 const composeWeeklyTextEmail = async (firstItem, secondItem, week) => {
-  return `Congrats on making it another week in the Eliminator! Onto week ${
-    week + 1
-  }
+  return `Onto week ${week + 1}
 
     ${firstItem}
     

@@ -5,12 +5,6 @@ const positions = require(`../constants/positions`);
 const userHandler = require(`../handlers/userHandler`);
 
 module.exports = (app) => {
-  app.get(`/api/displayplayers`, async (req, res) => {
-    const response = await rosterHandler.byRoster();
-
-    res.status(200).send(response);
-  });
-
   app.get(`/api/roster/players/available`, async (req, res) => {
     const { userId, searchedPosition, season, groupname } = req.query;
     const groupId = await groupHandler.getGroupData(groupname);
@@ -106,18 +100,22 @@ module.exports = (app) => {
       position,
     } = req.body;
     const groupId = await groupHandler.findGroupIdByName(groupname);
-    const updatedRoster = await rosterHandler.updateUserRoster(
-      userId,
-      groupId,
-      roster,
-      droppedPlayer,
-      addedPlayer,
-      week,
-      season,
-      position
-    );
-    const response = await mySportsHandler.fillUserRoster(updatedRoster);
-    res.status(200).send(response);
+    try {
+      const updatedRoster = await rosterHandler.updateUserRoster(
+        userId,
+        groupId,
+        roster,
+        droppedPlayer,
+        addedPlayer,
+        week,
+        season,
+        position
+      );
+      const response = await mySportsHandler.fillUserRoster(updatedRoster);
+      res.status(200).send(response);
+    } catch (err) {
+      res.status(400).send(err);
+    }
   });
 
   app.get(`/api/lock/general`, async (req, res) => {

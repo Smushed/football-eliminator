@@ -53,8 +53,8 @@ const checkDuplicate = async (checkedField, groupToSearch, userID) => {
   return result;
 };
 
-const updateUserScore = async (groupId, season, prevWeek, week) => {
-  return new Promise(async (res) => {
+const updateUserScore = async (groupId, season, prevWeek, week) =>
+  new Promise(async (res) => {
     const group = await db.Group.findById([groupId]).exec();
     for (const user of group.UL) {
       createUserScore(user.ID, season, groupId);
@@ -66,7 +66,6 @@ const updateUserScore = async (groupId, season, prevWeek, week) => {
       ).exec()
     );
   });
-};
 
 const getUserScoreList = async (groupId, season, prevWeek, week) => {
   const userScores = await db.UserScores.find(
@@ -247,7 +246,7 @@ module.exports = {
       week
     );
     for (const user of userScoreList) {
-      const { UN } = await db.User.findById(user.U);
+      const { UN } = await db.User.findById(user.U).exec();
       const filledOutUser = {
         UID: user.U,
         TS: user.TS,
@@ -261,8 +260,6 @@ module.exports = {
     return arrayForLeaderBoard;
   },
   createClapper: async function () {
-    //TODO Break this out to use the Create Group function above. Just not sure about the mod part
-    //If there is no Dupe general group we are good to go ahead and add it
     if (!checkDuplicate('group', 'Clapper')) {
       return false;
     }
@@ -281,19 +278,21 @@ module.exports = {
       .exec();
     return foundGroup._id;
   },
-  createGeneralGroupRoster: async (groupId) => {
-    const dbResponse = db.GroupRoster.create({ G: groupId });
-    return dbResponse;
-  },
-  getGroupPositions: async (groupId) => {
-    try {
-      const dbResponse = await db.GroupRoster.findOne({ G: groupId });
-      return dbResponse.P;
-    } catch (err) {
-      console.log(`Error: ${err}`);
-      return Error('Cannot Find Group Positions');
-    }
-  },
+  createGeneralGroupRoster: async (groupId) =>
+    new Promise(async (res, rej) => {
+      const dbResponse = await db.GroupRoster.create({ G: groupId }).exec();
+      res(dbResponse);
+    }),
+  getGroupPositions: async (groupId) =>
+    new Promise(async (res, rej) => {
+      try {
+        const dbResponse = await db.GroupRoster.findOne({ G: groupId }).exec();
+        res(dbResponse.P);
+      } catch (err) {
+        console.log(`Error: ${err}`);
+        rej(Error('Cannot Find Group Positions'));
+      }
+    }),
   groupPositionsForDisplay: async (rawPositionData) => {
     const positionsToDisplay = [false, false, false, false, false, false]; //QB, RB, WR, TE, K, D
     for (const position of rawPositionData) {
@@ -325,10 +324,16 @@ module.exports = {
     }
     return positionsToDisplay;
   },
-  getGroupScore: async (groupId) => {
-    const dbResponse = await db.GroupScore.findOne({ G: groupId });
-    return dbResponse;
-  },
+  getGroupScore: async (groupId) =>
+    new Promise(async (res, rej) => {
+      try {
+        const dbResponse = await db.GroupScore.findOne({ G: groupId }).exec();
+        res(dbResponse);
+      } catch (err) {
+        console.log({ err, location: 'getGroupScore in groupHandler' });
+        rej('Error getting group score in group handler');
+      }
+    }),
   mapGroupPositions: async (groupPositions, positionMap) => {
     const groupMap = [];
     for (const position of groupPositions) {
@@ -338,7 +343,7 @@ module.exports = {
   },
   getGroupList: async () => {
     const filledData = [];
-    const groupResponse = await db.Group.find();
+    const groupResponse = await db.Group.find().exec();
 
     for (let i = 0; i < groupResponse.length; i++) {
       filledData[i] = {

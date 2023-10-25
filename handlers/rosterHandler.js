@@ -3,6 +3,7 @@ const db = require(`../models`);
 const userHandler = require(`./userHandler`);
 const groupHandler = require(`./groupHandler`);
 const mySportsHandler = require(`./mySportsHandler`);
+const positions = require(`../constants/positions`);
 
 const checkDuplicateRoster = async (
   checkedField,
@@ -114,8 +115,8 @@ const getUsedPlayersNoPosition = async (userId, season, groupId) => {
   return usedPlayers;
 };
 
-const createUsedPlayers = (userId, season, groupId, position) => {
-  return new Promise(async (res, rej) => {
+const createUsedPlayers = (userId, season, groupId, position) =>
+  new Promise(async (res, rej) => {
     const isDupe = await checkDuplicateRoster(
       `usedPlayers`,
       userId,
@@ -135,7 +136,6 @@ const createUsedPlayers = (userId, season, groupId, position) => {
       );
     }
   });
-};
 
 const checkDupeWeeklyRoster = async (userId, week, season, groupId) => {
   const search = await db.UserRoster.findOne({
@@ -170,8 +170,8 @@ const createWeeklyRoster = async function (userId, week, season, groupId) {
   return await db.UserRoster.create(weeksRoster);
 };
 
-const getAllRostersByGroupAndWeek = async (season, week, groupId) => {
-  return new Promise(async (res, rej) => {
+const getAllRostersByGroupAndWeek = async (season, week, groupId) =>
+  new Promise(async (res, rej) => {
     const group = await db.Group.findById([groupId]).exec();
     const userRosters = await db.UserRoster.find({
       S: season,
@@ -196,10 +196,9 @@ const getAllRostersByGroupAndWeek = async (season, week, groupId) => {
     }
     res(completeRosters);
   });
-};
 
-const sortUsersByScore = async (userRosterArray, groupId, season) => {
-  return new Promise(async (res) => {
+const sortUsersByScore = async (userRosterArray, groupId, season) =>
+  new Promise(async (res) => {
     const sortedScores = [];
     for (let user of userRosterArray) {
       const userScore = await db.UserScores.findOne(
@@ -219,21 +218,49 @@ const sortUsersByScore = async (userRosterArray, groupId, season) => {
     sortedScores.sort((a, b) => b.TS - a.TS);
     res(sortedScores);
   });
-};
 
-const pullGroupRostersForScoring = async (season, week, groupId) => {
-  return new Promise(async (res, rej) => {
+const pullGroupRostersForScoring = async (season, week, groupId) =>
+  new Promise(async (res, rej) => {
     const allRosters = await getAllRostersByGroupAndWeek(season, week, groupId);
     res(allRosters);
   });
-};
+
+const checkRoster = async (groupId, newRoster) =>
+  new Promise(async (res, rej) => {
+    const groupPositions = await groupHandler.getGroupPositions(groupId);
+    const mappedPositions = await groupHandler.mapGroupPositions(
+      groupPositions,
+      positions.positionMap
+    );
+    const maxPositionCount = { QB: 0, RB: 0, WR: 0, TE: 0, K: 0 };
+    const currentPositionsOnRoster = { QB: 0, RB: 0, WR: 0, TE: 0, K: 0 };
+    for (const singlePositionMap of mappedPositions) {
+      for (const position of singlePositionMap) {
+        maxPositionCount[positions.positionArray[position]]++;
+      }
+    }
+    if (newRoster.length > mappedPositions.length) {
+      res({ valid: false, message: 'Too many players on roster' });
+      return;
+    }
+    for (const player of newRoster) {
+      if (player.M === 0) {
+        continue;
+      }
+      const { P } = await db.PlayerData.findOne({ M: player.M }).exec();
+      currentPositionsOnRoster[P]++;
+    }
+
+    for (const position of positions.positionArray) {
+      if (maxPositionCount[position] < currentPositionsOnRoster[position]) {
+        res({ valid: false, message: `Too many ${position} for your roster` });
+        return;
+      }
+    }
+    res({ valid: true, message: 'Valid Roster' });
+  });
 
 module.exports = {
-  byRoster: async () => {
-    const players = await db.FantasyStats.find({ team: 'CHI' });
-
-    return players;
-  },
   dummyRoster: async (userId, groupId, week, season, dummyRoster) => {
     //Brute force updating a user's roster
     return new Promise((res, rej) => {
@@ -345,14 +372,14 @@ module.exports = {
     week,
     season,
     position
-  ) => {
-    return new Promise(async (res, rej) => {
+  ) =>
+    new Promise(async (res, rej) => {
       let usedPlayers = await db.UsedPlayers.findOne({
         U: userId,
         S: season,
         G: groupId,
         P: position,
-      });
+      }).exec();
       if (usedPlayers === null) {
         usedPlayers = await createUsedPlayers(
           userId,
@@ -363,11 +390,20 @@ module.exports = {
       }
       let newUsedPlayers = [];
       for (const playerId of usedPlayers.UP) {
-        if (playerId !== +droppedPlayer) {
+        if (playerId === addedPlayer) {
+          rej("You've already used this player");
+          return;
+        } else if (playerId !== +droppedPlayer) {
           newUsedPlayers.push(playerId);
         }
       }
       newUsedPlayers.push(addedPlayer);
+      const validCheck = await checkRoster(groupId, roster);
+      if (validCheck.valid === false) {
+        console.log('inside valid');
+        rej(validCheck.message);
+        return;
+      }
       usedPlayers.UP = newUsedPlayers;
       await usedPlayers.save();
 
@@ -384,10 +420,9 @@ module.exports = {
       currentRoster.R = newRoster;
       await currentRoster.save();
       res(currentRoster.R);
-    });
-  },
-  getAllRostersForGroup: async (season, week, groupId) => {
-    return new Promise(async (res, rej) => {
+    }),
+  getAllRostersForGroup: async (season, week, groupId) =>
+    new Promise(async (res, rej) => {
       const userRosters = [];
       const allRosters = await getAllRostersByGroupAndWeek(
         season,
@@ -401,8 +436,7 @@ module.exports = {
       }
       const sortedUsers = await sortUsersByScore(userRosters, groupId, season);
       res(sortedUsers);
-    });
-  },
+    }),
   usedPlayersByPosition: async (userId, season, groupId, position) => {
     const usedPlayers = await getUsedPlayers(userId, season, groupId, position);
 
