@@ -520,37 +520,31 @@ const Roster = ({
       </div>
       <div className='row'>
         <div className='col-12'>
-          <div className='row'>
-            <div className='col-12'>
-              <div className='row justify-content-center'>
-                <div className='col-sm-12 col-md-4 col-lg-2 text-center mt-1 mb-1'>
-                  <button
-                    className='btn btn-success'
-                    disabled={mustDrop}
-                    onClick={() => toggleShowUsedPlayers()}
-                  >
-                    {showUsedPlayers ? 'Hide' : 'Show'} Used Players
-                  </button>
-                </div>
-                <div className='col-sm-12 col-md-4 col-lg-2 text-center mt-1 mb-1'>
-                  <button
-                    className='btn btn-success'
-                    onClick={() =>
-                      updateActivatePlayerSearch(!activePlayerSearch)
-                    }
-                  >
-                    {activePlayerSearch ? `Hide` : `Show`} Player Search
-                  </button>
-                </div>
-                <div className='col-sm-12 col-md-4 col-lg-2 text-center mt-1 mb-1'>
-                  <button
-                    className='btn btn-success'
-                    onClick={() => showMatchUps()}
-                  >
-                    Show Match Ups
-                  </button>
-                </div>
-              </div>
+          <div className='row justify-content-center'>
+            <div className='col-sm-12 col-md-4 col-lg-2 text-center mt-1 mb-1'>
+              <button
+                className='btn btn-success'
+                disabled={mustDrop}
+                onClick={() => toggleShowUsedPlayers()}
+              >
+                {showUsedPlayers ? 'Hide' : 'Show'} Used Players
+              </button>
+            </div>
+            <div className='col-sm-12 col-md-4 col-lg-2 text-center mt-1 mb-1'>
+              <button
+                className='btn btn-success'
+                onClick={() => updateActivatePlayerSearch(!activePlayerSearch)}
+              >
+                {activePlayerSearch ? `Hide` : `Show`} Player Search
+              </button>
+            </div>
+            <div className='col-sm-12 col-md-4 col-lg-2 text-center mt-1 mb-1'>
+              <button
+                className='btn btn-success'
+                onClick={() => showMatchUps()}
+              >
+                Show Match Ups
+              </button>
             </div>
           </div>
 

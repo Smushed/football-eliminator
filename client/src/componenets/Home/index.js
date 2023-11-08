@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 import { RosterDisplay } from '../Roster/RosterDisplay';
 import './homeStyle.css';
-import Leaderboard from './Leaderboard';
+import Leaderboard from '../Leaderboard';
 import PropTypes from 'prop-types';
 import RosterCarousel from './RosterCarousel';
 import * as Routes from '../../constants/routes';

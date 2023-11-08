@@ -190,6 +190,12 @@ module.exports = (app) => {
       week,
       groupId
     );
+    for (const roster of allRosters) {
+      console.log({ roster });
+      // for (const innerRoster of allRosters.R) {
+      //   console.log({ innerRoster });
+      // }
+    }
     res.status(200).send(allRosters);
   });
 

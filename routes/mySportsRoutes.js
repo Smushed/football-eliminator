@@ -1,7 +1,7 @@
 const mySportsHandler = require(`../handlers/mySportsHandler`);
-const groupHandler = require("../handlers/groupHandler");
-
+const groupHandler = require('../handlers/groupHandler');
 const nflTeams = require(`../constants/nflTeams`);
+const s3Handler = require('../handlers/s3Handler');
 
 module.exports = (app) => {
   app.get(`/api/updatePlayers/:season/:week`, async (req, res) => {
@@ -25,12 +25,23 @@ module.exports = (app) => {
     }
   });
 
-  //This iterates through all the teams (all 32) and pulls mySportsFeeds for the current rosters
-  //It then takes the rosters it gets from mySportsFeeds and updates the players it finds
-  app.get(`/api/updateTeams/:season`, async (req, res) => {
+  //Takes in teams as an array then iterates through the list and updates the rosters for each
+  app.put(`/api/updateTeams/:season`, async (req, res) => {
     const { season } = req.params;
+    let { teams } = req.body;
 
-    const dbResponse = await mySportsHandler.updateRoster(season);
+    if (!teams) {
+      teams = nflTeams.teams;
+    }
+    const dbResponse = mySportsHandler.updateTeamRoster(season, teams);
+
+    res.status(200).send(dbResponse);
+  });
+
+  app.put(`/api/updateTeams/:season/:team`, async (req, res) => {
+    const { season, team } = req.params;
+
+    const dbResponse = await mySportsHandler.updateTeamRoster(season, team);
 
     res.status(200).send(dbResponse);
   });
@@ -82,5 +93,15 @@ module.exports = (app) => {
 
   app.get(`/api/getTeamList`, async (req, res) => {
     res.status(200).send(nflTeams.teams);
+  });
+
+  app.put(`/api/updatePlayerAvatar`, async (req, res) => {
+    let { teams } = req.body;
+    if (!teams) {
+      teams = nflTeams.teams;
+    }
+    const playerArrayFromDB = await mySportsHandler.getAllPlayersByTeam(teams);
+    const dbResponse = await s3Handler.updatePlayerAvatar(playerArrayFromDB);
+    res.status(200).send(dbResponse);
   });
 };

@@ -5,6 +5,7 @@ const mySportsHandler = require(`../handlers/mySportsHandler`);
 const rosterHandler = require(`../handlers/rosterHandler`);
 const groupHandler = require(`../handlers/groupHandler`);
 const emailHandler = require(`../handlers/emailHandler`);
+const nflTeams = require(`../constants/nflTeams`);
 const moment = require(`moment-timezone`);
 
 // Schedule a job for the 22nd minute of each hour
@@ -21,17 +22,21 @@ schedule.scheduleJob('22 * * 1,9-12 *', async function () {
 
 // Update Scores every day at 3am Chicago time
 schedule.scheduleJob('0 9 * 1,9-12 *', async function () {
-  console.log(`Running player data update`);
-  const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
-  await mySportsHandler.updateRoster(season);
-
-  await updatePlayerData(season, week);
+  console.log(`Running player roster update`);
+  const { season } = await userHandler.pullSeasonAndWeekFromDB();
+  mySportsHandler.updateTeamRoster(season, nflTeams.teams);
 
   allScheduledGames(season);
 });
 
+schedule.scheduleJob('15 9 * 1,9-12 *', async function () {
+  const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
+  console.log(`Scoring players and groups update`);
+  updatePlayerData(season, week);
+});
+
 //Rank the Players
-schedule.scheduleJob('20 9 * 1,9-12 *', async function () {
+schedule.scheduleJob('30 9 * 1,9-12 *', async function () {
   console.log(`Running roster and score update`);
   const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
   await rosterHandler.scoreAllGroups(season, week);

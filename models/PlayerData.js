@@ -34,6 +34,16 @@ const PlayerDataSchema = new Schema({
       PP: String,
     },
   },
+  E: {
+    //Espn ID
+    type: Number,
+    default: null,
+  },
+  AV: {
+    //Avatar
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model(`PlayerData`, PlayerDataSchema);

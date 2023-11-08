@@ -1,8 +1,9 @@
 const db = require(`../models`);
 const axios = require(`axios`);
-const nflTeams = require(`../constants/nflTeams`);
 const positions = require(`../constants/positions`);
 const scoringSystem = require(`../constants/scoringSystem`);
+const s3Handler = require(`./s3Handler`);
+const nflTeams = require('../constants/nflTeams');
 require(`dotenv`).config();
 
 const mySportsFeedsAPI = process.env.MY_SPORTS_FEEDS_API;
@@ -46,7 +47,7 @@ const capitalizeFirstLetter = (str) => {
 };
 
 const addPlayerData = (player, team, stats, season, week) => {
-  return new Promise((res, rej) => {
+  return new Promise(async (res, rej) => {
     let injury = null;
     if (player.currentInjury) {
       injury = {
@@ -54,6 +55,9 @@ const addPlayerData = (player, team, stats, season, week) => {
         D: capitalizeFirstLetter(player.currentInjury.description),
       };
     }
+    const espnMapping = await parsePlayerExternalMappings(
+      player.externalMappings
+    );
     db.PlayerData.create(
       {
         N: `${player.firstName} ${player.lastName}`,
@@ -63,6 +67,7 @@ const addPlayerData = (player, team, stats, season, week) => {
         A: true,
         R: 7,
         I: injury,
+        E: espnMapping,
       },
       function (err, newPlayer) {
         if (err) {
@@ -303,6 +308,17 @@ const addWeeksStats = async (mySportsId, stats, season, week) => {
   return;
 };
 
+const parsePlayerExternalMappings = (mappingArray) =>
+  new Promise((res) => {
+    let espnMapping = null;
+    for (let mapping of mappingArray) {
+      if (mapping.source === `ESPN`) {
+        espnMapping = mapping.id;
+      }
+    }
+    res(espnMapping);
+  });
+
 //Goes through the roster of the team and pulls out all offensive players
 const parseRoster = async (playerArray, team) => {
   const totalPlayerArray = [];
@@ -327,6 +343,9 @@ const parseRoster = async (playerArray, team) => {
             PP: playerArray[i].player.currentInjury.playingProbability,
           };
         }
+        const espnMapping = await parsePlayerExternalMappings(
+          playerArray[i].player.externalMappings
+        );
         const currTeam = playerArray[i].player.currentTeam
           ? playerArray[i].player.currentTeam.abbreviation
           : null;
@@ -334,19 +353,16 @@ const parseRoster = async (playerArray, team) => {
           playerArray[i].player.id,
           currTeam,
           injury,
-          position
+          position,
+          espnMapping
         );
       }
       totalPlayerArray.push(dbPlayer.M);
     }
   }
-
-  //Grab all the players in the database for that team so then we can check against the recent players in the API
   const dbNFLRoster = await db.PlayerData.find({ T: team }).exec();
   //Iterate through the players we have sitting in the database
   //Take out all the players which we just wrote to the database and update all the rest to be inactive
-
-  //This makes a new set of mySportsIds that we then iterate over and see if the dbRoster contains these Ids. If they don't then add them to the new Array
   const totalPlayerArrayIds = new Set(totalPlayerArray);
   const inactivePlayerArray = dbNFLRoster.filter(
     (player) => !totalPlayerArrayIds.has(player.M)
@@ -389,7 +405,13 @@ const setPlayerToActive = (mySportsId) => {
   });
 };
 
-const updatePlayer = async (mySportsId, team, injury, position) => {
+const updatePlayer = async (
+  mySportsId,
+  team,
+  injury,
+  position,
+  espnMapping
+) => {
   let confInjury = null;
   if (injury) {
     confInjury = { PP: injury.PP, D: capitalizeFirstLetter(injury.D) };
@@ -401,6 +423,7 @@ const updatePlayer = async (mySportsId, team, injury, position) => {
       A: true,
       I: confInjury,
       P: position,
+      E: espnMapping,
     }
   );
 };
@@ -537,16 +560,12 @@ const pullTeamData = async (season, team) => {
         rosterstatus: `assigned-to-roster`,
       },
     })
-    .then(async (response) => {
+    .then((response) => {
       // Then parses through the roster and pulls out of all the offensive players and updates their data
-      //This also gets any new players and adds them to the DB but inside this function
-      //Await because I want it to iterate through the whole roster that was provided before moving onto the next one
-      console.log(`working through ${team}`);
-      await parseRoster(response.data.players, team);
+      parseRoster(response.data.players, team);
     })
     .catch((err) => {
-      //TODO Error handling if the AJAX failed
-      console.log(`ERROR`, err, `GET ERROR`);
+      console.log(`ERROR inside of pullTeamData: `, err);
       if (err.request) {
         if (err.request.status === 502 || err.request.status === 429) {
           setTimeout(pullTeamData(season), 60000);
@@ -585,24 +604,21 @@ module.exports = {
         console.log(`ERROR`, err, `GET ERROR`);
       });
   },
-  updateRoster: (season) =>
-    new Promise(async (res, rej) => {
-      // This loops through the array of all the teams above and gets the current rosters
-      let i = 0;
+  updateTeamRoster: (season, teams) => {
+    // This loops through the array of all the teams above and gets the current rosters
+    let i = 0;
+    const rosterTimer = setInterval(async () => {
+      if (teams[i] !== `UNK`) {
+        await pullTeamData(season, teams[i]);
+      }
+      i++;
+      if (i >= teams.length) {
+        clearInterval(rosterTimer);
+      }
+    }, 10000);
 
-      const rosterTimer = setInterval(async () => {
-        const team = nflTeams.teams[i];
-        if (team !== `UNK`) {
-          await pullTeamData(season, team);
-        }
-        i++;
-        if (i > nflTeams.length) {
-          clearInterval(rosterTimer);
-        }
-      }, 10000);
-
-      res({ text: `Rosters updated!` });
-    }),
+    return { text: `Update Roster Process Kicked off` };
+  },
   getMassData: async function (currentSeason) {
     //This loops through the the seasons and weeks and pulls through all of the data for the players
     const weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
@@ -616,7 +632,7 @@ module.exports = {
 
     //After this is done we want to run the updateRoster function to pull in players who have retired
     //There is no way in the API to get if they currently play when pulling historical data
-    this.updateRoster(currentSeason);
+    this.updateTeamRoster(currentSeason, nflTeams.teams);
 
     //TODO Actually return something useful
     const testReturn = {
@@ -791,17 +807,36 @@ module.exports = {
     try {
       dbSearch = await db.PlayerData.find(
         { M: { $in: mySportsIdArray } },
-        { P: 1, T: 1, M: 1, N: 1, I: 1 }
+        { P: 1, T: 1, M: 1, N: 1, I: 1, AV: 1 }
       );
     } catch (err) {
       console.log(err);
     }
-    const filledRoster = playerIdRoster.map((id) => {
-      const player = dbSearch.find((player) => player.M === id.M);
+    const filledRoster = [];
+    for (let playerId of playerIdRoster) {
+      const player = dbSearch.find((player) => player.M === playerId.M);
       if (!player) return { M: 0, SC: 0 };
       const { P, T, M, N, I } = player;
-      return { P, T, M, N, I, SC: id.SC };
-    });
+      if (player.AV) {
+        const avatar = await s3Handler.getPlayerAvatar(player.M);
+        filledRoster.push({ P, T, M, N, I, SC: playerId.SC, AV: avatar });
+      } else {
+        const avatar = await s3Handler.getPlayerOutlineAvatar();
+        filledRoster.push({ P, T, M, N, I, SC: playerId.SC, AV: avatar });
+      }
+    }
+    // const filledRoster = playerIdRoster.map((id) => {
+    //   const player = dbSearch.find((player) => player.M === id.M);
+    //   if (!player) return { M: 0, SC: 0 };
+    //   const { P, T, M, N, I } = player;
+    //   if (player.AV) {
+    //     const avatar = s3Handler.getPlayerAvatar(player.M);
+    //     return { P, T, M, N, I, SC: id.SC, AV: avatar };
+    //   } else {
+    //     const avatar = s3Handler.getPlayerOutlineAvatar();
+    //     return { P, T, M, N, I, SC: id.SC, AV: avatar };
+    //   }
+    // });
     return filledRoster;
   },
   pullMatchUpsForDB: async (season, week) =>
@@ -912,4 +947,6 @@ module.exports = {
     }
     return;
   },
+  getAllPlayersByTeam: async (teams) =>
+    await db.PlayerData.find({ T: { $in: teams } }).exec(),
 };
