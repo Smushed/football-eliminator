@@ -568,7 +568,11 @@ const pullTeamData = async (season, team) => {
       console.log(`ERROR inside of pullTeamData: `, err);
       if (err.request) {
         if (err.request.status === 502 || err.request.status === 429) {
-          setTimeout(pullTeamData(season), 60000);
+          if (team === undefined || team === 'undefined') {
+            return;
+          } else {
+            setTimeout(pullTeamData(season, team), 60000);
+          }
         }
       }
     });
