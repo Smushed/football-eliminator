@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, createContext } from 'react';
 import * as Routes from './constants/routes';
 import { Route, BrowserRouter, Switch } from 'react-router-dom';
 import { withFirebase } from './componenets/Firebase';
@@ -19,6 +19,8 @@ import FourOFour from './componenets/404';
 import SidePanel from './componenets/SidePanel';
 import EmailPref from './componenets/EmailPref';
 
+const PlayerAvatarContext = createContext();
+
 const App = ({ firebase }) => {
   const [noGroup, updateNoGroup] = useState(false);
   const [authUser, updateAuthUser] = useState(null);
@@ -28,6 +30,7 @@ const App = ({ firebase }) => {
   const [currentGroup, updateCurrentGroup] = useState({});
   const [showSideBar, updateShowSideBar] = useState(false);
   const [lockWeek, updateLockWeek] = useState(0);
+  const [playerAvatars, updatePlayerAvatars] = useState({});
 
   const listener = useRef(null);
 
@@ -105,109 +108,113 @@ const App = ({ firebase }) => {
   return (
     <BrowserRouter>
       <>
-        <Toaster />
-        <SidePanel
-          showSideBar={showSideBar}
-          noGroup={noGroup}
-          currentGroup={currentGroup}
-          user={currentUser}
-          showHideSideBar={showHideSideBar}
-          hardSetSideBar={hardSetSideBar}
-          changeGroup={changeGroup}
-        />
-        {authUser && <NavBar showHideSideBar={showHideSideBar} />}
+        <PlayerAvatarContext.Provider
+          value={{ playerAvatars, updatePlayerAvatars }}
+        >
+          <Toaster />
+          <SidePanel
+            showSideBar={showSideBar}
+            noGroup={noGroup}
+            currentGroup={currentGroup}
+            user={currentUser}
+            showHideSideBar={showHideSideBar}
+            hardSetSideBar={hardSetSideBar}
+            changeGroup={changeGroup}
+          />
+          {authUser && <NavBar showHideSideBar={showHideSideBar} />}
 
-        <Switch>
-          <Route
-            exact
-            path={Routes.home}
-            render={() => (
-              <Home
-                noGroup={noGroup}
-                season={currentSeason}
-                group={currentGroup}
-                week={currentWeek}
-                currentUser={currentUser}
-              />
-            )}
-          />
-          <Route
-            path={Routes.adminPanel}
-            render={() => (
-              <AdminPanel
-                currentUser={currentUser}
-                week={currentWeek}
-                season={currentSeason}
-                groupId={currentGroup._id}
-              />
-            )}
-          />
-          <Route
-            exact
-            path={Routes.groupPage}
-            render={() => (
-              <GroupPage
-                email={authUser && authUser.email}
-                pullUserData={pullUserData}
-                season={currentSeason}
-                noGroup={noGroup}
-                userId={currentUser.userId}
-              />
-            )}
-          />
-          <Route path={Routes.signin} render={() => <SignInOut />} />
-          <Route path={Routes.signup} render={() => <SignInOut />} />
-          <Route
-            path={Routes.profile}
-            render={() => (
-              <Profile
-                pullUserData={pullUserData}
-                authUser={authUser}
-                currentUser={currentUser}
-              />
-            )}
-          />
-          <Route
-            path={Routes.roster}
-            render={() => (
-              <Roster
-                username={currentUser.username}
-                userId={currentUser.userId}
-                week={currentWeek}
-                season={currentSeason}
-                noGroup={noGroup}
-                appLevelLockWeek={lockWeek}
-                updateLockWeek={updateLockWeek}
-              />
-            )}
-          />
-          <Route
-            path={Routes.usedPlayers}
-            render={(props) => (
-              <UsedPlayers
-                {...props}
-                noGroup={noGroup}
-                season={currentSeason}
-              />
-            )}
-          />
-          <Route
-            path={Routes.createGroup}
-            render={() => (
-              <CreateGroup
-                email={authUser && authUser.email}
-                pullUserData={pullUserData}
-                changeGroup={changeGroup}
-                userId={currentUser.userId}
-              />
-            )}
-          />
-          <Route
-            path={Routes.emailPref}
-            render={(props) => <EmailPref {...props} />}
-          />
-          <Route render={() => <FourOFour />} />
-        </Switch>
+          <Switch>
+            <Route
+              exact
+              path={Routes.home}
+              render={() => (
+                <Home
+                  noGroup={noGroup}
+                  season={currentSeason}
+                  group={currentGroup}
+                  week={currentWeek}
+                  currentUser={currentUser}
+                />
+              )}
+            />
+            <Route
+              path={Routes.adminPanel}
+              render={() => (
+                <AdminPanel
+                  currentUser={currentUser}
+                  week={currentWeek}
+                  season={currentSeason}
+                  groupId={currentGroup._id}
+                />
+              )}
+            />
+            <Route
+              exact
+              path={Routes.groupPage}
+              render={() => (
+                <GroupPage
+                  email={authUser && authUser.email}
+                  pullUserData={pullUserData}
+                  season={currentSeason}
+                  noGroup={noGroup}
+                  userId={currentUser.userId}
+                />
+              )}
+            />
+            <Route path={Routes.signin} render={() => <SignInOut />} />
+            <Route path={Routes.signup} render={() => <SignInOut />} />
+            <Route
+              path={Routes.profile}
+              render={() => (
+                <Profile
+                  pullUserData={pullUserData}
+                  authUser={authUser}
+                  currentUser={currentUser}
+                />
+              )}
+            />
+            <Route
+              path={Routes.roster}
+              render={() => (
+                <Roster
+                  username={currentUser.username}
+                  userId={currentUser.userId}
+                  week={currentWeek}
+                  season={currentSeason}
+                  noGroup={noGroup}
+                  appLevelLockWeek={lockWeek}
+                  updateLockWeek={updateLockWeek}
+                />
+              )}
+            />
+            <Route
+              path={Routes.usedPlayers}
+              render={(props) => (
+                <UsedPlayers
+                  {...props}
+                  noGroup={noGroup}
+                  season={currentSeason}
+                />
+              )}
+            />
+            <Route
+              path={Routes.createGroup}
+              render={() => (
+                <CreateGroup
+                  email={authUser && authUser.email}
+                  pullUserData={pullUserData}
+                  changeGroup={changeGroup}
+                  userId={currentUser.userId}
+                />
+              )}
+            />
+            <Route
+              path={Routes.emailPref}
+              render={(props) => <EmailPref {...props} />}
+            />
+            <Route render={() => <FourOFour />} />
+          </Switch>
+        </PlayerAvatarContext.Provider>
       </>
     </BrowserRouter>
   );
@@ -216,5 +223,7 @@ const App = ({ firebase }) => {
 App.propTypes = {
   firebase: PropTypes.any,
 };
+
+export { PlayerAvatarContext };
 
 export default withFirebase(App);

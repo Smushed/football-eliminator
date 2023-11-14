@@ -10,6 +10,9 @@ import RosterCarousel from './RosterCarousel';
 import * as Routes from '../../constants/routes';
 import { WeekSearch } from '../Roster/SearchDropdowns';
 import Session from '../Session';
+import playerOutline from '../../constants/logoImages/avatar/playerOutline.png';
+
+import { PlayerAvatarContext } from '../../App';
 
 const Home = ({ season, group, week, currentUser, noGroup, history }) => {
   const [leaderboard, updateLeaderboard] = useState([]);
@@ -21,6 +24,9 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
   const [groupPositions, updateGroupPositions] = useState([]);
   const [weekSelect, updateWeekSelect] = useState(1);
   const [weekOnPage, updateWeekOnPage] = useState(1);
+
+  const { playerAvatars, updatePlayerAvatars } =
+    React.useContext(PlayerAvatarContext);
 
   const axiosCancel = axios.CancelToken.source();
 
@@ -44,6 +50,44 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
       }
     };
   }, [week, season, currentUser.username, group, noGroup]);
+
+  useEffect(() => {
+    if (weeklyGroupRosters.length > 0) {
+      getPlayerAvatars(weeklyGroupRosters);
+    }
+  }, [weeklyGroupRosters]);
+
+  const getPlayerAvatars = (weeklyRosters) => {
+    for (const weeklyRoster of weeklyRosters) {
+      //Benchmark for the saving of avatars:
+      //local memory is 16.7MB
+      //prod memory is 5-7MB
+      for (const player of weeklyRoster.R) {
+        if (!playerAvatars[player.M]) {
+          // axios
+          //   .get(`/api/avatar/${roster.M}`, {
+          //     cancelToken: axiosCancel.token,
+          //   })
+          //   .then((res) => {
+          //     updatePlayerAvatars({
+          //       ...playerAvatars,
+          //       [roster.M]: res.data,
+          //     });
+          //   })
+          //   .catch((err) => {
+          //     if (err.message !== `Unmounted`) {
+          //       console.log(err);
+          //     }
+          //   });
+        }
+      }
+      //if player is inside of the playerAvatar context
+      //display their avatar
+      //else
+      //If player AV is false then get generic avatar and add them to the lsit
+      //else get their avatar and add them to the list
+    }
+  };
 
   const getRostersForHome = (season, week, groupId) => {
     getLeaderBoard(season, week, groupId);

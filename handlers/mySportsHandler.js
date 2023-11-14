@@ -812,31 +812,13 @@ module.exports = {
     } catch (err) {
       console.log(err);
     }
-    const filledRoster = [];
-    for (let playerId of playerIdRoster) {
-      const player = dbSearch.find((player) => player.M === playerId.M);
+
+    const filledRoster = playerIdRoster.map((id) => {
+      const player = dbSearch.find((player) => player.M === id.M);
       if (!player) return { M: 0, SC: 0 };
-      const { P, T, M, N, I } = player;
-      if (player.AV) {
-        const avatar = await s3Handler.getPlayerAvatar(player.M);
-        filledRoster.push({ P, T, M, N, I, SC: playerId.SC, AV: avatar });
-      } else {
-        const avatar = await s3Handler.getPlayerOutlineAvatar();
-        filledRoster.push({ P, T, M, N, I, SC: playerId.SC, AV: avatar });
-      }
-    }
-    // const filledRoster = playerIdRoster.map((id) => {
-    //   const player = dbSearch.find((player) => player.M === id.M);
-    //   if (!player) return { M: 0, SC: 0 };
-    //   const { P, T, M, N, I } = player;
-    //   if (player.AV) {
-    //     const avatar = s3Handler.getPlayerAvatar(player.M);
-    //     return { P, T, M, N, I, SC: id.SC, AV: avatar };
-    //   } else {
-    //     const avatar = s3Handler.getPlayerOutlineAvatar();
-    //     return { P, T, M, N, I, SC: id.SC, AV: avatar };
-    //   }
-    // });
+      const { P, T, M, N, I, AV } = player;
+      return { P, T, M, N, I, AV, SC: id.SC };
+    });
     return filledRoster;
   },
   pullMatchUpsForDB: async (season, week) =>

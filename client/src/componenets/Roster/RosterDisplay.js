@@ -19,9 +19,6 @@ const CurrentRosterRow = ({
           <InjuryCol injury={player.I} />
         )}
       </td>
-      <td>
-        <img src={player.AV} />
-      </td>
       <td>{player && player.N && player.N}</td>
       <td>{player && player.T}</td>
       {pastLockWeek === true ? (
