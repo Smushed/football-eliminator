@@ -6,6 +6,7 @@ const rosterHandler = require(`../handlers/rosterHandler`);
 const groupHandler = require(`../handlers/groupHandler`);
 const emailHandler = require(`../handlers/emailHandler`);
 const moment = require(`moment-timezone`);
+const nflTeams = require('../constants/nflTeams');
 
 // Schedule a job for the 22nd minute of each hour
 // Doing this every hour rather than daily in case Heroku isn't working
@@ -23,7 +24,6 @@ schedule.scheduleJob('22 * * 1,9-12 *', async function () {
 schedule.scheduleJob('0 9 * 1,9-12 *', async function () {
   console.log(`Running player data update`);
   const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
-  await mySportsHandler.updateRoster(season);
 
   await updatePlayerData(season, week);
 
@@ -46,6 +46,11 @@ schedule.scheduleJob('20 9 * 1,9-12 *', async function () {
     true
   );
   await mySportsHandler.savePlayerRank(rankedPlayers);
+});
+
+schedule.scheduleJob('30 9 * 1,9-12 *', async function () {
+  const { season } = await userHandler.pullSeasonAndWeekFromDB();
+  updateTeamRoster(season, nflTeams.teams);
 });
 
 // Thursday and Monday games (these are in UTC)
