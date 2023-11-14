@@ -53,6 +53,11 @@ schedule.scheduleJob('30 9 * 1,9-12 *', async function () {
   await mySportsHandler.savePlayerRank(rankedPlayers);
 });
 
+schedule.scheduleJob('30 9 * 1,9-12 *', async function () {
+  const { season } = await userHandler.pullSeasonAndWeekFromDB();
+  updateTeamRoster(season, nflTeams.teams);
+});
+
 // Thursday and Monday games (these are in UTC)
 schedule.scheduleJob('0 0-5 * 1,9-12 2,5', async function () {
   console.log(`Running bi-hourly Monday and Thursday game score`);
