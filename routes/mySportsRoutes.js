@@ -100,8 +100,10 @@ module.exports = (app) => {
     if (!teams) {
       teams = nflTeams.teams;
     }
-    const playerArrayFromDB = await mySportsHandler.getAllPlayersByTeam(teams);
-    const dbResponse = await s3Handler.updatePlayerAvatar(playerArrayFromDB);
-    res.status(200).send(dbResponse);
+    const playerArrayFromDB =
+      await mySportsHandler.getAllPlayersMySportsIdByTeam(teams);
+    await mySportsHandler.setAllAvatarsToFalse();
+    s3Handler.updatePlayerAvatars(playerArrayFromDB);
+    res.sendStatus(200);
   });
 };

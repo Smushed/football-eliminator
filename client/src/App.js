@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, createContext } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import * as Routes from './constants/routes';
 import { Route, BrowserRouter, Switch } from 'react-router-dom';
 import { withFirebase } from './componenets/Firebase';
@@ -18,8 +18,7 @@ import CreateGroup from './componenets/GroupPage/CreateGroup';
 import FourOFour from './componenets/404';
 import SidePanel from './componenets/SidePanel';
 import EmailPref from './componenets/EmailPref';
-
-const PlayerAvatarContext = createContext();
+import PlayerAvatarWrapper from './componenets/PlayerAvatars';
 
 const App = ({ firebase }) => {
   const [noGroup, updateNoGroup] = useState(false);
@@ -30,7 +29,6 @@ const App = ({ firebase }) => {
   const [currentGroup, updateCurrentGroup] = useState({});
   const [showSideBar, updateShowSideBar] = useState(false);
   const [lockWeek, updateLockWeek] = useState(0);
-  const [playerAvatars, updatePlayerAvatars] = useState({});
 
   const listener = useRef(null);
 
@@ -108,9 +106,7 @@ const App = ({ firebase }) => {
   return (
     <BrowserRouter>
       <>
-        <PlayerAvatarContext.Provider
-          value={{ playerAvatars, updatePlayerAvatars }}
-        >
+        <PlayerAvatarWrapper>
           <Toaster />
           <SidePanel
             showSideBar={showSideBar}
@@ -214,7 +210,7 @@ const App = ({ firebase }) => {
             />
             <Route render={() => <FourOFour />} />
           </Switch>
-        </PlayerAvatarContext.Provider>
+        </PlayerAvatarWrapper>
       </>
     </BrowserRouter>
   );
@@ -223,7 +219,5 @@ const App = ({ firebase }) => {
 App.propTypes = {
   firebase: PropTypes.any,
 };
-
-export { PlayerAvatarContext };
 
 export default withFirebase(App);

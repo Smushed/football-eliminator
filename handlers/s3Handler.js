@@ -3,6 +3,7 @@ const path = require('path');
 const AWS = require(`aws-sdk`);
 const Jimp = require(`jimp`);
 const db = require('../models');
+const { createLinkedList } = require('../utils/LinkedList');
 
 AWS.config.update({
   region: 'us-east-2',
@@ -42,10 +43,48 @@ const genericAvatar = () => {
 
 const readWithJimp = (image, mimeType) => {
   return new Promise((res, rej) => {
-    Jimp.read(image).then(async (img) => {
-      res(await img.getBase64Async(mimeType));
-    });
+    Jimp.read(image)
+      .then(async (img) => {
+        res(await img.getBase64Async(mimeType));
+      })
+      .catch((err) => {
+        console.log({ err });
+        res();
+      });
   });
+};
+
+const updatePlayerAvatarFromLinkedList = (node) => {
+  Jimp.read(
+    `https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/${node.val.E}.png&w=50&h=36&cb=1`
+  )
+    .then(async (img) => {
+      const s3 = new AWS.S3({
+        params: { Bucket: 'football-eliminator/playerAvatar' },
+      });
+      const mime = await img.getBase64Async(Jimp.MIME_PNG);
+      const buf = Buffer.from(
+        mime.replace(/^data:image\/\w+;base64,/, ``),
+        `base64`
+      );
+      const data = {
+        Key: node.val.M.toString(),
+        Body: buf,
+        ContentEncoding: `base64`,
+        ContentType: `image/png`,
+      };
+      s3.putObject(data, function (err) {
+        if (err) {
+          return `Error Uploading the Avatar`;
+        } else {
+          db.PlayerData.findOneAndUpdate({ M: node.val.M }, { AV: true }).then(
+            () => updatePlayerAvatarFromLinkedList(node.next)
+          );
+          return;
+        }
+      });
+    })
+    .catch((err) => console.log('Error Jimp Reading image from ESPN', err));
 };
 
 module.exports = {
@@ -97,43 +136,9 @@ module.exports = {
       });
     });
   },
-  updatePlayerAvatar: async (playerIdArray) => {
-    for (let player of playerIdArray) {
-      if (player.E && player.A) {
-        Jimp.read(
-          `https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/${player.E}.png&w=50&h=36&cb=1`
-        )
-          .then(async (img) => {
-            const s3 = new AWS.S3({
-              params: { Bucket: 'football-eliminator/playerAvatar' },
-            });
-            const mime = await img.getBase64Async(Jimp.MIME_PNG);
-            const buf = Buffer.from(
-              mime.replace(/^data:image\/\w+;base64,/, ``),
-              `base64`
-            );
-            const data = {
-              Key: player.M.toString(),
-              Body: buf,
-              ContentEncoding: `base64`,
-              ContentType: `image/png`,
-            };
-            s3.putObject(data, function (err) {
-              if (err) {
-                return `Error Uploading the Avatar`;
-              } else {
-                return db.PlayerData.findOneAndUpdate(
-                  { M: player.M },
-                  { AV: true }
-                )
-                  .then((res) => `Successfully Uploaded the Player Avatar`)
-                  .catch((err) => `Error Saving bool in avatar ${err}`);
-              }
-            });
-          })
-          .catch((err) => console.log(err));
-      }
-    }
+  updatePlayerAvatars: async (playerIdArray) => {
+    const linkedListHead = createLinkedList(playerIdArray);
+    updatePlayerAvatarFromLinkedList(linkedListHead);
   },
   getPlayerAvatar: async (id) => {
     if (id === 'undefined') {
@@ -165,6 +170,27 @@ module.exports = {
         )
       );
     });
+  },
+  getMultiplePlayerAvatars: async function (idArray) {
+    const s3 = new AWS.S3({
+      params: { Bucket: 'football-eliminator/playerAvatar' },
+    });
+    const avatarsById = {};
+    for (let id of idArray) {
+      const getParams = {
+        Key: id.toString(),
+      };
+      let avatar;
+      try {
+        const playerAvatar = await s3.getObject(getParams).promise();
+        avatar = await readWithJimp(playerAvatar.Body, Jimp.MIME_PNG);
+      } catch (err) {
+        avatar = await this.getPlayerOutlineAvatar();
+      }
+      avatarsById[id] = avatar;
+      // avatarArray.push({ M: id, avatar });
+    }
+    return avatarsById;
   },
 };
 

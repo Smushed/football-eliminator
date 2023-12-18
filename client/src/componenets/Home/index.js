@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
@@ -10,9 +10,7 @@ import RosterCarousel from './RosterCarousel';
 import * as Routes from '../../constants/routes';
 import { WeekSearch } from '../Roster/SearchDropdowns';
 import Session from '../Session';
-import playerOutline from '../../constants/logoImages/avatar/playerOutline.png';
-
-import { PlayerAvatarContext } from '../../App';
+import { PlayerAvatarContext } from '../PlayerAvatars';
 
 const Home = ({ season, group, week, currentUser, noGroup, history }) => {
   const [leaderboard, updateLeaderboard] = useState([]);
@@ -25,69 +23,30 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
   const [weekSelect, updateWeekSelect] = useState(1);
   const [weekOnPage, updateWeekOnPage] = useState(1);
 
-  const { playerAvatars, updatePlayerAvatars } =
-    React.useContext(PlayerAvatarContext);
+  const { addPlayersToPull } = useContext(PlayerAvatarContext);
 
   const axiosCancel = axios.CancelToken.source();
 
   useEffect(() => {
-    if (noGroup) {
-      history.push(Routes.groupPage);
-      return;
-    }
-
-    if (week !== 0 && season !== ``) {
-      if (currentUser.username) {
-        updateWeekOnPage(week);
-        updateWeekSelect(week);
-        getRostersForHome(season, week, group._id);
-        getGroupPositions(group._id);
-      }
+    if (week !== 0 && season !== `` && currentUser.username && group) {
+      updateWeekOnPage(week);
+      updateWeekSelect(week);
+      getRostersForHome(season, week, group._id);
+      getGroupPositions(group._id);
     }
     return function cancelAPICalls() {
       if (axiosCancel) {
         axiosCancel.cancel(`Unmounted`);
       }
     };
-  }, [week, season, currentUser.username, group, noGroup]);
+  }, [week, season, currentUser.username, group]);
 
   useEffect(() => {
-    if (weeklyGroupRosters.length > 0) {
-      getPlayerAvatars(weeklyGroupRosters);
+    if (noGroup) {
+      history.push(Routes.groupPage);
+      return;
     }
-  }, [weeklyGroupRosters]);
-
-  const getPlayerAvatars = (weeklyRosters) => {
-    for (const weeklyRoster of weeklyRosters) {
-      //Benchmark for the saving of avatars:
-      //local memory is 16.7MB
-      //prod memory is 5-7MB
-      for (const player of weeklyRoster.R) {
-        if (!playerAvatars[player.M]) {
-          // axios
-          //   .get(`/api/avatar/${roster.M}`, {
-          //     cancelToken: axiosCancel.token,
-          //   })
-          //   .then((res) => {
-          //     updatePlayerAvatars({
-          //       ...playerAvatars,
-          //       [roster.M]: res.data,
-          //     });
-          //   })
-          //   .catch((err) => {
-          //     if (err.message !== `Unmounted`) {
-          //       console.log(err);
-          //     }
-          //   });
-        }
-      }
-      //if player is inside of the playerAvatar context
-      //display their avatar
-      //else
-      //If player AV is false then get generic avatar and add them to the lsit
-      //else get their avatar and add them to the list
-    }
-  };
+  }, [noGroup]);
 
   const getRostersForHome = (season, week, groupId) => {
     getLeaderBoard(season, week, groupId);
@@ -176,12 +135,32 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
       })
       .then((res) => {
         updateWeeklyGroupRosters(res.data);
+        getUniquePlayerIds(res.data);
       })
       .catch((err) => {
         if (err.message !== `Unmounted`) {
           console.log(err);
         }
       });
+  };
+
+  const getUniquePlayerIds = async (weeklyRosters) => {
+    const uniquePlayerIds = [];
+    for (const weeklyRoster of weeklyRosters) {
+      //Benchmark for the saving of avatars:
+      //local memory is 16.7MB
+      //prod memory is 5-7MB
+
+      for (const player of weeklyRoster.R) {
+        if (!uniquePlayerIds.includes(player.M) && player.M !== 0) {
+          uniquePlayerIds.push(player.M);
+        }
+      }
+    }
+
+    //Each Linked List val is an array of playerIds
+    //This is to reduce the number of API calls to call one list per roster
+    addPlayersToPull(uniquePlayerIds);
   };
 
   const getLeaderAvatar = (leaderId) => {

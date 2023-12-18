@@ -55,9 +55,10 @@ const addPlayerData = (player, team, stats, season, week) => {
         D: capitalizeFirstLetter(player.currentInjury.description),
       };
     }
-    const espnMapping = await parsePlayerExternalMappings(
-      player.externalMappings
-    );
+    let espnMapping = null;
+    if (player.externalMappings) {
+      espnMapping = await parsePlayerExternalMappings(player.externalMappings);
+    }
     db.PlayerData.create(
       {
         N: `${player.firstName} ${player.lastName}`,
@@ -935,4 +936,10 @@ module.exports = {
   },
   getAllPlayersByTeam: async (teams) =>
     await db.PlayerData.find({ T: { $in: teams } }).exec(),
+  getAllPlayersMySportsIdByTeam: async (teams) =>
+    await db.PlayerData.find(
+      { T: { $in: teams }, E: { $ne: null }, A: true },
+      { E: 1, M: 1, _id: 0 }
+    ).exec(),
+  setAllAvatarsToFalse: () => db.PlayerData.updateMany({}, { AV: false }),
 };
