@@ -55,9 +55,10 @@ const addPlayerData = (player, team, stats, season, week) => {
         D: capitalizeFirstLetter(player.currentInjury.description),
       };
     }
-    const espnMapping = await parsePlayerExternalMappings(
-      player.externalMappings
-    );
+    let espnMapping = null;
+    if (player.externalMappings) {
+      espnMapping = await parsePlayerExternalMappings(player.externalMappings);
+    }
     db.PlayerData.create(
       {
         N: `${player.firstName} ${player.lastName}`,

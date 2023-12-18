@@ -68,6 +68,14 @@ schedule.scheduleJob('0 17-23 * 1,9-12 0', async function () {
   updatePlayerData(season, week);
 });
 
+// Before email is sent out update the players
+schedule.scheduleJob('00 12 * 1,9-12 2', async function () {
+  console.log(`Running scoring again an hour before email is sent out`);
+  const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
+  await mySportsHandler.getWeeklyData(season, week - 1);
+  updatePlayerData(season, week);
+});
+
 //Right before the Leaderboard is sent out update the ideal roster
 schedule.scheduleJob('20 12 * 1,9-12 2', async function () {
   console.log(`Updating Ideal Roster`);
