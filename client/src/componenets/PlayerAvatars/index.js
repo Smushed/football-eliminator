@@ -68,34 +68,31 @@ const PlayerAvatarWrapper = ({ children }) => {
     //Also clear out the playerIdToPull array
   };
 
-  const getPlayerAvatars = (playerIdLinkedList) => {
+  const getPlayerAvatars = async (playerIdLinkedList) => {
     const playerAvatarCopy = { ...playerAvatars };
-    axios
-      .post(
+    try {
+      const avatarRes = await axios.post(
         `/api/playerAvatars/`,
         { avatars: playerIdLinkedList.val },
         {
           cancelToken: axiosCancel.token,
         }
-      )
-      .then((res) => {
-        console.log({ res });
-        console.log({ playerAvatars });
-        // updatePlayerAvatars({ ...playerAvatarCopy, ...res.data });
-        updateAvatarList(res.data);
-        if (playerIdLinkedList.next) {
-          getPlayerAvatars(playerIdLinkedList.next);
-        } else {
-          updateIsWorking(false);
-          updatePlayerIdToPull([]);
-        }
-      })
-      .catch((err) => {
-        console.log({ err });
-        if (err.message !== `Unmounted`) {
-          console.log(err);
-        }
-      });
+      );
+      console.log({ avatarRes });
+      console.log({ playerAvatars });
+      updatePlayerAvatars({ ...playerAvatarCopy, ...avatarRes.data });
+      if (playerIdLinkedList.next) {
+        getPlayerAvatars(playerIdLinkedList.next);
+      } else {
+        updateIsWorking(false);
+        updatePlayerIdToPull([]);
+      }
+    } catch (err) {
+      console.log({ err });
+      if (err.message !== `Unmounted`) {
+        console.log(err);
+      }
+    }
   };
 
   const updateAvatarList = (newPlayerAvatars) => {
