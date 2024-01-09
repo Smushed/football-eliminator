@@ -646,6 +646,11 @@ module.exports = {
     };
     return testReturn;
   },
+  getEveryWeekData: async function (season, maxWeek) {
+    for (let i = 1; i <= maxWeek; i++) {
+      await this.getWeeklyData(season, i);
+    }
+  },
   getWeeklyData: (season, week) =>
     new Promise(async (res, rej) => {
       //This gets a specific week's worth of games and iterates through the list of players to come up with an array

@@ -101,6 +101,7 @@ module.exports = (app) => {
 
   app.get(`/api/group/leaderboard/:season/:week/:groupId`, async (req, res) => {
     const { season, week, groupId } = req.params;
+    console.log({ season, week });
     const leaderboard = await groupHandler.getLeaderBoard(
       groupId,
       season,

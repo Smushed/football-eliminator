@@ -6,13 +6,13 @@ const UserScoresSchema = new Schema({
   U: {
     //User ID
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: 'User',
     required: true,
   },
   G: {
     //GroupID
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Group",
+    ref: 'Group',
     required: true,
   },
   S: {
@@ -90,6 +90,10 @@ const UserScoresSchema = new Schema({
     default: 0,
   },
   17: {
+    type: Number,
+    default: 0,
+  },
+  18: {
     type: Number,
     default: 0,
   },
