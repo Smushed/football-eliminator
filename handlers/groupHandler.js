@@ -648,4 +648,14 @@ module.exports = {
       console.log(err);
     }
   },
+  getYearlyWinner: async (groupId, season) => {
+    const topScore = await db.UserScores.findOne(
+      { G: groupId, S: season },
+      { U: 1, TS: 1 }
+    )
+      .sort('-TS')
+      .exec();
+    const user = await db.User.findById(topScore.U, `UN`).exec();
+    return { UN: user.UN, TS: topScore.TS };
+  },
 };

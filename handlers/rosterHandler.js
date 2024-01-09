@@ -321,27 +321,6 @@ module.exports = {
       );
     });
   },
-  getRosterPlayers: async (currentRoster) => {
-    //Goes through the roster of players and pulls in their full data to then display
-    currentRoster = currentRoster.roster.toObject();
-
-    const rosterArray = Object.values(currentRoster);
-
-    const responseRoster = [];
-    for (const player of rosterArray) {
-      if (player !== 0) {
-        //Go through the object that was given to us
-        const response = await db.PlayerStats.findOne(
-          { M: player },
-          { M: 1, N: 1, P: 1, R: 1, T: 1 }
-        ).exec();
-        responseRoster.push(response);
-      }
-    }
-
-    //We also return the array so the drag & drop component can populate this without having to pull it again
-    return responseRoster;
-  },
   availablePlayers: async (userId, searchedPosition, season, groupId) => {
     const usedPlayers = await getUsedPlayers(
       userId,
@@ -589,5 +568,89 @@ module.exports = {
         await mySportsHandler.savePlayerRank(rankedPlayers);
       }
     }
+  },
+  getBestUserWeek: async function (groupId, season, maxWeek) {
+    const fullSeasonGroupScore = await db.UserScores.find({
+      G: groupId,
+      S: season,
+    }).exec();
+    let highestScoringWeek = { S: 0, U: ``, W: 0 };
+    for (const userScore of fullSeasonGroupScore) {
+      for (let i = 1; i <= maxWeek; i++) {
+        if (userScore[i] > highestScoringWeek.S) {
+          highestScoringWeek = {
+            S: userScore[i].toFixed(2),
+            U: userScore.U.toString(),
+            W: i,
+          };
+        }
+      }
+    }
+    const highestScoringRoster = await this.getUserRoster(
+      highestScoringWeek.U,
+      highestScoringWeek.W,
+      season,
+      groupId
+    );
+    const fullRoster = await mySportsHandler.fillUserRoster(
+      highestScoringRoster
+    );
+    const userDetails = await userHandler.getUserByID(highestScoringWeek.U);
+    return {
+      R: fullRoster,
+      UN: userDetails.response.UN,
+      W: highestScoringWeek.W,
+      SC: highestScoringWeek.S,
+    };
+  },
+  getBestIdealRoster: async function (groupId, season, maxWeek) {
+    // const groupScore = await groupHandler.getGroupScore(groupId);
+    const bestIdealRoster = { R: [], U: ``, W: 0, S: 0 };
+    for (let i = 1; i <= maxWeek; i++) {
+      const idealRoster = await groupHandler.getIdealRoster(groupId, season, i);
+      let idealRosterScore = 0;
+      for (let player of idealRoster.R) {
+        idealRosterScore += +player.SC;
+      }
+      if (idealRosterScore > bestIdealRoster.S) {
+        bestIdealRoster.R = idealRoster.R;
+        bestIdealRoster.W = i;
+        bestIdealRoster.S = idealRosterScore.toFixed(2);
+      }
+    }
+    const fullRoster = await mySportsHandler.fillUserRoster(bestIdealRoster.R);
+    return {
+      R: fullRoster,
+      W: bestIdealRoster.W,
+      SC: bestIdealRoster.S,
+    };
+  },
+  getBestScorePlayerByUser: async function (groupId, season) {
+    const fullSeasonGroupScore = await db.UserRoster.find({
+      G: groupId,
+      S: season,
+    }).exec();
+    const bestScore = { userId: ``, week: 0, score: 0, mySportsId: 0 };
+    for (const userRoster of fullSeasonGroupScore) {
+      for (const player of userRoster.R) {
+        if (player.SC > bestScore.score) {
+          bestScore.mySportsId = player.M;
+          bestScore.score = player.SC;
+          bestScore.week = userRoster.W;
+          bestScore.userId = userRoster.U.toString();
+        }
+      }
+    }
+    const player = await db.PlayerData.findOne(
+      { M: bestScore.mySportsId },
+      { N: 1, T: 1, P: 1 }
+    ).exec();
+    const userDetails = await userHandler.getUserByID(bestScore.userId);
+    return {
+      P: player,
+      UN: userDetails.response.UN,
+      W: bestScore.week,
+      SC: bestScore.score,
+    };
   },
 };
