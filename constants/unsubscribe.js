@@ -1,6 +1,7 @@
 module.exports = {
   appendHTML: async (email, userId) => {
     email += `<div style='text-align: center;
+                                margin-top: 20px;
                                 background-color: lightgrey;'>
                         Don't want these emails? <a href='http://www.eliminator.football/emailPref/${userId}'>Unsubscribe here</a> 
                     </div>`;
