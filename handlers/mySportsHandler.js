@@ -343,13 +343,6 @@ const parseRoster = async (playerArray, team) => {
             PP: playerArray[i].player.currentInjury.playingProbability,
           };
         }
-        if (dbPlayer.M === 16226) {
-          console.log('Kyler', playerArray[i]);
-          for (const externalMapping of playerArray[i].player
-            .externalMappings) {
-            console.log(externalMapping);
-          }
-        }
         const espnMapping = parsePlayerExternalMappings(
           playerArray[i].player.externalMappings
         );
