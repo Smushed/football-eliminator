@@ -309,16 +309,15 @@ const addWeeksStats = async (mySportsId, stats, season, week) => {
   return;
 };
 
-const parsePlayerExternalMappings = (mappingArray) =>
-  new Promise((res) => {
-    let espnMapping = null;
-    for (let mapping of mappingArray) {
-      if (mapping.source === `ESPN`) {
-        espnMapping = mapping.id;
-      }
+const parsePlayerExternalMappings = (mappingArray) => {
+  let espnMapping = null;
+  for (let mapping of mappingArray) {
+    if (mapping.source === `ESPN`) {
+      espnMapping = mapping.id;
     }
-    res(espnMapping);
-  });
+  }
+  return espnMapping;
+};
 
 //Goes through the roster of the team and pulls out all offensive players
 const parseRoster = async (playerArray, team) => {
@@ -344,7 +343,14 @@ const parseRoster = async (playerArray, team) => {
             PP: playerArray[i].player.currentInjury.playingProbability,
           };
         }
-        const espnMapping = await parsePlayerExternalMappings(
+        if (dbPlayer.M === 16226) {
+          console.log('Kyler', playerArray[i]);
+          for (const externalMapping of playerArray[i].player
+            .externalMappings) {
+            console.log(externalMapping);
+          }
+        }
+        const espnMapping = parsePlayerExternalMappings(
           playerArray[i].player.externalMappings
         );
         const currTeam = playerArray[i].player.currentTeam

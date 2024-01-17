@@ -84,7 +84,9 @@ const updatePlayerAvatarFromLinkedList = (node) => {
         }
       });
     })
-    .catch((err) => console.log('Error Jimp Reading image from ESPN', err));
+    .catch((err) =>
+      console.log('Error Jimp Reading image from ESPN. ID: ', node.val.E, err)
+    );
 };
 
 module.exports = {

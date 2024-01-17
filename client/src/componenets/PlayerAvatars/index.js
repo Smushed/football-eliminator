@@ -1,5 +1,5 @@
 import { useState, createContext, useEffect } from 'react';
-import { createLinkedList, findLastNode } from '../Tools/ListNode';
+import { createLinkedList } from '../Tools/ListNode';
 import axios from 'axios';
 
 const PlayerAvatarContext = createContext();
@@ -8,6 +8,7 @@ const PlayerAvatarWrapper = ({ children }) => {
   const [playerAvatars, updatePlayerAvatars] = useState({});
   const [playerIdToPull, updatePlayerIdToPull] = useState([]);
   const [waitingToProcess, updateWaitingToProcess] = useState([]);
+  const [nextNode, updateNextNode] = useState(null);
   const [isWorking, updateIsWorking] = useState(false);
 
   const axiosCancel = axios.CancelToken.source();
@@ -24,11 +25,13 @@ const PlayerAvatarWrapper = ({ children }) => {
     }
   }, [playerIdToPull]);
 
-  // useEffect(() => {
-  //   if (!isWorking && waitingToProcess.length > 0) {
-  //     playerAvatarProcess();
-  //   }
-  // }, [isWorking]);
+  useEffect(() => {
+    if (nextNode) {
+      //Have to break it out here because as need to call the get function when state is updated
+      //Otherwise it will be called with the old state (aka blank)
+      getPlayerAvatars(nextNode);
+    }
+  }, [playerAvatars]);
 
   const moveFromWaitingToProcess = () => {
     updatePlayerIdToPull([...playerIdToPull, ...waitingToProcess]);
@@ -41,17 +44,13 @@ const PlayerAvatarWrapper = ({ children }) => {
   };
 
   const createLinkedListMap = (idsToPull) => {
-    //Divide waitingToProcess into subarrays of 5
-    //Make a linked list of the subarrays
-    //Call getPlayerAvatars on the first node of the linked list
-
     const isWorkingSlice = [...idsToPull];
     const idMap = [];
     let idMapNode = [];
     let idMapNodeCount = 0;
 
     for (let i = 0; i < isWorkingSlice.length; i++) {
-      if (idMapNodeCount === 5) {
+      if (idMapNodeCount === 10) {
         idMap.push(idMapNode);
         idMapNodeCount = 0;
         idMapNode = [];
@@ -63,13 +62,13 @@ const PlayerAvatarWrapper = ({ children }) => {
     if (idMapNode.length > 0) {
       idMap.push(idMapNode);
     }
-    getPlayerAvatars(createLinkedList(idMap));
-    //When it's complete then set the isWorking to false
-    //Also clear out the playerIdToPull array
+    const idMapLinkedList = createLinkedList(idMap);
+
+    getPlayerAvatars(idMapLinkedList);
+    updateNextNode(idMapLinkedList);
   };
 
   const getPlayerAvatars = async (playerIdLinkedList) => {
-    const playerAvatarCopy = { ...playerAvatars };
     try {
       const avatarRes = await axios.post(
         `/api/playerAvatars/`,
@@ -78,11 +77,10 @@ const PlayerAvatarWrapper = ({ children }) => {
           cancelToken: axiosCancel.token,
         }
       );
-      console.log({ avatarRes });
-      console.log({ playerAvatars });
-      updatePlayerAvatars({ ...playerAvatarCopy, ...avatarRes.data });
+      updatePlayerAvatars({ ...playerAvatars, ...avatarRes.data });
+
       if (playerIdLinkedList.next) {
-        getPlayerAvatars(playerIdLinkedList.next);
+        updateNextNode(playerIdLinkedList.next);
       } else {
         updateIsWorking(false);
         updatePlayerIdToPull([]);
@@ -93,10 +91,6 @@ const PlayerAvatarWrapper = ({ children }) => {
         console.log(err);
       }
     }
-  };
-
-  const updateAvatarList = (newPlayerAvatars) => {
-    updatePlayerAvatars({ ...playerAvatars, ...newPlayerAvatars });
   };
 
   const addPlayersToPull = (playerIdArray) => {

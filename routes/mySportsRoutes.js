@@ -33,7 +33,8 @@ module.exports = (app) => {
     if (!teams) {
       teams = nflTeams.teams;
     }
-    const dbResponse = mySportsHandler.updateTeamRoster(season, teams);
+    const dbResponse = mySportsHandler.updateTeamRoster(season, ['ARI']);
+    // const dbResponse = mySportsHandler.updateTeamRoster(season, teams);
 
     res.status(200).send(dbResponse);
   });

@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Tooltip } from 'react-tooltip';
 import PropTypes from 'prop-types';
+
+import { PlayerAvatarContext } from '../PlayerAvatars';
 
 //SECTION Roster
 const CurrentRosterRow = ({
@@ -9,6 +11,7 @@ const CurrentRosterRow = ({
   addDropPlayer,
   pastLockWeek,
 }) => {
+  const { playerAvatars } = useContext(PlayerAvatarContext);
   return (
     <tr>
       <th scope='row' className='rosterPosition'>
@@ -18,6 +21,9 @@ const CurrentRosterRow = ({
         {player && player.M !== 0 && !pastLockWeek && player.I && (
           <InjuryCol injury={player.I} />
         )}
+      </td>
+      <td>
+        <img src={player && playerAvatars[player.M]} />
       </td>
       <td>{player && player.N && player.N}</td>
       <td>{player && player.T}</td>
