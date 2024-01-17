@@ -5,6 +5,7 @@ const scoringSystem = require(`../constants/scoringSystem`);
 const rosterHandler = require(`../handlers/rosterHandler`);
 const mySportsHandler = require(`../handlers/mySportsHandler`);
 const s3Handler = require(`../handlers/s3Handler`);
+const emailHandler = require('../handlers/emailHandler');
 
 module.exports = (app) => {
   app.put(`/api/group/join/`, async (req, res) => {
@@ -245,30 +246,40 @@ module.exports = (app) => {
     res.sendStatus(200);
   });
 
-  app.put(`/api/calculateScore/:groupId/:season/:week`, async (req, res) => {
-    const { groupId, season, week } = req.params;
-    for (let i = 1; i <= week; i++) {
-      const groupRosters = await rosterHandler.pullGroupRostersForScoring(
-        season,
-        i,
-        groupId
-      );
-      const groupScore = await groupHandler.getGroupScore(groupId);
-      await mySportsHandler.calculateWeeklyScore(
-        groupRosters,
-        season,
-        i,
-        groupId,
-        groupScore
-      );
-      console.log(`done scoring week ${i}`);
-    }
-    res.status(200).send('working');
-  });
-
   app.put(`/api/group/score/calculate/all`, async (req, res) => {
     const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
     rosterHandler.scoreAllGroups(season, week);
     res.sendStatus(200);
   });
+
+  app.get(
+    `/api/group/bestOfSeason/:groupId/:season/:maxWeek`,
+    async (req, res) => {
+      const { groupId, season, maxWeek } = req.params;
+      const groupDetails = await groupHandler.getGroupDataById(groupId);
+      const yearlyWinner = await groupHandler.getYearlyWinner(groupId, season);
+      const highestScoreUserWeek = await rosterHandler.getBestUserWeek(
+        groupId,
+        season,
+        maxWeek
+      );
+      const bestIdealRoster = await rosterHandler.getBestIdealRoster(
+        groupId,
+        season,
+        maxWeek
+      );
+      const bestScorePlayerByUser =
+        await rosterHandler.getBestScorePlayerByUser(groupId, season);
+      emailHandler.sendYearlyRecapEmail(
+        maxWeek,
+        season,
+        groupDetails,
+        yearlyWinner,
+        highestScoreUserWeek,
+        bestIdealRoster,
+        bestScorePlayerByUser
+      );
+      res.sendStatus(200);
+    }
+  );
 };

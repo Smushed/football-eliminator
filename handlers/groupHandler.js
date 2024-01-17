@@ -72,6 +72,11 @@ const getUserScoreList = async (groupId, season, prevWeek, week) => {
     { G: groupId, S: season },
     `U ${prevWeek} ${week} TS`
   ).exec();
+  for (const score of userScores) {
+    if (score[week] === undefined) {
+      score[week] = 0;
+    }
+  }
   if (userScores.length === 0) {
     return await updateUserScore(groupId, season, prevWeek, week);
   } else {
@@ -642,5 +647,15 @@ module.exports = {
     } catch (err) {
       console.log(err);
     }
+  },
+  getYearlyWinner: async (groupId, season) => {
+    const topScore = await db.UserScores.findOne(
+      { G: groupId, S: season },
+      { U: 1, TS: 1 }
+    )
+      .sort('-TS')
+      .exec();
+    const user = await db.User.findById(topScore.U, `UN`).exec();
+    return { UN: user.UN, TS: topScore.TS };
   },
 };

@@ -36,6 +36,7 @@ const WeekSearch = ({
         <option>15</option>
         <option>16</option>
         <option>17</option>
+        <option>18</option>
       </select>
     </div>
     <div className='text-center col-2'>

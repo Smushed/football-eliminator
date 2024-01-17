@@ -21,7 +21,7 @@ module.exports = {
                 <div style='width: 25%;
                             text-align: center; 
                             text-overflow: ellipsis;'>
-                    ${leaderboard[i].LW.toLocaleString('en-US', {
+                    ${leaderboard[i].CW.toLocaleString('en-US', {
                       maximumFractionDigits: 2,
                       minimumFractionDigits: 2,
                     })}
@@ -92,7 +92,7 @@ module.exports = {
                     <div style='width: 25%;
                                 text-align: center;
                                 font-weight: 600;'>
-                        Last Week
+                        Curr Week
                     </div>
                     <div style='width: 25%;
                                 text-align: center;
@@ -110,7 +110,7 @@ module.exports = {
       let rows = [];
       for (let i = 0; i < leaderboard.length; i++) {
         const username = leaderboard[i].UN;
-        const lastWeek = leaderboard[i].LW.toLocaleString('en-US', {
+        const currWeek = leaderboard[i].CW.toLocaleString('en-US', {
           maximumFractionDigits: 2,
           minimumFractionDigits: 2,
         });
@@ -118,7 +118,7 @@ module.exports = {
           maximumFractionDigits: 2,
           minimumFractionDigits: 2,
         });
-        rows.push([username, lastWeek, totalScore]);
+        rows.push([username, currWeek, totalScore]);
       }
       res(rows);
     });
@@ -130,7 +130,7 @@ module.exports = {
     const textLeaderboard = [...rows];
     textLeaderboard.unshift(
       [groupName, `Leaderboard`, `Week ${week}`],
-      [`Name`, `Last Week`, `Total`]
+      [`Name`, `Curr Week`, `Total`]
     );
     // let leaderBoard = ``;
     // for (let i = 0; i < textLeaderboard.length; i++) {

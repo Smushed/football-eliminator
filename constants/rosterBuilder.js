@@ -1,7 +1,7 @@
 const { table, getBorderCharacters } = require(`table`);
 
 module.exports = {
-  idealRosterRow: (filledRoster, groupPos) => {
+  rosterRow: (filledRoster, groupPos) => {
     return new Promise(async (res, rej) => {
       let rows = ``;
       for (let i = 0; i < filledRoster.length; i++) {
@@ -45,6 +45,19 @@ module.exports = {
       res(rows);
     });
   },
+  rosterBuilder: async (rows, week, username) => {
+    return `<div style='width: 355px;
+                            border: 1px solid lightgray';
+                            border-radius: 15px;>
+                    <div style='background-color: rgb(166, 241, 166);
+                                font-size: 24px;
+                                font-weight: 600;
+                                text-align: center;'>
+                        User ${username} from week ${week}
+                    </div>
+                    ${rows}
+                </div>`;
+  },
   idealRosterBuilder: async (rows, week) => {
     return `<div style='width: 355px;
                             border: 1px solid lightgray';
@@ -53,12 +66,12 @@ module.exports = {
                                 font-size: 24px;
                                 font-weight: 600;
                                 text-align: center;'>
-                        Ideal Roster from ${week}
-                    </div>
-                    ${rows}
-                </div>`;
+                        Ideal Roster from week ${week}
+                      </div>
+                      ${rows}
+                  </div>`;
   },
-  idealRosterTextRows: async (filledRoster, groupPos) => {
+  rosterTextRows: async (filledRoster, groupPos) => {
     let rows = [];
     for (let i = 0; i < filledRoster.length; i++) {
       rows.push([
@@ -70,14 +83,22 @@ module.exports = {
     }
     return rows;
   },
+  rosterTextTemplate: async (rows, week, username) => {
+    const tableConfig = {
+      header: {
+        alignment: `center`,
+        content: `${username} roster for week ${week}`,
+      },
+    };
+    return table(rows, tableConfig);
+  },
   idealRosterTextTemplate: async (rows, week) => {
     const tableConfig = {
       header: {
         alignment: `center`,
-        content: `Ideal roster for ${week}`,
+        content: `Ideal roster for week ${week}`,
       },
     };
-    console.log({ rows });
     return table(rows, tableConfig);
   },
 };
