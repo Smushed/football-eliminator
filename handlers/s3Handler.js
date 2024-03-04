@@ -78,7 +78,11 @@ const updatePlayerAvatarFromLinkedList = (node) => {
           return `Error Uploading the Avatar`;
         } else {
           db.PlayerData.findOneAndUpdate({ M: node.val.M }, { AV: true }).then(
-            () => updatePlayerAvatarFromLinkedList(node.next)
+            () => {
+              if (node.next) {
+                updatePlayerAvatarFromLinkedList(node.next);
+              }
+            }
           );
           return;
         }
