@@ -9,15 +9,14 @@ const PlayerAvatarWrapper = ({ children }) => {
   const [playerIdToPull, updatePlayerIdToPull] = useState([]);
   const [waitingToProcess, updateWaitingToProcess] = useState([]);
   const [nextNode, updateNextNode] = useState(null);
-  const [isWorking, updateIsWorking] = useState(false);
 
   const axiosCancel = axios.CancelToken.source();
 
   useEffect(() => {
-    if (waitingToProcess.length > 0 && !isWorking) {
+    if (waitingToProcess.length > 0) {
       moveFromWaitingToProcess(waitingToProcess);
     }
-  }, [waitingToProcess, isWorking]);
+  }, [waitingToProcess]);
 
   useEffect(() => {
     if (playerIdToPull.length > 0) {
@@ -39,7 +38,6 @@ const PlayerAvatarWrapper = ({ children }) => {
   };
 
   const playerAvatarProcess = (idsToPull) => {
-    updateIsWorking(true);
     createLinkedListMap(idsToPull);
   };
 
@@ -80,7 +78,6 @@ const PlayerAvatarWrapper = ({ children }) => {
       if (nextNode) {
         updateNextNode(playerIdLinkedList.next);
       } else {
-        updateIsWorking(false);
         updatePlayerIdToPull([]);
       }
     } catch (err) {

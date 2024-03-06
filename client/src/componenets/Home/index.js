@@ -147,10 +147,6 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
   const getUniquePlayerIds = async (weeklyRosters) => {
     const uniquePlayerIds = [];
     for (const weeklyRoster of weeklyRosters) {
-      //Benchmark for the saving of avatars:
-      //local memory is 16.7MB
-      //prod memory is 5-7MB
-
       for (const player of weeklyRoster.R) {
         if (!uniquePlayerIds.includes(player.M) && player.M !== 0) {
           uniquePlayerIds.push(player.M);
@@ -158,8 +154,6 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
       }
     }
 
-    //Each Linked List val is an array of playerIds
-    //This is to reduce the number of API calls to call one list per roster
     addPlayersToPull(uniquePlayerIds);
   };
 
