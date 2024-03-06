@@ -31,7 +31,7 @@ const PlayerAvatarWrapper = ({ children }) => {
       //Otherwise it will be called with the old state (aka blank)
       getPlayerAvatars(nextNode);
     }
-  }, [playerAvatars]);
+  }, [nextNode]);
 
   const moveFromWaitingToProcess = () => {
     updatePlayerIdToPull([...playerIdToPull, ...waitingToProcess]);
@@ -64,7 +64,6 @@ const PlayerAvatarWrapper = ({ children }) => {
     }
     const idMapLinkedList = createLinkedList(idMap);
 
-    getPlayerAvatars(idMapLinkedList);
     updateNextNode(idMapLinkedList);
   };
 
@@ -78,8 +77,7 @@ const PlayerAvatarWrapper = ({ children }) => {
         }
       );
       updatePlayerAvatars({ ...playerAvatars, ...avatarRes.data });
-
-      if (playerIdLinkedList.next) {
+      if (nextNode) {
         updateNextNode(playerIdLinkedList.next);
       } else {
         updateIsWorking(false);

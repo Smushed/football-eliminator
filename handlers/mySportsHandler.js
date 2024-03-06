@@ -343,9 +343,14 @@ const parseRoster = async (playerArray, team) => {
             PP: playerArray[i].player.currentInjury.playingProbability,
           };
         }
-        const espnMapping = parsePlayerExternalMappings(
-          playerArray[i].player.externalMappings
-        );
+        let espnMapping;
+        if (dbPlayer.E) {
+          espnMapping = dbPlayer.E;
+        } else {
+          espnMapping = parsePlayerExternalMappings(
+            playerArray[i].player.externalMappings
+          );
+        }
         const currTeam = playerArray[i].player.currentTeam
           ? playerArray[i].player.currentTeam.abbreviation
           : null;
@@ -940,9 +945,9 @@ module.exports = {
   },
   getAllPlayersByTeam: async (teams) =>
     await db.PlayerData.find({ T: { $in: teams } }).exec(),
-  getAllPlayersMySportsIdByTeam: async (teams) =>
+  getAllPlayersMySportsIdByTeamNonZeroESPNID: async (teams) =>
     await db.PlayerData.find(
-      { T: { $in: teams }, E: { $ne: null }, A: true },
+      { T: { $in: teams }, E: { $ne: 0 }, A: true },
       { E: 1, M: 1, _id: 0 }
     ).exec(),
   setAllAvatarsToFalse: () => db.PlayerData.updateMany({}, { AV: false }),

@@ -37,7 +37,7 @@ const PlayerDataSchema = new Schema({
   E: {
     //Espn ID
     type: Number,
-    default: null,
+    default: 0,
   },
   AV: {
     //Avatar

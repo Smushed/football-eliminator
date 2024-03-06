@@ -33,16 +33,15 @@ module.exports = (app) => {
     if (!teams) {
       teams = nflTeams.teams;
     }
-    const dbResponse = mySportsHandler.updateTeamRoster(season, ['ARI']);
-    // const dbResponse = mySportsHandler.updateTeamRoster(season, teams);
+    const dbResponse = mySportsHandler.updateTeamRoster(season, teams);
 
     res.status(200).send(dbResponse);
   });
 
-  app.put(`/api/updateTeams/:season/:team`, async (req, res) => {
+  app.put(`/api/updateTeams/:season/:team`, (req, res) => {
     const { season, team } = req.params;
 
-    const dbResponse = await mySportsHandler.updateTeamRoster(season, team);
+    const dbResponse = mySportsHandler.updateTeamRoster(season, [team]);
 
     res.status(200).send(dbResponse);
   });
@@ -102,8 +101,7 @@ module.exports = (app) => {
       teams = nflTeams.teams;
     }
     const playerArrayFromDB =
-      await mySportsHandler.getAllPlayersMySportsIdByTeam(teams);
-    await mySportsHandler.setAllAvatarsToFalse();
+      await mySportsHandler.getAllPlayersMySportsIdByTeamNonZeroESPNID(teams);
     s3Handler.updatePlayerAvatars(playerArrayFromDB);
     res.sendStatus(200);
   });

@@ -55,6 +55,12 @@ const readWithJimp = (image, mimeType) => {
 };
 
 const updatePlayerAvatarFromLinkedList = (node) => {
+  if (node.val.E === 0) {
+    if (node.next) {
+      updatePlayerAvatarFromLinkedList(node.next);
+    }
+    return;
+  }
   Jimp.read(
     `https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/${node.val.E}.png&w=50&h=36&cb=1`
   )
@@ -75,6 +81,7 @@ const updatePlayerAvatarFromLinkedList = (node) => {
       };
       s3.putObject(data, function (err) {
         if (err) {
+          console.log(`Error Uploading the Avatar`, err);
           return `Error Uploading the Avatar`;
         } else {
           db.PlayerData.findOneAndUpdate({ M: node.val.M }, { AV: true }).then(
@@ -182,51 +189,29 @@ module.exports = {
       params: { Bucket: 'football-eliminator/playerAvatar' },
     });
     const avatarsById = {};
-    for (let id of idArray) {
-      const getParams = {
-        Key: id.toString(),
-      };
+    const playerAvatars = await db.PlayerData.find(
+      { M: { $in: idArray } },
+      { M: 1, AV: 1, _id: 0 }
+    ).exec();
+    for (let id of playerAvatars) {
       let avatar;
-      try {
-        const playerAvatar = await s3.getObject(getParams).promise();
-        avatar = await readWithJimp(playerAvatar.Body, Jimp.MIME_PNG);
-      } catch (err) {
+      if (id.AV) {
+        const getParams = {
+          Key: id.M.toString(),
+        };
+        try {
+          const playerAvatar = await s3.getObject(getParams).promise();
+          avatar = await readWithJimp(playerAvatar.Body, Jimp.MIME_PNG);
+        } catch {
+          avatar = await this.getPlayerOutlineAvatar();
+        }
+      } else {
         avatar = await this.getPlayerOutlineAvatar();
       }
-      avatarsById[id] = avatar;
-      // avatarArray.push({ M: id, avatar });
+      avatarsById[id.M] = avatar;
     }
     return avatarsById;
   },
 };
 
 // https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/${ESPN ID}.png&w=50&h=36&cb=1
-
-// Jimp.read(
-//   'https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/2975674.png&w=50&h=36&cb=1'
-// )
-//   .then(async (img) => {
-//     const s3 = new AWS.S3({
-//       params: { Bucket: 'football-eliminator/playerAvatar' },
-//     });
-//     const mime = await img.getBase64Async(Jimp.MIME_PNG);
-//     const buf = Buffer.from(
-//       mime.replace(/^data:image\/\w+;base64,/, ``),
-//       `base64`
-//     );
-//     const data = {
-//       Key: '2975674',
-//       Body: buf,
-//       ContentEncoding: `base64`,
-//       ContentType: `image/png`,
-//     };
-//     console.log({ data });
-//     s3.putObject(data, function (err) {
-//       console.log('somethign returned', { data, err });
-//       if (err) {
-//         return `Error Uploading the Avatar`;
-//       } else {
-//         return `Successfully Uploaded the Player Avatar`;
-//       }
-//     });
-//   })
