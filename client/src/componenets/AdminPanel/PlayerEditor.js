@@ -1,14 +1,14 @@
-import React from "react";
-import axios from "axios";
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
-import PropTypes from "prop-types";
+import React from 'react';
+import axios from 'axios';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import PropTypes from 'prop-types';
 
 const Alert = withReactContent(Swal);
 
 const PlayerEditor = ({ season, week, groupId }) => {
   const updateNFLRoster = () => {
-    axios.get(`/api/updateTeams/${season}`);
+    axios.put(`/api/updateTeams/${season}`);
   };
 
   const getMassData = () => {
@@ -47,24 +47,24 @@ const PlayerEditor = ({ season, week, groupId }) => {
   };
 
   return (
-    <div className="row">
-      <div className="col-12">
-        <button className="btn btn-warning" onClick={() => getMassData()}>
+    <div className='row'>
+      <div className='col-12'>
+        <button className='btn btn-warning' onClick={() => getMassData()}>
           Mass Update All Players
         </button>
         <br />
         <br />
-        <button className="btn btn-secondary" onClick={() => updateNFLRoster()}>
+        <button className='btn btn-secondary' onClick={() => updateNFLRoster()}>
           Update NFL Roster
         </button>
         <br />
         <br />
-        <button className="btn btn-secondary" onClick={() => getWeeklyData()}>
+        <button className='btn btn-secondary' onClick={() => getWeeklyData()}>
           Update Get Weekly Data
         </button>
         <br />
         <br />
-        <button className="btn btn-primary" onClick={() => rankPlayers()}>
+        <button className='btn btn-primary' onClick={() => rankPlayers()}>
           Rank Players
         </button>
       </div>

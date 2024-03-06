@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
 import { RosterDisplay } from '../Roster/RosterDisplay';
 import './homeStyle.css';
-import Leaderboard from './Leaderboard';
+import Leaderboard from '../Leaderboard';
 import PropTypes from 'prop-types';
 import RosterCarousel from './RosterCarousel';
 import * as Routes from '../../constants/routes';
 import { WeekSearch } from '../Roster/SearchDropdowns';
 import Session from '../Session';
+import { PlayerAvatarContext } from '../PlayerAvatars';
 
 const Home = ({ season, group, week, currentUser, noGroup, history }) => {
   const [leaderboard, updateLeaderboard] = useState([]);
@@ -22,28 +23,30 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
   const [weekSelect, updateWeekSelect] = useState(1);
   const [weekOnPage, updateWeekOnPage] = useState(1);
 
+  const { addPlayerAvatarsToPull } = useContext(PlayerAvatarContext);
+
   const axiosCancel = axios.CancelToken.source();
 
   useEffect(() => {
-    if (noGroup) {
-      history.push(Routes.groupPage);
-      return;
-    }
-
-    if (week !== 0 && season !== ``) {
-      if (currentUser.username) {
-        updateWeekOnPage(week);
-        updateWeekSelect(week);
-        getRostersForHome(season, week, group._id);
-        getGroupPositions(group._id);
-      }
+    if (week !== 0 && season !== `` && currentUser.username && group) {
+      updateWeekOnPage(week);
+      updateWeekSelect(week);
+      getRostersForHome(season, week, group._id);
+      getGroupPositions(group._id);
     }
     return function cancelAPICalls() {
       if (axiosCancel) {
         axiosCancel.cancel(`Unmounted`);
       }
     };
-  }, [week, season, currentUser.username, group, noGroup]);
+  }, [week, season, currentUser.username, group]);
+
+  useEffect(() => {
+    if (noGroup) {
+      history.push(Routes.groupPage);
+      return;
+    }
+  }, [noGroup]);
 
   const getRostersForHome = (season, week, groupId) => {
     getLeaderBoard(season, week, groupId);
@@ -92,6 +95,8 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
       })
       .then((res) => {
         updateIdealRoster(res.data);
+        const playerIds = res.data.map((player) => player.M);
+        addPlayerAvatarsToPull(playerIds);
       })
       .catch((err) => {
         if (err.message !== `Unmounted`) {
@@ -116,6 +121,8 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
         }
         if (R) {
           updateBestRoster(R);
+          const playerIds = R.map((player) => player.M);
+          addPlayerAvatarsToPull(playerIds);
         }
       })
       .catch((err) => {
@@ -132,6 +139,15 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
       })
       .then((res) => {
         updateWeeklyGroupRosters(res.data);
+        const playerIds = [];
+        for (const roster of res.data) {
+          for (const player of roster.R) {
+            if (player.M !== 0) {
+              playerIds.push(player.M);
+            }
+          }
+        }
+        addPlayerAvatarsToPull(playerIds);
       })
       .catch((err) => {
         if (err.message !== `Unmounted`) {

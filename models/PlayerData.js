@@ -13,6 +13,7 @@ const PlayerDataSchema = new Schema({
     //mySportsId
     type: Number,
     required: true,
+    unique: true,
   },
   T: {
     //Team
@@ -33,6 +34,16 @@ const PlayerDataSchema = new Schema({
       D: String,
       PP: String,
     },
+  },
+  E: {
+    //Espn ID
+    type: Number,
+    default: 0,
+  },
+  AV: {
+    //Avatar
+    type: Boolean,
+    default: false,
   },
 });
 

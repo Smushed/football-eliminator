@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import fuzzysort from 'fuzzysort';
@@ -19,6 +19,7 @@ import { loading, doneLoading } from '../LoadingAlert';
 import { WeekSearch, PositionSearch, TeamSearch } from './SearchDropdowns';
 import * as Routes from '../../constants/routes';
 import { toast } from 'react-hot-toast';
+import { PlayerAvatarContext } from '../PlayerAvatars';
 
 import useWindowDimensions from '../Tools/WindowDimensions';
 
@@ -58,13 +59,17 @@ const Roster = ({
   const [playerSearch, updatePlayerSearch] = useState(``);
   const [availPlayersToShow, updateAvailPlayersToShow] = useState([]);
 
+  const { addPlayerAvatarsToPull } = useContext(PlayerAvatarContext);
+
   const axiosCancel = axios.CancelToken.source();
 
   const { width } = useWindowDimensions();
 
   useEffect(() => {
-    if (width < 768) {
+    if (showUsedPlayers && width < 768) {
       updateShowUsedPlayers(false);
+    } else if (!showUsedPlayers && width >= 768) {
+      updateShowUsedPlayers(true);
     }
   }, [width]);
 
@@ -120,6 +125,8 @@ const Roster = ({
       )
       .then((res) => {
         updateUsedPlayers(res.data);
+        const playerIds = res.data.map((player) => player.M);
+        addPlayerAvatarsToPull(playerIds);
       })
       .catch((err) => {
         if (err.message !== `Unmounted`) {
@@ -165,6 +172,8 @@ const Roster = ({
         .then((res) => {
           const { userRoster, groupPositions, groupMap, positionArray } =
             res.data;
+          const playerIds = userRoster.map((player) => player.M);
+          addPlayerAvatarsToPull(playerIds);
           updateUserRoster(userRoster);
           updateGroupPositions(groupPositions);
           updatePositionMap(groupMap);
@@ -343,6 +352,8 @@ const Roster = ({
       })
       .then((res) => {
         updateLastPosSearch(positionSelect);
+        const playerIds = res.data.map((player) => player.M);
+        addPlayerAvatarsToPull(playerIds);
         updateAvaliablePlayers(res.data);
         updateAvailPlayersToShow(res.data);
         getUsedPlayers(positionSelect);
@@ -520,37 +531,31 @@ const Roster = ({
       </div>
       <div className='row'>
         <div className='col-12'>
-          <div className='row'>
-            <div className='col-12'>
-              <div className='row justify-content-center'>
-                <div className='col-sm-12 col-md-4 col-lg-2 text-center mt-1 mb-1'>
-                  <button
-                    className='btn btn-success'
-                    disabled={mustDrop}
-                    onClick={() => toggleShowUsedPlayers()}
-                  >
-                    {showUsedPlayers ? 'Hide' : 'Show'} Used Players
-                  </button>
-                </div>
-                <div className='col-sm-12 col-md-4 col-lg-2 text-center mt-1 mb-1'>
-                  <button
-                    className='btn btn-success'
-                    onClick={() =>
-                      updateActivatePlayerSearch(!activePlayerSearch)
-                    }
-                  >
-                    {activePlayerSearch ? `Hide` : `Show`} Player Search
-                  </button>
-                </div>
-                <div className='col-sm-12 col-md-4 col-lg-2 text-center mt-1 mb-1'>
-                  <button
-                    className='btn btn-success'
-                    onClick={() => showMatchUps()}
-                  >
-                    Show Match Ups
-                  </button>
-                </div>
-              </div>
+          <div className='row justify-content-center'>
+            <div className='col-sm-12 col-md-4 col-lg-2 text-center mt-1 mb-1'>
+              <button
+                className='btn btn-success'
+                disabled={mustDrop}
+                onClick={() => toggleShowUsedPlayers()}
+              >
+                {showUsedPlayers ? 'Hide' : 'Show'} Used Players
+              </button>
+            </div>
+            <div className='col-sm-12 col-md-4 col-lg-2 text-center mt-1 mb-1'>
+              <button
+                className='btn btn-success'
+                onClick={() => updateActivatePlayerSearch(!activePlayerSearch)}
+              >
+                {activePlayerSearch ? `Hide` : `Show`} Player Search
+              </button>
+            </div>
+            <div className='col-sm-12 col-md-4 col-lg-2 text-center mt-1 mb-1'>
+              <button
+                className='btn btn-success'
+                onClick={() => showMatchUps()}
+              >
+                Show Match Ups
+              </button>
             </div>
           </div>
 

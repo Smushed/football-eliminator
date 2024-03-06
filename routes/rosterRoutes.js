@@ -19,56 +19,56 @@ module.exports = (app) => {
 
   app.get(`/api/roster/user/:season/:week/:groupname/:username`, (req, res) => {
     const { groupname, username, week, season } = req.params;
-    if (
-      username !== `undefined` &&
-      week !== 0 &&
-      season !== `` &&
-      groupname !== `undefined`
-    ) {
-      //Checks if this route received the userId before it was ready in react
-      //The check already comes in as the string undefined, rather than undefined itself. It comes in as truthly
 
-      //This can be broken out into sets, where one set is needed for the next set
-      //Rather than making this all await calls we can batch together calls that can go at the same time. Speeding up the process considerably
-      Promise.all([
-        groupHandler.findGroupIdByName(groupname),
-        userHandler.getUserByUsername(username),
-      ])
-        .then(([groupId, user]) => {
-          Promise.all([
-            rosterHandler.getUserRoster(user._id, week, season, groupId),
-            groupHandler.getGroupPositions(groupId),
-          ])
-            .then(([playerIdRoster, groupPositions]) => {
-              Promise.all([
-                groupHandler.mapGroupPositions(
-                  groupPositions,
-                  positions.positionMap
-                ),
-                mySportsHandler.fillUserRoster(playerIdRoster),
-              ])
-                .then(([groupMap, userRoster]) => {
-                  const response = {
-                    userRoster,
-                    groupPositions,
-                    groupMap,
-                    positionArray: positions.positionArray,
-                  };
-                  res.status(200).send(response);
-                })
-                .catch((err) => console.log(`User Roster Layer 3`, err));
-            })
-            .catch((err) => console.log(`User Roster Layer 2`, err));
-        })
-        .catch((err) => console.log(`User Roster Layer 1`, err));
-    } else {
-      //TODO Do something with this error
+    //Checks if this route received the userId before it was ready in react
+    //The check already comes in as the string undefined, rather than undefined itself. It comes in as truthly
+    if (
+      username === `undefined` ||
+      week === 0 ||
+      season === `` ||
+      groupname === `undefined`
+    ) {
+      console.log({ groupname, username, week, season });
       res
         .status(400)
         .send(
           `Bad URL. Try refreshing or going home and coming back if this persists`
         );
+      return;
     }
+    //This can be broken out into sets, where one set is needed for the next set
+    //Rather than making this all await calls we can batch together calls that can go at the same time. Speeding up the process considerably
+    Promise.all([
+      groupHandler.findGroupIdByName(groupname),
+      userHandler.getUserByUsername(username),
+    ])
+      .then(([groupId, user]) => {
+        Promise.all([
+          rosterHandler.getUserRoster(user._id, week, season, groupId),
+          groupHandler.getGroupPositions(groupId),
+        ])
+          .then(([playerIdRoster, groupPositions]) => {
+            Promise.all([
+              groupHandler.mapGroupPositions(
+                groupPositions,
+                positions.positionMap
+              ),
+              mySportsHandler.fillUserRoster(playerIdRoster),
+            ])
+              .then(([groupMap, userRoster]) => {
+                const response = {
+                  userRoster,
+                  groupPositions,
+                  groupMap,
+                  positionArray: positions.positionArray,
+                };
+                res.status(200).send(response);
+              })
+              .catch((err) => console.log(`User Roster Layer 3`, err));
+          })
+          .catch((err) => console.log(`User Roster Layer 2`, err));
+      })
+      .catch((err) => console.log(`User Roster Layer 1`, err));
   });
 
   app.put(`/api/dummyRoster/`, async (req, res) => {

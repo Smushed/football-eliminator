@@ -8,7 +8,7 @@ import withReactContent from 'sweetalert2-react-content';
 import CloseSVG from '../../constants/SVG/close.svg';
 import './displayBoxStyle.css';
 
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 const Alert = withReactContent(Swal);
 

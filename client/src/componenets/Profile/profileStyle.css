@@ -56,15 +56,6 @@
   bottom: 0;
 }
 
-.fieldDescription {
-  width: 127px;
-  padding-left: 12px !important;
-}
-
-.editField {
-  font-size: 22px;
-}
-
 .lowerOpacity {
   opacity: 0.3;
 }
@@ -73,15 +64,6 @@
   height: 23px;
   width: 23px;
   cursor: pointer;
-}
-
-.profileName {
-  font-size: 38px;
-  font-weight: 600;
-}
-
-.profileDesc {
-  font-size: 20px;
 }
 
 .profileAvatarWrapper {
@@ -121,7 +103,8 @@
   border-radius: 50%;
   z-index: 2;
   opacity: 0;
-  transition: all 0.5s ease;
+  padding-bottom: 7px;
+  transition: all 0.2s ease;
   pointer-events: none;
 }
 
@@ -185,22 +168,6 @@
 
 .customFileUploadButton:hover {
   background-color: whitesmoke;
-}
-
-.groupPosHeader {
-  font-size: 26px;
-  font-weight: 600;
-}
-
-.groupPosDropdowns {
-  width: 150px !important;
-}
-
-.groupProfileRow {
-  margin-top: 10px;
-  width: 100%;
-  display: flex;
-  justify-content: center;
 }
 
 .groupScoreBucket {
@@ -297,15 +264,6 @@
   display: block;
 }
 
-.groupProfileNameDesc {
-  text-align: center;
-  margin-right: 50px;
-}
-
-.profileHeader {
-  margin-top: 25px;
-}
-
 .profileDisplayHeader {
   text-align: center;
   font-size: 32px;
@@ -321,6 +279,29 @@
   -webkit-animation: pop-in 0.25s;
   -moz-animation: pop-in 0.25s;
   -ms-animation: pop-in 0.25s;
+}
+
+.profileInput {
+  border: #eee 1px solid;
+  border-radius: 5px;
+  padding-left: 10px;
+}
+
+.profileInput:focus {
+  outline: none;
+  border: #ccc 1px solid;
+}
+
+.profileInput:hover {
+  border: #ccc 1px solid;
+  cursor: pointer;
+}
+
+.profileBanner {
+  border-radius: 10px;
+  margin: 0 20px;
+  width: 100%;
+  opacity: 0.8;
 }
 
 /* MODAL */

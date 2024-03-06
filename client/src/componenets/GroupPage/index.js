@@ -139,7 +139,7 @@ const GroupRow = ({ group, joinGroup, season, userId }) => {
 
   const getAvatar = (groupId) => {
     axios
-      .get(`/api/avatar/${groupId}`, { cancelToken: axiosCancel.token })
+      .get(`/api/group/avatar/${groupId}`, { cancelToken: axiosCancel.token })
       .then((res) => {
         updateGroupAvatar(res.data);
       })

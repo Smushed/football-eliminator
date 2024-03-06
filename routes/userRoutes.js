@@ -122,6 +122,12 @@ module.exports = (app) => {
     res.status(200).send(avatar);
   });
 
+  app.post(`/api/playerAvatars`, async (req, res) => {
+    const { avatars } = req.body;
+    const response = await s3Handler.getMultiplePlayerAvatars(avatars);
+    res.status(200).send(response);
+  });
+
   app.get(`/api/user/profile/box/:userId`, async (req, res) => {
     const { userId } = req.params;
     Promise.all([

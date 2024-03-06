@@ -5,8 +5,6 @@ import toast from 'react-hot-toast';
 import Session from '../Session';
 
 import 'jimp';
-
-// import Jimp from 'jimp/browser/lib/jimp.js';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
@@ -47,10 +45,7 @@ const Profile = ({
   });
   const [avatar, updateAvatar] = useState(``);
   const [tempAvatar, updateTempAvatar] = useState(``);
-
-  //Group State
   const [groupInfo, updateGroupInfo] = useState({});
-
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -89,8 +84,6 @@ const Profile = ({
       }
       return; //Don't want to set updated fields here in case the user cancels the crop
     }
-
-    //Putting this after the avatar check in case they upload a non image
     changeUpdatedFields({ ...updatedFields, [e.target.name]: e.target.value });
   };
 

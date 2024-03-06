@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from "react";
-import PropTypes from "prop-types";
-import axios from "axios";
-import Leaderboard from "../Home/Leaderboard";
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import axios from 'axios';
+import Leaderboard from '../Leaderboard';
 
-import "./profileStyle.css";
+import './profileStyle.css';
 
-import DisplayBox from "../DisplayBox";
-import GroupScoreRow from "./GroupScoreRow";
+import DisplayBox from '../DisplayBox';
+import GroupScoreRow from './GroupScoreRow';
 
-import PencilSVG from "../../constants/SVG/pencil.svg";
+import PencilSVG from '../../constants/SVG/pencil.svg';
 
 const GroupProfile = ({
   groupName,
@@ -43,7 +43,7 @@ const GroupProfile = ({
 
   useEffect(() => {
     if (currentUser.userId && groupInfo.UL) {
-      checkForAdmin(groupInfo, currentUser.userId.toString()); //TODO Gotta be a better way to check for admin status of group
+      checkForAdmin(groupInfo, currentUser.userId.toString());
     }
   }, [currentUser, groupInfo.UL]);
 
@@ -101,13 +101,13 @@ const GroupProfile = ({
 
   return (
     <>
-      <div className="flex centerFlex profileHeader">
-        <div className="block marginHeightAuto groupProfileNameDesc">
-          <div className="profileName">{groupName}</div>
-          <div className="profileDesc">{groupInfo.D}</div>
+      <div className='d-flex justify-content-center profileHeader container'>
+        <div className='block marginHeightAuto groupProfileNameDesc'>
+          <div>{groupName}</div>
+          <div>{groupInfo.D}</div>
           {adminStatus && (
             <button
-              className="btn btn-sm btn-info"
+              className='btn btn-sm btn-info'
               onClick={() => {
                 openCloseModal();
                 updateModalState(`group`);
@@ -117,29 +117,29 @@ const GroupProfile = ({
             </button>
           )}
         </div>
-        <div className="profileAvatarWrapper">
-          <div className="editAvatarSVGWrapper">
-            <img className="editAvatarSVG" src={PencilSVG} />
+        <div className='profileAvatarWrapper'>
+          <div className='editAvatarSVGWrapper'>
+            <img className='editAvatarSVG' src={PencilSVG} />
           </div>
-          <label htmlFor="groupAvatar">
+          <label htmlFor='groupAvatar'>
             <img
               className={`profileAvatar ${adminStatus ? `editAvatar` : ``}`}
-              name="avatar"
+              name='avatar'
               src={avatar}
             />
           </label>
           {adminStatus && (
             <input
-              id="groupAvatar"
-              name="avatar"
-              type="file"
+              id='groupAvatar'
+              name='avatar'
+              type='file'
               onChange={handleChange}
               ref={fileInputRef}
             />
           )}
         </div>
       </div>
-      <div className="profileWrapper">
+      <div>
         <Leaderboard
           week={week}
           season={season}
@@ -149,14 +149,14 @@ const GroupProfile = ({
         {groupInfo._id && (
           <GroupScoreRow editable={false} groupId={groupInfo._id.toString()} />
         )}
-        <div className="profileDisplayHeader">Users:</div>
-        <div className="flex flexWrap centerFlex">
+        <div className='profileDisplayHeader'>Users:</div>
+        <div className='d-flex justify-content-center row'>
           {groupInfo.UL &&
             groupInfo.UL.map((user) => (
               <DisplayBox
                 key={user._id}
                 boxContent={user._id}
-                type="user"
+                type='user'
                 buttonActive={adminStatus}
                 inGroup={true}
                 currUserId={currentUser.userId}
