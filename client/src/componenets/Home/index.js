@@ -23,7 +23,7 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
   const [weekSelect, updateWeekSelect] = useState(1);
   const [weekOnPage, updateWeekOnPage] = useState(1);
 
-  const { addPlayersToPull } = useContext(PlayerAvatarContext);
+  const { addPlayerAvatarsToPull } = useContext(PlayerAvatarContext);
 
   const axiosCancel = axios.CancelToken.source();
 
@@ -95,6 +95,7 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
       })
       .then((res) => {
         updateIdealRoster(res.data);
+        getUniquePlayerIds([{ R: res.data }]);
       })
       .catch((err) => {
         if (err.message !== `Unmounted`) {
@@ -154,7 +155,8 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
       }
     }
 
-    addPlayersToPull(uniquePlayerIds);
+    //Having this on the home page rather than the roster is to try and group them and make larger calls to the BE
+    addPlayerAvatarsToPull(uniquePlayerIds);
   };
 
   const getLeaderAvatar = (leaderId) => {

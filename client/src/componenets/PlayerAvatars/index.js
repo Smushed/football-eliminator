@@ -88,12 +88,23 @@ const PlayerAvatarWrapper = ({ children }) => {
     }
   };
 
-  const addPlayersToPull = (playerIdArray) => {
-    updateWaitingToProcess([...waitingToProcess, ...playerIdArray]);
+  const addPlayerAvatarsToPull = (playerIdArray) => {
+    const uniqueIdArray = [];
+    for (const playerId of playerIdArray) {
+      if (waitingToProcess.includes(playerId)) {
+        continue;
+      }
+      if (!playerAvatars[playerId]) {
+        uniqueIdArray.push(playerId);
+      }
+    }
+    updateWaitingToProcess([...waitingToProcess, ...uniqueIdArray]);
   };
 
   return (
-    <PlayerAvatarContext.Provider value={{ playerAvatars, addPlayersToPull }}>
+    <PlayerAvatarContext.Provider
+      value={{ playerAvatars, addPlayerAvatarsToPull }}
+    >
       {children}
     </PlayerAvatarContext.Provider>
   );
