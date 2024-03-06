@@ -101,32 +101,38 @@ const InjuryCol = ({ injury }) => {
 };
 
 //SECTION Player Display
-const PlayerDisplayRow = ({ player, addDropPlayer, sortedMatchups }) => (
-  <tr>
-    <td>{player.I && <InjuryCol injury={player.I} />}</td>
-    <td>{player.N && player.N}</td>
-    <td>{player.T && player.T}</td>
-    {sortedMatchups && (
-      <td className='oppWidth'>
-        {sortedMatchups[player.T]
-          ? `${sortedMatchups[player.T].h ? 'v' : '@'} ${
-              sortedMatchups[player.T].v
-            }`
-          : `BYE`}
+const PlayerDisplayRow = ({ player, addDropPlayer, sortedMatchups }) => {
+  const { playerAvatars } = useContext(PlayerAvatarContext);
+  return (
+    <tr>
+      <td>{player.I && <InjuryCol injury={player.I} />}</td>
+      <td>
+        <img src={player && playerAvatars[player.M]} />
       </td>
-    )}
-    {addDropPlayer && (
-      <td className='pb-0'>
-        <button
-          className='custom-button'
-          onClick={() => addDropPlayer(player.M, player.T, 'add')}
-        >
-          Add
-        </button>
-      </td>
-    )}
-  </tr>
-);
+      <td>{player.N && player.N}</td>
+      <td>{player.T && player.T}</td>
+      {sortedMatchups && (
+        <td className='oppWidth'>
+          {sortedMatchups[player.T]
+            ? `${sortedMatchups[player.T].h ? 'v' : '@'} ${
+                sortedMatchups[player.T].v
+              }`
+            : `BYE`}
+        </td>
+      )}
+      {addDropPlayer && (
+        <td className='pb-0'>
+          <button
+            className='custom-button'
+            onClick={() => addDropPlayer(player.M, player.T, 'add')}
+          >
+            Add
+          </button>
+        </td>
+      )}
+    </tr>
+  );
+};
 
 const PlayerDisplayTable = ({
   headerText,

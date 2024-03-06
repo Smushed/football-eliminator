@@ -95,7 +95,8 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
       })
       .then((res) => {
         updateIdealRoster(res.data);
-        getUniquePlayerIds([{ R: res.data }]);
+        const playerIds = res.data.map((player) => player.M);
+        addPlayerAvatarsToPull(playerIds);
       })
       .catch((err) => {
         if (err.message !== `Unmounted`) {
@@ -120,6 +121,8 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
         }
         if (R) {
           updateBestRoster(R);
+          const playerIds = R.map((player) => player.M);
+          addPlayerAvatarsToPull(playerIds);
         }
       })
       .catch((err) => {
@@ -136,27 +139,21 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
       })
       .then((res) => {
         updateWeeklyGroupRosters(res.data);
-        getUniquePlayerIds(res.data);
+        const playerIds = [];
+        for (const roster of res.data) {
+          for (const player of roster.R) {
+            if (player.M !== 0) {
+              playerIds.push(player.M);
+            }
+          }
+        }
+        addPlayerAvatarsToPull(playerIds);
       })
       .catch((err) => {
         if (err.message !== `Unmounted`) {
           console.log(err);
         }
       });
-  };
-
-  const getUniquePlayerIds = async (weeklyRosters) => {
-    const uniquePlayerIds = [];
-    for (const weeklyRoster of weeklyRosters) {
-      for (const player of weeklyRoster.R) {
-        if (!uniquePlayerIds.includes(player.M) && player.M !== 0) {
-          uniquePlayerIds.push(player.M);
-        }
-      }
-    }
-
-    //Having this on the home page rather than the roster is to try and group them and make larger calls to the BE
-    addPlayerAvatarsToPull(uniquePlayerIds);
   };
 
   const getLeaderAvatar = (leaderId) => {

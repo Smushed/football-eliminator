@@ -88,7 +88,7 @@ const PlayerAvatarWrapper = ({ children }) => {
     }
   };
 
-  const addPlayerAvatarsToPull = (playerIdArray) => {
+  const checkAvatarIsAlreadyPulled = (playerIdArray) => {
     const uniqueIdArray = [];
     for (const playerId of playerIdArray) {
       if (waitingToProcess.includes(playerId)) {
@@ -101,9 +101,24 @@ const PlayerAvatarWrapper = ({ children }) => {
     updateWaitingToProcess([...waitingToProcess, ...uniqueIdArray]);
   };
 
+  const addPlayerAvatarsToPull = (playerIds) => {
+    const uniquePlayerIds = [];
+    for (const playerId of playerIds) {
+      //Adding this here in case a group of rosters comes in at once
+      //This way I can filter them out here rather than having to in every component
+      if (!uniquePlayerIds.includes(playerId) && playerId !== 0) {
+        uniquePlayerIds.push(playerId);
+      }
+    }
+    checkAvatarIsAlreadyPulled(uniquePlayerIds);
+  };
+
   return (
     <PlayerAvatarContext.Provider
-      value={{ playerAvatars, addPlayerAvatarsToPull }}
+      value={{
+        playerAvatars,
+        addPlayerAvatarsToPull,
+      }}
     >
       {children}
     </PlayerAvatarContext.Provider>

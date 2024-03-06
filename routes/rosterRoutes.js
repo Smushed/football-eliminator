@@ -19,22 +19,23 @@ module.exports = (app) => {
 
   app.get(`/api/roster/user/:season/:week/:groupname/:username`, (req, res) => {
     const { groupname, username, week, season } = req.params;
+
+    //Checks if this route received the userId before it was ready in react
+    //The check already comes in as the string undefined, rather than undefined itself. It comes in as truthly
     if (
-      username !== `undefined` &&
-      week !== 0 &&
-      season !== `` &&
-      groupname !== `undefined`
+      username === `undefined` ||
+      week === 0 ||
+      season === `` ||
+      groupname === `undefined`
     ) {
-      //TODO Do something with this error
+      console.log({ groupname, username, week, season });
       res
         .status(400)
         .send(
           `Bad URL. Try refreshing or going home and coming back if this persists`
         );
+      return;
     }
-    //Checks if this route received the userId before it was ready in react
-    //The check already comes in as the string undefined, rather than undefined itself. It comes in as truthly
-
     //This can be broken out into sets, where one set is needed for the next set
     //Rather than making this all await calls we can batch together calls that can go at the same time. Speeding up the process considerably
     Promise.all([
