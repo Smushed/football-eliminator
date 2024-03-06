@@ -13,6 +13,7 @@ const PlayerDataSchema = new Schema({
     //mySportsId
     type: Number,
     required: true,
+    unique: true,
   },
   T: {
     //Team

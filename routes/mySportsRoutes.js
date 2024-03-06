@@ -102,6 +102,7 @@ module.exports = (app) => {
     }
     const playerArrayFromDB =
       await mySportsHandler.getAllPlayersMySportsIdByTeamNonZeroESPNID(teams);
+    console.log('Updating Player Avatars');
     s3Handler.updatePlayerAvatars(playerArrayFromDB);
     res.sendStatus(200);
   });

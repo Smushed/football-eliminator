@@ -88,6 +88,8 @@ const updatePlayerAvatarFromLinkedList = (node) => {
             () => {
               if (node.next) {
                 updatePlayerAvatarFromLinkedList(node.next);
+              } else {
+                console.log('Finished updating player avatars');
               }
             }
           );
@@ -149,7 +151,7 @@ module.exports = {
       });
     });
   },
-  updatePlayerAvatars: async (playerIdArray) => {
+  updatePlayerAvatars: (playerIdArray) => {
     const linkedListHead = createLinkedList(playerIdArray);
     updatePlayerAvatarFromLinkedList(linkedListHead);
   },
