@@ -91,7 +91,7 @@ const App = ({ firebase }) => {
   };
 
   const getSeasonAndWeek = async () => {
-    const { data } = await axios.get(`/api/currentSeasonAndWeek`);
+    const { data } = await axios.get(`/api/nfldata/currentSeasonAndWeek`);
     updateCurrentSeason(data.season);
     updateCurrentWeek(data.week);
     updateLockWeek(data.lockWeek);

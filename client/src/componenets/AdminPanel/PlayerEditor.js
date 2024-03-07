@@ -8,7 +8,7 @@ const Alert = withReactContent(Swal);
 
 const PlayerEditor = ({ season, week, groupId }) => {
   const updateNFLRoster = () => {
-    axios.put(`/api/updateTeams/${season}`);
+    axios.put(`/api/nfldata/updateTeams/${season}`);
   };
 
   const getMassData = () => {
@@ -24,7 +24,9 @@ const PlayerEditor = ({ season, week, groupId }) => {
           `This will be a while. Go play some games?`,
           `success`
         );
-        const response = await axios.get(`/api/massPlayerUpdate/${season}/`);
+        const response = await axios.get(
+          `/nfldata/api/massPlayerUpdate/${season}/`
+        );
         console.log(response);
       }
     });
@@ -32,7 +34,7 @@ const PlayerEditor = ({ season, week, groupId }) => {
 
   const getWeeklyData = async () => {
     try {
-      await axios.get(`/api/updatePlayers/${season}/${week}`);
+      await axios.get(`/api/nfldata/updatePlayers/${season}/${week}`);
     } catch (err) {
       console.log(err);
     }
@@ -40,7 +42,7 @@ const PlayerEditor = ({ season, week, groupId }) => {
 
   const rankPlayers = async () => {
     try {
-      await axios.get(`/api/rankPlayers/${season}/${week}/${groupId}`);
+      await axios.get(`/api/nfldata/rankPlayers/${season}/${week}/${groupId}`);
     } catch (err) {
       console.log(err);
     }

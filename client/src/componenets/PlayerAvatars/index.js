@@ -68,7 +68,7 @@ const PlayerAvatarWrapper = ({ children }) => {
   const getPlayerAvatars = async (playerIdLinkedList) => {
     try {
       const avatarRes = await axios.post(
-        `/api/playerAvatars/`,
+        `/api/user/playerAvatars/`,
         { avatars: playerIdLinkedList.val },
         {
           cancelToken: axiosCancel.token,

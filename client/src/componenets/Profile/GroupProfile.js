@@ -77,7 +77,9 @@ const GroupProfile = ({
 
   const getLeaderboard = (groupId) => {
     axios
-      .get(`/api/currentSeasonAndWeek`, { cancelToken: axiosCancel.token })
+      .get(`/api/nfldata/currentSeasonAndWeek`, {
+        cancelToken: axiosCancel.token,
+      })
       .then((res) => {
         const { season, week } = res.data;
         updateWeek(week);

@@ -21,8 +21,6 @@ import * as Routes from '../../constants/routes';
 import { toast } from 'react-hot-toast';
 import { PlayerAvatarContext } from '../PlayerAvatars';
 
-import useWindowDimensions from '../Tools/WindowDimensions';
-
 const Alert = withReactContent(Swal);
 
 const Roster = ({
@@ -62,16 +60,6 @@ const Roster = ({
   const { addPlayerAvatarsToPull } = useContext(PlayerAvatarContext);
 
   const axiosCancel = axios.CancelToken.source();
-
-  const { width } = useWindowDimensions();
-
-  useEffect(() => {
-    if (showUsedPlayers && width < 768) {
-      updateShowUsedPlayers(false);
-    } else if (!showUsedPlayers && width >= 768) {
-      updateShowUsedPlayers(true);
-    }
-  }, [width]);
 
   useEffect(() => {
     if (noGroup) {
@@ -145,7 +133,7 @@ const Roster = ({
 
   const getWeeklyMatchUps = (weekInput) => {
     axios
-      .get(`/api/matchups/${season}/${weekInput}`, {
+      .get(`/api/nfldata/matchups/${season}/${weekInput}`, {
         cancelToken: axiosCancel.token,
       })
       .then((res) => {
@@ -265,7 +253,7 @@ const Roster = ({
       loading();
       axios
         .put(
-          `/api/user/roster`,
+          `/api/roster/user/update`,
           {
             userId: userId,
             roster,
@@ -302,7 +290,7 @@ const Roster = ({
 
   const checkLockPeriod = async (team) => {
     axios
-      .get(`/api/lock/general`, { cancelToken: axiosCancel.token })
+      .get(`/api/roster/lock/general`, { cancelToken: axiosCancel.token })
       .then((res) => updateLockWeek(res.data.LW))
       .catch((err) => {
         if (err.message !== `Unmounted`) {
@@ -310,7 +298,7 @@ const Roster = ({
         }
       });
     const { data } = await axios.get(
-      `/api/lock/${season}/${weekOnPage}/${team}`
+      `/api/roster/lock/${season}/${weekOnPage}/${team}`
     );
     return data;
   };
@@ -324,9 +312,11 @@ const Roster = ({
   const searchByTeam = (e) => {
     axios
       .get(
-        `/api/getPlayersByTeam/${season}/${userId}/${match.params.groupname}/${teamSelect}`
+        `/api/roster/getPlayersByTeam/${season}/${userId}/${match.params.groupname}/${teamSelect}`
       )
       .then((res) => {
+        const playerIds = res.data.map((player) => player.M);
+        addPlayerAvatarsToPull(playerIds);
         updateAvaliablePlayers(res.data);
         updateAvailPlayersToShow(res.data);
       })

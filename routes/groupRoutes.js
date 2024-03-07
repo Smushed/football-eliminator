@@ -3,9 +3,9 @@ const userHandler = require(`../handlers/userHandler`);
 const groupHandler = require(`../handlers/groupHandler`);
 const scoringSystem = require(`../constants/scoringSystem`);
 const rosterHandler = require(`../handlers/rosterHandler`);
-const mySportsHandler = require(`../handlers/mySportsHandler`);
 const s3Handler = require(`../handlers/s3Handler`);
 const emailHandler = require('../handlers/emailHandler');
+const mySportsHandler = require(`../handlers/mySportsHandler`);
 
 module.exports = (app) => {
   app.put(`/api/group/join/`, async (req, res) => {
@@ -49,7 +49,7 @@ module.exports = (app) => {
     res.status(200).send(groupInfo);
   });
 
-  app.post(`/api/initSeason/:pass`, async (req, res) => {
+  app.post(`/api/group/initSeason/:pass`, async (req, res) => {
     const { pass } = req.params;
     if (pass !== process.env.DB_ADMIN_PASS) {
       res.status(401).send(`Get Outta Here!`);
@@ -69,7 +69,7 @@ module.exports = (app) => {
     }
   });
 
-  app.get(`/api/getScoring`, async (req, res) => {
+  app.get(`/api/group/getScoring`, async (req, res) => {
     res.status(200).send(scoringSystem);
   });
 
@@ -143,7 +143,7 @@ module.exports = (app) => {
   app.get(`/api/group/profile/box/:groupId`, async (req, res) => {
     const { groupId } = req.params;
     Promise.all([
-      userHandler.pullSeasonAndWeekFromDB(),
+      mySportsHandler.pullSeasonAndWeekFromDB(),
       groupHandler.getGroupDataById(groupId),
     ]).then(async ([{ season, week }, groupData]) => {
       const userScores = await groupHandler.getCurrAndLastWeekScores(
@@ -211,7 +211,7 @@ module.exports = (app) => {
         res.status(400).send(`Cannot remove self from group!`);
         return;
       }
-      const { season } = await userHandler.pullSeasonAndWeekFromDB();
+      const { season } = await mySportsHandler.pullSeasonAndWeekFromDB();
       const group = await groupHandler.getGroupDataById(groupId);
       const adminCheck = await groupHandler.checkAdmin(group, adminId);
       if (!adminCheck) {
@@ -247,7 +247,7 @@ module.exports = (app) => {
   });
 
   app.put(`/api/group/score/calculate/all`, async (req, res) => {
-    const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
+    const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
     rosterHandler.scoreAllGroups(season, week);
     res.sendStatus(200);
   });

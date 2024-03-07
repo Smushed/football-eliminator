@@ -49,7 +49,7 @@ const AdminPanel = ({ currentUser, season, week, groupId }) => {
 
   const getMatchups = async () => {
     const dbResponse = await axios.post(
-      `/api/pullMatchUpsForDB/${seasonSelect}/${weekSelect}`
+      `/api/nfldata/pullMatchUpsForDB/${seasonSelect}/${weekSelect}`
     );
     console.log(dbResponse);
   };
@@ -63,7 +63,7 @@ const AdminPanel = ({ currentUser, season, week, groupId }) => {
 
   const tryKillDB = () => {
     axios
-      .post(`/api/purgeUserAndGroupDB/${adminPass}`)
+      .post(`/api/user/purgeUserAndGroupDB/${adminPass}`)
       .then((res) => console.log(res))
       .catch(
         async (err) =>

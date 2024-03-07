@@ -71,7 +71,7 @@ module.exports = (app) => {
       .catch((err) => console.log(`User Roster Layer 1`, err));
   });
 
-  app.put(`/api/dummyRoster/`, async (req, res) => {
+  app.put(`/api/roster/dummyRoster/`, async (req, res) => {
     const { userId, groupId, week, season, dummyRoster } = req.body;
     if (userId === undefined || groupId === '') {
       res.status(500).send(`Select Someone!`);
@@ -88,7 +88,7 @@ module.exports = (app) => {
     res.status(200).send(dbResponse);
   });
 
-  app.put(`/api/user/roster/`, async (req, res) => {
+  app.put(`/api/roster/user/update`, async (req, res) => {
     const {
       userId,
       roster,
@@ -118,12 +118,12 @@ module.exports = (app) => {
     }
   });
 
-  app.get(`/api/lock/general`, async (req, res) => {
+  app.get(`/api/roster/lock/general`, async (req, res) => {
     const lockWeek = await rosterHandler.lockPeroid();
     res.status(200).send(lockWeek);
   });
 
-  app.get(`/api/lock/:season/:week/:team`, async (req, res) => {
+  app.get(`/api/roster/lock/:season/:week/:team`, async (req, res) => {
     const { season, week, team } = req.params;
     const lockPeriod = await rosterHandler.checkTeamLock(season, +week, team);
     res.status(200).send(lockPeriod);
@@ -151,7 +151,7 @@ module.exports = (app) => {
   );
 
   app.get(
-    `/api/getPlayersByTeam/:season/:userId/:groupname/:team`,
+    `/api/roster/getPlayersByTeam/:season/:userId/:groupname/:team`,
     async (req, res) => {
       const { groupname, userId, team, season } = req.params;
 
@@ -167,15 +167,11 @@ module.exports = (app) => {
     }
   );
 
-  app.get(`/api/seasonLongScore/:userId/:season`, async (req, res) => {
+  app.get(`/api/roster/seasonLongScore/:userId/:season`, async (req, res) => {
     const { userId, season } = req.params;
     const allPlayers = await rosterHandler.allSeasonRoster(userId, season);
 
     res.status(200).send(allPlayers);
-  });
-
-  app.get(`/api/getPositionData`, async (req, res) => {
-    res.status(200).send(positions.orderOfDescription);
   });
 
   app.get(`/api/roster/positions`, async (req, res) => {
