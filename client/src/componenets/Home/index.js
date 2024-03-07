@@ -159,7 +159,7 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
 
   const getLeaderAvatar = (leaderId) => {
     axios
-      .get(`/api/avatar/${leaderId}`, { cancelToken: axiosCancel.token })
+      .get(`/api/user/avatar/${leaderId}`, { cancelToken: axiosCancel.token })
       .then((res) => {
         updateLeaderAvatar(res.data);
       })

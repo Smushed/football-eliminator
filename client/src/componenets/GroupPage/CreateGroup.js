@@ -244,7 +244,7 @@ const CreateGroup = ({ email, pullUserData, userId, changeGroup, history }) => {
   const openScore = () => {
     const newGroupScore = {};
     axios
-      .get(`/api/getScoring`, { cancelToken: axiosCancel.token })
+      .get(`/api/group/getScoring`, { cancelToken: axiosCancel.token })
       .then((res) => {
         updateScoringMap(res.data);
         //Create the new group scoring object

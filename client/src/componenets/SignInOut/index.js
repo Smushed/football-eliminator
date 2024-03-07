@@ -104,7 +104,10 @@ const SignUpFormBase = ({
     //Checks if all the input fields are valid
     //If not the validation messages are shown and no user is sent to sign up
     if (checkValidInput()) {
-      const dbResponse = await axios.post(`/api/newUser`, { username, email });
+      const dbResponse = await axios.post(`/api/user/newUser`, {
+        username,
+        email,
+      });
 
       if (dbResponse.status === 200) {
         return firebase

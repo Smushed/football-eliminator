@@ -26,7 +26,7 @@ const playerScoreHandler = async (playerId, season, week, groupScore) => {
           );
       }
     }
-
+    weeklyScore = +weeklyScore.toFixed(2);
     res(weeklyScore);
   });
 };
@@ -35,7 +35,7 @@ const calculateScore = (playerStat, groupScore) => {
   if (typeof playerStat === `undefined`) {
     return 0;
   }
-  return playerStat * groupScore;
+  return +(playerStat * groupScore).toFixed(2);
 };
 
 const capitalizeFirstLetter = (str) => {
@@ -446,7 +446,7 @@ const saveUserScore = async (userId, groupId, season, week, weekScore) => {
           S: season,
           TS: totalScore,
         });
-        newUserScore[week] = weekScore;
+        newUserScore[week] = +weekScore.toFixed(2);
         newUserScore.save((err) => {
           if (err) {
             console.log(err);
@@ -454,10 +454,11 @@ const saveUserScore = async (userId, groupId, season, week, weekScore) => {
         });
         return;
       }
-      userScore[week] = weekScore;
+      userScore[week] = +weekScore.toFixed(2);
       for (let i = 1; i <= week; i++) {
         totalScore += userScore[i];
       }
+      totalScore = +totalScore.toFixed(2);
       userScore.TS = totalScore;
       userScore.save((err) => {
         if (err) {
@@ -784,6 +785,7 @@ module.exports = {
             groupScore
           );
         }
+        scoredPlayer.score = scoredPlayer.score.toFixed(2);
         //Put them in an array to rank them
         rankingArray.push(scoredPlayer);
       }
@@ -951,4 +953,36 @@ module.exports = {
       { E: 1, M: 1, _id: 0 }
     ).exec(),
   setAllAvatarsToFalse: () => db.PlayerData.updateMany({}, { AV: false }),
+  initSeasonAndWeekInDB: () => {
+    db.SeasonAndWeek.create({});
+  },
+  pullSeasonAndWeekFromDB: async () =>
+    new Promise(async (res, rej) => {
+      const dbResponse = await db.SeasonAndWeek.find({}).exec();
+      const season = dbResponse[0].S;
+      const week = dbResponse[0].W;
+      const lockWeek = dbResponse[0].LW;
+
+      res({ season, week, lockWeek });
+    }),
+  updateCurrWeek: (currentWeek) =>
+    new Promise(async (res, rej) => {
+      try {
+        await db.SeasonAndWeek.updateMany({}, { $set: { W: currentWeek } });
+        res(`success!`);
+      } catch (e) {
+        console.log(e);
+        res(`failure, check logs!`);
+      }
+    }),
+  updateLockWeek: (lockWeek) =>
+    new Promise(async (res, rej) => {
+      try {
+        await db.SeasonAndWeek.updateMany({}, { $set: { LW: lockWeek } });
+        res(`success!`);
+      } catch (e) {
+        console.log(e);
+        res(`failure, check logs!`);
+      }
+    }),
 };

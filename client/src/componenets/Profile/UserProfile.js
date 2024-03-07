@@ -194,7 +194,9 @@ const GroupDisplayWithLeaderboard = ({
 
   const getLeaderboard = (gId) => {
     axios
-      .get(`/api/currentSeasonAndWeek`, { cancelToken: axiosCancel.token })
+      .get(`/api/nfldata/currentSeasonAndWeek`, {
+        cancelToken: axiosCancel.token,
+      })
       .then((res) => {
         const { season, week } = res.data;
         setWeek(week);

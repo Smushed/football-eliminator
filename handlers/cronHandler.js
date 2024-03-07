@@ -15,7 +15,7 @@ schedule.scheduleJob('22 * * 1,9-12 *', async function () {
   const currDate = moment.utc(new Date()).tz(`America/Chicago`).toDate();
   console.log(`Checking start week and lock week ${currDate}`);
 
-  const currDBWeeks = await userHandler.pullSeasonAndWeekFromDB();
+  const currDBWeeks = await mySportsHandler.pullSeasonAndWeekFromDB();
 
   startWeek(currDate, currDBWeeks, 1);
 });
@@ -23,14 +23,14 @@ schedule.scheduleJob('22 * * 1,9-12 *', async function () {
 // Update Scores every day at 3am Chicago time
 schedule.scheduleJob('0 9 * 1,9-12 *', async function () {
   console.log(`Running player roster update`);
-  const { season } = await userHandler.pullSeasonAndWeekFromDB();
+  const { season } = await mySportsHandler.pullSeasonAndWeekFromDB();
   mySportsHandler.updateTeamRoster(season, nflTeams.teams);
 
   allScheduledGames(season);
 });
 
 schedule.scheduleJob('15 9 * 1,9-12 *', async function () {
-  const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
+  const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
   console.log(`Scoring players and groups update`);
   updatePlayerData(season, week);
 });
@@ -38,7 +38,7 @@ schedule.scheduleJob('15 9 * 1,9-12 *', async function () {
 //Rank the Players
 schedule.scheduleJob('30 9 * 1,9-12 *', async function () {
   console.log(`Running roster and score update`);
-  const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
+  const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
   await rosterHandler.scoreAllGroups(season, week);
 
   const clapper = await groupHandler.getGroupData(`Eliminator`); //Default to the clapper as the 'main' group
@@ -54,14 +54,14 @@ schedule.scheduleJob('30 9 * 1,9-12 *', async function () {
 });
 
 schedule.scheduleJob('30 9 * 1,9-12 *', async function () {
-  const { season } = await userHandler.pullSeasonAndWeekFromDB();
+  const { season } = await mySportsHandler.pullSeasonAndWeekFromDB();
   updateTeamRoster(season, nflTeams.teams);
 });
 
 // Thursday and Monday games (these are in UTC)
 schedule.scheduleJob('0 0-5 * 1,9-12 2,5', async function () {
   console.log(`Running bi-hourly Monday and Thursday game score`);
-  const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
+  const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
   await mySportsHandler.getWeeklyData(season, week);
   updatePlayerData(season, week);
 });
@@ -69,14 +69,14 @@ schedule.scheduleJob('0 0-5 * 1,9-12 2,5', async function () {
 // Update most often on Sunday
 schedule.scheduleJob('0 17-23 * 1,9-12 0', async function () {
   console.log(`Running bi-hourly Sunday job`);
-  const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
+  const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
   updatePlayerData(season, week);
 });
 
 // Before email is sent out update the players
 schedule.scheduleJob('00 12 * 1,9-12 2', async function () {
   console.log(`Running scoring again an hour before email is sent out`);
-  const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
+  const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
   await mySportsHandler.getEveryWeekData(season, week);
   await rosterHandler.scoreAllGroups(season, week);
 });
@@ -84,14 +84,14 @@ schedule.scheduleJob('00 12 * 1,9-12 2', async function () {
 //Right before the Leaderboard is sent out update the ideal roster
 schedule.scheduleJob('20 12 * 1,9-12 2', async function () {
   console.log(`Updating Ideal Roster`);
-  const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
+  const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
   groupHandler.updateAllIdealRosters(season, +week - 1);
 });
 
 //Send out the Leaderboard every Tuesday
 schedule.scheduleJob('30 12 * 1,9-12 2', async function () {
   console.log(`Sending out the weekly email`);
-  const { season, week } = await userHandler.pullSeasonAndWeekFromDB();
+  const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
   const groups = await groupHandler.getAllGroups();
   for (let group of groups) {
     if (group.N !== 'Demo Group')
@@ -120,8 +120,8 @@ const startWeek = (currDate, currDBWeeks, currWeek) => {
     }
   }
   if (currDBWeeks.week !== currWeek) {
-    userHandler.updateCurrWeek(currWeek);
-    userHandler.updateLockWeek(currWeek - 1);
+    mySportsHandler.updateCurrWeek(currWeek);
+    mySportsHandler.updateLockWeek(currWeek - 1);
   }
 };
 

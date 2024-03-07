@@ -143,20 +143,7 @@ module.exports = {
       .exec();
     return user;
   },
-  initSeasonAndWeekInDB: () => {
-    db.SeasonAndWeek.create({});
-  },
-  pullSeasonAndWeekFromDB: async () =>
-    new Promise(async (res, rej) => {
-      const dbResponse = await db.SeasonAndWeek.find({}).exec();
-      const season = dbResponse[0].S;
-      const week = dbResponse[0].W;
-      const lockWeek = dbResponse[0].LW;
-
-      res({ season, week, lockWeek });
-    }),
   purgeDB: () => {
-    //TODO If I make Admin Route and Handler, move this over
     db.User.deleteMany({}, (err, res) => {
       if (err) {
         console.log(err);
@@ -221,39 +208,6 @@ module.exports = {
       }
     });
   },
-  updateSeasonWeek: (season, currentWeek, lockWeek) =>
-    new Promise(async (res, rej) => {
-      try {
-        await db.SeasonAndWeek.updateMany(
-          {},
-          { $set: { S: season, W: currentWeek, LW: lockWeek } }
-        );
-        res(`success!`);
-      } catch (e) {
-        console.log(e);
-        res(`failure, check logs!`);
-      }
-    }),
-  updateCurrWeek: (currentWeek) =>
-    new Promise(async (res, rej) => {
-      try {
-        await db.SeasonAndWeek.updateMany({}, { $set: { W: currentWeek } });
-        res(`success!`);
-      } catch (e) {
-        console.log(e);
-        res(`failure, check logs!`);
-      }
-    }),
-  updateLockWeek: (lockWeek) =>
-    new Promise(async (res, rej) => {
-      try {
-        await db.SeasonAndWeek.updateMany({}, { $set: { LW: lockWeek } });
-        res(`success!`);
-      } catch (e) {
-        console.log(e);
-        res(`failure, check logs!`);
-      }
-    }),
   addGroupToList: async (userId, groupId) => {
     const isInGroup = await checkDuplicateUser(`group`, userId, groupId);
     if (isInGroup) {

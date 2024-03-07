@@ -523,7 +523,7 @@ module.exports = {
     }
   },
   getTotalScore: async (userId) => {
-    const { season } = await userHandler.pullSeasonAndWeekFromDB();
+    const { season } = await mySportsHandler.pullSeasonAndWeekFromDB();
     let userScore;
     try {
       userScore = await db.UserScores.findOne(

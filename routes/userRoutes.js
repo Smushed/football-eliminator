@@ -5,7 +5,7 @@ const s3Handler = require(`../handlers/s3Handler`);
 const groupHandler = require(`../handlers/groupHandler`);
 
 module.exports = (app) => {
-  app.put(`/api/updateProfile`, async (req, res) => {
+  app.put(`/api/user/updateProfile`, async (req, res) => {
     const { userId, request } = req.body;
     const updatedUser = await userHandler.updateProfile(userId, request);
     res.status(200).send(updatedUser);
@@ -22,7 +22,7 @@ module.exports = (app) => {
     res.status(200).send(response);
   });
 
-  app.post(`/api/newUser`, async (req, res) => {
+  app.post(`/api/user/newUser`, async (req, res) => {
     //Called before the user signs up with Firebase
     const newUser = {
       UN: req.body.username,
@@ -46,18 +46,9 @@ module.exports = (app) => {
     res.status(200).send(emailPres);
   });
 
-  app.get(`/api/getAllUsers`, async (req, res) => {
+  app.get(`/api/user/getAllUsers`, async (req, res) => {
     const dbResponse = await userHandler.getUserList();
-
     res.status(200).send(dbResponse);
-  });
-
-  //This is the route for the user search
-  app.get(`/api/usersearch/:query/:searchParam`, async (req, res) => {
-    const { query, searchParam } = req.params;
-
-    const foundUser = await userHandler.userSearch(query, searchParam);
-    res.status(200).send(foundUser);
   });
 
   app.get(`/api/user/id/:userId`, async (req, res) => {
@@ -74,41 +65,17 @@ module.exports = (app) => {
     res.status(200).send({ user, avatar, emailSettings });
   });
 
-  app.get(`/api/currentSeasonAndWeek`, async (req, res) => {
-    const seasonAndWeek = await userHandler.pullSeasonAndWeekFromDB();
-    res.status(200).send(seasonAndWeek);
-  });
-
-  app.post(`/api/purgeUserAndGroupDB/:pass`, (req, res) => {
+  app.post(`/api/user/purgeUserAndGroupDB/:pass`, (req, res) => {
     const { pass } = req.params;
     if (pass !== process.env.DB_ADMIN_PASS) {
       res.status(401).send(`Get Outta Here!`);
       return;
     }
-    console.log(`deleting`);
     userHandler.purgeDB();
     res.status(200).send(`success`);
   });
 
-  app.put(
-    `/api/updateWeekSeason/:pass/:season/:currentWeek/:lockWeek`,
-    async (req, res) => {
-      const { pass, season, currentWeek, lockWeek } = req.params;
-      if (pass !== process.env.DB_ADMIN_PASS) {
-        res.status(401).send(`Get Outta Here!`);
-        return;
-      }
-      const updated = await userHandler.updateSeasonWeek(
-        season,
-        currentWeek,
-        lockWeek
-      );
-
-      res.status(200).send(updated);
-    }
-  );
-
-  app.put(`/api/avatar/:id`, (req, res) => {
+  app.put(`/api/user/avatar/:id`, (req, res) => {
     const { id } = req.params;
     const { image } = req.body;
     s3Handler.uploadAvatar(id, image);
@@ -116,13 +83,13 @@ module.exports = (app) => {
     res.status(200).send(`success`);
   });
 
-  app.get(`/api/avatar/:id`, async (req, res) => {
+  app.get(`/api/user/avatar/:id`, async (req, res) => {
     const { id } = req.params;
     const avatar = await s3Handler.getAvatar(id);
     res.status(200).send(avatar);
   });
 
-  app.post(`/api/playerAvatars`, async (req, res) => {
+  app.post(`/api/user/playerAvatars`, async (req, res) => {
     const { avatars } = req.body;
     const response = await s3Handler.getMultiplePlayerAvatars(avatars);
     res.status(200).send(response);
@@ -143,7 +110,7 @@ module.exports = (app) => {
 
   app.delete(`/api/user/group/:userId/:groupId`, async (req, res) => {
     const { groupId, userId } = req.params;
-    const { season } = await userHandler.pullSeasonAndWeekFromDB();
+    const { season } = await mySportsHandler.pullSeasonAndWeekFromDB();
     const group = await groupHandler.getGroupDataById(groupId);
     const dbRes = await groupHandler.removeUser(group, userId, season);
     if (dbRes.status) {
