@@ -47,7 +47,7 @@ const ReAuth = ({
     }
     if (needToUpdateDb) {
       axios
-        .put(`/api/updateProfile`, { request, userId: currentUser.userId })
+        .put(`/api/user/updateProfile`, { request, userId: currentUser.userId })
         .then((res) => {
           pullUserData(authUser.email);
           if (res.data.UN) {

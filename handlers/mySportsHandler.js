@@ -953,4 +953,36 @@ module.exports = {
       { E: 1, M: 1, _id: 0 }
     ).exec(),
   setAllAvatarsToFalse: () => db.PlayerData.updateMany({}, { AV: false }),
+  initSeasonAndWeekInDB: () => {
+    db.SeasonAndWeek.create({});
+  },
+  pullSeasonAndWeekFromDB: async () =>
+    new Promise(async (res, rej) => {
+      const dbResponse = await db.SeasonAndWeek.find({}).exec();
+      const season = dbResponse[0].S;
+      const week = dbResponse[0].W;
+      const lockWeek = dbResponse[0].LW;
+
+      res({ season, week, lockWeek });
+    }),
+  updateCurrWeek: (currentWeek) =>
+    new Promise(async (res, rej) => {
+      try {
+        await db.SeasonAndWeek.updateMany({}, { $set: { W: currentWeek } });
+        res(`success!`);
+      } catch (e) {
+        console.log(e);
+        res(`failure, check logs!`);
+      }
+    }),
+  updateLockWeek: (lockWeek) =>
+    new Promise(async (res, rej) => {
+      try {
+        await db.SeasonAndWeek.updateMany({}, { $set: { LW: lockWeek } });
+        res(`success!`);
+      } catch (e) {
+        console.log(e);
+        res(`failure, check logs!`);
+      }
+    }),
 };
