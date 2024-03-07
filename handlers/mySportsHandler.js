@@ -26,7 +26,7 @@ const playerScoreHandler = async (playerId, season, week, groupScore) => {
           );
       }
     }
-
+    weeklyScore = +weeklyScore.toFixed(2);
     res(weeklyScore);
   });
 };
@@ -35,7 +35,7 @@ const calculateScore = (playerStat, groupScore) => {
   if (typeof playerStat === `undefined`) {
     return 0;
   }
-  return playerStat * groupScore;
+  return +(playerStat * groupScore).toFixed(2);
 };
 
 const capitalizeFirstLetter = (str) => {
@@ -446,7 +446,7 @@ const saveUserScore = async (userId, groupId, season, week, weekScore) => {
           S: season,
           TS: totalScore,
         });
-        newUserScore[week] = weekScore;
+        newUserScore[week] = +weekScore.toFixed(2);
         newUserScore.save((err) => {
           if (err) {
             console.log(err);
@@ -454,10 +454,11 @@ const saveUserScore = async (userId, groupId, season, week, weekScore) => {
         });
         return;
       }
-      userScore[week] = weekScore;
+      userScore[week] = +weekScore.toFixed(2);
       for (let i = 1; i <= week; i++) {
         totalScore += userScore[i];
       }
+      totalScore = +totalScore.toFixed(2);
       userScore.TS = totalScore;
       userScore.save((err) => {
         if (err) {
@@ -784,6 +785,7 @@ module.exports = {
             groupScore
           );
         }
+        scoredPlayer.score = scoredPlayer.score.toFixed(2);
         //Put them in an array to rank them
         rankingArray.push(scoredPlayer);
       }
