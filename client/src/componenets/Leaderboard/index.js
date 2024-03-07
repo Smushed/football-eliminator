@@ -1,4 +1,3 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
@@ -53,7 +52,6 @@ const Leaderboard = ({ groupName, week, leaderboard }) => (
 );
 
 Leaderboard.propTypes = {
-  user: PropTypes.object,
   groupName: PropTypes.string,
   leaderboard: PropTypes.array,
   week: PropTypes.number,

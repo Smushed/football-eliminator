@@ -11,6 +11,7 @@ import * as Routes from '../../constants/routes';
 import { WeekSearch } from '../Roster/SearchDropdowns';
 import Session from '../Session';
 import { PlayerAvatarContext } from '../PlayerAvatars';
+import GraphLeaderboard from '../Leaderboard/graphLeaderboard';
 
 const Home = ({ season, group, week, currentUser, noGroup, history }) => {
   const [leaderboard, updateLeaderboard] = useState([]);
@@ -190,12 +191,18 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
           <img className='img-fluid rounded' src={leaderAvatar} />
         </div>
         <div className='col-lg-8 col-md-12'>
-          <Leaderboard
+          <GraphLeaderboard
             week={weekForLeaderboard}
             season={season}
             leaderboard={leaderboard}
             groupName={group.N}
           />
+          {/* <Leaderboard
+            week={weekForLeaderboard}
+            season={season}
+            leaderboard={leaderboard}
+            groupName={group.N}
+          /> */}
         </div>
       </div>
       <div className='row border pt-2'>
