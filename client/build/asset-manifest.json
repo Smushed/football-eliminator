@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.3f79b783.css",
-    "main.js": "/static/js/main.e3b4f6d3.js",
+    "main.js": "/static/js/main.c5bc53de.js",
     "static/media/ElimLogo.png": "/static/media/ElimLogo.5a39a66bc129e958692a.png",
     "static/media/Champs.jpg": "/static/media/Champs.3a2647eed019acdf72fb.jpg",
     "static/media/LargeElimLogo.png": "/static/media/LargeElimLogo.6043d95b863c402c2e24.png",
@@ -22,10 +22,10 @@
     "static/media/plus.svg": "/static/media/plus.aefd556f27ee4bfb11555c944f9b6460.svg",
     "static/media/minus.svg": "/static/media/minus.2095393a90fefdfe2d79ca12ad8b83b2.svg",
     "main.3f79b783.css.map": "/static/css/main.3f79b783.css.map",
-    "main.e3b4f6d3.js.map": "/static/js/main.e3b4f6d3.js.map"
+    "main.c5bc53de.js.map": "/static/js/main.c5bc53de.js.map"
   },
   "entrypoints": [
     "static/css/main.3f79b783.css",
-    "static/js/main.e3b4f6d3.js"
+    "static/js/main.c5bc53de.js"
   ]
 }

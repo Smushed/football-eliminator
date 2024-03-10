@@ -22,7 +22,7 @@
     "react-responsive-carousel": "^3.2.23",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^5.0.1",
-    "react-tooltip": "^5.20.0",
+    "react-tooltip": "^5.26.3",
     "sweetalert2": "^11.10.6",
     "sweetalert2-react-content": "^5.0.7"
   },
