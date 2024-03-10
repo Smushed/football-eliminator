@@ -1,14 +1,14 @@
 {
   "files": {
-    "main.css": "/static/css/main.e3d3a1d5.css",
-    "main.js": "/static/js/main.3d5b80ac.js",
+    "main.css": "/static/css/main.3f79b783.css",
+    "main.js": "/static/js/main.e3b4f6d3.js",
     "static/media/ElimLogo.png": "/static/media/ElimLogo.5a39a66bc129e958692a.png",
     "static/media/Champs.jpg": "/static/media/Champs.3a2647eed019acdf72fb.jpg",
     "static/media/LargeElimLogo.png": "/static/media/LargeElimLogo.6043d95b863c402c2e24.png",
     "static/media/stadium.jpg": "/static/media/stadium.2c48302a3e1c6e30278d.jpg",
     "static/media/SignOut.png": "/static/media/SignOut.7603bb1121f7dd0de5ca.png",
-    "static/media/ElimLogoText.png": "/static/media/ElimLogoText.9f87754ff7fe882c5155.png",
     "static/media/SmallElimLogoText.png": "/static/media/SmallElimLogoText.36bbc8aa83d88c2a4316.png",
+    "static/media/ElimLogoNoThe.png": "/static/media/ElimLogoNoThe.8e4988fefb0acb6998ff.png",
     "static/media/ranking.svg": "/static/media/ranking.f8b27abb6d6cb9ddbb1ae67d1dd20811.svg",
     "static/media/player.svg": "/static/media/player.72ce52e7ec5e126597240b7953912515.svg",
     "static/media/group.svg": "/static/media/group.35b154e7f9d694606e722f10a82623da.svg",
@@ -21,11 +21,11 @@
     "static/media/pencil.svg": "/static/media/pencil.db3dd61aa3a0000fde3d9ffa2d8079a7.svg",
     "static/media/plus.svg": "/static/media/plus.aefd556f27ee4bfb11555c944f9b6460.svg",
     "static/media/minus.svg": "/static/media/minus.2095393a90fefdfe2d79ca12ad8b83b2.svg",
-    "main.e3d3a1d5.css.map": "/static/css/main.e3d3a1d5.css.map",
-    "main.3d5b80ac.js.map": "/static/js/main.3d5b80ac.js.map"
+    "main.3f79b783.css.map": "/static/css/main.3f79b783.css.map",
+    "main.e3b4f6d3.js.map": "/static/js/main.e3b4f6d3.js.map"
   },
   "entrypoints": [
-    "static/css/main.e3d3a1d5.css",
-    "static/js/main.3d5b80ac.js"
+    "static/css/main.3f79b783.css",
+    "static/js/main.e3b4f6d3.js"
   ]
 }

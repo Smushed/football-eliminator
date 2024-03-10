@@ -289,6 +289,7 @@ const Roster = ({
     });
 
   const checkLockPeriod = async (team) => {
+    return true;
     axios
       .get(`/api/roster/lock/general`, { cancelToken: axiosCancel.token })
       .then((res) => updateLockWeek(res.data.LW))
