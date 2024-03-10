@@ -1,8 +1,13 @@
 import PropTypes from 'prop-types';
+import { memo } from 'react';
 
-const GraphLeaderboard = ({ groupName, week, leaderboard }) => (
-  <div>Something {console.log({ groupName, week, leaderboard })}</div>
-);
+const GraphLeaderboard = memo(function GraphLeaderboard({
+  groupName,
+  week,
+  leaderboard,
+}) {
+  return <div>Something {console.log({ groupName, week, leaderboard })}</div>;
+});
 
 GraphLeaderboard.propTypes = {
   groupName: PropTypes.string,

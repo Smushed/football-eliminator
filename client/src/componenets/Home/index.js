@@ -23,6 +23,7 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
   const [groupPositions, updateGroupPositions] = useState([]);
   const [weekSelect, updateWeekSelect] = useState(1);
   const [weekOnPage, updateWeekOnPage] = useState(1);
+  const [initialPull, updateInitialPull] = useState(false);
 
   const { addPlayerAvatarsToPull } = useContext(PlayerAvatarContext);
 
@@ -32,8 +33,19 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
     if (week !== 0 && season !== `` && currentUser.username && group) {
       updateWeekOnPage(week);
       updateWeekSelect(week);
-      getRostersForHome(season, week, group._id);
+      getAllRostersForWeek(season, week, group._id);
       getGroupPositions(group._id);
+      if (!initialPull) {
+        try {
+          pullLeaderBoardIdealCurrLeader(season, week, group._id);
+        } catch (err) {
+          console.log(
+            'Error doing initial pull of Leaderboard, Ideal and Leader. Error: ',
+            err
+          );
+        }
+        updateInitialPull(true);
+      }
     }
     return function cancelAPICalls() {
       if (axiosCancel) {
@@ -49,14 +61,17 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
     }
   }, [noGroup]);
 
-  const getRostersForHome = (season, week, groupId) => {
-    getLeaderBoard(season, week, groupId);
-    getIdealRoster(season, week, groupId);
-    getBestCurrLeadRoster(season, week, groupId);
-    getAllRostersForWeek(season, week, groupId);
+  const pullLeaderBoardIdealCurrLeader = async (season, week, groupId) => {
+    try {
+      await getLeaderBoard(season, week, groupId);
+      await getIdealRoster(season, week, groupId);
+      await getBestCurrLeadRoster(season, week, groupId);
+    } catch (err) {
+      throw err;
+    }
   };
 
-  const getLeaderBoard = (season, week, groupId) => {
+  const getLeaderBoard = (season, week, groupId) =>
     axios
       .get(`/api/group/leaderboard/${season}/${week}/${groupId}`, {
         cancelToken: axiosCancel.token,
@@ -70,8 +85,8 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
         if (err.message !== `Unmounted`) {
           console.log(err);
         }
+        throw err;
       });
-  };
 
   const getGroupPositions = (groupId) => {
     axios
@@ -89,7 +104,7 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
       });
   };
 
-  const getIdealRoster = (season, week, groupId) => {
+  const getIdealRoster = (season, week, groupId) =>
     axios
       .get(`/api/roster/ideal/${season}/${week}/${groupId}`, {
         cancelToken: axiosCancel.token,
@@ -104,9 +119,8 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
           console.log(err);
         }
       });
-  };
 
-  const getBestCurrLeadRoster = (season, week, groupId) => {
+  const getBestCurrLeadRoster = (season, week, groupId) =>
     //This gets both the best roster from the previous week as well as the current leader's roster for the current week
     axios
       .get(`/api/group/roster/bestAndLead/${season}/${week}/${groupId}`, {
@@ -130,8 +144,8 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
         if (err.message !== `Unmounted`) {
           console.log(err);
         }
+        throw err;
       });
-  };
 
   const getAllRostersForWeek = (season, week, groupId) => {
     axios
@@ -154,6 +168,7 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
         if (err.message !== `Unmounted`) {
           console.log(err);
         }
+        throw err;
       });
   };
 
