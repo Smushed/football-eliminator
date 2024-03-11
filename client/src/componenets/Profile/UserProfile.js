@@ -6,7 +6,7 @@ import './profileStyle.css';
 
 import DisplayBox from '../DisplayBox';
 import PencilSVG from '../../constants/SVG/pencil.svg';
-import Leaderboard from '../Leaderboard';
+import Leaderboard from '../Leaderboard/TableLeaderboard';
 
 const UserProfile = ({
   currentUser,

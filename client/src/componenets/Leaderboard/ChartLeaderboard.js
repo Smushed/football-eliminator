@@ -20,7 +20,7 @@ ChartJS.register(
   Legend
 );
 
-const GraphLeaderboard = memo(function GraphLeaderboard({ leaderboard }) {
+const ChartLeaderboard = memo(function ChartLeaderboard({ leaderboard }) {
   const [userNameList, updateUserNameList] = useState([]);
   const [chartData, updateChartData] = useState([]);
 
@@ -76,10 +76,8 @@ const GraphLeaderboard = memo(function GraphLeaderboard({ leaderboard }) {
   );
 });
 
-GraphLeaderboard.propTypes = {
-  groupName: PropTypes.string,
+ChartLeaderboard.propTypes = {
   leaderboard: PropTypes.array,
-  week: PropTypes.number,
 };
 
-export default GraphLeaderboard;
+export default ChartLeaderboard;

@@ -4,21 +4,18 @@ import { Link } from 'react-router-dom';
 
 import { RosterDisplay } from '../Roster/RosterDisplay';
 import './homeStyle.css';
-import Leaderboard from '../Leaderboard';
 import PropTypes from 'prop-types';
 import RosterCarousel from './RosterCarousel';
 import * as Routes from '../../constants/routes';
 import { WeekSearch } from '../Roster/SearchDropdowns';
 import Session from '../Session';
 import { PlayerAvatarContext } from '../PlayerAvatars';
-import GraphLeaderboard from '../Leaderboard/graphLeaderboard';
+import Leaderboard from '../Leaderboard';
 
 const Home = ({ season, group, week, currentUser, noGroup, history }) => {
-  const [leaderboard, updateLeaderboard] = useState([]);
   const [idealRoster, updateIdealRoster] = useState([]);
   const [bestRoster, updateBestRoster] = useState([]);
   const [bestRosterUser, updateBestRosterUser] = useState(``);
-  const [leaderAvatar, updateLeaderAvatar] = useState(``);
   const [weeklyGroupRosters, updateWeeklyGroupRosters] = useState([]);
   const [groupPositions, updateGroupPositions] = useState([]);
   const [weekSelect, updateWeekSelect] = useState(1);
@@ -37,7 +34,7 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
       getGroupPositions(group._id);
       if (!initialPull) {
         try {
-          pullLeaderBoardIdealCurrLeader(season, week, group._id);
+          pullIdealCurrLeader(season, week, group._id);
         } catch (err) {
           console.log(
             'Error doing initial pull of Leaderboard, Ideal and Leader. Error: ',
@@ -61,32 +58,14 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
     }
   }, [noGroup]);
 
-  const pullLeaderBoardIdealCurrLeader = async (season, week, groupId) => {
+  const pullIdealCurrLeader = async (season, week, groupId) => {
     try {
-      await getLeaderBoard(season, week, groupId);
       await getIdealRoster(season, week, groupId);
       await getBestCurrLeadRoster(season, week, groupId);
     } catch (err) {
       throw err;
     }
   };
-
-  const getLeaderBoard = (season, week, groupId) =>
-    axios
-      .get(`/api/group/leaderboard/${season}/${week}/${groupId}`, {
-        cancelToken: axiosCancel.token,
-      })
-      .then((res) => {
-        updateLeaderboard(res.data.leaderboard);
-        getLeaderAvatar(res.data.leaderboard[0].UID);
-        return;
-      })
-      .catch((err) => {
-        if (err.message !== `Unmounted`) {
-          console.log(err);
-        }
-        throw err;
-      });
 
   const getGroupPositions = (groupId) => {
     axios
@@ -172,19 +151,6 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
       });
   };
 
-  const getLeaderAvatar = (leaderId) => {
-    axios
-      .get(`/api/user/avatar/${leaderId}`, { cancelToken: axiosCancel.token })
-      .then((res) => {
-        updateLeaderAvatar(res.data);
-      })
-      .catch((err) => {
-        if (err.message !== `Unmounted`) {
-          console.log(err);
-        }
-      });
-  };
-
   const handleChange = (e) => {
     e.target.name === 'weekSelect' && updateWeekSelect(e.target.value);
   };
@@ -197,29 +163,11 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
   const weekForLeaderboard = week === 0 ? 1 : week;
   return (
     <div className='container'>
-      <div className='row border justify-around pb-2 mb-2 mt-2'>
-        <div className='col-lg-4 col-md-12 text-center'>
-          <div className='fs-3'>
-            <div className='fw-bold'>Current Leader</div>
-            {leaderboard.length > 0 && leaderboard[0].UN}
-          </div>
-          <img className='img-fluid rounded' src={leaderAvatar} />
-        </div>
-        <div className='col-lg-8 col-md-12'>
-          <GraphLeaderboard
-            week={weekForLeaderboard}
-            season={season}
-            leaderboard={leaderboard}
-            groupName={group.N}
-          />
-          {/* <Leaderboard
-            week={weekForLeaderboard}
-            season={season}
-            leaderboard={leaderboard}
-            groupName={group.N}
-          /> */}
-        </div>
-      </div>
+      <Leaderboard
+        groupId={group._id}
+        week={weekForLeaderboard}
+        season={season}
+      />
       <div className='row border pt-2'>
         <div className='col-lg-6 d-none d-lg-block'>
           <RosterDisplay
