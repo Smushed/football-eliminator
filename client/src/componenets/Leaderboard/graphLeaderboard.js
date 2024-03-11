@@ -50,7 +50,8 @@ const GraphLeaderboard = memo(function GraphLeaderboard({ leaderboard }) {
       tooltip: {
         callbacks: {
           label: function (context) {
-            return leaderboard.find((user) => user.UN === context.label);
+            const user = leaderboard.find((user) => user.UN === context.label);
+            return [`Last Week ${user.LW}`, `Total Score ${user.TS}`];
           },
         },
       },
