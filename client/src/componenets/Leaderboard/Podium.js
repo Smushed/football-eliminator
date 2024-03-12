@@ -100,15 +100,19 @@ const Stand = ({ avatar, username, totalScore, place }) => {
       >
         <div className='col-12'>
           <div className='row'>
-            <div className='col-12 border-bottom'>{username}</div>
+            <div className='col-12'>
+              {place === 1 ? <h5>{username}</h5> : <>{username}</>}
+            </div>
           </div>
           <div className='row'>
-            <div className='col-12'>{totalScore}</div>
-          </div>
-          <div className='row position-absolute bottom-0 w-100'>
-            <div className='row'>
-              <div className='col-12'>
-                <h4>{place}</h4>
+            <div className='position-absolute bottom-0'>
+              <div className='row'>
+                <div className='col-12'>{totalScore}</div>
+              </div>
+              <div className='col-12 text-center no-gutters'>
+                {place === 1 && <h1>🥇</h1>}
+                {place === 2 && <h1>🥈</h1>}
+                {place === 3 && <h1>🥉</h1>}
               </div>
             </div>
           </div>
