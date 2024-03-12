@@ -1,7 +1,6 @@
 .leaderboardContainter {
   z-index: 0.8;
-  max-width: 700px;
-  max-height: 5000px;
+  height: 435px;
   overflow-y: scroll;
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -9,4 +8,27 @@
 
 .leaderboardContainter::-webkit-scrollbar {
   display: none;
+}
+
+.podiumAvatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 5%;
+}
+
+.podiumPlacePosition {
+  position: absolute;
+  bottom: 0;
+}
+
+.podium1 {
+  height: 200px;
+}
+
+.podium2 {
+  height: 150px;
+}
+
+.podium3 {
+  height: 125px;
 }

@@ -2,16 +2,10 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import ChartLeaderboard from './ChartLeaderboard';
+import Podium from './Podium';
 
 const Leaderboard = ({ season, week, groupId }) => {
-  const [leaderAvatar, updateLeaderAvatar] = useState(``);
   const [leaderboard, updateLeaderboard] = useState([]);
-
-  useEffect(() => {
-    if (leaderboard && leaderboard.length > 0) {
-      getLeaderAvatar(leaderboard[0].UID);
-    }
-  }, [leaderboard]);
 
   useEffect(() => {
     if (
@@ -24,22 +18,9 @@ const Leaderboard = ({ season, week, groupId }) => {
     ) {
       getLeaderBoard(season, week, groupId);
     }
-  }, []);
+  }, [season, week, groupId]);
 
   const axiosCancel = axios.CancelToken.source();
-
-  const getLeaderAvatar = (leaderId) => {
-    axios
-      .get(`/api/user/avatar/${leaderId}`, { cancelToken: axiosCancel.token })
-      .then((res) => {
-        updateLeaderAvatar(res.data);
-      })
-      .catch((err) => {
-        if (err.message !== `Unmounted`) {
-          console.log(err);
-        }
-      });
-  };
 
   const getLeaderBoard = (season, week, groupId) =>
     axios
@@ -58,14 +39,17 @@ const Leaderboard = ({ season, week, groupId }) => {
       });
 
   return (
-    <div className='row border justify-around pb-2 mb-2 mt-2'>
-      <div className='col-lg-4 col-md-12 text-center'>
+    <div className='row border pb-2 mb-2 mt-2 leaderboardContainter'>
+      <div className='col-lg-4 col-md-12'>
+        <Podium leaderboard={leaderboard} />
+      </div>
+      {/* <div className='col-lg-4 col-md-12 text-center'>
         <div className='fs-3'>
           <div className='fw-bold'>Current Leader</div>
           {leaderboard.length > 0 && leaderboard[0].UN}
         </div>
         <img className='img-fluid rounded' src={leaderAvatar} />
-      </div>
+      </div> */}
       <div className='col-lg-8 col-md-12'>
         <ChartLeaderboard leaderboard={leaderboard} />
       </div>
