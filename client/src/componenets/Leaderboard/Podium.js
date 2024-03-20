@@ -1,18 +1,10 @@
-import { memo, useEffect, useContext } from 'react';
+import { memo, useContext } from 'react';
 import PropTypes from 'prop-types';
 import loading from '../../constants/SVG/loading.svg';
 import { AvatarContext } from '../Avatars';
 
 const Podium = memo(function Podium({ leaderboard }) {
   const { userAvatars } = useContext(AvatarContext);
-
-  useEffect(() => {
-    return function cancelAPICalls() {
-      if (axiosCancel) {
-        axiosCancel.cancel(`Unmounted`);
-      }
-    };
-  }, []);
 
   return (
     leaderboard.length > 0 && (

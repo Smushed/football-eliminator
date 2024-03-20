@@ -1,10 +1,10 @@
-import React, { useContext } from 'react';
+import React, { useContext, memo } from 'react';
 import { Tooltip } from 'react-tooltip';
 import PropTypes from 'prop-types';
 
 import { AvatarContext } from '../Avatars';
+import { Link } from 'react-router-dom';
 
-//SECTION Roster
 const CurrentRosterRow = ({
   player,
   position,
@@ -47,45 +47,55 @@ const CurrentRosterRow = ({
   );
 };
 
-const RosterDisplay = ({
+const RosterDisplay = memo(function RosterDisplay({
   groupPositions,
   roster,
   addDropPlayer,
   mustDrop,
   pastLockWeek,
   headerText,
-}) => (
-  <table className='table table-striped table-hover'>
-    <thead>
-      <tr className='fs-3 text-center'>
-        <th scope='col' colSpan={5}>
-          {mustDrop ? headerText + 'Weenie' : headerText}
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      {mustDrop
-        ? roster.map((player, i) => (
-            <CurrentRosterRow
-              key={i}
-              position={player.P}
-              player={player}
-              addDropPlayer={addDropPlayer}
-              pastLockWeek={pastLockWeek}
-            />
-          ))
-        : groupPositions.map((position, i) => (
-            <CurrentRosterRow
-              key={i}
-              pastLockWeek={pastLockWeek}
-              position={position.N}
-              player={roster[i]}
-              addDropPlayer={addDropPlayer}
-            />
-          ))}
-    </tbody>
-  </table>
-);
+  userId,
+}) {
+  const { userAvatars } = useContext(AvatarContext);
+
+  return (
+    <table className='table table-striped table-hover'>
+      <thead>
+        <tr className='fs-3 text-center'>
+          <th scope='col' className='pb-0'>
+            {userId && userAvatars[userId] && (
+              <img src={userAvatars[userId]} className='userRosterAvatar' />
+            )}
+          </th>
+          <th scope='col' colSpan={5}>
+            {headerText}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {mustDrop
+          ? roster.map((player, i) => (
+              <CurrentRosterRow
+                key={i}
+                position={player.P}
+                player={player}
+                addDropPlayer={addDropPlayer}
+                pastLockWeek={pastLockWeek}
+              />
+            ))
+          : groupPositions.map((position, i) => (
+              <CurrentRosterRow
+                key={i}
+                pastLockWeek={pastLockWeek}
+                position={position.N}
+                player={roster[i]}
+                addDropPlayer={addDropPlayer}
+              />
+            ))}
+      </tbody>
+    </table>
+  );
+});
 
 const InjuryCol = ({ injury }) => {
   return (
@@ -102,7 +112,7 @@ const InjuryCol = ({ injury }) => {
 
 //SECTION Player Display
 const PlayerDisplayRow = ({ player, addDropPlayer, sortedMatchups }) => {
-  const { playerAvatars } = useContext(PlayerAvatarContext);
+  const { playerAvatars } = useContext(AvatarContext);
   return (
     <tr>
       <td>{player.I && <InjuryCol injury={player.I} />}</td>
@@ -198,6 +208,7 @@ RosterDisplay.propTypes = {
   mustDrop: PropTypes.bool,
   pastLockWeek: PropTypes.bool,
   headerText: PropTypes.string,
+  userId: PropTypes.string,
 };
 
 CurrentRosterRow.propTypes = {

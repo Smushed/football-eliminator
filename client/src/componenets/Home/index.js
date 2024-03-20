@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
 
 import { RosterDisplay } from '../Roster/RosterDisplay';
 import './homeStyle.css';
@@ -219,16 +218,18 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
         <div className='d-flex flex-wrap justify-content-evenly row mt-1'>
           {weeklyGroupRosters.map((inGroupRoster) => (
             <div className='col-xs-12 col-lg-6' key={inGroupRoster.UN}>
-              <div className='text-center fs-3'>
+              {/* <div className='text-center fs-3'>
                 <Link to={`/roster/${group.N}/${inGroupRoster.UN}`}>
                   {inGroupRoster.UN}
                 </Link>{' '}
                 Roster
-              </div>
+              </div> */}
               <RosterDisplay
                 groupPositions={groupPositions}
                 roster={inGroupRoster.R}
                 pastLockWeek={true}
+                headerText={`${inGroupRoster.UN}'s Roster`}
+                userId={inGroupRoster.UID}
               />
             </div>
           ))}
