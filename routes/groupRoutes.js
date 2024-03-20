@@ -27,7 +27,7 @@ module.exports = (app) => {
     let gAvatar;
     let pos;
     if (avatar === `true`) {
-      gAvatar = await s3Handler.getAvatar(groupData._id.toString());
+      gAvatar = await s3Handler.getUserAvatar(groupData._id.toString());
     }
     if (positions === `true`) {
       pos = await groupHandler.getGroupPositions(groupData._id.toString());
@@ -153,7 +153,7 @@ module.exports = (app) => {
       );
       Promise.all([
         groupHandler.getBestUserForBox(userScores),
-        s3Handler.getAvatar(groupData._id.toString()),
+        s3Handler.getUserAvatar(groupData._id.toString()),
       ]).then(([topUser, groupAvatar]) => {
         res
           .status(200)

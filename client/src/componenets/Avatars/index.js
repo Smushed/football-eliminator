@@ -2,10 +2,11 @@ import { useState, createContext, useEffect } from 'react';
 import { createLinkedList } from '../Tools/ListNode';
 import axios from 'axios';
 
-const PlayerAvatarContext = createContext();
+const AvatarContext = createContext();
 
-const PlayerAvatarWrapper = ({ children }) => {
+const AvatarWrapper = ({ children }) => {
   const [playerAvatars, updatePlayerAvatars] = useState({});
+  const [userAvatars, updateUserAvatars] = useState({});
   const [playerIdToPull, updatePlayerIdToPull] = useState([]);
   const [waitingToProcess, updateWaitingToProcess] = useState([]);
   const [nextNode, updateNextNode] = useState(null);
@@ -31,6 +32,10 @@ const PlayerAvatarWrapper = ({ children }) => {
       getPlayerAvatars(nextNode);
     }
   }, [nextNode]);
+
+  useEffect(() => {
+    console.log({ userAvatars });
+  }, [userAvatars]);
 
   const moveFromWaitingToProcess = () => {
     updatePlayerIdToPull([...playerIdToPull, ...waitingToProcess]);
@@ -88,6 +93,24 @@ const PlayerAvatarWrapper = ({ children }) => {
     }
   };
 
+  const getUserAvatars = async (userAvatarList) => {
+    try {
+      const avatarRes = await axios.post(
+        `/api/user/userAvatars/`,
+        { userIdList: userAvatarList },
+        {
+          cancelToken: axiosCancel.token,
+        }
+      );
+      updateUserAvatars({ ...userAvatars, ...avatarRes.data });
+    } catch (err) {
+      console.log({ err });
+      if (err.message !== `Unmounted`) {
+        console.log(err);
+      }
+    }
+  };
+
   const checkAvatarIsAlreadyPulled = (playerIdArray) => {
     const uniqueIdArray = [];
     for (const playerId of playerIdArray) {
@@ -113,18 +136,30 @@ const PlayerAvatarWrapper = ({ children }) => {
     checkAvatarIsAlreadyPulled(uniquePlayerIds);
   };
 
+  const addUserAvatarsToPull = (userIds) => {
+    const uniqueIdArray = [];
+    for (const userId of userIds) {
+      if (!userAvatars[userId]) {
+        uniqueIdArray.push(userId);
+      }
+    }
+    getUserAvatars(uniqueIdArray);
+  };
+
   return (
-    <PlayerAvatarContext.Provider
+    <AvatarContext.Provider
       value={{
         playerAvatars,
         addPlayerAvatarsToPull,
+        userAvatars,
+        addUserAvatarsToPull,
       }}
     >
       {children}
-    </PlayerAvatarContext.Provider>
+    </AvatarContext.Provider>
   );
 };
 
-export { PlayerAvatarContext };
+export { AvatarContext };
 
-export default PlayerAvatarWrapper;
+export default AvatarWrapper;

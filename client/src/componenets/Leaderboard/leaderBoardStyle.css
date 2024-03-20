@@ -23,12 +23,15 @@
 
 .podium1 {
   height: 200px;
+  background-color: goldenrod;
 }
 
 .podium2 {
   height: 150px;
+  background-color: silver;
 }
 
 .podium3 {
   height: 125px;
+  background-color: #cd7f32;
 }

@@ -124,7 +124,7 @@ module.exports = {
       }
     });
   },
-  getAvatar: async (id) => {
+  getUserAvatar: async (id) => {
     if (id === 'undefined') {
       throw 'Id cannot be undefined';
     }
@@ -150,6 +150,13 @@ module.exports = {
         res(await readWithJimp(data.Body, Jimp.MIME_JPEG));
       });
     });
+  },
+  getMultipleUserAvatars: async function (idArray) {
+    const userAvatars = {};
+    for (let id of idArray) {
+      userAvatars[id] = await this.getUserAvatar(id);
+    }
+    return userAvatars;
   },
   updatePlayerAvatars: (playerIdArray) => {
     const linkedListHead = createLinkedList(playerIdArray);

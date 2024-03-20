@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Tooltip } from 'react-tooltip';
 import PropTypes from 'prop-types';
 
-import { PlayerAvatarContext } from '../PlayerAvatars';
+import { AvatarContext } from '../Avatars';
 
 //SECTION Roster
 const CurrentRosterRow = ({
@@ -11,7 +11,7 @@ const CurrentRosterRow = ({
   addDropPlayer,
   pastLockWeek,
 }) => {
-  const { playerAvatars } = useContext(PlayerAvatarContext);
+  const { playerAvatars } = useContext(AvatarContext);
   return (
     <tr>
       <th scope='row' className='rosterPosition'>
@@ -59,7 +59,7 @@ const RosterDisplay = ({
     <thead>
       <tr className='fs-3 text-center'>
         <th scope='col' colSpan={5}>
-          {headerText}
+          {mustDrop ? headerText + 'Weenie' : headerText}
         </th>
       </tr>
     </thead>

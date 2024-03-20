@@ -1,16 +1,10 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
 import loading from '../../constants/SVG/loading.svg';
+import { AvatarContext } from '../Avatars';
 
 const Podium = memo(function Podium({ leaderboard }) {
-  const [podiumAvatars, updatePodiumAvatars] = useState([]);
-
-  useEffect(() => {
-    if (leaderboard && leaderboard.length > 0) {
-      getAvatars(leaderboard);
-    }
-  }, [leaderboard]);
+  const { userAvatars } = useContext(AvatarContext);
 
   useEffect(() => {
     return function cancelAPICalls() {
@@ -20,55 +14,27 @@ const Podium = memo(function Podium({ leaderboard }) {
     };
   }, []);
 
-  const axiosCancel = axios.CancelToken.source();
-
-  const getAvatars = async (leaderboard) => {
-    const tempAvatarArray = [];
-    for (let i = 0; i < 3; i++) {
-      try {
-        const avatar = await getPlayerAvatar(leaderboard[i].UID);
-        tempAvatarArray.push(avatar);
-      } catch (err) {
-        console.log('Error pulling avatar for ', leaderboard[i].UN, err);
-        tempAvatarArray.push(null);
-      }
-    }
-    updatePodiumAvatars(tempAvatarArray);
-  };
-
-  const getPlayerAvatar = (userId) =>
-    axios
-      .get(`/api/user/avatar/${userId}`, { cancelToken: axiosCancel.token })
-      .then((res) => {
-        return res.data;
-      })
-      .catch((err) => {
-        if (err.message !== `Unmounted`) {
-          console.log(err);
-        }
-      });
-
   return (
     leaderboard.length > 0 && (
       <div className='row h-100 ms-1'>
         <div className='row'>
-          <h1 className='col-12 text-center mt-4'>Current Leaders</h1>
+          <h1 className='col-12 text-center mt-4'>Leaders</h1>
         </div>
         <div className='row d-flex align-items-end'>
           <Stand
-            avatar={podiumAvatars[1]}
+            avatar={userAvatars[leaderboard[1].UID]}
             username={leaderboard[1].UN}
             totalScore={leaderboard[1].TS}
             place={2}
           />
           <Stand
-            avatar={podiumAvatars[0]}
+            avatar={userAvatars[leaderboard[0].UID]}
             username={leaderboard[0].UN}
             totalScore={leaderboard[0].TS}
             place={1}
           />
           <Stand
-            avatar={podiumAvatars[2]}
+            avatar={userAvatars[leaderboard[2].UID]}
             username={leaderboard[2].UN}
             totalScore={leaderboard[2].TS}
             place={3}
@@ -124,12 +90,6 @@ const Stand = ({ avatar, username, totalScore, place }) => {
 
 Podium.propTypes = {
   leaderboard: PropTypes.array,
-  // leaderboard: PropTypes.arrayOf(
-  //   PropTypes.shape({
-  //     username: PropTypes.string,
-  //     totalScore: PropTypes.number,
-  //   })
-  // ),
 };
 
 export default Podium;

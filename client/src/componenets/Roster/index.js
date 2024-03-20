@@ -19,7 +19,7 @@ import { loading, doneLoading } from '../LoadingAlert';
 import { WeekSearch, PositionSearch, TeamSearch } from './SearchDropdowns';
 import * as Routes from '../../constants/routes';
 import { toast } from 'react-hot-toast';
-import { PlayerAvatarContext } from '../PlayerAvatars';
+import { AvatarContext } from '../Avatars';
 
 const Alert = withReactContent(Swal);
 
@@ -57,7 +57,7 @@ const Roster = ({
   const [playerSearch, updatePlayerSearch] = useState(``);
   const [availPlayersToShow, updateAvailPlayersToShow] = useState([]);
 
-  const { addPlayerAvatarsToPull } = useContext(PlayerAvatarContext);
+  const { addPlayerAvatarsToPull } = useContext(AvatarContext);
 
   const axiosCancel = axios.CancelToken.source();
 

@@ -9,7 +9,7 @@ import RosterCarousel from './RosterCarousel';
 import * as Routes from '../../constants/routes';
 import { WeekSearch } from '../Roster/SearchDropdowns';
 import Session from '../Session';
-import { PlayerAvatarContext } from '../PlayerAvatars';
+import { AvatarContext } from '../Avatars';
 import Leaderboard from '../Leaderboard';
 
 const Home = ({ season, group, week, currentUser, noGroup, history }) => {
@@ -22,7 +22,8 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
   const [weekOnPage, updateWeekOnPage] = useState(1);
   const [initialPull, updateInitialPull] = useState(false);
 
-  const { addPlayerAvatarsToPull } = useContext(PlayerAvatarContext);
+  const { addPlayerAvatarsToPull, addUserAvatarsToPull } =
+    useContext(AvatarContext);
 
   const axiosCancel = axios.CancelToken.source();
 
@@ -133,6 +134,7 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
       })
       .then((res) => {
         updateWeeklyGroupRosters(res.data);
+        addUserAvatarsToPull(res.data.map((roster) => roster.UID));
         const playerIds = [];
         for (const roster of res.data) {
           for (const player of roster.R) {

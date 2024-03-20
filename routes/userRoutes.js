@@ -61,7 +61,7 @@ module.exports = (app) => {
     const { username } = req.params;
     const user = await userHandler.getUserByUsername(username);
     const emailSettings = await userHandler.getEmailSettings(user._id);
-    const avatar = await s3Handler.getAvatar(user._id);
+    const avatar = await s3Handler.getUserAvatar(user._id);
     res.status(200).send({ user, avatar, emailSettings });
   });
 
@@ -85,8 +85,14 @@ module.exports = (app) => {
 
   app.get(`/api/user/avatar/:id`, async (req, res) => {
     const { id } = req.params;
-    const avatar = await s3Handler.getAvatar(id);
+    const avatar = await s3Handler.getUserAvatar(id);
     res.status(200).send(avatar);
+  });
+
+  app.post(`/api/user/userAvatars`, async (req, res) => {
+    const { userIdList } = req.body;
+    const response = await s3Handler.getMultipleUserAvatars(userIdList);
+    res.status(200).send(response);
   });
 
   app.post(`/api/user/playerAvatars`, async (req, res) => {
@@ -98,7 +104,7 @@ module.exports = (app) => {
   app.get(`/api/user/profile/box/:userId`, async (req, res) => {
     const { userId } = req.params;
     Promise.all([
-      s3Handler.getAvatar(userId),
+      s3Handler.getUserAvatar(userId),
       rosterHandler.getTotalScore(userId),
       userHandler.getUserByID(userId),
     ]).then(([avatar, totalScore, user]) =>
