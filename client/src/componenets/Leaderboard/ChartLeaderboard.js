@@ -39,6 +39,7 @@ const ChartLeaderboard = memo(function ChartLeaderboard({ leaderboard }) {
       },
     },
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         display: false,

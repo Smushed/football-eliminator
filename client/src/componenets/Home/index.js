@@ -218,12 +218,6 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
         <div className='d-flex flex-wrap justify-content-evenly row mt-1'>
           {weeklyGroupRosters.map((inGroupRoster) => (
             <div className='col-xs-12 col-lg-6' key={inGroupRoster.UN}>
-              {/* <div className='text-center fs-3'>
-                <Link to={`/roster/${group.N}/${inGroupRoster.UN}`}>
-                  {inGroupRoster.UN}
-                </Link>{' '}
-                Roster
-              </div> */}
               <RosterDisplay
                 groupPositions={groupPositions}
                 roster={inGroupRoster.R}
