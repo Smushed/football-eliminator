@@ -24,15 +24,18 @@ Some key features are listed below:
 - Users can join, or create, a group with others to compete for the fantasy championship.
 - Fully customizable scoring for offensive NFL players.
 - The weeks and seasons are displayed based on the current day and are automatically updated based off server time.
+- Scores are calculated on a CRON schedule inside of the app and triggered on Heroku while the NFL season is in progress
 - Users can alter rosters right up until each player's game time
 - Users can view other user's rosters
 - Leaderboard for users to compare scores
+- Weekly ideal roster set for each group picking the players that did the best over the previous week
 - Users are sent out a weekly email with the current Leaderboard and the highest possible scoring roster from the previous week
 
 ## Current Release: 1.2
 
 - Updating the UI to make it more mobile friendly. Most users use it on their phone
 - Adding more color to the website to make it "pop" and make more enjoyable to use
+- Dramatically increasing the amount of images that are shown on the app including adding an avatar for every NFL player and showing user avatars on home page load
 
 ## Previous Releases
 

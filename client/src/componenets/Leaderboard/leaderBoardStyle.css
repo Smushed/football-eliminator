@@ -1,7 +1,6 @@
 .leaderboardContainter {
   z-index: 0.8;
-  max-width: 700px;
-  max-height: 5000px;
+  height: 435px;
   overflow-y: scroll;
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -9,4 +8,34 @@
 
 .leaderboardContainter::-webkit-scrollbar {
   display: none;
+}
+
+.podiumAvatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 5%;
+}
+
+.podiumPlacePosition {
+  position: absolute;
+  bottom: 0;
+}
+
+.podium1 {
+  height: 200px;
+  background-color: rgba(218, 165, 32, 0.8);
+}
+
+.podium2 {
+  height: 150px;
+  background-color: rgba(192, 192, 192, 0.8);
+}
+
+.podium3 {
+  height: 125px;
+  background-color: rgba(205, 127, 50, 0.8);
+}
+
+.standContainer {
+  height: 305px;
 }

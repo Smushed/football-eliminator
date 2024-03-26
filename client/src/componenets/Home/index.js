@@ -1,29 +1,28 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
 
 import { RosterDisplay } from '../Roster/RosterDisplay';
 import './homeStyle.css';
-import Leaderboard from '../Leaderboard';
 import PropTypes from 'prop-types';
 import RosterCarousel from './RosterCarousel';
 import * as Routes from '../../constants/routes';
 import { WeekSearch } from '../Roster/SearchDropdowns';
 import Session from '../Session';
-import { PlayerAvatarContext } from '../PlayerAvatars';
+import { AvatarContext } from '../Avatars';
+import Leaderboard from '../Leaderboard';
 
 const Home = ({ season, group, week, currentUser, noGroup, history }) => {
-  const [leaderboard, updateLeaderboard] = useState([]);
   const [idealRoster, updateIdealRoster] = useState([]);
   const [bestRoster, updateBestRoster] = useState([]);
   const [bestRosterUser, updateBestRosterUser] = useState(``);
-  const [leaderAvatar, updateLeaderAvatar] = useState(``);
   const [weeklyGroupRosters, updateWeeklyGroupRosters] = useState([]);
   const [groupPositions, updateGroupPositions] = useState([]);
   const [weekSelect, updateWeekSelect] = useState(1);
   const [weekOnPage, updateWeekOnPage] = useState(1);
+  const [initialPull, updateInitialPull] = useState(false);
 
-  const { addPlayerAvatarsToPull } = useContext(PlayerAvatarContext);
+  const { addPlayerAvatarsToPull, addUserAvatarsToPull } =
+    useContext(AvatarContext);
 
   const axiosCancel = axios.CancelToken.source();
 
@@ -31,8 +30,19 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
     if (week !== 0 && season !== `` && currentUser.username && group) {
       updateWeekOnPage(week);
       updateWeekSelect(week);
-      getRostersForHome(season, week, group._id);
+      getAllRostersForWeek(season, week, group._id);
       getGroupPositions(group._id);
+      if (!initialPull) {
+        try {
+          pullIdealCurrLeader(season, week, group._id);
+        } catch (err) {
+          console.log(
+            'Error doing initial pull of Leaderboard, Ideal and Leader. Error: ',
+            err
+          );
+        }
+        updateInitialPull(true);
+      }
     }
     return function cancelAPICalls() {
       if (axiosCancel) {
@@ -48,28 +58,13 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
     }
   }, [noGroup]);
 
-  const getRostersForHome = (season, week, groupId) => {
-    getLeaderBoard(season, week, groupId);
-    getIdealRoster(season, week, groupId);
-    getBestCurrLeadRoster(season, week, groupId);
-    getAllRostersForWeek(season, week, groupId);
-  };
-
-  const getLeaderBoard = (season, week, groupId) => {
-    axios
-      .get(`/api/group/leaderboard/${season}/${week}/${groupId}`, {
-        cancelToken: axiosCancel.token,
-      })
-      .then((res) => {
-        updateLeaderboard(res.data.leaderboard);
-        getLeaderAvatar(res.data.leaderboard[0].UID);
-        return;
-      })
-      .catch((err) => {
-        if (err.message !== `Unmounted`) {
-          console.log(err);
-        }
-      });
+  const pullIdealCurrLeader = async (season, week, groupId) => {
+    try {
+      await getIdealRoster(season, week, groupId);
+      await getBestCurrLeadRoster(season, week, groupId);
+    } catch (err) {
+      throw err;
+    }
   };
 
   const getGroupPositions = (groupId) => {
@@ -88,7 +83,7 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
       });
   };
 
-  const getIdealRoster = (season, week, groupId) => {
+  const getIdealRoster = (season, week, groupId) =>
     axios
       .get(`/api/roster/ideal/${season}/${week}/${groupId}`, {
         cancelToken: axiosCancel.token,
@@ -103,9 +98,8 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
           console.log(err);
         }
       });
-  };
 
-  const getBestCurrLeadRoster = (season, week, groupId) => {
+  const getBestCurrLeadRoster = (season, week, groupId) =>
     //This gets both the best roster from the previous week as well as the current leader's roster for the current week
     axios
       .get(`/api/group/roster/bestAndLead/${season}/${week}/${groupId}`, {
@@ -129,8 +123,8 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
         if (err.message !== `Unmounted`) {
           console.log(err);
         }
+        throw err;
       });
-  };
 
   const getAllRostersForWeek = (season, week, groupId) => {
     axios
@@ -139,6 +133,7 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
       })
       .then((res) => {
         updateWeeklyGroupRosters(res.data);
+        addUserAvatarsToPull(res.data.map((roster) => roster.UID));
         const playerIds = [];
         for (const roster of res.data) {
           for (const player of roster.R) {
@@ -153,19 +148,7 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
         if (err.message !== `Unmounted`) {
           console.log(err);
         }
-      });
-  };
-
-  const getLeaderAvatar = (leaderId) => {
-    axios
-      .get(`/api/user/avatar/${leaderId}`, { cancelToken: axiosCancel.token })
-      .then((res) => {
-        updateLeaderAvatar(res.data);
-      })
-      .catch((err) => {
-        if (err.message !== `Unmounted`) {
-          console.log(err);
-        }
+        throw err;
       });
   };
 
@@ -181,23 +164,11 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
   const weekForLeaderboard = week === 0 ? 1 : week;
   return (
     <div className='container'>
-      <div className='row border justify-around pb-2 mb-2 mt-2'>
-        <div className='col-lg-4 col-md-12 text-center'>
-          <div className='fs-3'>
-            <div className='fw-bold'>Current Leader</div>
-            {leaderboard.length > 0 && leaderboard[0].UN}
-          </div>
-          <img className='img-fluid rounded' src={leaderAvatar} />
-        </div>
-        <div className='col-lg-8 col-md-12'>
-          <Leaderboard
-            week={weekForLeaderboard}
-            season={season}
-            leaderboard={leaderboard}
-            groupName={group.N}
-          />
-        </div>
-      </div>
+      <Leaderboard
+        groupId={group._id}
+        week={weekForLeaderboard}
+        season={season}
+      />
       <div className='row border pt-2'>
         <div className='col-lg-6 d-none d-lg-block'>
           <RosterDisplay
@@ -247,16 +218,18 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
         <div className='d-flex flex-wrap justify-content-evenly row mt-1'>
           {weeklyGroupRosters.map((inGroupRoster) => (
             <div className='col-xs-12 col-lg-6' key={inGroupRoster.UN}>
-              <div className='text-center fs-3'>
+              {/* <div className='text-center fs-3'>
                 <Link to={`/roster/${group.N}/${inGroupRoster.UN}`}>
                   {inGroupRoster.UN}
                 </Link>{' '}
                 Roster
-              </div>
+              </div> */}
               <RosterDisplay
                 groupPositions={groupPositions}
                 roster={inGroupRoster.R}
                 pastLockWeek={true}
+                headerText={`${inGroupRoster.UN}'s Roster`}
+                userId={inGroupRoster.UID}
               />
             </div>
           ))}

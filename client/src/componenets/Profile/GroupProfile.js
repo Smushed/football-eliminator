@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
-import Leaderboard from '../Leaderboard';
+import Leaderboard from '../Leaderboard/TableLeaderboard';
 
 import './profileStyle.css';
 

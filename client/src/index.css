@@ -50,3 +50,8 @@ a:visited {
 :before {
   box-sizing: border-box !important;
 }
+
+td {
+  padding: 4px !important; /* !important is used to override the default padding from Bootstrap of 0.5rem*/
+  /* This is used for the rosters, not having this adds a lot of space for each roster */
+}

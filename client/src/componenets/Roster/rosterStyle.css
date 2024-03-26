@@ -2,6 +2,10 @@
   max-width: 67px;
 }
 
+.rosterRow {
+  padding: 5px;
+}
+
 .oppWidth {
   width: 73px;
 }
@@ -39,4 +43,15 @@
 
 .rosterHide {
   visibility: hidden;
+}
+
+.userRosterAvatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 5%;
+}
+
+.playerAvatar {
+  width: 50px;
+  height: 36px;
 }
