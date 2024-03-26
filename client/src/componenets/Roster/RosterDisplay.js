@@ -3,16 +3,18 @@ import { Tooltip } from 'react-tooltip';
 import PropTypes from 'prop-types';
 
 import { AvatarContext } from '../Avatars';
+import BlankAvatar from '../../constants/logoImages/avatar/blankAvatar.png';
 
-const CurrentRosterRow = ({
+const CurrentRosterRow = memo(function CurrentRosterRow({
   player,
   position,
   addDropPlayer,
   pastLockWeek,
-}) => {
+}) {
   const { playerAvatars } = useContext(AvatarContext);
+
   return (
-    <tr>
+    <tr className='align-middle'>
       <th scope='row' className='rosterPosition'>
         {position}
       </th>
@@ -22,7 +24,12 @@ const CurrentRosterRow = ({
         )}
       </td>
       <td>
-        <img src={player && playerAvatars[player.M]} />
+        {player && (
+          <img
+            className='playerAvatar'
+            src={playerAvatars[player.M] || BlankAvatar}
+          />
+        )}
       </td>
       <td>{player && player.N && player.N}</td>
       <td>{player && player.T}</td>
@@ -44,7 +51,7 @@ const CurrentRosterRow = ({
       )}
     </tr>
   );
-};
+});
 
 const RosterDisplay = memo(function RosterDisplay({
   groupPositions,
@@ -61,7 +68,7 @@ const RosterDisplay = memo(function RosterDisplay({
     <table className='table table-striped table-hover'>
       <thead>
         <tr className='fs-3 text-center'>
-          <th scope='col' colSpan={12} className=''>
+          <th scope='col' colSpan={12}>
             {userId && userAvatars[userId] && (
               <img
                 src={userAvatars[userId]}
