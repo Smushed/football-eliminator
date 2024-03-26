@@ -67,12 +67,14 @@ module.exports = {
     return filteredList;
   },
   updateProfile: async (userId, request) => {
-    //Switch statement here to decide on what the user is updating
     //They can only update one part of their profile at a time
     if (request.UN) {
       const dupeUser = await checkDuplicateUser(`username`, request.UN);
       if (dupeUser) {
         return { status: 409, message: `Username is in use` };
+      }
+      if (request.UN.length > 20) {
+        return { status: 413, message: `Username is too long` };
       }
       db.User.updateOne(
         { _id: userId },
