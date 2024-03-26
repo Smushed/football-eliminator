@@ -55,7 +55,3 @@
   width: 50px;
   height: 36px;
 }
-
-td {
-  padding: 4px !important; /* !important is used to override the default padding from Bootstrap of 0.5rem*/
-}

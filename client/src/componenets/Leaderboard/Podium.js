@@ -10,9 +10,11 @@ const Podium = memo(function Podium({ leaderboard }) {
     leaderboard.length > 0 && (
       <div className='row h-100 ms-1'>
         <div className='row'>
-          <h1 className='col-12 text-center mt-4'>Leaders</h1>
+          <div className='col-12 text-center pt-5'>
+            <h2>Leaders</h2>
+          </div>
         </div>
-        <div className='row d-flex align-items-end'>
+        <div className='row d-flex align-items-end pb-4'>
           <Stand
             avatar={userAvatars[leaderboard[1].UID]}
             username={leaderboard[1].UN}
@@ -65,7 +67,7 @@ const Stand = ({ avatar, username, totalScore, place }) => {
           <div className='row'>
             <div className='position-absolute bottom-0'>
               <div className='row'>
-                <div className='col-12'>{totalScore}</div>
+                <div className='col-12 fw-bold'>{totalScore}</div>
               </div>
               <div className='col-12 text-center no-gutters'>
                 {place === 1 && <h1>🥇</h1>}
