@@ -33,10 +33,6 @@ const AvatarWrapper = ({ children }) => {
     }
   }, [nextNode]);
 
-  useEffect(() => {
-    console.log({ userAvatars });
-  }, [userAvatars]);
-
   const moveFromWaitingToProcess = () => {
     updatePlayerIdToPull([...playerIdToPull, ...waitingToProcess]);
     updateWaitingToProcess([]);

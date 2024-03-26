@@ -3,7 +3,6 @@ import { Tooltip } from 'react-tooltip';
 import PropTypes from 'prop-types';
 
 import { AvatarContext } from '../Avatars';
-import { Link } from 'react-router-dom';
 
 const CurrentRosterRow = ({
   player,
@@ -62,13 +61,14 @@ const RosterDisplay = memo(function RosterDisplay({
     <table className='table table-striped table-hover'>
       <thead>
         <tr className='fs-3 text-center'>
-          <th scope='col' className='pb-0'>
+          <th scope='col' colSpan={12} className=''>
             {userId && userAvatars[userId] && (
-              <img src={userAvatars[userId]} className='userRosterAvatar' />
+              <img
+                src={userAvatars[userId]}
+                className='userRosterAvatar me-4'
+              />
             )}
-          </th>
-          <th scope='col' colSpan={5}>
-            {headerText}
+            <>{headerText}</>
           </th>
         </tr>
       </thead>
