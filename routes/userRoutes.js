@@ -37,7 +37,9 @@ module.exports = (app) => {
   app.get(`/api/user/email/:email`, async (req, res) => {
     const { email } = req.params;
     const foundUser = await userHandler.getUserByEmail(email);
-    res.status(200).send(foundUser);
+    const emailSettings = await userHandler.getEmailSettings(foundUser._id);
+    console.log({ emailSettings });
+    res.status(200).send({ ...foundUser, ...emailSettings });
   });
 
   app.get(`/api/user/emailPref/:id`, async (req, res) => {
@@ -60,9 +62,8 @@ module.exports = (app) => {
   app.get(`/api/user/name/:username`, async (req, res) => {
     const { username } = req.params;
     const user = await userHandler.getUserByUsername(username);
-    const emailSettings = await userHandler.getEmailSettings(user._id);
     const avatar = await s3Handler.getUserAvatar(user._id);
-    res.status(200).send({ user, avatar, emailSettings });
+    res.status(200).send({ user, avatar });
   });
 
   app.post(`/api/user/purgeUserAndGroupDB/:pass`, (req, res) => {
@@ -136,5 +137,15 @@ module.exports = (app) => {
     const { userId, LE, RE } = req.params;
     userHandler.updateEmailSettings(userId, LE, RE);
     res.sendStatus(200);
+  });
+
+  app.put(`/api/user/email/unsubscribe/:userId`, async (req, res) => {
+    const { userId } = req.params;
+    try {
+      await userHandler.unsubscribeEmails(userId);
+      res.sendStatus(200);
+    } catch (err) {
+      res.status(500).send(err);
+    }
   });
 };

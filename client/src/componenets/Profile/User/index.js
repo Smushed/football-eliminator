@@ -11,7 +11,7 @@ import withReactContent from 'sweetalert2-react-content';
 import 'rc-slider/assets/index.css';
 import '../profileStyle.css';
 
-import { ReAuth, ImageEditor, UserEditor } from '../ModalWindows';
+import { ReAuth, ImageEditor } from '../ModalWindows';
 import UserProfileFields from './UserProfileFields';
 
 const Alert = withReactContent(Swal);
@@ -24,7 +24,6 @@ const userFields = {
   leaderboardEmail: true,
   reminderEmail: true,
 };
-const groupFields = { groupName: ``, groupDesc: `` };
 
 const UserProfile = ({
   authUser,
@@ -38,11 +37,9 @@ const UserProfile = ({
   const [modalState, updateModalState] = useState(`reAuth`);
   const [updatedFields, changeUpdatedFields] = useState({
     ...userFields,
-    ...groupFields,
   });
   const [avatar, updateAvatar] = useState(``);
   const [tempAvatar, updateTempAvatar] = useState(``);
-  const [groupInfo, updateGroupInfo] = useState({});
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -62,7 +59,6 @@ const UserProfile = ({
 
   const handleChange = (e) => {
     if (e.target.name === `avatar`) {
-      //Checks if the file uploaded is an image
       if (!!e.target.files[0].type.match(`image.*`)) {
         Jimp.read(URL.createObjectURL(e.target.files[0]), async (err, img) => {
           if (err) {
@@ -79,7 +75,8 @@ const UserProfile = ({
         notAnImage();
         e.target.value = '';
       }
-      return; //Don't want to set updated fields here in case the user cancels the crop
+      //User cancelled the crop, return
+      return;
     }
     changeUpdatedFields({ ...updatedFields, [e.target.name]: e.target.value });
   };
@@ -92,17 +89,13 @@ const UserProfile = ({
     saveAvatarToAWS(mime);
   };
 
-  //This is fired if someone pressed ESC or clicks off the modal
   const requestCloseModal = () => {
     updateModal(!modalOpen);
     updateTempAvatar(``);
   };
 
   const saveAvatarToAWS = (updatedAvatar) => {
-    const idToUpdate =
-      match.params.type === `user` ? currentUser.userId : groupInfo._id;
-    //Using Fetch here to send along the base64 encoded image
-    fetch(`/api/user/avatar/${idToUpdate}`, {
+    fetch(`/api/user/avatar/${currentUser.userId}`, {
       method: `PUT`,
       headers: {
         Accept: 'application/json',
@@ -162,23 +155,15 @@ const UserProfile = ({
             history={history}
             pullUserData={pullUserData}
           />
-        ) : modalState === `avatar` ? (
-          <ImageEditor
-            tempAvatar={tempAvatar}
-            saveCroppedAvatar={saveCroppedAvatar}
-            openCloseModal={openCloseModal}
-            fileInputRef={fileInputRef}
-          />
         ) : (
-          <UserEditor
-            changeUpdatedFields={changeUpdatedFields}
-            updatedFields={updatedFields}
-            currentUser={currentUser}
-            modalOpen={modalOpen}
-            authUser={authUser}
-            updateModalState={updateModalState}
-            openCloseModal={openCloseModal}
-          />
+          modalState === `avatar` && (
+            <ImageEditor
+              tempAvatar={tempAvatar}
+              saveCroppedAvatar={saveCroppedAvatar}
+              openCloseModal={openCloseModal}
+              fileInputRef={fileInputRef}
+            />
+          )
         )}
       </Modal>
     </>

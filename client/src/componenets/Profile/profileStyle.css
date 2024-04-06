@@ -56,10 +56,6 @@
   cursor: pointer;
 }
 
-.profileAvatar {
-  border-radius: 10px;
-}
-
 #groupAvatar {
   display: none;
 }
@@ -200,10 +196,6 @@
   text-align: center;
   font-size: 32px;
   margin-top: 20px;
-}
-
-.dropdownSpace {
-  margin-left: 15px;
 }
 
 .playerSearchBox {

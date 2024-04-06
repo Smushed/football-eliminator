@@ -137,45 +137,6 @@ const MainGroupInput = ({ currentUser, mainGroup, handleChange }) => (
   </div>
 );
 
-const EmailToggleInput = ({
-  leaderboardEmailPref,
-  reminderEmailPref,
-  handleChange,
-}) => (
-  <div className='d-flex justify-content-center mt-3'>
-    <div>
-      <span>Leaderboard Emails:</span>
-      <select
-        className='form-select'
-        name='leaderboardEmail'
-        value={leaderboardEmailPref}
-        onChange={handleChange}
-      >
-        <option value={true}>On</option>
-        <option value={false}>Off</option>
-      </select>
-    </div>
-    <div className='dropdownSpace'>
-      <span>Reminder Emails:</span>
-      <select
-        className='form-select'
-        name='reminderEmail'
-        value={reminderEmailPref}
-        onChange={handleChange}
-      >
-        <option value={true}>On</option>
-        <option value={false}>Off</option>
-      </select>
-    </div>
-  </div>
-);
-
-EmailToggleInput.propTypes = {
-  leaderboardEmailPref: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
-  reminderEmailPref: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
-  handleChange: PropTypes.func,
-};
-
 AvatarInput.propTypes = {
   fileInputRef: PropTypes.any,
   handleChange: PropTypes.func,
@@ -220,5 +181,4 @@ export {
   PasswordInput,
   ConfirmPasswordInput,
   MainGroupInput,
-  EmailToggleInput,
 };

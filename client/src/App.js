@@ -17,8 +17,8 @@ import GroupPage from './componenets/GroupPage/';
 import CreateGroup from './componenets/GroupPage/CreateGroup';
 import FourOFour from './componenets/404';
 import SidePanel from './componenets/SidePanel';
-import EmailPref from './componenets/EmailPref';
 import AvatarWrapper from './componenets/Avatars';
+import Unsubscribe from './componenets/Unsubscribe';
 
 const App = ({ firebase }) => {
   const [noGroup, updateNoGroup] = useState(false);
@@ -63,12 +63,17 @@ const App = ({ firebase }) => {
   };
 
   const setCurrentUser = (user) => {
+    console.log({ user });
     const currentUser = {
       username: user.UN,
       userId: user._id,
       isAdmin: user.A,
       GL: user.GL,
       MG: user.MG || null,
+      E: {
+        RE: user.RE,
+        LE: user.LE,
+      },
     };
     updateCurrentUser(currentUser);
   };
@@ -205,7 +210,7 @@ const App = ({ firebase }) => {
           />
           <Route
             path={Routes.emailPref}
-            render={(props) => <EmailPref {...props} />}
+            render={(props) => <Unsubscribe {...props} />}
           />
           <Route render={() => <FourOFour />} />
         </Switch>

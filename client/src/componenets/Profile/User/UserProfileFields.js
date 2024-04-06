@@ -47,8 +47,6 @@ const UserProfileFields = ({
       });
   };
 
-  const repullUser = () => pullUserData(currUserEmail);
-
   const checkMainGroup = (currUser) => {
     if (currUser.GL !== undefined) {
       for (const group of currUser.GL) {
@@ -60,56 +58,139 @@ const UserProfileFields = ({
     }
   };
 
+  const handleEmailChange = (e) => {
+    const updatedVal = e.target.value === `true`;
+    if (e.target.name === `leaderboardEmail`) {
+      handleSubmit(updatedVal, emailPref.RE);
+    } else {
+      handleSubmit(emailPref.LE, updatedVal);
+    }
+  };
+
+  const handleEmailSubmit = async (LE, RE) => {
+    try {
+      await axios.put(`/api/user/emailPref/${user._id}/${LE}/${RE}`);
+    } catch (err) {
+      toast.error('Save Error - Contact Admin - smushedcode@gmail.com', {
+        duration: 4000,
+      });
+    }
+    toast.success('Email Preference Saved', {
+      duration: 4000,
+    });
+    getUserEmailPref(user._id);
+  };
+
   return (
     <div className='container'>
-      <div className='d-flex justify-content-center mt-5 row'>
-        <div className='col-2'>
-          <label htmlFor='profileAvatar'>
-            <img className='profileAvatar' name='avatar' src={avatar} />
-          </label>
-          {isCurrentUser && (
-            <input
-              id='groupAvatar'
-              name='avatar'
-              type='file'
-              onChange={handleChange}
-              ref={fileInputRef}
-            />
-          )}
-        </div>
-        <div className='block col-6'>
-          <div className='row'>
-            <h1 className='col-3 text-center'>{username}</h1>
-          </div>
-
-          <div className='row'>
-            <h4 className='col-3 mr-3'>Email: </h4>
-            <h5 className='col-9'>{currUserEmail}</h5>
-          </div>
-          <div className='row'>
-            <h4 className='col-3 mr-3'>Main Group: </h4>
-            <h5 className='col-9'>{mainGroup}</h5>
-          </div>
-          <div className='row'>
-            <h4 className='col-3 mr-3'>Emails: </h4>
-            <h5 className='col-9'>{'CHANGE ME'}</h5>
-          </div>
-          <div className='row'>
-            <div className='col-6'>
+      <div className='d-flex mt-5 justify-content-center row text-center'>
+        <div className='col-5 border rounded'>
+          <div className='block row justify-content-center'>
+            <div className='col-6 mt-3'>
+              <img className='rounded' name='avatar' src={avatar} />
               {isCurrentUser && (
-                <button
-                  className='btn btn-sm btn-info'
-                  onClick={() => {
-                    openCloseModal(true);
-                    updateModalState('user');
-                  }}
-                >
-                  Edit Information
-                </button>
+                <input
+                  id='groupAvatar'
+                  name='avatar'
+                  type='file'
+                  onChange={handleChange}
+                  ref={fileInputRef}
+                />
               )}
             </div>
           </div>
+          <div className='block row justify-content-center'>
+            <div className='row'>
+              <h1 className='col-12'>{username}</h1>
+            </div>
+            <div className='row'>
+              <h5 className='col-12'>{currUserEmail}</h5>
+            </div>
+            <div className='row'>
+              <h5 className='col-12'>{mainGroup}</h5>
+            </div>
+            <div className='row'>
+              <div className='col-12'>
+                {currentUser && (
+                  <>
+                    <div className='d-flex justify-content-center mt-3'>
+                      <div>
+                        <div className='form-check form-switch'>
+                          <input
+                            className='form-check-input'
+                            type='checkbox'
+                            role='switch'
+                          />
+                          <label
+                            class='form-check-label'
+                            for='flexSwitchCheckDefault'
+                          >
+                            Leaderboard Emails
+                          </label>
+                        </div>
+                        {/* <select
+                        className='form-select'
+                        name='leaderboardEmail'
+                        value={leaderboardEmailPref}
+                        onChange={handleChange}
+                      >
+                        <option value={true}>On</option>
+                        <option value={false}>Off</option>
+                      </select> */}
+                      </div>
+                      <div className='form-check form-switch'>
+                        <input
+                          className='form-check-input'
+                          type='checkbox'
+                          role='switch'
+                        />
+                        <label
+                          class='form-check-label'
+                          for='flexSwitchCheckDefault'
+                        >
+                          Reminder Emails
+                        </label>
+                      </div>
+                      {/* <span>Reminder Emails:</span>
+                      <select
+                        className='form-select'
+                        name='reminderEmail'
+                        value={reminderEmailPref}
+                        onChange={handleChange}
+                      >
+                        <option value={true}>On</option>
+                        <option value={false}>Off</option>
+                      </select> */}
+                    </div>
+                    {/* <EmailToggleInput
+                      leaderboardEmailPref={currentUser.LE}
+                      reminderEmailPref={currentUser.RE}
+                      handleChange={handleChange}
+                    /> */}
+                  </>
+                )}
+              </div>
+            </div>
+            <div className='row'>
+              <div className='col-6'>
+                {isCurrentUser && (
+                  <button
+                    className='btn btn-sm btn-info'
+                    onClick={() => {
+                      openCloseModal(true);
+                      updateModalState('user');
+                    }}
+                  >
+                    Edit Information
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+      <div className='d-flex mt-4 justify-content-center row text-center'>
+        <div className='col-5 border rounded'>Want Texts?</div>
       </div>
 
       {/* <div className='row'>

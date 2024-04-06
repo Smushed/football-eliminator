@@ -236,7 +236,9 @@ module.exports = {
   getEmailSettings: async (userId) => {
     let emailSettings = await db.UserEmailSettings.findOne({
       U: userId,
-    }).exec();
+    })
+      .lean()
+      .exec();
     if (emailSettings === null) {
       emailSettings = await db.UserEmailSettings.create({ U: userId });
     }
@@ -244,7 +246,20 @@ module.exports = {
   },
   updateEmailSettings: async (userId, LE, RE) => {
     try {
-      await db.UserEmailSettings.findOneAndUpdate({ U: userId }, { LE, RE });
+      await db.UserEmailSettings.findOneAndUpdate(
+        { U: userId },
+        { LE, RE }
+      ).exec();
+    } catch (err) {
+      console.log(err);
+    }
+  },
+  unsubscribeEmails: async (userId) => {
+    try {
+      await db.UserEmailSettings.findOneAndUpdate(
+        { U: userId },
+        { LE: false, RE: false }
+      ).exec();
     } catch (err) {
       console.log(err);
     }
