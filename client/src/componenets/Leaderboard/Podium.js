@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import loading from '../../constants/SVG/loading.svg';
 import { AvatarContext } from '../Avatars';
 
+import './leaderBoardStyle.css';
+
 const Podium = memo(function Podium({ leaderboard }) {
   const { userAvatars } = useContext(AvatarContext);
 
@@ -60,7 +62,7 @@ const Stand = ({ avatar, username, totalScore, place }) => {
       >
         <div className='col-12'>
           <div className='row'>
-            <div className='col-12'>
+            <div className='col-12 podiumUsername'>
               {place === 1 ? <h5>{username}</h5> : <>{username}</>}
             </div>
           </div>

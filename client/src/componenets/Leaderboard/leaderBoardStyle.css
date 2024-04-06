@@ -39,3 +39,16 @@
 .standContainer {
   height: 305px;
 }
+
+.podiumUsername {
+  max-height: 50px;
+  text-overflow: ellipsis;
+  overflow-y: hidden;
+}
+
+@media (width <= 1200px) {
+  .podiumAvatar {
+    height: 75px;
+    width: 75px;
+  }
+}

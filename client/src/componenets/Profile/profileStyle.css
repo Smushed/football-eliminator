@@ -9,12 +9,6 @@
   z-index: 0.9;
 }
 
-.profileWrapper {
-  margin: 0 auto;
-  margin-top: 20px;
-  width: 862px;
-}
-
 .profileModal {
   position: absolute;
   top: 45%;
@@ -56,70 +50,18 @@
   bottom: 0;
 }
 
-.lowerOpacity {
-  opacity: 0.3;
-}
-
 .largeCheckbox {
   height: 23px;
   width: 23px;
   cursor: pointer;
 }
 
-.profileAvatarWrapper {
-  text-align: center;
-  height: 200px;
-  width: 200px;
-  position: relative;
-}
-
 .profileAvatar {
   border-radius: 10px;
 }
 
-.editAvatar {
-  filter: brightness(100%);
-  -webkit-filter: brightness(100%);
-  cursor: pointer;
-}
-
-.editAvatar:hover {
-  filter: brightness(60%);
-  -webkit-filter: brightness(60%);
-  -webkit-transition: all 0.5s ease;
-  -moz-transition: all 0.5s ease;
-  -o-transition: all 0.5s ease;
-  -ms-transition: all 0.5s ease;
-  transition: all 0.5s ease;
-}
-
-.editAvatarSVGWrapper {
-  background-color: #fff;
-  height: 15%;
-  width: 15%;
-  position: absolute;
-  bottom: 7px;
-  right: 7px;
-  border-radius: 50%;
-  z-index: 2;
-  opacity: 0;
-  padding-bottom: 7px;
-  transition: all 0.2s ease;
-  pointer-events: none;
-}
-
 #groupAvatar {
   display: none;
-}
-
-.editAvatarSVG {
-  margin-top: 7%;
-  height: 75%;
-  width: 75%;
-}
-
-.profileAvatarWrapper:hover > .editAvatarSVGWrapper {
-  opacity: 1;
 }
 
 .submitButtonWrapper {
@@ -225,10 +167,6 @@
   height: 100px;
 }
 
-.descText {
-  margin-left: 5px;
-}
-
 .groupEditorHeaderWrapper {
   display: flex;
   justify-content: space-evenly;
@@ -236,12 +174,6 @@
 
 .groupEditorHeaderHalf {
   width: 45%;
-}
-
-.groupEditorAvatarWrapper {
-  display: flex;
-  justify-content: center;
-  margin-top: 5px;
 }
 
 .groupPosHeaderWrapper {
@@ -279,29 +211,6 @@
   -webkit-animation: pop-in 0.25s;
   -moz-animation: pop-in 0.25s;
   -ms-animation: pop-in 0.25s;
-}
-
-.profileInput {
-  border: #eee 1px solid;
-  border-radius: 5px;
-  padding-left: 10px;
-}
-
-.profileInput:focus {
-  outline: none;
-  border: #ccc 1px solid;
-}
-
-.profileInput:hover {
-  border: #ccc 1px solid;
-  cursor: pointer;
-}
-
-.profileBanner {
-  border-radius: 10px;
-  margin: 0 20px;
-  width: 100%;
-  opacity: 0.8;
 }
 
 /* MODAL */

@@ -9,7 +9,7 @@ import { Toaster } from 'react-hot-toast';
 import SignInOut from './componenets/SignInOut';
 import NavBar from './componenets/NavBar/';
 import Home from './componenets/Home';
-import Profile from './componenets/Profile';
+import UserProfile from './componenets/Profile/User';
 import Roster from './componenets/Roster';
 import AdminPanel from './componenets/AdminPanel';
 import UsedPlayers from './componenets/UsedPlayers';
@@ -159,9 +159,9 @@ const App = ({ firebase }) => {
           <Route path={Routes.signin} render={() => <SignInOut />} />
           <Route path={Routes.signup} render={() => <SignInOut />} />
           <Route
-            path={Routes.profile}
+            path={Routes.userProfile}
             render={() => (
-              <Profile
+              <UserProfile
                 pullUserData={pullUserData}
                 authUser={authUser}
                 currentUser={currentUser}

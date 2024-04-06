@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
-import Leaderboard from '../Leaderboard/TableLeaderboard';
+import Leaderboard from '../../Leaderboard/TableLeaderboard';
 
 import './profileStyle.css';
 
-import DisplayBox from '../DisplayBox';
+import DisplayBox from '../../DisplayBox';
 import GroupScoreRow from './GroupScoreRow';
 
 import PencilSVG from '../../constants/SVG/pencil.svg';
