@@ -1,7 +1,6 @@
 import React, { useContext, memo } from 'react';
 import { Tooltip } from 'react-tooltip';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 
 import { AvatarContext } from '../Avatars';
 import BlankAvatar from '../../constants/logoImages/avatar/blankAvatar.png';
@@ -118,11 +117,10 @@ const InjuryCol = ({ injury }) => {
   );
 };
 
-//SECTION Player Display
 const PlayerDisplayRow = ({ player, addDropPlayer, sortedMatchups }) => {
   const { playerAvatars } = useContext(AvatarContext);
   return (
-    <tr>
+    <tr className='align-middle playerDisplayRowHeight'>
       <td>{player.I && <InjuryCol injury={player.I} />}</td>
       <td>
         <img src={player && playerAvatars[player.M]} />
