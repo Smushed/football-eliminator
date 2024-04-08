@@ -38,7 +38,6 @@ module.exports = (app) => {
     const { email } = req.params;
     const foundUser = await userHandler.getUserByEmail(email);
     const emailSettings = await userHandler.getEmailSettings(foundUser._id);
-    console.log({ emailSettings });
     res.status(200).send({ ...foundUser, ...emailSettings });
   });
 
@@ -133,7 +132,7 @@ module.exports = (app) => {
     res.sendStatus(200);
   });
 
-  app.put(`/api/user/emailPref/:userId/:LE/:RE`, (req, res) => {
+  app.put(`/api/user/email/settings/:userId/:LE/:RE`, (req, res) => {
     const { userId, LE, RE } = req.params;
     userHandler.updateEmailSettings(userId, LE, RE);
     res.sendStatus(200);

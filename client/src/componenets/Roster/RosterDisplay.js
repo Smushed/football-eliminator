@@ -1,6 +1,7 @@
 import React, { useContext, memo } from 'react';
 import { Tooltip } from 'react-tooltip';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
 import { AvatarContext } from '../Avatars';
 import BlankAvatar from '../../constants/logoImages/avatar/blankAvatar.png';

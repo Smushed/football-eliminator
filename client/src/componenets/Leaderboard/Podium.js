@@ -11,11 +11,6 @@ const Podium = memo(function Podium({ leaderboard }) {
   return (
     leaderboard.length > 0 && (
       <div className='row h-100 ms-1'>
-        <div className='row'>
-          <div className='col-12 text-center pt-5'>
-            <h2>Leaders</h2>
-          </div>
-        </div>
         <div className='row d-flex align-items-end pb-4'>
           <Stand
             avatar={userAvatars[leaderboard[1].UID]}

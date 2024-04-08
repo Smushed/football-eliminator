@@ -69,7 +69,7 @@ const UserProfileFields = ({
 
   const handleEmailSubmit = async (LE, RE) => {
     try {
-      await axios.put(`/api/user/emailPref/${user._id}/${LE}/${RE}`);
+      await axios.put(`/api/user/email/settings/${user._id}/${LE}/${RE}`);
     } catch (err) {
       toast.error('Save Error - Contact Admin - smushedcode@gmail.com', {
         duration: 4000,
