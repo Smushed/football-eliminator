@@ -113,60 +113,54 @@ const UserProfileFields = ({
               <div className='col-12'>
                 {currentUser && (
                   <>
-                    <div className='d-flex justify-content-center mt-3'>
-                      <div>
-                        <div className='form-check form-switch'>
-                          <input
-                            className='form-check-input'
-                            type='checkbox'
-                            role='switch'
-                          />
-                          <label
-                            class='form-check-label'
-                            for='flexSwitchCheckDefault'
-                          >
-                            Leaderboard Emails
-                          </label>
+                    <div className='mt-3'>
+                      {currentUser.E && (
+                        <div className='form-switch row justify-content-center'>
+                          <div className='col-1'>
+                            <input
+                              className='form-check-input'
+                              type='checkbox'
+                              role='switch'
+                              id='leaderboardEmailSwitch'
+                              checked={currentUser.E.LE}
+                              onChange={handleChange}
+                              name='leaderboardEmail'
+                            />
+                          </div>
+                          <div className='col-5 text-start'>
+                            <label
+                              className='form-check-label'
+                              htmlFor='leaderboardEmailSwitch'
+                            >
+                              Leaderboard Emails
+                            </label>
+                          </div>
                         </div>
-                        {/* <select
-                        className='form-select'
-                        name='leaderboardEmail'
-                        value={leaderboardEmailPref}
-                        onChange={handleChange}
-                      >
-                        <option value={true}>On</option>
-                        <option value={false}>Off</option>
-                      </select> */}
-                      </div>
-                      <div className='form-check form-switch'>
-                        <input
-                          className='form-check-input'
-                          type='checkbox'
-                          role='switch'
-                        />
-                        <label
-                          class='form-check-label'
-                          for='flexSwitchCheckDefault'
-                        >
-                          Reminder Emails
-                        </label>
-                      </div>
-                      {/* <span>Reminder Emails:</span>
-                      <select
-                        className='form-select'
-                        name='reminderEmail'
-                        value={reminderEmailPref}
-                        onChange={handleChange}
-                      >
-                        <option value={true}>On</option>
-                        <option value={false}>Off</option>
-                      </select> */}
+                      )}
+                      {currentUser.E && (
+                        <div className='form-switch row justify-content-center mb-1'>
+                          <div className='col-1'>
+                            <input
+                              className='form-check-input'
+                              type='checkbox'
+                              role='switch'
+                              id='reminderEmailSwitch'
+                              checked={currentUser.E.RE}
+                              onChange={handleChange}
+                              name='reminderEmail'
+                            />
+                          </div>
+                          <div className='col-5'>
+                            <label
+                              className='form-check-label'
+                              htmlFor='reminderEmailSwitch'
+                            >
+                              Reminder Emails
+                            </label>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    {/* <EmailToggleInput
-                      leaderboardEmailPref={currentUser.LE}
-                      reminderEmailPref={currentUser.RE}
-                      handleChange={handleChange}
-                    /> */}
                   </>
                 )}
               </div>
@@ -192,22 +186,6 @@ const UserProfileFields = ({
       <div className='d-flex mt-4 justify-content-center row text-center'>
         <div className='col-5 border rounded'>Want Texts?</div>
       </div>
-
-      {/* <div className='row'>
-        <h1 className='col-12 text-center mt-4'>Your Groups:</h1>
-      </div>
-      <div className='d-flex justify-content-center row'>
-        {currentUser.GL &&
-          currentUser.GL.map((group) => (
-            <GroupDisplayWithLeaderboard
-              key={group._id}
-              groupId={group._id}
-              currentUserId={currentUser.userId}
-              isCurrentUser={isCurrentUser}
-              repullUser={repullUser}
-            />
-          ))}
-      </div> */}
     </div>
   );
 };

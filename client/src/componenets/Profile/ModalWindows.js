@@ -60,7 +60,7 @@ const ReAuth = ({
     firebase
       .doSignInWithEmailAndPassword(email, password)
       .then((res) => {
-        openCloseModal();
+        openCloseModal(false);
         if (res.credential !== null) {
           firebase.auth.currentUser
             .reauthenticateWithCredential(res.credential)
@@ -106,7 +106,7 @@ const ReAuth = ({
         </button>
         <button
           className='btn btn-danger profileModalButton'
-          onClick={() => openCloseModal()}
+          onClick={() => openCloseModal(false)}
         >
           Close
         </button>
@@ -162,7 +162,7 @@ const ImageEditor = ({
 
   const closeImageModal = () => {
     fileInputRef.current.value = '';
-    openCloseModal();
+    openCloseModal(false);
   };
 
   return (

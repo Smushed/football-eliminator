@@ -63,7 +63,6 @@ const App = ({ firebase }) => {
   };
 
   const setCurrentUser = (user) => {
-    console.log({ user });
     const currentUser = {
       username: user.UN,
       userId: user._id,
