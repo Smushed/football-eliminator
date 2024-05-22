@@ -15,35 +15,30 @@ import '../profileStyle.css';
 import { ReAuth, ImageEditor } from '../ModalWindows';
 import { AvatarContext } from '../../Avatars';
 
+import EyeSVG from '../../../constants/SVG/eye.svg';
+import EyeSlashSVG from '../../../constants/SVG/eye-slash.svg';
+
 const Alert = withReactContent(Swal);
 
 const userFields = {
+  id: '',
   username: '',
   email: '',
   password: '',
   mainGroup: '',
   leaderboardEmail: true,
   reminderEmail: true,
+  groupList: [],
 };
-
-// const AvatarDisplay = ({ userId }) => {
-//   const { userAvatars } = useContext(AvatarContext);
-//   useEffect(() => {
-//     console.log({ userId });
-//   }, []);
-//   return <img className='rounded' name='avatar' src={userAvatars[userId]} />;
-// };
 
 const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalState, setModalState] = useState('reAuth');
-  const [updatedFields, changeUpdatedFields] = useState({
-    ...userFields,
-  });
+  const [userFieldsOnPage, setUserFieldsOnPage] = useState(userFields);
   const [mainGroupName, setMainGroupName] = useState('');
   const [tempAvatar, setTempAvatar] = useState('');
-  const [currUserId, setCurrUserId] = useState('');
   const [isCurrentUser, setIsCurrentUser] = useState(false);
+  const [showHidePassword, setShowHidePassword] = useState('password');
 
   const fileInputRef = useRef(null);
   const axiosCancel = axios.CancelToken.source();
@@ -55,11 +50,10 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
   useEffect(() => {
     setIsCurrentUser(params.name === currentUser.username);
     getMainGroupName(currentUser);
-    createProfileFields(currentUser);
   }, [params.name, currentUser]);
 
   useEffect(() => {
-    if (currUserId === '') {
+    if (userFieldsOnPage.id === '') {
       userProfilePull(params.name);
     }
   }, [params.name]);
@@ -97,20 +91,40 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
       e.target.name === `leaderboardEmail` ||
       e.target.name === `reminderEmail`
     ) {
-      changeUpdatedFields({
-        ...updatedFields,
+      setUserFieldsOnPage({
+        ...userFieldsOnPage,
         [e.target.name]: e.target.value ? true : false,
       });
     } else {
-      changeUpdatedFields({
-        ...updatedFields,
+      setUserFieldsOnPage({
+        ...userFieldsOnPage,
         [e.target.name]: e.target.value,
       });
     }
   };
 
-  const createProfileFields = (user) => {
-    // console.log({ user });
+  const createProfileFields = async (user) => {
+    try {
+      const emailRes = await axios.get(`/api/user/emailPref/${user._id}`);
+      const groupList = await axios.get(
+        `/api/group/details/byUser/${user._id}`
+      );
+      console.log({ groupList });
+      setUserFieldsOnPage({
+        id: user._id,
+        username: user.UN,
+        email: user.E,
+        leaderboardEmail: emailRes.LE,
+        reminderEmail: emailRes.RE,
+        groupList: groupList.data,
+      });
+    } catch (err) {
+      toast.error('Error pulling data, try again later', {
+        position: 'top-right',
+        duration: 4000,
+      });
+      console.log({ err });
+    }
   };
 
   const saveCroppedAvatar = (mime) => {
@@ -126,11 +140,10 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
   };
 
   const userProfilePull = (username) => {
-    console.log({ username });
     axios
       .get(`/api/user/name/${username}`, { cancelToken: axiosCancel.token })
       .then((res) => {
-        setCurrUserId(res.data.user._id);
+        createProfileFields(res.data.user);
         if (!userAvatars[res.data.user._id]) {
           addUserAvatarsToPull([res.data.user._id]);
         }
@@ -167,7 +180,7 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
           position: 'top-right',
           duration: 4000,
         });
-        repullUserAvatars([currUserId]);
+        repullUserAvatars([userFieldsOnPage.id]);
         return;
       })
       .catch(() =>
@@ -196,35 +209,28 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
     });
   };
 
+  const toggleShowPassword = () => {
+    if (showHidePassword === 'password') {
+      setShowHidePassword('input');
+    } else {
+      setShowHidePassword('password');
+    }
+  };
+
   return (
     <>
       <div className={modalOpen ? 'greyBackdrop' : ''} />
 
       <div className='container'>
         <div className='mt-5 justify-content-center row'>
-          <div className='col-6 border rounded'>
+          <div className='col-xs-12 col-lg-8 border rounded'>
             <div className='row justify-content-center'>
-              <div className='col-6 mt-3 text-center'>
+              <div className='col-6 mt-5 text-center'>
                 <img
                   className='rounded'
                   name='avatar'
-                  src={userAvatars[currUserId]}
+                  src={userAvatars[userFieldsOnPage.id]}
                 />
-
-                <div className='row justify-content-center'>
-                  <div className='col-6 mt-2'>
-                    <label className='btn btn-primary'>
-                      Dude Button{' '}
-                      <input
-                        type='file'
-                        hidden={true}
-                        ref={fileInputRef}
-                        name='avatar'
-                        onChange={handleChange}
-                      />
-                    </label>
-                  </div>
-                </div>
               </div>
               <div className='col-6'>
                 <div className='row justify-content-center mt-3'>
@@ -236,11 +242,9 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
                       id='usernameInput'
                       type='text'
                       className='form-control'
-                      value={currentUser.username}
+                      value={userFieldsOnPage.username}
                     />
                   </div>
-
-                  {/* <h1 className='col-6'>{currentUser && currentUser.username}</h1> */}
                 </div>
                 <div className='row justify-content-center'>
                   <div className='col-12'>
@@ -250,11 +254,43 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
                     <input
                       type='text'
                       className='form-control'
-                      value={authUser ? authUser.email : ``}
+                      value={userFieldsOnPage.email}
                     />
                   </div>
-                  {/* <h5 className='col-6'>{authUser && authUser.email}</h5> */}
                 </div>
+                {isCurrentUser && (
+                  <div className='row justify-content-center'>
+                    <div className='col-12'>
+                      <small htmlFor='emailInput' className='form-label'>
+                        Password
+                      </small>
+                      <div className='input-group'>
+                        <input
+                          type={showHidePassword}
+                          className='form-control'
+                          // value={userFieldsOnPage.email}
+                        />
+                        <span className='input-group-text'>
+                          {showHidePassword === 'password' ? (
+                            <img
+                              src={EyeSVG}
+                              alt='Show'
+                              className='passwordHideShowSVG'
+                              onClick={() => toggleShowPassword()}
+                            />
+                          ) : (
+                            <img
+                              src={EyeSlashSVG}
+                              alt='Show'
+                              className='passwordHideShowSVG'
+                              onClick={() => toggleShowPassword()}
+                            />
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div className='row justify-content-center'>
                   <div className='col-12'>
                     <small htmlFor='mainGroupDropdown' className='form-label'>
@@ -265,84 +301,93 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
                       className='form-select'
                       value={mainGroupName}
                     >
-                      {currentUser.GL &&
-                        currentUser.GL.map((group) => (
+                      {userFieldsOnPage.groupList &&
+                        userFieldsOnPage.groupList.map((group) => (
                           <option key={group._id} value={group.N}>
                             {group.N}
                           </option>
                         ))}
                     </select>
                   </div>
-                  {/* <h5 className='col-6'>{mainGroupName}</h5> */}
                 </div>
                 <div className='row justify-content-center'>
                   <div className='col-12'>
                     <div className='mt-3'>
-                      {currentUser.E && (
-                        <div className='form-switch row'>
-                          <div className='col-1'>
-                            <input
-                              className='form-check-input'
-                              type='checkbox'
-                              role='switch'
-                              id='leaderboardEmailSwitch'
-                              checked={currentUser.E.LE}
-                              onChange={handleChange}
-                              name='leaderboardEmail'
-                            />
-                          </div>
-                          <div className='col-10 text-start'>
-                            <label
-                              className='form-check-label'
-                              htmlFor='leaderboardEmailSwitch'
-                            >
-                              Leaderboard Emails
-                            </label>
-                          </div>
+                      <div className='form-switch row'>
+                        <div className='col-1'>
+                          <input
+                            className='form-check-input'
+                            type='checkbox'
+                            role='switch'
+                            id='leaderboardEmailSwitch'
+                            checked={userFieldsOnPage.leaderboardEmail}
+                            onChange={handleChange}
+                            name='leaderboardEmail'
+                          />
                         </div>
-                      )}
-                      {currentUser.E && (
-                        <div className='form-switch row mb-1'>
-                          <div className='col-1'>
-                            <input
-                              className='form-check-input'
-                              type='checkbox'
-                              role='switch'
-                              id='reminderEmailSwitch'
-                              checked={currentUser.E.RE}
-                              onChange={handleChange}
-                              name='reminderEmail'
-                            />
-                          </div>
-                          <div className='col-10'>
-                            <label
-                              className='form-check-label'
-                              htmlFor='reminderEmailSwitch'
-                            >
-                              Reminder Emails
-                            </label>
-                          </div>
+                        <div className='col-10 text-start'>
+                          <label
+                            className='form-check-label'
+                            htmlFor='leaderboardEmailSwitch'
+                          >
+                            Leaderboard Emails
+                          </label>
                         </div>
-                      )}
+                      </div>
+                      <div className='form-switch row mb-1'>
+                        <div className='col-1'>
+                          <input
+                            className='form-check-input'
+                            type='checkbox'
+                            role='switch'
+                            id='reminderEmailSwitch'
+                            checked={userFieldsOnPage.reminderEmail}
+                            onChange={handleChange}
+                            name='reminderEmail'
+                          />
+                        </div>
+                        <div className='col-10'>
+                          <label
+                            className='form-check-label'
+                            htmlFor='reminderEmailSwitch'
+                          >
+                            Reminder Emails
+                          </label>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className='row'>
-              <div className='col-6'>
-                {isCurrentUser && (
-                  <button
-                    className='btn btn-sm btn-info'
-                    onClick={() => {
-                      openCloseModal(true);
-                      setModalState('user');
-                    }}
-                  >
-                    Edit Information
-                  </button>
-                )}
-              </div>
+              {currentUser && (
+                <div className='row justify-content-center mt-2 mb-2 text-center'>
+                  <div className='col-6'>
+                    <label className='btn btn-primary'>
+                      Upload Avatar
+                      <input
+                        type='file'
+                        hidden={true}
+                        ref={fileInputRef}
+                        name='avatar'
+                        onChange={handleChange}
+                      />
+                    </label>
+                  </div>
+                  <div className='col-6'>
+                    {isCurrentUser && (
+                      <button
+                        className='btn btn-primary'
+                        onClick={() => {
+                          openCloseModal(true);
+                          setModalState('user');
+                        }}
+                      >
+                        Update Info
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -365,7 +410,7 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
           <ReAuth
             openCloseModal={openCloseModal}
             firebase={firebase}
-            updatedFields={updatedFields}
+            updatedFields={userFieldsOnPage}
             authUser={authUser}
             currentUser={currentUser}
             pullUserData={pullUserData}

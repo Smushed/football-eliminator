@@ -205,6 +205,10 @@
   -ms-animation: pop-in 0.25s;
 }
 
+.passwordHideShowSVG {
+  height: 23px;
+}
+
 /* MODAL */
 .groupModalHeight {
   top: 48%;

@@ -50,7 +50,6 @@ const App = ({ firebase }) => {
   const pullUserData = (email) => {
     return new Promise(async (res) => {
       const dbResponse = await axios.get(`/api/user/email/${email}`);
-      console.log({ dbResponse });
       setCurrentUser(dbResponse.data.userInfo, dbResponse.data.emailSettings);
 
       if (userHasGroup(dbResponse.data.userInfo)) {

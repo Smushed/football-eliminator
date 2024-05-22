@@ -43,6 +43,12 @@ module.exports = (app) => {
     }
   });
 
+  app.get(`/api/group/details/byUser/:userId`, async (req, res) => {
+    const { userId } = req.params;
+    const groupInfoArray = await groupHandler.getGroupDataByUserId(userId);
+    res.status(200).send(groupInfoArray);
+  });
+
   app.get(`/api/group/details/:id`, async (req, res) => {
     const { id } = req.params;
     const groupInfo = await groupHandler.getGroupDataById(id);
