@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import Modal from 'react-modal';
 import PropTypes from 'prop-types';
 import toast from 'react-hot-toast';
 import Session from '../../Session';
 import axios from 'axios';
-
+import { useParams } from 'react-router-dom';
 import 'jimp';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
@@ -13,48 +13,56 @@ import 'rc-slider/assets/index.css';
 import '../profileStyle.css';
 
 import { ReAuth, ImageEditor } from '../ModalWindows';
-// import UserProfileFields from './UserProfileFields';
+import { AvatarContext } from '../../Avatars';
 
 const Alert = withReactContent(Swal);
 
 const userFields = {
-  username: ``,
-  email: ``,
-  password: ``,
-  mainGroup: ``,
+  username: '',
+  email: '',
+  password: '',
+  mainGroup: '',
   leaderboardEmail: true,
   reminderEmail: true,
 };
 
-const UserProfile = ({
-  authUser,
-  currentUser,
-  firebase,
-  match,
-  history,
-  pullUserData,
-}) => {
+// const AvatarDisplay = ({ userId }) => {
+//   const { userAvatars } = useContext(AvatarContext);
+//   useEffect(() => {
+//     console.log({ userId });
+//   }, []);
+//   return <img className='rounded' name='avatar' src={userAvatars[userId]} />;
+// };
+
+const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalState, setModalState] = useState(`reAuth`);
+  const [modalState, setModalState] = useState('reAuth');
   const [updatedFields, changeUpdatedFields] = useState({
     ...userFields,
   });
-  const [mainGroupName, setMainGroupName] = useState(``);
-  const [avatar, setAvatar] = useState(``);
-  const [tempAvatar, setTempAvatar] = useState(``);
+  const [mainGroupName, setMainGroupName] = useState('');
+  const [tempAvatar, setTempAvatar] = useState('');
+  const [currUserId, setCurrUserId] = useState('');
   const [isCurrentUser, setIsCurrentUser] = useState(false);
+
   const fileInputRef = useRef(null);
   const axiosCancel = axios.CancelToken.source();
 
-  // useEffect(() => {
-  //     changeUpdatedFields({ ...userFields, mainGroup: currentUser.MG });
-  // }, [currentUser]);
+  const { addUserAvatarsToPull, repullUserAvatars, userAvatars } =
+    useContext(AvatarContext);
+  const params = useParams();
 
   useEffect(() => {
-    setIsCurrentUser(match.params.username === currentUser.username);
-    userProfilePull(currentUser.username);
+    setIsCurrentUser(params.name === currentUser.username);
     getMainGroupName(currentUser);
-  }, [match.params.username, currentUser]);
+    createProfileFields(currentUser);
+  }, [params.name, currentUser]);
+
+  useEffect(() => {
+    if (currUserId === '') {
+      userProfilePull(params.name);
+    }
+  }, [params.name]);
 
   const openCloseModal = (cmd) => {
     setModalOpen(cmd);
@@ -63,6 +71,11 @@ const UserProfile = ({
   const handleChange = (e) => {
     if (e.target.name === `avatar`) {
       if (!!e.target.files[0].type.match(`image.*`)) {
+        if (e.target.files[0].type === 'image/webp') {
+          notSupportedImage();
+          e.target.value = '';
+          return;
+        }
         Jimp.read(URL.createObjectURL(e.target.files[0]), async (err, img) => {
           if (err) {
             console.log(err);
@@ -88,13 +101,20 @@ const UserProfile = ({
         ...updatedFields,
         [e.target.name]: e.target.value ? true : false,
       });
+    } else {
+      changeUpdatedFields({
+        ...updatedFields,
+        [e.target.name]: e.target.value,
+      });
     }
-    changeUpdatedFields({ ...updatedFields, [e.target.name]: e.target.value });
+  };
+
+  const createProfileFields = (user) => {
+    // console.log({ user });
   };
 
   const saveCroppedAvatar = (mime) => {
-    setTempAvatar(``);
-    setAvatar(mime);
+    setTempAvatar('');
     openCloseModal(false);
     setModalState(`reAuth`);
     saveAvatarToAWS(mime);
@@ -106,10 +126,14 @@ const UserProfile = ({
   };
 
   const userProfilePull = (username) => {
+    console.log({ username });
     axios
       .get(`/api/user/name/${username}`, { cancelToken: axiosCancel.token })
       .then((res) => {
-        setAvatar(res.data.avatar);
+        setCurrUserId(res.data.user._id);
+        if (!userAvatars[res.data.user._id]) {
+          addUserAvatarsToPull([res.data.user._id]);
+        }
       })
       .catch((err) => {
         if (err.message !== `Unmounted`) {
@@ -131,22 +155,41 @@ const UserProfile = ({
 
   const saveAvatarToAWS = (updatedAvatar) => {
     fetch(`/api/user/avatar/${currentUser.userId}`, {
-      method: `PUT`,
+      method: 'PUT',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ image: updatedAvatar }),
-    }).then(() =>
-      toast.success('Avatar Saved', {
-        duration: 4000,
+    })
+      .then(() => {
+        toast.success('Avatar Saved', {
+          position: 'top-right',
+          duration: 4000,
+        });
+        repullUserAvatars([currUserId]);
+        return;
       })
-    );
+      .catch(() =>
+        toast.error('Error Saving the Avatar', {
+          position: 'top-right',
+          duration: 4000,
+        })
+      );
+  };
+
+  const notSupportedImage = () => {
+    Alert.fire({
+      title: 'Webp not supported',
+      text: 'Webp files are not currently supported by editor, sorry for the inconvenience',
+      showCancelButton: true,
+      showConfirmButton: false,
+    });
   };
 
   const notAnImage = () => {
     Alert.fire({
-      title: `Only Upload Images`,
+      title: `Only images allowed`,
       text: `File is not an image. Please only upload images`,
       showConfirmButton: false,
       showCancelButton: true,
@@ -159,118 +202,130 @@ const UserProfile = ({
 
       <div className='container'>
         <div className='mt-5 justify-content-center row'>
-          <div className='col-5 border rounded'>
+          <div className='col-6 border rounded'>
             <div className='row justify-content-center'>
               <div className='col-6 mt-3 text-center'>
-                <img className='rounded' name='avatar' src={avatar} />
-                {isCurrentUser && (
-                  <input
-                    id='groupAvatar'
-                    name='avatar'
-                    type='file'
-                    onChange={handleChange}
-                    ref={fileInputRef}
-                  />
-                )}
-              </div>
-            </div>
-            <div className='row justify-content-center mt-3'>
-              <div className='col-6'>
-                <small htmlFor='usernameInput' className='form-label'>
-                  Username
-                </small>
-                <input
-                  id='usernameInput'
-                  type='text'
-                  className='form-control'
-                  value={currentUser.username}
+                <img
+                  className='rounded'
+                  name='avatar'
+                  src={userAvatars[currUserId]}
                 />
-              </div>
 
-              {/* <h1 className='col-6'>{currentUser && currentUser.username}</h1> */}
-            </div>
-            <div className='row justify-content-center'>
-              <div className='col-6'>
-                <small htmlFor='emailInput' className='form-label'>
-                  Email
-                </small>
-                <input
-                  type='text'
-                  className='form-control'
-                  value={authUser ? authUser.email : ``}
-                />
+                <div className='row justify-content-center'>
+                  <div className='col-6 mt-2'>
+                    <label className='btn btn-primary'>
+                      Dude Button{' '}
+                      <input
+                        type='file'
+                        hidden={true}
+                        ref={fileInputRef}
+                        name='avatar'
+                        onChange={handleChange}
+                      />
+                    </label>
+                  </div>
+                </div>
               </div>
-              {/* <h5 className='col-6'>{authUser && authUser.email}</h5> */}
-            </div>
-            <div className='row justify-content-center'>
               <div className='col-6'>
-                <small htmlFor='mainGroupDropdown' className='form-label'>
-                  Main Group
-                </small>
-                <select
-                  type='text'
-                  className='form-select'
-                  value={mainGroupName}
-                >
-                  {currentUser.GL &&
-                    currentUser.GL.map((group) => (
-                      <option key={group._id} value={group.N}>
-                        {group.N}
-                      </option>
-                    ))}
-                </select>
-              </div>
-              {/* <h5 className='col-6'>{mainGroupName}</h5> */}
-            </div>
-            <div className='row justify-content-center'>
-              <div className='col-6'>
-                <div className='mt-3'>
-                  {currentUser.E && (
-                    <div className='form-switch row'>
-                      <div className='col-1'>
-                        <input
-                          className='form-check-input'
-                          type='checkbox'
-                          role='switch'
-                          id='leaderboardEmailSwitch'
-                          checked={currentUser.E.LE}
-                          onChange={handleChange}
-                          name='leaderboardEmail'
-                        />
-                      </div>
-                      <div className='col-10 text-start'>
-                        <label
-                          className='form-check-label'
-                          htmlFor='leaderboardEmailSwitch'
-                        >
-                          Leaderboard Emails
-                        </label>
-                      </div>
+                <div className='row justify-content-center mt-3'>
+                  <div className='col-12'>
+                    <small htmlFor='usernameInput' className='form-label'>
+                      Username
+                    </small>
+                    <input
+                      id='usernameInput'
+                      type='text'
+                      className='form-control'
+                      value={currentUser.username}
+                    />
+                  </div>
+
+                  {/* <h1 className='col-6'>{currentUser && currentUser.username}</h1> */}
+                </div>
+                <div className='row justify-content-center'>
+                  <div className='col-12'>
+                    <small htmlFor='emailInput' className='form-label'>
+                      Email
+                    </small>
+                    <input
+                      type='text'
+                      className='form-control'
+                      value={authUser ? authUser.email : ``}
+                    />
+                  </div>
+                  {/* <h5 className='col-6'>{authUser && authUser.email}</h5> */}
+                </div>
+                <div className='row justify-content-center'>
+                  <div className='col-12'>
+                    <small htmlFor='mainGroupDropdown' className='form-label'>
+                      Main Group
+                    </small>
+                    <select
+                      type='text'
+                      className='form-select'
+                      value={mainGroupName}
+                    >
+                      {currentUser.GL &&
+                        currentUser.GL.map((group) => (
+                          <option key={group._id} value={group.N}>
+                            {group.N}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+                  {/* <h5 className='col-6'>{mainGroupName}</h5> */}
+                </div>
+                <div className='row justify-content-center'>
+                  <div className='col-12'>
+                    <div className='mt-3'>
+                      {currentUser.E && (
+                        <div className='form-switch row'>
+                          <div className='col-1'>
+                            <input
+                              className='form-check-input'
+                              type='checkbox'
+                              role='switch'
+                              id='leaderboardEmailSwitch'
+                              checked={currentUser.E.LE}
+                              onChange={handleChange}
+                              name='leaderboardEmail'
+                            />
+                          </div>
+                          <div className='col-10 text-start'>
+                            <label
+                              className='form-check-label'
+                              htmlFor='leaderboardEmailSwitch'
+                            >
+                              Leaderboard Emails
+                            </label>
+                          </div>
+                        </div>
+                      )}
+                      {currentUser.E && (
+                        <div className='form-switch row mb-1'>
+                          <div className='col-1'>
+                            <input
+                              className='form-check-input'
+                              type='checkbox'
+                              role='switch'
+                              id='reminderEmailSwitch'
+                              checked={currentUser.E.RE}
+                              onChange={handleChange}
+                              name='reminderEmail'
+                            />
+                          </div>
+                          <div className='col-10'>
+                            <label
+                              className='form-check-label'
+                              htmlFor='reminderEmailSwitch'
+                            >
+                              Reminder Emails
+                            </label>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                  {currentUser.E && (
-                    <div className='form-switch row mb-1'>
-                      <div className='col-1'>
-                        <input
-                          className='form-check-input'
-                          type='checkbox'
-                          role='switch'
-                          id='reminderEmailSwitch'
-                          checked={currentUser.E.RE}
-                          onChange={handleChange}
-                          name='reminderEmail'
-                        />
-                      </div>
-                      <div className='col-10'>
-                        <label
-                          className='form-check-label'
-                          htmlFor='reminderEmailSwitch'
-                        >
-                          Reminder Emails
-                        </label>
-                      </div>
-                    </div>
-                  )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -313,7 +368,6 @@ const UserProfile = ({
             updatedFields={updatedFields}
             authUser={authUser}
             currentUser={currentUser}
-            history={history}
             pullUserData={pullUserData}
           />
         ) : (

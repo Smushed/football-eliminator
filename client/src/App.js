@@ -50,11 +50,11 @@ const App = ({ firebase }) => {
   const pullUserData = (email) => {
     return new Promise(async (res) => {
       const dbResponse = await axios.get(`/api/user/email/${email}`);
+      console.log({ dbResponse });
+      setCurrentUser(dbResponse.data.userInfo, dbResponse.data.emailSettings);
 
-      setCurrentUser(dbResponse.data);
-
-      if (userHasGroup(dbResponse.data)) {
-        initGroup(dbResponse.data);
+      if (userHasGroup(dbResponse.data.userInfo)) {
+        initGroup(dbResponse.data.userInfo);
       } else {
         updateNoGroup(true);
       }
@@ -62,7 +62,7 @@ const App = ({ firebase }) => {
     });
   };
 
-  const setCurrentUser = (user) => {
+  const setCurrentUser = (user, emailSettings) => {
     const currentUser = {
       username: user.UN,
       userId: user._id,
@@ -70,8 +70,8 @@ const App = ({ firebase }) => {
       GL: user.GL,
       MG: user.MG || null,
       E: {
-        RE: user.RE,
-        LE: user.LE,
+        RE: emailSettings.RE,
+        LE: emailSettings.LE,
       },
     };
     updateCurrentUser(currentUser);
@@ -166,6 +166,7 @@ const App = ({ firebase }) => {
             path={Routes.userProfile}
             render={() => (
               <UserProfile
+                firebase={firebase}
                 pullUserData={pullUserData}
                 authUser={authUser}
                 currentUser={currentUser}

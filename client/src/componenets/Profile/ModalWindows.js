@@ -21,7 +21,6 @@ const ReAuth = ({
   authUser,
   openCloseModal,
   currentUser,
-  history,
   pullUserData,
 }) => {
   const [email, setEmail] = useState(``);
@@ -49,9 +48,6 @@ const ReAuth = ({
         .put(`/api/user/updateProfile`, { request, userId: currentUser.userId })
         .then((res) => {
           pullUserData(authUser.email);
-          if (res.data.UN) {
-            history.push(`/profile/user/${res.data.UN}`);
-          }
         });
     }
   };

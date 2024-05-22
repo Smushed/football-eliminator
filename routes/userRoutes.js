@@ -36,9 +36,9 @@ module.exports = (app) => {
 
   app.get(`/api/user/email/:email`, async (req, res) => {
     const { email } = req.params;
-    const foundUser = await userHandler.getUserByEmail(email);
-    const emailSettings = await userHandler.getEmailSettings(foundUser._id);
-    res.status(200).send({ ...foundUser, ...emailSettings });
+    const userInfo = await userHandler.getUserByEmail(email);
+    const emailSettings = await userHandler.getEmailSettings(userInfo._id);
+    res.status(200).send({ userInfo, emailSettings });
   });
 
   app.get(`/api/user/emailPref/:id`, async (req, res) => {
@@ -78,9 +78,12 @@ module.exports = (app) => {
   app.put(`/api/user/avatar/:id`, (req, res) => {
     const { id } = req.params;
     const { image } = req.body;
-    s3Handler.uploadAvatar(id, image);
-
-    res.status(200).send(`success`);
+    try {
+      s3Handler.uploadAvatar(id, image);
+      res.status(200).send(`success`);
+    } catch (err) {
+      res.status(500).send('Error Saving the Avatar');
+    }
   });
 
   app.get(`/api/user/avatar/:id`, async (req, res) => {

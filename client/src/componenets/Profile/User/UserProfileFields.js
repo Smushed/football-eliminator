@@ -4,6 +4,8 @@ import axios from 'axios';
 
 import '../profileStyle.css';
 
+//OLD DELETE THIS THING
+
 const UserProfileFields = ({
   currentUser,
   username,
@@ -35,6 +37,7 @@ const UserProfileFields = ({
   }, [username, currentUser]);
 
   const userProfilePull = () => {
+    console.log({ insideProfileFields: username });
     axios
       .get(`/api/user/name/${username}`, { cancelToken: axiosCancel.token })
       .then((res) => {
