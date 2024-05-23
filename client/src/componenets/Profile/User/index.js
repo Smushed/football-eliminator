@@ -17,6 +17,12 @@ import { AvatarContext } from '../../Avatars';
 
 import EyeSVG from '../../../constants/SVG/eye.svg';
 import EyeSlashSVG from '../../../constants/SVG/eye-slash.svg';
+import {
+  EmailInput,
+  MainGroupInput,
+  PasswordInput,
+  UsernameInput,
+} from '../ProfileInputs';
 
 const Alert = withReactContent(Swal);
 
@@ -220,10 +226,9 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
   return (
     <>
       <div className={modalOpen ? 'greyBackdrop' : ''} />
-
       <div className='container'>
         <div className='mt-5 justify-content-center row'>
-          <div className='col-xs-12 col-lg-8 border rounded'>
+          <div className='col-xs-12 col-lg-8 border rounded shadow'>
             <div className='row justify-content-center'>
               <div className='col-6 mt-5 text-center'>
                 <img
@@ -233,81 +238,31 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
                 />
               </div>
               <div className='col-6'>
-                <div className='row justify-content-center mt-3'>
-                  <div className='col-12'>
-                    <small htmlFor='usernameInput' className='form-label'>
-                      Username
-                    </small>
-                    <input
-                      id='usernameInput'
-                      type='text'
-                      className='form-control'
-                      value={userFieldsOnPage.username}
-                    />
-                  </div>
-                </div>
-                <div className='row justify-content-center'>
-                  <div className='col-12'>
-                    <small htmlFor='emailInput' className='form-label'>
-                      Email
-                    </small>
-                    <input
-                      type='text'
-                      className='form-control'
-                      value={userFieldsOnPage.email}
-                    />
-                  </div>
-                </div>
+                <UsernameInput
+                  handleChange={handleChange}
+                  placeholderUsername={userFieldsOnPage.username}
+                  currentUserName={userFieldsOnPage.username}
+                />
+                <EmailInput
+                  email={userFieldsOnPage.email}
+                  handleChange={handleChange}
+                  placeholderEmail={userFieldsOnPage.email}
+                />
                 {isCurrentUser && (
-                  <div className='row justify-content-center'>
-                    <div className='col-12'>
-                      <small htmlFor='emailInput' className='form-label'>
-                        Password
-                      </small>
-                      <div className='input-group'>
-                        <input
-                          type={showHidePassword}
-                          className='form-control'
-                          // value={userFieldsOnPage.email}
-                        />
-                        <span className='input-group-text'>
-                          {showHidePassword === 'password' ? (
-                            <img
-                              src={EyeSVG}
-                              alt='Show'
-                              className='passwordHideShowSVG'
-                              onClick={() => toggleShowPassword()}
-                            />
-                          ) : (
-                            <img
-                              src={EyeSlashSVG}
-                              alt='Show'
-                              className='passwordHideShowSVG'
-                              onClick={() => toggleShowPassword()}
-                            />
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                  <PasswordInput
+                    password={userFieldsOnPage.email}
+                    showPassword={showHidePassword}
+                    toggleShowPassword={toggleShowPassword}
+                    handleChange={handleChange}
+                  />
                 )}
                 <div className='row justify-content-center'>
                   <div className='col-12'>
-                    <small htmlFor='mainGroupDropdown' className='form-label'>
-                      Main Group
-                    </small>
-                    <select
-                      type='text'
-                      className='form-select'
-                      value={mainGroupName}
-                    >
-                      {userFieldsOnPage.groupList &&
-                        userFieldsOnPage.groupList.map((group) => (
-                          <option key={group._id} value={group.N}>
-                            {group.N}
-                          </option>
-                        ))}
-                    </select>
+                    <MainGroupInput
+                      groupList={userFieldsOnPage.groupList}
+                      mainGroup={mainGroupName}
+                      handleChange={handleChange}
+                    />
                   </div>
                 </div>
                 <div className='row justify-content-center'>
@@ -360,7 +315,7 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
                 </div>
               </div>
               {currentUser && (
-                <div className='row justify-content-center mt-2 mb-2 text-center'>
+                <div className='row justify-content-center mt-3 mb-4 text-center'>
                   <div className='col-6'>
                     <label className='btn btn-primary'>
                       Upload Avatar

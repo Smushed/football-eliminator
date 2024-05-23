@@ -128,7 +128,7 @@ const ConfirmPasswordInput = ({
   </div>
 );
 
-const EmailInput = ({ email, handleChange, authUser }) => (
+const EmailInput = ({ email, handleChange, placeholderEmail }) => (
   <div className='row mt-2'>
     <div className='col-12'>
       <small htmlFor='email' className='form-label'>
@@ -141,30 +141,32 @@ const EmailInput = ({ email, handleChange, authUser }) => (
           value={email}
           type='email'
           onChange={handleChange}
-          placeholder={authUser ? authUser.email : 'Email'}
+          placeholder={placeholderEmail ? placeholderEmail : 'Email'}
         />
       </div>
     </div>
   </div>
 );
 
-const MainGroupInput = ({ currentUser, mainGroup, handleChange }) => (
-  <div className='d-flex mt-3'>
-    <div className='input-group input-group-lg flex'>
-      <span className='input-group-text fieldDescription'>Main Group:</span>
-      <select
-        className='form-select'
-        name='mainGroup'
-        value={mainGroup}
-        onChange={handleChange}
-      >
-        {currentUser.GL &&
-          currentUser.GL.map((group) => (
-            <option key={group._id} value={group._id}>
-              {group.N}
-            </option>
-          ))}
-      </select>
+const MainGroupInput = ({ groupList, mainGroup, handleChange }) => (
+  <div className='row mt-2'>
+    <div className='col-12'>
+      <small className='form-label'>Main Group:</small>
+      <div className='input-group'>
+        <select
+          className='form-select'
+          name='mainGroup'
+          value={mainGroup}
+          onChange={handleChange}
+        >
+          {groupList &&
+            groupList.map((group) => (
+              <option key={group._id} value={group._id}>
+                {group.N}
+              </option>
+            ))}
+        </select>
+      </div>
     </div>
   </div>
 );
