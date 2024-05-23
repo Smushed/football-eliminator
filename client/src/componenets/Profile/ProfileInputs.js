@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import EyeSVG from '../../constants/SVG/eye.svg';
+import EyeSlashSVG from '../../constants/SVG/eye-slash.svg';
 
 const AvatarInput = ({ handleChange, fileInputRef }) => (
   <div className='d-flex mt-3 '>
@@ -23,17 +25,21 @@ const AvatarInput = ({ handleChange, fileInputRef }) => (
 );
 
 const UsernameInput = ({ handleChange, username, currentUserName }) => (
-  <div className='d-flex mt-3'>
-    <div className='input-group input-group-lg'>
-      <span className='input-group-text fieldDescription'>Username:</span>
-      <input
-        className='form-control'
-        name='username'
-        value={username}
-        type='text'
-        onChange={handleChange}
-        placeholder={currentUserName}
-      />
+  <div className='row mt-2'>
+    <div className='col'>
+      <small htmlFor='username' className='form-label'>
+        Username:
+      </small>
+      <div className='input-group'>
+        <input
+          className='form-control'
+          name='username'
+          value={username}
+          type='text'
+          onChange={handleChange}
+          placeholder={currentUserName}
+        />
+      </div>
     </div>
   </div>
 );
@@ -44,27 +50,38 @@ const PasswordInput = ({
   showPassword,
   toggleShowPassword,
 }) => (
-  <div className='d-flex mt-3'>
-    <div className='input-group input-group-lg'>
-      <span className='input-group-text fieldDescription'>Password:</span>
-      <input
-        className='form-control'
-        name='password'
-        value={password}
-        type={showPassword}
-        onChange={handleChange}
-        placeholder='Password'
-      />
-      <span className='input-group-text fieldDescription inputCheckbox'>
+  <div className='mt-2 row'>
+    <div className='col-12'>
+      <small htmlFor='password' className='form-label'>
+        Password:
+      </small>
+      <div className='input-group'>
         <input
-          className='largeCheckbox input-group-text fieldDescription'
-          type='checkbox'
-          value={showPassword}
-          name='togglePassword'
-          onChange={toggleShowPassword}
+          className='form-control'
+          name='password'
+          value={password}
+          type={showPassword}
+          onChange={handleChange}
+          placeholder='Password'
         />
-        <div className='largeTogglePass'>&nbsp;Show</div>
-      </span>
+        <span className='input-group-text'>
+          {showPassword === 'password' ? (
+            <img
+              src={EyeSVG}
+              alt='Show'
+              className='passwordHideShowSVG'
+              onClick={() => toggleShowPassword()}
+            />
+          ) : (
+            <img
+              src={EyeSlashSVG}
+              alt='Show'
+              className='passwordHideShowSVG'
+              onClick={() => toggleShowPassword()}
+            />
+          )}
+        </span>
+      </div>
     </div>
   </div>
 );
@@ -75,43 +92,58 @@ const ConfirmPasswordInput = ({
   showPassword,
   toggleShowPassword,
 }) => (
-  <div className='d-flex mt-3'>
-    <div className='input-group input-group-lg'>
-      <span className='input-group-text fieldDescription'>Confirm:</span>
-      <input
-        className='form-control'
-        name='confirmPassword'
-        value={password}
-        type={showPassword}
-        onChange={handleChange}
-        placeholder='Confirm Password'
-      />
-      <span className='input-group-text fieldDescription inputCheckbox'>
+  <div className='mt-2 row'>
+    <div className='col-12'>
+      <small htmlFor='confirmPassword' className='form-label'>
+        Confirm:
+      </small>
+      <div className='input-group'>
         <input
-          className='largeCheckbox input-group-text'
-          type='checkbox'
-          value={showPassword}
-          name='togglePassword'
-          onChange={toggleShowPassword}
+          className='form-control'
+          name='confirmPassword'
+          value={password}
+          type={showPassword}
+          onChange={handleChange}
+          placeholder='Confirm Password'
         />
-        <div className='largeTogglePass'>&nbsp;Show</div>
-      </span>
+        <span className='input-group-text'>
+          {showPassword === 'password' ? (
+            <img
+              src={EyeSVG}
+              alt='Show'
+              className='passwordHideShowSVG'
+              onClick={() => toggleShowPassword()}
+            />
+          ) : (
+            <img
+              src={EyeSlashSVG}
+              alt='Show'
+              className='passwordHideShowSVG'
+              onClick={() => toggleShowPassword()}
+            />
+          )}
+        </span>
+      </div>
     </div>
   </div>
 );
 
 const EmailInput = ({ email, handleChange, authUser }) => (
-  <div className='d-flex mt-3'>
-    <div className='input-group input-group-lg'>
-      <span className='input-group-text fieldDescription'>Email:</span>
-      <input
-        className='form-control'
-        name='email'
-        value={email}
-        type='email'
-        onChange={handleChange}
-        placeholder={authUser ? authUser.email : 'Email'}
-      />
+  <div className='row mt-2'>
+    <div className='col-12'>
+      <small htmlFor='email' className='form-label'>
+        Email:
+      </small>
+      <div className='input-group'>
+        <input
+          className='form-control'
+          name='email'
+          value={email}
+          type='email'
+          onChange={handleChange}
+          placeholder={authUser ? authUser.email : 'Email'}
+        />
+      </div>
     </div>
   </div>
 );
