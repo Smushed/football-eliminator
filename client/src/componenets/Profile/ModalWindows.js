@@ -8,101 +8,94 @@ import 'jimp';
 // import Jimp from 'jimp/browser/lib/jimp.js';
 import toast from 'react-hot-toast';
 
-import {
-  UsernameInput,
-  EmailInput,
-  PasswordInput,
-  MainGroupInput,
-} from './ProfileInputs';
+import { EmailInput, PasswordInput } from './ProfileInputs';
 
-const ReAuth = ({
-  firebase,
-  updatedFields,
-  authUser,
-  openCloseModal,
-  currentUser,
-  pullUserData,
-}) => {
-  const [email, setEmail] = useState(``);
-  const [password, setPassword] = useState(``);
-  const [showPassword, toggleShowPassword] = useState(`password`);
-  const [loginErr, addLoginErr] = useState(``);
-
-  const handleUpdate = () => {
-    const request = {};
-    let needToUpdateDb = false;
-    if (updatedFields.password !== ``) {
-      authUser.updatePassword(updatedFields.password);
-    }
-    if (updatedFields.email !== ``) {
-      authUser.updateEmail(updatedFields.email);
-      request.E = updatedFields.email;
-      needToUpdateDb = true;
-    }
-    if (updatedFields.username !== ``) {
-      request.UN = updatedFields.username.trim();
-      needToUpdateDb = true;
-    }
-    if (needToUpdateDb) {
-      axios
-        .put(`/api/user/updateProfile`, { request, userId: currentUser.userId })
-        .then((res) => {
-          pullUserData(authUser.email);
-        });
-    }
-  };
+const ReAuth = ({ firebase, openCloseModal, reAuthSuccess }) => {
+  const [inputs, setInputs] = useState({ email: '', password: '' });
+  const [showPassword, setShowPassword] = useState('password');
+  const [loginErr, addLoginErr] = useState('');
 
   const handleReAuth = () => {
     firebase
-      .doSignInWithEmailAndPassword(email, password)
+      .doSignInWithEmailAndPassword(inputs.email, inputs.password)
       .then((res) => {
-        openCloseModal(false);
         if (res.credential !== null) {
           firebase.auth.currentUser
             .reauthenticateWithCredential(res.credential)
-            .then(() => handleUpdate())
+            .then(() => {
+              reAuthSuccess(true);
+              openCloseModal(false);
+            })
             .catch((err) => console.log(`err`, err));
         } else {
-          handleUpdate();
+          reAuthSuccess(true);
+          openCloseModal(false);
         }
       })
-      .catch((err) => addLoginErr(err.message));
+      .catch((err) => {
+        addLoginErr(err.message);
+      });
+  };
+
+  const hideShowPassword = () => {
+    if (showPassword === 'password') {
+      setShowPassword('text');
+    } else {
+      setShowPassword('password');
+    }
   };
 
   const handleChange = (e) => {
-    e.target.name === `email` && setEmail(e.target.value);
-    e.target.name === `password` && setPassword(e.target.value);
-    if (e.target.name === `togglePassword`) {
-      e.target.value === `password`
-        ? toggleShowPassword(`text`)
-        : toggleShowPassword(`password`);
-      return;
-    }
+    setInputs({ ...inputs, [e.target.name]: e.target.value });
   };
 
   return (
     <>
-      <div className='reAuthHeader'>
-        Trying to update profile data, relogin required.
+      <div className='row justify-content-center'>
+        <div className='col-xs-12 col-lg-10'>
+          <div className='text-center mb-3 mt-3 fs-5 border-bottom fw-semibold'>
+            Trying to update profile data, relogin required.
+          </div>
+        </div>
       </div>
-      <div>{loginErr}</div>
-      <EmailInput handleChange={handleChange} email={email} modalOpen={false} />
-      <PasswordInput
-        handleChange={handleChange}
-        password={password}
-        showPassword={showPassword}
-        modalOpen={false}
-      />
-      <div className='profileButtonWrapper'>
+      <div className='row'>
+        <div className='col-12'>
+          <div className='text-danger text-center'>{loginErr}</div>
+        </div>
+      </div>
+      <div className='row justify-content-center'>
+        <div className='col-xs-12 col-lg-8'>
+          <EmailInput
+            handleChange={handleChange}
+            email={inputs.email}
+            modalOpen={false}
+          />
+        </div>
+      </div>
+      <div className='row justify-content-center'>
+        <div className='col-xs-12 col-lg-8'>
+          <PasswordInput
+            handleChange={handleChange}
+            password={inputs.password}
+            showPassword={showPassword}
+            toggleShowPassword={hideShowPassword}
+            modalOpen={false}
+          />
+        </div>
+      </div>
+      <div className='d-flex justify-content-evenly mt-4'>
         <button
-          className='btn btn-success profileModalButton'
+          className='btn btn-primary profileModalButton'
           onClick={handleReAuth}
         >
           Re-Login
         </button>
         <button
-          className='btn btn-danger profileModalButton'
-          onClick={() => openCloseModal(false)}
+          className='btn btn-secondary profileModalButton'
+          onClick={() => {
+            setInputs({ email: 'smushedcode@gmail.com', password: 'kratos34' });
+            // openCloseModal(false)
+          }}
         >
           Close
         </button>

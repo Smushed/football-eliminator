@@ -172,10 +172,10 @@ const PlayerDisplayTable = ({
     {showInput && (
       <div className='row'>
         <div className='col-12'>
+          <small htmlFor='playerSearch' className='ps-1 form-label'>
+            Player Search:
+          </small>
           <div className='playerSearchBox input-group input-group-lg mb-2'>
-            <span className='input-group-text rosterFieldDescription'>
-              Player:
-            </span>
             <input
               className='form-control'
               name='playerSearch'

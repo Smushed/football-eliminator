@@ -96,11 +96,11 @@ const SignUpFormBase = ({
   showPassword,
   toggleShowPassword,
 }) => {
-  const [email, updateEmail] = useState(``);
-  const [username, updateUsername] = useState(``);
-  const [password, updatePassword] = useState(``);
-  const [confirmPassword, updateConfirmPassword] = useState(``);
-  const [error, updateError] = useState(``);
+  const [email, updateEmail] = useState('');
+  const [username, updateUsername] = useState('');
+  const [password, updatePassword] = useState('');
+  const [confirmPassword, updateConfirmPassword] = useState('');
+  const [error, updateError] = useState('');
 
   const [validMessage, updateValidMessage] = useState([]);
   const [emailValid, updateEmailValid] = useState(false);
@@ -230,31 +230,19 @@ const SignUpFormBase = ({
         </div>
         <div className='row justify-content-center'>
           <div className='col-9'>
-            <EmailInput
-              authUser={false}
-              handleChange={handleChange}
-              email={email}
-              modalOpen={false}
-            />
-            <UsernameInput
-              handleChange={handleChange}
-              username={username}
-              currentUser={null}
-              modalOpen={false}
-            />
+            <EmailInput handleChange={handleChange} email={email} />
+            <UsernameInput handleChange={handleChange} username={username} />
             <PasswordInput
               handleChange={handleChange}
               toggleShowPassword={toggleShowPassword}
               password={password}
               showPassword={showPassword}
-              modalOpen={false}
             />
             <ConfirmPasswordInput
               handleChange={handleChange}
               toggleShowPassword={toggleShowConfirmPassword}
               password={confirmPassword}
               showPassword={showConfirmPass}
-              modalOpen={false}
             />
           </div>
         </div>
@@ -276,9 +264,9 @@ const SignInFormBase = ({
   showPassword,
   toggleShowPassword,
 }) => {
-  const [email, updateEmail] = useState(``);
-  const [password, updatePassword] = useState(``);
-  const [error, updateError] = useState(``);
+  const [email, updateEmail] = useState('');
+  const [password, updatePassword] = useState('');
+  const [error, updateError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -342,18 +330,12 @@ const SignInFormBase = ({
     <div className='d-flex justify-content-center'>
       <form onSubmit={handleSubmit}>
         <div className='text-center fw-bold'>{error}</div>
-        <EmailInput
-          authUser={false}
-          handleChange={handleChange}
-          email={email}
-          modalOpen={false}
-        />
+        <EmailInput handleChange={handleChange} email={email} />
         <PasswordInput
           handleChange={handleChange}
           toggleShowPassword={toggleShowPassword}
           password={password}
           showPassword={showPassword}
-          modalOpen={false}
         />
         <div className='mt-4 mb-1 row'>
           <div className='col-12 col-lg-6 text-center'>

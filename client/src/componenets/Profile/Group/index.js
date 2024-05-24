@@ -132,8 +132,6 @@ const Profile = ({
 
   return (
     <>
-      <div className={modalOpen ? 'greyBackdrop' : ''} />
-
       <GroupProfile
         groupName={match.params.name}
         currentUser={currentUser}

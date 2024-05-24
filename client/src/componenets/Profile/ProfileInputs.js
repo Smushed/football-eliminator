@@ -24,7 +24,12 @@ const AvatarInput = ({ handleChange, fileInputRef }) => (
   </div>
 );
 
-const UsernameInput = ({ handleChange, username, currentUserName }) => (
+const UsernameInput = ({
+  handleChange,
+  username,
+  placeholderUsername,
+  disabled,
+}) => (
   <div className='row mt-2'>
     <div className='col'>
       <small htmlFor='username' className='form-label'>
@@ -36,8 +41,9 @@ const UsernameInput = ({ handleChange, username, currentUserName }) => (
           name='username'
           value={username}
           type='text'
+          disabled={disabled}
           onChange={handleChange}
-          placeholder={currentUserName}
+          placeholder={placeholderUsername}
         />
       </div>
     </div>
@@ -49,6 +55,7 @@ const PasswordInput = ({
   password,
   showPassword,
   toggleShowPassword,
+  disabled,
 }) => (
   <div className='mt-2 row'>
     <div className='col-12'>
@@ -61,6 +68,7 @@ const PasswordInput = ({
           name='password'
           value={password}
           type={showPassword}
+          disabled={disabled}
           onChange={handleChange}
           placeholder='Password'
         />
@@ -91,6 +99,7 @@ const ConfirmPasswordInput = ({
   password,
   showPassword,
   toggleShowPassword,
+  disabled,
 }) => (
   <div className='mt-2 row'>
     <div className='col-12'>
@@ -103,6 +112,7 @@ const ConfirmPasswordInput = ({
           name='confirmPassword'
           value={password}
           type={showPassword}
+          disabled={disabled}
           onChange={handleChange}
           placeholder='Confirm Password'
         />
@@ -128,7 +138,7 @@ const ConfirmPasswordInput = ({
   </div>
 );
 
-const EmailInput = ({ email, handleChange, placeholderEmail }) => (
+const EmailInput = ({ email, handleChange, placeholderEmail, disabled }) => (
   <div className='row mt-2'>
     <div className='col-12'>
       <small htmlFor='email' className='form-label'>
@@ -140,6 +150,7 @@ const EmailInput = ({ email, handleChange, placeholderEmail }) => (
           name='email'
           value={email}
           type='email'
+          disabled={disabled}
           onChange={handleChange}
           placeholder={placeholderEmail ? placeholderEmail : 'Email'}
         />
@@ -148,7 +159,7 @@ const EmailInput = ({ email, handleChange, placeholderEmail }) => (
   </div>
 );
 
-const MainGroupInput = ({ groupList, mainGroup, handleChange }) => (
+const MainGroupInput = ({ groupList, mainGroup, handleChange, disabled }) => (
   <div className='row mt-2'>
     <div className='col-12'>
       <small className='form-label'>Main Group:</small>
@@ -157,6 +168,7 @@ const MainGroupInput = ({ groupList, mainGroup, handleChange }) => (
           className='form-select'
           name='mainGroup'
           value={mainGroup}
+          disabled={disabled}
           onChange={handleChange}
         >
           {groupList &&

@@ -9,14 +9,11 @@ import 'jimp';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
+import { ReAuth, ImageEditor } from '../ModalWindows';
+import { AvatarContext } from '../../Avatars';
 import 'rc-slider/assets/index.css';
 import '../profileStyle.css';
 
-import { ReAuth, ImageEditor } from '../ModalWindows';
-import { AvatarContext } from '../../Avatars';
-
-import EyeSVG from '../../../constants/SVG/eye.svg';
-import EyeSlashSVG from '../../../constants/SVG/eye-slash.svg';
 import {
   EmailInput,
   MainGroupInput,
@@ -26,25 +23,24 @@ import {
 
 const Alert = withReactContent(Swal);
 
-const userFields = {
-  id: '',
-  username: '',
-  email: '',
-  password: '',
-  mainGroup: '',
-  leaderboardEmail: true,
-  reminderEmail: true,
-  groupList: [],
-};
-
 const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalState, setModalState] = useState('reAuth');
-  const [userFieldsOnPage, setUserFieldsOnPage] = useState(userFields);
-  const [mainGroupName, setMainGroupName] = useState('');
+  const [reAuthSuccess, setReAuthSuccess] = useState(false);
+  const [originalState, setOriginalState] = useState({});
   const [tempAvatar, setTempAvatar] = useState('');
   const [isCurrentUser, setIsCurrentUser] = useState(false);
   const [showHidePassword, setShowHidePassword] = useState('password');
+  const [userFieldsOnPage, setUserFieldsOnPage] = useState({
+    id: '',
+    username: '',
+    email: '',
+    password: '',
+    mainGroup: '',
+    leaderboardEmail: true,
+    reminderEmail: true,
+    groupList: [],
+  });
 
   const fileInputRef = useRef(null);
   const axiosCancel = axios.CancelToken.source();
@@ -55,7 +51,6 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
 
   useEffect(() => {
     setIsCurrentUser(params.name === currentUser.username);
-    getMainGroupName(currentUser);
   }, [params.name, currentUser]);
 
   useEffect(() => {
@@ -63,6 +58,12 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
       userProfilePull(params.name);
     }
   }, [params.name]);
+
+  useEffect(() => {
+    if (reAuthSuccess) {
+      updateUserInfo();
+    }
+  }, [reAuthSuccess]);
 
   const openCloseModal = (cmd) => {
     setModalOpen(cmd);
@@ -99,7 +100,7 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
     ) {
       setUserFieldsOnPage({
         ...userFieldsOnPage,
-        [e.target.name]: e.target.value ? true : false,
+        [e.target.name]: e.target.checked,
       });
     } else {
       setUserFieldsOnPage({
@@ -109,21 +110,71 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
     }
   };
 
+  const updateInfo = () => {
+    const updatedFields = buildUpdates(originalState, userFieldsOnPage);
+    if (updatedFields.email || updatedFields.username) {
+      setModalState('reAuth');
+      openCloseModal(true);
+    } else {
+      updateUserInfo();
+    }
+  };
+
+  const buildUpdates = (original, compare) => {
+    const diff = {};
+    for (const key in original) {
+      if (original[key] !== compare[key]) {
+        diff[key] = compare[key];
+      }
+    }
+    return diff;
+  };
+
+  const updateUserInfo = () => {
+    const updatedFields = buildUpdates(originalState, userFieldsOnPage);
+    let needToUpdateDb = false;
+
+    console.log({ userFieldsOnPage, originalState, updatedFields });
+    setReAuthSuccess(false);
+    // if (updatedFields.password !== '') {
+    //   authUser.updatePassword(updatedFields.password);
+    // }
+    // if (updatedFields.email !== '') {
+    //   authUser.updateEmail(updatedFields.email);
+    //   request.E = updatedFields.email;
+    //   needToUpdateDb = true;
+    // }
+    // if (updatedFields.username !== '') {
+    //   request.UN = updatedFields.username.trim();
+    //   needToUpdateDb = true;
+    // }
+    // if (needToUpdateDb) {
+    //   axios
+    //     .put(`/api/user/updateProfile`, { request, userId: currentUser.userId })
+    //     .then((res) => {
+    //       pullUserData(authUser.email);
+    //     });
+    // }
+  };
+
   const createProfileFields = async (user) => {
     try {
       const emailRes = await axios.get(`/api/user/emailPref/${user._id}`);
       const groupList = await axios.get(
         `/api/group/details/byUser/${user._id}`
       );
-      console.log({ groupList });
-      setUserFieldsOnPage({
+      const builtUser = {
+        password: '',
         id: user._id,
         username: user.UN,
         email: user.E,
-        leaderboardEmail: emailRes.LE,
-        reminderEmail: emailRes.RE,
+        leaderboardEmail: emailRes.data.LE,
+        reminderEmail: emailRes.data.RE,
+        mainGroup: user.MG,
         groupList: groupList.data,
-      });
+      };
+      setOriginalState(builtUser);
+      setUserFieldsOnPage(builtUser);
     } catch (err) {
       toast.error('Error pulling data, try again later', {
         position: 'top-right',
@@ -142,7 +193,7 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
 
   const requestCloseModal = () => {
     openCloseModal(false);
-    setTempAvatar(``);
+    setTempAvatar('');
   };
 
   const userProfilePull = (username) => {
@@ -159,17 +210,6 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
           console.log(err);
         }
       });
-  };
-
-  const getMainGroupName = (currUser) => {
-    if (currUser.GL !== undefined) {
-      for (const group of currUser.GL) {
-        if (currUser.MG === group._id) {
-          setMainGroupName(group.N);
-          return;
-        }
-      }
-    }
   };
 
   const saveAvatarToAWS = (updatedAvatar) => {
@@ -225,43 +265,46 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
 
   return (
     <>
-      <div className={modalOpen ? 'greyBackdrop' : ''} />
       <div className='container'>
         <div className='mt-5 justify-content-center row'>
           <div className='col-xs-12 col-lg-8 border rounded shadow'>
             <div className='row justify-content-center'>
               <div className='col-6 mt-5 text-center'>
                 <img
-                  className='rounded'
+                  className={`rounded ${currentUser ? 'mt-5' : 'mt-1'}`}
                   name='avatar'
                   src={userAvatars[userFieldsOnPage.id]}
                 />
               </div>
-              <div className='col-6'>
+              <div className='col-6 mt-2'>
                 <UsernameInput
                   handleChange={handleChange}
                   placeholderUsername={userFieldsOnPage.username}
-                  currentUserName={userFieldsOnPage.username}
+                  username={userFieldsOnPage.username}
+                  disabled={!isCurrentUser}
                 />
                 <EmailInput
                   email={userFieldsOnPage.email}
                   handleChange={handleChange}
                   placeholderEmail={userFieldsOnPage.email}
+                  disabled={!isCurrentUser}
                 />
                 {isCurrentUser && (
                   <PasswordInput
-                    password={userFieldsOnPage.email}
+                    password={userFieldsOnPage.password}
                     showPassword={showHidePassword}
                     toggleShowPassword={toggleShowPassword}
                     handleChange={handleChange}
+                    disabled={!isCurrentUser}
                   />
                 )}
                 <div className='row justify-content-center'>
                   <div className='col-12'>
                     <MainGroupInput
                       groupList={userFieldsOnPage.groupList}
-                      mainGroup={mainGroupName}
+                      mainGroup={userFieldsOnPage.mainGroup}
                       handleChange={handleChange}
+                      disabled={!isCurrentUser}
                     />
                   </div>
                 </div>
@@ -275,6 +318,7 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
                             type='checkbox'
                             role='switch'
                             id='leaderboardEmailSwitch'
+                            disabled={!isCurrentUser}
                             checked={userFieldsOnPage.leaderboardEmail}
                             onChange={handleChange}
                             name='leaderboardEmail'
@@ -296,6 +340,7 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
                             type='checkbox'
                             role='switch'
                             id='reminderEmailSwitch'
+                            disabled={!isCurrentUser}
                             checked={userFieldsOnPage.reminderEmail}
                             onChange={handleChange}
                             name='reminderEmail'
@@ -330,13 +375,7 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
                   </div>
                   <div className='col-6'>
                     {isCurrentUser && (
-                      <button
-                        className='btn btn-primary'
-                        onClick={() => {
-                          openCloseModal(true);
-                          setModalState('user');
-                        }}
-                      >
+                      <button className='btn btn-primary' onClick={updateInfo}>
                         Update Info
                       </button>
                     )}
@@ -355,9 +394,7 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
         onRequestClose={requestCloseModal}
         isOpen={modalOpen}
         contentLabel='profileModal'
-        className={`profileModal ${
-          modalState === `group` && `groupModalHeight`
-        }`}
+        className='profileModal'
         overlayClassName='modalOverlay'
         ariaHideApp={false}
       >
@@ -365,10 +402,7 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
           <ReAuth
             openCloseModal={openCloseModal}
             firebase={firebase}
-            updatedFields={userFieldsOnPage}
-            authUser={authUser}
-            currentUser={currentUser}
-            pullUserData={pullUserData}
+            reAuthSuccess={setReAuthSuccess}
           />
         ) : (
           modalState === `avatar` && (
