@@ -1,6 +1,6 @@
 .leaderboardContainter {
   z-index: 0.8;
-  height: 435px;
+  min-height: 435px;
   overflow-y: scroll;
   -ms-overflow-style: none;
   scrollbar-width: none;
