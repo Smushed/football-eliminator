@@ -1,40 +1,35 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useCallback } from 'react';
 
 import Cropper from 'react-easy-crop';
 import Slider from 'rc-slider';
-import axios from 'axios';
 import 'jimp';
-// import Jimp from 'jimp/browser/lib/jimp.js';
 import toast from 'react-hot-toast';
+import {
+  getAuth,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+} from 'firebase/auth';
 
 import { EmailInput, PasswordInput } from './ProfileInputs';
 
-const ReAuth = ({ firebase, openCloseModal, reAuthSuccess }) => {
+const ReAuth = ({ openCloseModal, reAuthSuccess }) => {
   const [inputs, setInputs] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState('password');
   const [loginErr, addLoginErr] = useState('');
 
-  const handleReAuth = () => {
-    firebase
-      .doSignInWithEmailAndPassword(inputs.email, inputs.password)
-      .then((res) => {
-        if (res.credential !== null) {
-          firebase.auth.currentUser
-            .reauthenticateWithCredential(res.credential)
-            .then(() => {
-              reAuthSuccess(true);
-              openCloseModal(false);
-            })
-            .catch((err) => console.log(`err`, err));
-        } else {
-          reAuthSuccess(true);
-          openCloseModal(false);
-        }
-      })
-      .catch((err) => {
-        addLoginErr(err.message);
-      });
+  const handleReAuth = async () => {
+    try {
+      const credential = EmailAuthProvider.credential(
+        inputs.email,
+        inputs.password
+      );
+      await reauthenticateWithCredential(getAuth().currentUser, credential);
+      reAuthSuccess(true);
+      openCloseModal(false);
+    } catch (err) {
+      addLoginErr(err.message);
+      return;
+    }
   };
 
   const hideShowPassword = () => {
@@ -93,8 +88,7 @@ const ReAuth = ({ firebase, openCloseModal, reAuthSuccess }) => {
         <button
           className='btn btn-secondary profileModalButton'
           onClick={() => {
-            setInputs({ email: 'smushedcode@gmail.com', password: 'kratos34' });
-            // openCloseModal(false)
+            openCloseModal(false);
           }}
         >
           Close
@@ -354,22 +348,5 @@ const ImageEditor = ({
 //   updateModalState: PropTypes.func,
 //   openCloseModal: PropTypes.func,
 // };
-
-ReAuth.propTypes = {
-  firebase: PropTypes.any,
-  updatedFields: PropTypes.object,
-  authUser: PropTypes.any,
-  openCloseModal: PropTypes.func,
-  currentUser: PropTypes.object,
-  history: PropTypes.any,
-  pullUserData: PropTypes.func,
-};
-
-ImageEditor.propTypes = {
-  saveCroppedAvatar: PropTypes.func,
-  fileInputRef: PropTypes.any,
-  tempAvatar: PropTypes.any,
-  openCloseModal: PropTypes.func,
-};
 
 export { ReAuth, ImageEditor };

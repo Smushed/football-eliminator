@@ -165,10 +165,8 @@ const App = ({ firebase }) => {
             path={Routes.userProfile}
             render={() => (
               <UserProfile
-                firebase={firebase}
-                pullUserData={pullUserData}
-                authUser={authUser}
                 currentUser={currentUser}
+                pullUserData={pullUserData}
               />
             )}
           />

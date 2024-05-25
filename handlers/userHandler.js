@@ -68,35 +68,45 @@ module.exports = {
   },
   updateProfile: async (userId, request) => {
     //They can only update one part of their profile at a time
-    if (request.UN) {
-      const dupeUser = await checkDuplicateUser(`username`, request.UN);
+    let toUpdate = {};
+    if (request.UN !== undefined) {
+      const dupeUser = await checkDuplicateUser('username', request.UN);
       if (dupeUser) {
         return { status: 409, message: `Username is in use` };
       }
       if (request.UN.length > 20) {
-        return { status: 413, message: `Username is too long` };
+        return {
+          status: 413,
+          message: `Username must be at least 6 and under 20 characters`,
+        };
       }
-      db.User.updateOne(
-        { _id: userId },
-        { $set: { UN: request.UN } },
-        (err) => {
-          if (err) {
-            return err;
-          }
-        }
-      );
+      toUpdate.UN = request.UN;
     }
-    if (request.E) {
+    if (request.E !== undefined) {
       const dupeUser = await checkDuplicateUser(`email`, request.E);
       if (dupeUser) {
-        return { status: 409, message: `Email is in use` };
+        return { status: 409, message: 'Email is in use' };
       }
-      db.User.updateOne({ _id: userId }, { $set: { E: request.E } }, (err) => {
-        if (err) {
-          return err;
-        }
-      });
+      toUpdate.E = request.E;
     }
+    db.User.updateOne({ _id: userId }, { $set: toUpdate }, (err) => {
+      if (err) {
+        return { status: 400, message: 'Error Updating User Profile' };
+      }
+    });
+
+    toUpdate = {};
+    if (request.LE !== undefined) {
+      toUpdate.LE = request.LE;
+    }
+    if (request.RE !== undefined) {
+      toUpdate.RE = request.RE;
+    }
+    db.UserEmailSettings.updateOne({ U: userId }, { $set: toUpdate }, (err) => {
+      if (err) {
+        return { status: 400, message: 'Error Saving Email Settings' };
+      }
+    });
     return { status: 200, message: `Updated`, UN: request.UN, E: request.E };
   },
   updateToAdmin: async (userId) => {
@@ -140,10 +150,14 @@ module.exports = {
     return { response, status };
   },
   getUserByUsername: async (username) => {
-    const user = await db.User.findOne({ UN: username })
-      .collation({ locale: `en_US`, strength: 2 })
-      .exec();
-    return user;
+    try {
+      const user = await db.User.findOne({ UN: username })
+        .collation({ locale: `en_US`, strength: 2 })
+        .exec();
+      return user;
+    } catch (err) {
+      return { status: 400, message: `User ${username} not found` };
+    }
   },
   purgeDB: () => {
     db.User.deleteMany({}, (err, res) => {

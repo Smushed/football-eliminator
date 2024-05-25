@@ -4,10 +4,11 @@ import PropTypes from 'prop-types';
 import toast from 'react-hot-toast';
 import Session from '../../Session';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 import 'jimp';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import { getAuth, updatePassword, updateEmail } from 'firebase/auth';
 
 import { ReAuth, ImageEditor } from '../ModalWindows';
 import { AvatarContext } from '../../Avatars';
@@ -23,14 +24,16 @@ import {
 
 const Alert = withReactContent(Swal);
 
-const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
+const UserProfile = ({ currentUser, pullUserData }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalState, setModalState] = useState('reAuth');
   const [reAuthSuccess, setReAuthSuccess] = useState(false);
   const [originalState, setOriginalState] = useState({});
   const [tempAvatar, setTempAvatar] = useState('');
   const [isCurrentUser, setIsCurrentUser] = useState(false);
+  const [disableAllFields, setDisableAllFields] = useState(false);
   const [showHidePassword, setShowHidePassword] = useState('password');
+  const [errors, setErrors] = useState([]);
   const [userFieldsOnPage, setUserFieldsOnPage] = useState({
     id: '',
     username: '',
@@ -48,9 +51,11 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
   const { addUserAvatarsToPull, repullUserAvatars, userAvatars } =
     useContext(AvatarContext);
   const params = useParams();
+  const history = useHistory();
 
   useEffect(() => {
     setIsCurrentUser(params.name === currentUser.username);
+    setDisableAllFields(params.name !== currentUser.username);
   }, [params.name, currentUser]);
 
   useEffect(() => {
@@ -67,6 +72,9 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
 
   const openCloseModal = (cmd) => {
     setModalOpen(cmd);
+    if (cmd === false && params.name === currentUser.username) {
+      setDisableAllFields(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -92,8 +100,7 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
         notAnImage();
         e.target.value = '';
       }
-      //User cancelled the crop, return
-      return;
+      return; //User cancelled the crop, return
     } else if (
       e.target.name === `leaderboardEmail` ||
       e.target.name === `reminderEmail`
@@ -112,7 +119,16 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
 
   const updateInfo = () => {
     const updatedFields = buildUpdates(originalState, userFieldsOnPage);
-    if (updatedFields.email || updatedFields.username) {
+    const errors = validateUpdates(updatedFields);
+    if (errors.length > 0) {
+      return;
+    }
+    if (
+      updatedFields.email ||
+      updatedFields.username ||
+      updatedFields.password
+    ) {
+      setDisableAllFields(true);
       setModalState('reAuth');
       openCloseModal(true);
     } else {
@@ -130,31 +146,101 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
     return diff;
   };
 
+  const validateUpdates = ({ username, password, email }) => {
+    const errors = [];
+    if (username) {
+      if (username.length < 6 || userFieldsOnPage.username.length > 20) {
+        errors.push('Username must be at least 6 characters and less than 20');
+      }
+    }
+    if (password) {
+      const noSpacesInPassword = password.match(/^\S*$/);
+      if (password.length < 6 || !noSpacesInPassword) {
+        errors.push(
+          'Password must be 6 characters or longer and have no spaces'
+        );
+      }
+    }
+    if (email) {
+      const checkEmail = email.match(
+        /^(([^<>()\]\\.,;:\s@']+(\.[^<>()\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+      if (!checkEmail) {
+        errors.push('Invalid email');
+      }
+    }
+    setErrors(errors);
+    return errors;
+  };
+
   const updateUserInfo = () => {
     const updatedFields = buildUpdates(originalState, userFieldsOnPage);
+    const validationErrors = validateUpdates(updatedFields);
+    if (validationErrors.length > 0) {
+      return;
+    }
     let needToUpdateDb = false;
+    const request = {};
+    const authUser = getAuth().currentUser;
 
-    console.log({ userFieldsOnPage, originalState, updatedFields });
     setReAuthSuccess(false);
-    // if (updatedFields.password !== '') {
-    //   authUser.updatePassword(updatedFields.password);
-    // }
-    // if (updatedFields.email !== '') {
-    //   authUser.updateEmail(updatedFields.email);
-    //   request.E = updatedFields.email;
-    //   needToUpdateDb = true;
-    // }
-    // if (updatedFields.username !== '') {
-    //   request.UN = updatedFields.username.trim();
-    //   needToUpdateDb = true;
-    // }
-    // if (needToUpdateDb) {
-    //   axios
-    //     .put(`/api/user/updateProfile`, { request, userId: currentUser.userId })
-    //     .then((res) => {
-    //       pullUserData(authUser.email);
-    //     });
-    // }
+    if (updatedFields.password !== undefined) {
+      updatePassword(authUser, updatedFields.password)
+        .then()
+        .catch(() =>
+          toast.error('Error Updating Password', {
+            position: 'top-right',
+            duration: 4000,
+          })
+        );
+    }
+    if (updatedFields.email !== undefined) {
+      updateEmail(authUser, updatedFields.email)
+        .then()
+        .catch(() =>
+          toast.error('Error Updating Email', {
+            position: 'top-right',
+            duration: 4000,
+          })
+        );
+      request.E = updatedFields.email;
+      needToUpdateDb = true;
+    }
+    if (updatedFields.username !== undefined) {
+      request.UN = updatedFields.username.trim();
+      needToUpdateDb = true;
+    }
+    if (updatedFields.leaderboardEmail !== undefined) {
+      request.LE = updatedFields.leaderboardEmail;
+      needToUpdateDb = true;
+    }
+    if (updatedFields.reminderEmail !== undefined) {
+      request.RE = updatedFields.reminderEmail;
+      needToUpdateDb = true;
+    }
+    if (needToUpdateDb) {
+      axios
+        .put(`/api/user/updateProfile`, { request, userId: currentUser.userId })
+        .then((res) => {
+          if (request.E !== undefined) {
+            pullUserData(request.E);
+          } else {
+            pullUserData(currentUser.email);
+          }
+          if (request.UN !== undefined) {
+            history.push(`/profile/user/${request.UN}`);
+            return;
+          }
+          userProfilePull(params.name);
+          toast.success('Profile Updated', {
+            position: 'top-right',
+            duration: 4000,
+          });
+        })
+        .catch((err) =>
+          toast.error(err.message, { position: 'top-right', duration: 4000 })
+        );
+    }
   };
 
   const createProfileFields = async (user) => {
@@ -206,6 +292,10 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
         }
       })
       .catch((err) => {
+        toast.error(err.response.data, {
+          position: 'top-right',
+          duration: 4000,
+        });
         if (err.message !== `Unmounted`) {
           console.log(err);
         }
@@ -268,6 +358,15 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
       <div className='container'>
         <div className='mt-5 justify-content-center row'>
           <div className='col-xs-12 col-lg-8 border rounded shadow'>
+            <div className='row mt-2'>
+              <div className='col-12 text-center'>
+                {errors.map((error, i) => (
+                  <div className='text-danger' key={`err-${i}`}>
+                    {error}
+                  </div>
+                ))}
+              </div>
+            </div>
             <div className='row justify-content-center'>
               <div className='col-6 mt-5 text-center'>
                 <img
@@ -281,13 +380,13 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
                   handleChange={handleChange}
                   placeholderUsername={userFieldsOnPage.username}
                   username={userFieldsOnPage.username}
-                  disabled={!isCurrentUser}
+                  disabled={disableAllFields}
                 />
                 <EmailInput
                   email={userFieldsOnPage.email}
                   handleChange={handleChange}
                   placeholderEmail={userFieldsOnPage.email}
-                  disabled={!isCurrentUser}
+                  disabled={disableAllFields}
                 />
                 {isCurrentUser && (
                   <PasswordInput
@@ -295,7 +394,7 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
                     showPassword={showHidePassword}
                     toggleShowPassword={toggleShowPassword}
                     handleChange={handleChange}
-                    disabled={!isCurrentUser}
+                    disabled={disableAllFields}
                   />
                 )}
                 <div className='row justify-content-center'>
@@ -304,7 +403,7 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
                       groupList={userFieldsOnPage.groupList}
                       mainGroup={userFieldsOnPage.mainGroup}
                       handleChange={handleChange}
-                      disabled={!isCurrentUser}
+                      disabled={disableAllFields}
                     />
                   </div>
                 </div>
@@ -318,7 +417,7 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
                             type='checkbox'
                             role='switch'
                             id='leaderboardEmailSwitch'
-                            disabled={!isCurrentUser}
+                            disabled={disableAllFields}
                             checked={userFieldsOnPage.leaderboardEmail}
                             onChange={handleChange}
                             name='leaderboardEmail'
@@ -340,7 +439,7 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
                             type='checkbox'
                             role='switch'
                             id='reminderEmailSwitch'
-                            disabled={!isCurrentUser}
+                            disabled={disableAllFields}
                             checked={userFieldsOnPage.reminderEmail}
                             onChange={handleChange}
                             name='reminderEmail'
@@ -401,7 +500,6 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
         {modalState === `reAuth` ? (
           <ReAuth
             openCloseModal={openCloseModal}
-            firebase={firebase}
             reAuthSuccess={setReAuthSuccess}
           />
         ) : (
@@ -418,30 +516,5 @@ const UserProfile = ({ authUser, currentUser, firebase, pullUserData }) => {
     </>
   );
 };
-
-UserProfile.propTypes = {
-  authUser: PropTypes.any,
-  currentUser: PropTypes.object,
-  firebase: PropTypes.any,
-  match: PropTypes.any,
-  history: PropTypes.any,
-  pullUserData: PropTypes.func,
-};
-
-// const VerifyEmailButton = ({ authUser }) =>
-//     <div className='verifyEmailDiv floatRight notifications'>
-//         Please Verify your Email
-//     <br />
-//         <button className='btn btn-info' onClick={() => this.sendAuthEmail(authUser)}>Send Verification Email</button>
-//     </div>;
-
-// const SentVerifyEmail = () => <div className='sentEmail floatRight notifications'>Email has been sent</div>;
-
-// const SmallVerifyEmailButton = ({ authUser }) =>
-//     <div className='verifyEmailDiv floatRight notifications smallVerifyEmailBtn'>
-//         <button className='btn btn-info btn-sm' onClick={() => this.sendAuthEmail(authUser)}>Verifiy Email</button>
-//     </div>;
-
-// const SmallSentVerifyEmail = () => <div className='sentEmail smallSentEmail floatRight notifications'>Sent!</div>;
 
 export default Session(UserProfile);

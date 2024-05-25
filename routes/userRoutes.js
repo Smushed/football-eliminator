@@ -7,8 +7,8 @@ const groupHandler = require(`../handlers/groupHandler`);
 module.exports = (app) => {
   app.put(`/api/user/updateProfile`, async (req, res) => {
     const { userId, request } = req.body;
-    const updatedUser = await userHandler.updateProfile(userId, request);
-    res.status(200).send(updatedUser);
+    const updateRes = await userHandler.updateProfile(userId, request);
+    res.status(updateRes.status).send(updateRes.message);
   });
 
   app.put(`/api/updateUserToAdmin/:userId/:pass`, async (req, res) => {
@@ -60,9 +60,12 @@ module.exports = (app) => {
 
   app.get(`/api/user/name/:username`, async (req, res) => {
     const { username } = req.params;
-    const user = await userHandler.getUserByUsername(username);
-    const avatar = await s3Handler.getUserAvatar(user._id);
-    res.status(200).send({ user, avatar });
+      const user = await userHandler.getUserByUsername(username);
+      if (!user) {
+        return res.status(400).send(`User ${username} not found!`);
+      }
+      const avatar = await s3Handler.getUserAvatar(user._id);
+      res.status(200).send({ user, avatar });
   });
 
   app.post(`/api/user/purgeUserAndGroupDB/:pass`, (req, res) => {
