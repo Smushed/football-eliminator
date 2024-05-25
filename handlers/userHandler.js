@@ -105,11 +105,15 @@ module.exports = {
     if (request.RE !== undefined) {
       toUpdate.RE = request.RE;
     }
-    db.UserEmailSettings.updateOne({ U: userId }, { $set: toUpdate }, (err) => {
-      if (err) {
-        return { status: 400, message: 'Error Saving Email Settings' };
+    db.UserReminderSettings.updateOne(
+      { U: userId },
+      { $set: toUpdate },
+      (err) => {
+        if (err) {
+          return { status: 400, message: 'Error Saving Email Settings' };
+        }
       }
-    });
+    );
     return { status: 200, message: `Updated`, UN: request.UN, E: request.E };
   },
   updateToAdmin: async (userId) => {
@@ -219,7 +223,7 @@ module.exports = {
         console.log(`UsedPlayers Deleted`);
       }
     });
-    db.UserEmailSettings.deleteMany({}, (err, res) => {
+    db.UserReminderSettings.deleteMany({}, (err, res) => {
       if (err) {
         console.log(err);
       } else {
@@ -251,19 +255,19 @@ module.exports = {
       res(filledUserList);
     }),
   getEmailSettings: async (userId) => {
-    let emailSettings = await db.UserEmailSettings.findOne({
+    let emailSettings = await db.UserReminderSettings.findOne({
       U: userId,
     })
       .lean()
       .exec();
     if (emailSettings === null) {
-      emailSettings = await db.UserEmailSettings.create({ U: userId });
+      emailSettings = await db.UserReminderSettings.create({ U: userId });
     }
     return emailSettings;
   },
   updateEmailSettings: async (userId, LE, RE) => {
     try {
-      await db.UserEmailSettings.findOneAndUpdate(
+      await db.UserReminderSettings.findOneAndUpdate(
         { U: userId },
         { LE, RE }
       ).exec();
@@ -273,7 +277,7 @@ module.exports = {
   },
   unsubscribeEmails: async (userId) => {
     try {
-      await db.UserEmailSettings.findOneAndUpdate(
+      await db.UserReminderSettings.findOneAndUpdate(
         { U: userId },
         { LE: false, RE: false }
       ).exec();
