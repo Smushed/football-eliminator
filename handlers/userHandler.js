@@ -32,23 +32,18 @@ const checkDuplicateUser = async (checkedField, checkField1, checkField2) => {
 };
 
 const fillOutUserForFrontEnd = async (user) => {
-  const groupList = [];
-  for (let i = 0; i < user.GL.length; i++) {
-    const groupData = await db.Group.findById([user.GL[i]]).exec();
-    groupList.push({
-      N: groupData.N,
-      D: groupData.D,
-      _id: groupData._id,
-    });
-  }
+  const groupData = await db.Group.find({ _id: { $in: user.GL } }).exec();
+  const groupList = groupData.map((group) => {
+    return { N: group.N, D: group.D, _id: group._id };
+  });
   const filledUser = {
     UN: user.UN,
+    E: user.E,
     _id: user._id,
     A: user.A,
     GL: groupList,
     MG: user.MG,
   };
-
   return filledUser;
 };
 
@@ -88,6 +83,14 @@ module.exports = {
         return { status: 409, message: 'Email is in use' };
       }
       toUpdate.E = request.E;
+    }
+    if (request.MG !== undefined) {
+      const foundGroup = await db.Group.findById(request.MG);
+      if (foundGroup) {
+        toUpdate.MG = request.MG;
+      } else {
+        return { status: 400, message: 'Group Id not found' };
+      }
     }
     db.User.updateOne({ _id: userId }, { $set: toUpdate }, (err) => {
       if (err) {

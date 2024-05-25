@@ -661,7 +661,7 @@ module.exports = {
   getGroupDataByUserId: async (userId) => {
     const userGroupList = await db.User.findById(userId, 'GL').exec();
     const groupList = await db.Group.find(
-      { $in: userGroupList.GL },
+      { _id: { $in: userGroupList.GL } },
       'N'
     ).exec();
     return groupList;

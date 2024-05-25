@@ -60,12 +60,12 @@ module.exports = (app) => {
 
   app.get(`/api/user/name/:username`, async (req, res) => {
     const { username } = req.params;
-      const user = await userHandler.getUserByUsername(username);
-      if (!user) {
-        return res.status(400).send(`User ${username} not found!`);
-      }
-      const avatar = await s3Handler.getUserAvatar(user._id);
-      res.status(200).send({ user, avatar });
+    const user = await userHandler.getUserByUsername(username);
+    if (!user) {
+      return res.status(400).send(`User ${username} not found!`);
+    }
+    const avatar = await s3Handler.getUserAvatar(user._id);
+    res.status(200).send({ user, avatar });
   });
 
   app.post(`/api/user/purgeUserAndGroupDB/:pass`, (req, res) => {

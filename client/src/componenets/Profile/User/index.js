@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
 import Modal from 'react-modal';
-import PropTypes from 'prop-types';
 import toast from 'react-hot-toast';
 import Session from '../../Session';
 import axios from 'axios';
@@ -214,6 +213,10 @@ const UserProfile = ({ currentUser, pullUserData }) => {
       request.LE = updatedFields.leaderboardEmail;
       needToUpdateDb = true;
     }
+    if (updatedFields.mainGroup !== undefined) {
+      request.MG = updatedFields.mainGroup;
+      needToUpdateDb = true;
+    }
     if (updatedFields.reminderEmail !== undefined) {
       request.RE = updatedFields.reminderEmail;
       needToUpdateDb = true;
@@ -249,6 +252,7 @@ const UserProfile = ({ currentUser, pullUserData }) => {
       const groupList = await axios.get(
         `/api/group/details/byUser/${user._id}`
       );
+      console.log({ groupList });
       const builtUser = {
         password: '',
         id: user._id,

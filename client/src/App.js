@@ -66,6 +66,7 @@ const App = ({ firebase }) => {
       username: user.UN,
       userId: user._id,
       isAdmin: user.A,
+      email: user.E,
       GL: user.GL,
       MG: user.MG || null,
       E: {

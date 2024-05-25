@@ -46,6 +46,7 @@ module.exports = (app) => {
   app.get(`/api/group/details/byUser/:userId`, async (req, res) => {
     const { userId } = req.params;
     const groupInfoArray = await groupHandler.getGroupDataByUserId(userId);
+    console.log({ groupInfoArray });
     res.status(200).send(groupInfoArray);
   });
 
