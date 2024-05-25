@@ -11,11 +11,9 @@ import withReactContent from 'sweetalert2-react-content';
 import 'rc-slider/assets/index.css';
 import './profileStyle.css';
 
-import { ReAuth, ImageEditor, UserEditor } from './ModalWindows';
+import { ReAuth, ImageEditor, UserEditor } from '../ModalWindows';
 import GroupEditor from './GroupEditor';
-import UserProfile from './UserProfile';
 import GroupProfile from './GroupProfile';
-import FourOFour from '../404';
 
 const Alert = withReactContent(Swal);
 
@@ -134,37 +132,18 @@ const Profile = ({
 
   return (
     <>
-      <div className={modalOpen ? 'greyBackdrop' : ''} />
-
-      {match.params.type === `user` ? (
-        <UserProfile
-          currentUser={currentUser}
-          username={match.params.name}
-          fileInputRef={fileInputRef}
-          avatar={avatar}
-          openCloseModal={openCloseModal}
-          updateAvatar={updateAvatar}
-          handleChange={handleChange}
-          updateModalState={updateModalState}
-          pullUserData={pullUserData}
-          currUserEmail={authUser && authUser.email}
-        />
-      ) : match.params.type === `group` ? (
-        <GroupProfile
-          groupName={match.params.name}
-          currentUser={currentUser}
-          handleChange={handleChange}
-          updateAvatar={updateAvatar}
-          fileInputRef={fileInputRef}
-          avatar={avatar}
-          groupInfo={groupInfo}
-          updateGroupInfo={updateGroupInfo}
-          updateModalState={updateModalState}
-          openCloseModal={openCloseModal}
-        />
-      ) : (
-        <FourOFour />
-      )}
+      <GroupProfile
+        groupName={match.params.name}
+        currentUser={currentUser}
+        handleChange={handleChange}
+        updateAvatar={updateAvatar}
+        fileInputRef={fileInputRef}
+        avatar={avatar}
+        groupInfo={groupInfo}
+        updateGroupInfo={updateGroupInfo}
+        updateModalState={updateModalState}
+        openCloseModal={openCloseModal}
+      />
       <Modal
         onRequestClose={requestCloseModal}
         isOpen={modalOpen}
@@ -192,7 +171,7 @@ const Profile = ({
             openCloseModal={openCloseModal}
             fileInputRef={fileInputRef}
           />
-        ) : modalState === `group` ? (
+        ) : (
           <GroupEditor
             updateGroupInfo={updateGroupInfo}
             groupInfo={groupInfo}
@@ -200,16 +179,6 @@ const Profile = ({
             changeUpdatedFields={changeUpdatedFields}
             openCloseModal={openCloseModal}
             changeGroup={changeGroup}
-          />
-        ) : (
-          <UserEditor
-            changeUpdatedFields={changeUpdatedFields}
-            updatedFields={updatedFields}
-            currentUser={currentUser}
-            modalOpen={modalOpen}
-            authUser={authUser}
-            updateModalState={updateModalState}
-            openCloseModal={openCloseModal}
           />
         )}
       </Modal>
@@ -225,21 +194,5 @@ Profile.propTypes = {
   history: PropTypes.any,
   pullUserData: PropTypes.func,
 };
-
-// const VerifyEmailButton = ({ authUser }) =>
-//     <div className='verifyEmailDiv floatRight notifications'>
-//         Please Verify your Email
-//     <br />
-//         <button className='btn btn-info' onClick={() => this.sendAuthEmail(authUser)}>Send Verification Email</button>
-//     </div>;
-
-// const SentVerifyEmail = () => <div className='sentEmail floatRight notifications'>Email has been sent</div>;
-
-// const SmallVerifyEmailButton = ({ authUser }) =>
-//     <div className='verifyEmailDiv floatRight notifications smallVerifyEmailBtn'>
-//         <button className='btn btn-info btn-sm' onClick={() => this.sendAuthEmail(authUser)}>Verifiy Email</button>
-//     </div>;
-
-// const SmallSentVerifyEmail = () => <div className='sentEmail smallSentEmail floatRight notifications'>Sent!</div>;
 
 export default Session(Profile);

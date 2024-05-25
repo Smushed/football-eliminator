@@ -621,7 +621,7 @@ module.exports = {
       const nonAdmins = group.UL.filter((user) => user.A === false);
       const filledNonAdmins = [];
       for (let user of nonAdmins) {
-        const { UN, E, _id } = await db.User.findById(user.ID, `UN E`);
+        const { UN, E, _id } = await db.User.findById(user.ID, 'UN E');
         filledNonAdmins.push({ UN, E, _id });
       }
 
@@ -655,7 +655,15 @@ module.exports = {
     )
       .sort('-TS')
       .exec();
-    const user = await db.User.findById(topScore.U, `UN`).exec();
+    const user = await db.User.findById(topScore.U, 'UN').exec();
     return { UN: user.UN, TS: topScore.TS };
+  },
+  getGroupDataByUserId: async (userId) => {
+    const userGroupList = await db.User.findById(userId, 'GL').exec();
+    const groupList = await db.Group.find(
+      { _id: { $in: userGroupList.GL } },
+      'N'
+    ).exec();
+    return groupList;
   },
 };

@@ -222,7 +222,10 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
                 groupPositions={groupPositions}
                 roster={inGroupRoster.R}
                 pastLockWeek={true}
-                headerText={`${inGroupRoster.UN}'s Roster`}
+                headerText={`${
+                  inGroupRoster.UN +
+                  (inGroupRoster.UN.slice(-1) === `s` ? `'` : `'s`)
+                } Roster`}
                 userId={inGroupRoster.UID}
               />
             </div>

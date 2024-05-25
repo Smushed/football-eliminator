@@ -104,11 +104,6 @@ const SidePanel = ({
         </select>
       )}
 
-      {/* TODO EMAIL VERIFICATION */}
-      {/* {authUser && !authUser.emailVerified && (
-                this.state.emailSent ?
-                    <this.SentVerifyEmail /> :
-                    <this.VerifyEmailButton authUser={authUser} />)} */}
       <div onClick={() => signUserOut()} className='sitBottom'>
         <div className='sidebarItemWrapper signOutSideItem'>
           <img className='sidebarSVG' src={SignOutIcon} alt='Sign Out' />

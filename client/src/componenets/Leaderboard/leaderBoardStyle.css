@@ -23,19 +23,32 @@
 
 .podium1 {
   height: 200px;
-  background-color: rgba(218, 165, 32, 0.8);
+  background-color: rgba(252, 192, 41, 0.8);
 }
 
 .podium2 {
   height: 150px;
-  background-color: rgba(192, 192, 192, 0.8);
+  background-color: rgba(214, 214, 214, 0.8);
 }
 
 .podium3 {
   height: 125px;
-  background-color: rgba(205, 127, 50, 0.8);
+  background-color: rgba(235, 145, 56, 0.8);
 }
 
 .standContainer {
   height: 305px;
+}
+
+.podiumUsername {
+  max-height: 50px;
+  text-overflow: ellipsis;
+  overflow-y: hidden;
+}
+
+@media (width <= 1200px) {
+  .podiumAvatar {
+    height: 75px;
+    width: 75px;
+  }
 }

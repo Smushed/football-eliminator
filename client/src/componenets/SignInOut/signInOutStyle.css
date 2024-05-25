@@ -9,29 +9,15 @@
   display: flex;
 }
 
-.loginFormContainer {
-  text-align: center;
-}
-
 .loginForms {
   width: 45%;
 }
 
 .signInHeader {
-  font-size: 28px;
-  font-weight: 600;
-  text-align: center;
   margin-left: 10%;
   margin-right: 10%;
   margin-bottom: 5px;
   box-shadow: 0 7px 5px -5px lightgray;
-}
-
-.switchViewHeader {
-  font-size: 18px;
-  margin-left: 20%;
-  margin-right: 20%;
-  margin-top: 30px;
 }
 
 .switchViewBtn {
@@ -44,8 +30,6 @@
 }
 
 .signInOutLogo {
-  margin-top: 55px;
-  margin-bottom: 35px;
   height: 125px;
   max-width: 100%;
 }

@@ -38,9 +38,23 @@ const SignInOut = () => {
 
   return (
     <div className='signInUpContainer'>
-      <div className='loginFormContainer loginForms'>
-        <img className='signInOutLogo' src={ElimLogo} alt={`Home`} />
-        <div className='signInHeader'>{showSignIn ? 'Sign In' : 'Sign Up'}</div>
+      <div className='loginForms'>
+        <div className='row'>
+          <div className='col-12 text-center'>
+            <img
+              className='signInOutLogo mt-5 mb-3'
+              src={ElimLogo}
+              alt={`Home`}
+            />
+          </div>
+        </div>
+        <div className='row'>
+          <div className='col-12 text-center'>
+            <div className='fs-4 fw-semibold signInHeader mb-4'>
+              {showSignIn ? 'Sign In' : 'Sign Up'}
+            </div>
+          </div>
+        </div>
         {showSignIn ? (
           <SignInForm
             showPassword={showPassword}
@@ -58,20 +72,21 @@ const SignInOut = () => {
           switchView={switchView}
         />
       </div>
-
       <img className='largeScreenImage' src={Stadium} alt='Football Stadium' />
     </div>
   );
 };
 
 const SwitchSignInUp = ({ showSignIn, switchView }) => (
-  <div>
-    <div className='switchViewHeader'>
-      {showSignIn ? 'Need an account?' : 'Have an account?'}
+  <div className='row'>
+    <div className='col-12 text-center'>
+      <div className='mt-5'>
+        {showSignIn ? 'Need an account?' : 'Have an account?'}
+      </div>
+      <button className='btn btn-secondary' onClick={() => switchView()}>
+        {showSignIn ? 'Sign Up' : 'Sign In'}
+      </button>
     </div>
-    <button className='btn switchViewBtn' onClick={() => switchView()}>
-      {showSignIn ? 'Sign Up' : 'Sign In'}
-    </button>
   </div>
 );
 
@@ -81,11 +96,11 @@ const SignUpFormBase = ({
   showPassword,
   toggleShowPassword,
 }) => {
-  const [email, updateEmail] = useState(``);
-  const [username, updateUsername] = useState(``);
-  const [password, updatePassword] = useState(``);
-  const [confirmPassword, updateConfirmPassword] = useState(``);
-  const [error, updateError] = useState(``);
+  const [email, updateEmail] = useState('');
+  const [username, updateUsername] = useState('');
+  const [password, updatePassword] = useState('');
+  const [confirmPassword, updateConfirmPassword] = useState('');
+  const [error, updateError] = useState('');
 
   const [validMessage, updateValidMessage] = useState([]);
   const [emailValid, updateEmailValid] = useState(false);
@@ -181,8 +196,7 @@ const SignUpFormBase = ({
     const checkEmail = email.match(
       /^(([^<>()\]\\.,;:\s@']+(\.[^<>()\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     );
-    const emailCheck = checkEmail ? true : false;
-    updateEmailValid(emailCheck);
+    updateEmailValid(checkEmail ? true : false);
 
     //Password
     const checkPassword = password.length >= 6;
@@ -213,34 +227,30 @@ const SignUpFormBase = ({
           {validMessage.length > 0 &&
             validMessage.map((message, i) => <div key={i}>{message}</div>)}
         </div>
-        <EmailInput
-          authUser={false}
-          handleChange={handleChange}
-          email={email}
-          modalOpen={false}
-        />
-        <UsernameInput
-          handleChange={handleChange}
-          username={username}
-          currentUser={null}
-          modalOpen={false}
-        />
-        <PasswordInput
-          handleChange={handleChange}
-          toggleShowPassword={toggleShowPassword}
-          password={password}
-          showPassword={showPassword}
-          modalOpen={false}
-        />
-        <ConfirmPasswordInput
-          handleChange={handleChange}
-          toggleShowPassword={toggleShowConfirmPassword}
-          password={confirmPassword}
-          showPassword={showConfirmPass}
-          modalOpen={false}
-        />
-        <div className='mt-4 mb-1'>
-          <button className='signInUpBtnWidth btn btn-success'>Sign Up</button>
+        <div className='row justify-content-center'>
+          <div className='col-9'>
+            <EmailInput handleChange={handleChange} email={email} />
+            <UsernameInput handleChange={handleChange} username={username} />
+            <PasswordInput
+              handleChange={handleChange}
+              toggleShowPassword={toggleShowPassword}
+              password={password}
+              showPassword={showPassword}
+            />
+            <ConfirmPasswordInput
+              handleChange={handleChange}
+              toggleShowPassword={toggleShowConfirmPassword}
+              password={confirmPassword}
+              showPassword={showConfirmPass}
+            />
+          </div>
+        </div>
+        <div className='mt-4 row'>
+          <div className='col-12 text-center'>
+            <button className='signInUpBtnWidth btn btn-success'>
+              Sign Up
+            </button>
+          </div>
         </div>
       </form>
     </div>
@@ -253,9 +263,9 @@ const SignInFormBase = ({
   showPassword,
   toggleShowPassword,
 }) => {
-  const [email, updateEmail] = useState(``);
-  const [password, updatePassword] = useState(``);
-  const [error, updateError] = useState(``);
+  const [email, updateEmail] = useState('');
+  const [password, updatePassword] = useState('');
+  const [error, updateError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -282,7 +292,6 @@ const SignInFormBase = ({
         history.push(Routes.home);
       })
       .catch((error) => {
-        console.log(error);
         switch (error.code) {
           case `auth/invalid-email`:
             updateError(`Invalid Email Format`);
@@ -320,29 +329,23 @@ const SignInFormBase = ({
     <div className='d-flex justify-content-center'>
       <form onSubmit={handleSubmit}>
         <div className='text-center fw-bold'>{error}</div>
-        <EmailInput
-          authUser={false}
-          handleChange={handleChange}
-          email={email}
-          modalOpen={false}
-        />
+        <EmailInput handleChange={handleChange} email={email} />
         <PasswordInput
           handleChange={handleChange}
           toggleShowPassword={toggleShowPassword}
           password={password}
           showPassword={showPassword}
-          modalOpen={false}
         />
         <div className='mt-4 mb-1 row'>
-          <div className='d-flex col-12 col-lg-6 justify-content-end'>
-            <button className='signInUpBtnWidth btn btn-success'>
+          <div className='col-12 col-lg-6 text-center'>
+            <button className='btn btn-success signInUpBtnWidth'>
               Sign In
             </button>
           </div>
           <div className='d-flex col-12 col-lg-6 justify-content-start'>
             <input
               type='button'
-              className='forgotPassBtn btn'
+              className='btn btn-secondary'
               onClick={forgotPassword}
               value='Forgot Password?'
             />

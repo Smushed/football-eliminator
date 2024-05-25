@@ -267,7 +267,7 @@ const GroupEditor = ({
       <div className='groupEditorHeaderWrapper'>
         <div className='groupEditorHeaderHalf'>
           <div className='groupEditorHeader'>Name</div>
-          <small className='descText'>Must be at least 6 characters</small>
+          <small className='ms-1'>Must be at least 6 characters</small>
           <input
             className='form-control'
             name='groupName'
@@ -279,7 +279,7 @@ const GroupEditor = ({
         </div>
         <div className='groupEditorHeaderHalf'>
           <div className='groupEditorHeader'>Description</div>
-          <small className='descText'>Must be at least 6 characters</small>
+          <small className='ms-1'>Must be at least 6 characters</small>
           <input
             className='form-control groupDescInput'
             name='groupDesc'

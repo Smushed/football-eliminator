@@ -1,113 +1,95 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useCallback } from 'react';
 
 import Cropper from 'react-easy-crop';
 import Slider from 'rc-slider';
-import axios from 'axios';
 import 'jimp';
-// import Jimp from 'jimp/browser/lib/jimp.js';
 import toast from 'react-hot-toast';
-
 import {
-  UsernameInput,
-  EmailInput,
-  PasswordInput,
-  MainGroupInput,
-  EmailToggleInput,
-} from './ProfileInputs';
+  getAuth,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+} from 'firebase/auth';
 
-const ReAuth = ({
-  firebase,
-  updatedFields,
-  authUser,
-  openCloseModal,
-  currentUser,
-  history,
-  pullUserData,
-}) => {
-  const [email, setEmail] = useState(``);
-  const [password, setPassword] = useState(``);
-  const [showPassword, toggleShowPassword] = useState(`password`);
-  const [loginErr, addLoginErr] = useState(``);
+import { EmailInput, PasswordInput } from './ProfileInputs';
 
-  const handleUpdate = () => {
-    const request = {};
-    let needToUpdateDb = false;
-    if (updatedFields.password !== ``) {
-      authUser.updatePassword(updatedFields.password);
-    }
-    if (updatedFields.email !== ``) {
-      authUser.updateEmail(updatedFields.email);
-      request.E = updatedFields.email;
-      needToUpdateDb = true;
-    }
-    if (updatedFields.username !== ``) {
-      request.UN = updatedFields.username.trim();
-      needToUpdateDb = true;
-    }
-    if (needToUpdateDb) {
-      axios
-        .put(`/api/user/updateProfile`, { request, userId: currentUser.userId })
-        .then((res) => {
-          pullUserData(authUser.email);
-          if (res.data.UN) {
-            history.push(`/profile/user/${res.data.UN}`);
-          }
-        });
-    }
-  };
+const ReAuth = ({ openCloseModal, reAuthSuccess }) => {
+  const [inputs, setInputs] = useState({ email: '', password: '' });
+  const [showPassword, setShowPassword] = useState('password');
+  const [loginErr, addLoginErr] = useState('');
 
-  const handleReAuth = () => {
-    firebase
-      .doSignInWithEmailAndPassword(email, password)
-      .then((res) => {
-        openCloseModal();
-        if (res.credential !== null) {
-          firebase.auth.currentUser
-            .reauthenticateWithCredential(res.credential)
-            .then(() => handleUpdate())
-            .catch((err) => console.log(`err`, err));
-        } else {
-          handleUpdate();
-        }
-      })
-      .catch((err) => addLoginErr(err.message));
-  };
-
-  const handleChange = (e) => {
-    e.target.name === `email` && setEmail(e.target.value);
-    e.target.name === `password` && setPassword(e.target.value);
-    if (e.target.name === `togglePassword`) {
-      e.target.value === `password`
-        ? toggleShowPassword(`text`)
-        : toggleShowPassword(`password`);
+  const handleReAuth = async () => {
+    try {
+      const credential = EmailAuthProvider.credential(
+        inputs.email,
+        inputs.password
+      );
+      await reauthenticateWithCredential(getAuth().currentUser, credential);
+      reAuthSuccess(true);
+      openCloseModal(false);
+    } catch (err) {
+      addLoginErr(err.message);
       return;
     }
   };
 
+  const hideShowPassword = () => {
+    if (showPassword === 'password') {
+      setShowPassword('text');
+    } else {
+      setShowPassword('password');
+    }
+  };
+
+  const handleChange = (e) => {
+    setInputs({ ...inputs, [e.target.name]: e.target.value });
+  };
+
   return (
     <>
-      <div className='reAuthHeader'>
-        Trying to update profile data, relogin required.
+      <div className='row justify-content-center'>
+        <div className='col-xs-12 col-lg-10'>
+          <div className='text-center mb-3 mt-3 fs-5 border-bottom fw-semibold'>
+            Trying to update profile data, relogin required.
+          </div>
+        </div>
       </div>
-      <div>{loginErr}</div>
-      <EmailInput handleChange={handleChange} email={email} modalOpen={false} />
-      <PasswordInput
-        handleChange={handleChange}
-        password={password}
-        showPassword={showPassword}
-        modalOpen={false}
-      />
-      <div className='profileButtonWrapper'>
+      <div className='row'>
+        <div className='col-12'>
+          <div className='text-danger text-center'>{loginErr}</div>
+        </div>
+      </div>
+      <div className='row justify-content-center'>
+        <div className='col-xs-12 col-lg-8'>
+          <EmailInput
+            handleChange={handleChange}
+            email={inputs.email}
+            modalOpen={false}
+          />
+        </div>
+      </div>
+      <div className='row justify-content-center'>
+        <div className='col-xs-12 col-lg-8'>
+          <PasswordInput
+            handleChange={handleChange}
+            password={inputs.password}
+            showPassword={showPassword}
+            toggleShowPassword={hideShowPassword}
+            modalOpen={false}
+          />
+        </div>
+      </div>
+      <div className='d-flex justify-content-evenly mt-4'>
         <button
-          className='btn btn-success profileModalButton'
+          className='btn btn-primary profileModalButton'
           onClick={handleReAuth}
         >
           Re-Login
         </button>
         <button
-          className='btn btn-danger profileModalButton'
-          onClick={() => openCloseModal()}
+          className='btn btn-secondary profileModalButton'
+          onClick={() => {
+            openCloseModal(false);
+          }}
         >
           Close
         </button>
@@ -163,7 +145,7 @@ const ImageEditor = ({
 
   const closeImageModal = () => {
     fileInputRef.current.value = '';
-    openCloseModal();
+    openCloseModal(false);
   };
 
   return (
@@ -223,165 +205,148 @@ const ImageEditor = ({
   );
 };
 
-const UserEditor = ({
-  changeUpdatedFields,
-  updatedFields,
-  currentUser,
-  authUser,
-  updateModalState,
-  openCloseModal,
-}) => {
-  const [showPassword, updateShowPassword] = useState(`password`);
-  const [emailPref, updateEmailPref] = useState({});
+// const UserEditor = ({
+//   changeUpdatedFields,
+//   updatedFields,
+//   currentUser,
+//   authUser,
+//   updateModalState,
+//   openCloseModal,
+// }) => {
+//   const [showPassword, updateShowPassword] = useState(`password`);
+//   const [emailPref, updateEmailPref] = useState({});
 
-  useEffect(() => {
-    getEmailPref(currentUser.userId);
-  }, [currentUser.userId]);
+//   useEffect(() => {
+//     getEmailPref(currentUser.userId);
+//   }, [currentUser.userId]);
 
-  const getEmailPref = async (userId) => {
-    const emailPref = await axios.get(`/api/user/emailPref/${userId}`);
-    changeUpdatedFields({
-      ...updatedFields,
-      reminderEmail: emailPref.data.RE,
-      leaderboardEmail: emailPref.data.LE,
-    });
-    updateEmailPref(emailPref.data);
-  };
+//   const getEmailPref = async (userId) => {
+//     const emailPref = await axios.get(`/api/user/emailPref/${userId}`);
+//     changeUpdatedFields({
+//       ...updatedFields,
+//       reminderEmail: emailPref.data.RE,
+//       leaderboardEmail: emailPref.data.LE,
+//     });
+//     updateEmailPref(emailPref.data);
+//   };
 
-  const toggleShowPassword = () => {
-    showPassword === `password`
-      ? updateShowPassword(`text`)
-      : updateShowPassword(`password`);
-  };
+//   const toggleShowPassword = () => {
+//     showPassword === `password`
+//       ? updateShowPassword(`text`)
+//       : updateShowPassword(`password`);
+//   };
 
-  const handleChange = (e) => {
-    if (
-      e.target.name === `leaderboardEmail` ||
-      e.target.name === 'reminderEmail'
-    ) {
-      const updatedVal = e.target.value === `true`;
-      changeUpdatedFields({ ...updatedFields, [e.target.name]: updatedVal });
-    } else {
-      changeUpdatedFields({
-        ...updatedFields,
-        [e.target.name]: e.target.value,
-      });
-    }
-  };
+//   const handleChange = (e) => {
+//     if (
+//       e.target.name === `leaderboardEmail` ||
+//       e.target.name === 'reminderEmail'
+//     ) {
+//       const updatedVal = e.target.value === `true`;
+//       changeUpdatedFields({ ...updatedFields, [e.target.name]: updatedVal });
+//     } else {
+//       changeUpdatedFields({
+//         ...updatedFields,
+//         [e.target.name]: e.target.value,
+//       });
+//     }
+//   };
 
-  const handleSubmit = async () => {
-    if (updatedFields.email !== ``) {
-      let checkEmail = updatedFields.email.match(
-        /^(([^<>()\]\\.,;:\s@']+(\.[^<>()\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-      );
-      if (!checkEmail) {
-        toast.error('Invalid Email - Please check', {
-          duration: 5000,
-          position: 'top-center',
-        });
-        return;
-      }
-    }
+//   const handleSubmit = async () => {
+//     if (updatedFields.email !== ``) {
+//       let checkEmail = updatedFields.email.match(
+//         /^(([^<>()\]\\.,;:\s@']+(\.[^<>()\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+//       );
+//       if (!checkEmail) {
+//         toast.error('Invalid Email - Please check', {
+//           duration: 5000,
+//           position: 'top-center',
+//         });
+//         return;
+//       }
+//     }
 
-    if (updatedFields.mainGroup !== currentUser.MG) {
-      try {
-        await axios.put(
-          `/api/user/group/main/${updatedFields.mainGroup}/${currentUser.userId}`
-        );
-        toast.success('Main group updated', {
-          duration: 4000,
-        });
-      } catch (err) {
-        toast.error('Error saving main group', {
-          duration: 4000,
-        });
-      }
-    }
+//     if (updatedFields.mainGroup !== currentUser.MG) {
+//       try {
+//         await axios.put(
+//           `/api/user/group/main/${updatedFields.mainGroup}/${currentUser.userId}`
+//         );
+//         toast.success('Main group updated', {
+//           duration: 4000,
+//         });
+//       } catch (err) {
+//         toast.error('Error saving main group', {
+//           duration: 4000,
+//         });
+//       }
+//     }
 
-    if (
-      updatedFields.leaderboardEmail !== emailPref.LE ||
-      updatedFields.reminderEmail !== emailPref.RE
-    ) {
-      await axios.put(
-        `/api/user/emailPref/${currentUser.userId}/${updatedFields.leaderboardEmail}/${updatedFields.reminderEmail}`
-      );
-    }
+//     if (
+//       updatedFields.leaderboardEmail !== emailPref.LE ||
+//       updatedFields.reminderEmail !== emailPref.RE
+//     ) {
+//       await axios.put(
+//         `/api/user/emailPref/${currentUser.userId}/${updatedFields.leaderboardEmail}/${updatedFields.reminderEmail}`
+//       );
+//     }
 
-    if (
-      updatedFields.email !== `` ||
-      updatedFields.password !== `` ||
-      updatedFields.username !== ``
-    ) {
-      updateModalState('reAuth');
-      return;
-    }
-    openCloseModal();
-  };
+//     if (
+//       updatedFields.email !== `` ||
+//       updatedFields.password !== `` ||
+//       updatedFields.username !== ``
+//     ) {
+//       updateModalState('reAuth');
+//       return;
+//     }
+//     openCloseModal();
+//   };
 
-  return (
-    <>
-      <UsernameInput
-        handleChange={handleChange}
-        username={updatedFields.username}
-        currentUser={currentUser.username}
-      />
-      <PasswordInput
-        handleChange={handleChange}
-        toggleShowPassword={toggleShowPassword}
-        password={updatedFields.password}
-        showPassword={showPassword}
-      />
-      <EmailInput
-        authUser={authUser}
-        handleChange={handleChange}
-        email={updatedFields.email}
-      />
-      <MainGroupInput
-        currentUser={currentUser}
-        mainGroup={updatedFields.mainGroup}
-        handleChange={handleChange}
-      />
-      <EmailToggleInput
-        leaderboardEmailPref={updatedFields.leaderboardEmail}
-        reminderEmailPref={updatedFields.reminderEmail}
-        handleChange={handleChange}
-      />
-      <div className='submitButtonWrapper'>
-        <button
-          className='btn btn-primary btn-lg'
-          onClick={() => handleSubmit()}
-        >
-          Save
-        </button>
-      </div>
-    </>
-  );
-};
+//   return (
+//     <>
+//       <UsernameInput
+//         handleChange={handleChange}
+//         username={updatedFields.username}
+//         currentUser={currentUser.username}
+//       />
+//       <PasswordInput
+//         handleChange={handleChange}
+//         toggleShowPassword={toggleShowPassword}
+//         password={updatedFields.password}
+//         showPassword={showPassword}
+//       />
+//       <EmailInput
+//         authUser={authUser}
+//         handleChange={handleChange}
+//         email={updatedFields.email}
+//       />
+//       <MainGroupInput
+//         currentUser={currentUser}
+//         mainGroup={updatedFields.mainGroup}
+//         handleChange={handleChange}
+//       />
+//       <EmailToggleInput
+//         leaderboardEmailPref={updatedFields.leaderboardEmail}
+//         reminderEmailPref={updatedFields.reminderEmail}
+//         handleChange={handleChange}
+//       />
+//       <div className='submitButtonWrapper'>
+//         <button
+//           className='btn btn-primary btn-lg'
+//           onClick={() => handleSubmit()}
+//         >
+//           Save
+//         </button>
+//       </div>
+//     </>
+//   );
+// };
 
-UserEditor.propTypes = {
-  changeUpdatedFields: PropTypes.func,
-  updatedFields: PropTypes.object,
-  currentUser: PropTypes.object,
-  authUser: PropTypes.object,
-  updateModalState: PropTypes.func,
-  openCloseModal: PropTypes.func,
-};
+// UserEditor.propTypes = {
+//   changeUpdatedFields: PropTypes.func,
+//   updatedFields: PropTypes.object,
+//   currentUser: PropTypes.object,
+//   authUser: PropTypes.object,
+//   updateModalState: PropTypes.func,
+//   openCloseModal: PropTypes.func,
+// };
 
-ReAuth.propTypes = {
-  firebase: PropTypes.any,
-  updatedFields: PropTypes.object,
-  authUser: PropTypes.any,
-  openCloseModal: PropTypes.func,
-  currentUser: PropTypes.object,
-  history: PropTypes.any,
-  pullUserData: PropTypes.func,
-};
-
-ImageEditor.propTypes = {
-  saveCroppedAvatar: PropTypes.func,
-  fileInputRef: PropTypes.any,
-  tempAvatar: PropTypes.any,
-  openCloseModal: PropTypes.func,
-};
-
-export { ReAuth, ImageEditor, UserEditor };
+export { ReAuth, ImageEditor };

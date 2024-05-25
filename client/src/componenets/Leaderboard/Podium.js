@@ -3,18 +3,15 @@ import PropTypes from 'prop-types';
 import loading from '../../constants/SVG/loading.svg';
 import { AvatarContext } from '../Avatars';
 
+import './leaderBoardStyle.css';
+
 const Podium = memo(function Podium({ leaderboard }) {
   const { userAvatars } = useContext(AvatarContext);
 
   return (
     leaderboard.length > 0 && (
       <div className='row justify-content-center d-flex h-100'>
-        <div className='row'>
-          <div className='col-12 text-center pt-5'>
-            <h2>Leaders</h2>
-          </div>
-        </div>
-        <div className='row d-flex align-items-end pb-4'>
+        <div className='row align-items-end pb-4 justify-content-evenly'>
           <Stand
             avatar={userAvatars[leaderboard[1].UID]}
             username={leaderboard[1].UN}
@@ -56,11 +53,11 @@ const Stand = ({ avatar, username, totalScore, place }) => {
         </div>
       </div>
       <div
-        className={`row border rounded-top-1 podium${place} position-relative`}
+        className={`row border border-black rounded-top-1 podium${place} position-relative`}
       >
         <div className='col-12'>
           <div className='row'>
-            <div className='col-12'>
+            <div className='col-12 podiumUsername'>
               {place === 1 ? <h5>{username}</h5> : <>{username}</>}
             </div>
           </div>

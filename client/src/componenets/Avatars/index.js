@@ -142,6 +142,10 @@ const AvatarWrapper = ({ children }) => {
     getUserAvatars(uniqueIdArray);
   };
 
+  const repullUserAvatars = (userIds) => {
+    getUserAvatars(userIds);
+  };
+
   return (
     <AvatarContext.Provider
       value={{
@@ -149,6 +153,7 @@ const AvatarWrapper = ({ children }) => {
         addPlayerAvatarsToPull,
         userAvatars,
         addUserAvatarsToPull,
+        repullUserAvatars,
       }}
     >
       {children}

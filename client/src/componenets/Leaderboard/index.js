@@ -40,11 +40,8 @@ const Leaderboard = ({ season, week, groupId }) => {
 
   return (
     <div className='row border pb-2 mb-2 mt-2 leaderboardContainter'>
-      <div className='col-lg-8 col-md-12'>
+      <div className='col-12'>
         <ChartLeaderboard leaderboard={leaderboard} />
-      </div>
-      <div className='col-lg-4 d-lg-block d-none'>
-        <Podium leaderboard={leaderboard} />
       </div>
     </div>
   );

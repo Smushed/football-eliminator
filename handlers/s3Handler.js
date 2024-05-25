@@ -118,7 +118,7 @@ module.exports = {
     const s3 = new AWS.S3({ params: { Bucket: 'football-eliminator' } });
     s3.putObject(data, function (err) {
       if (err) {
-        return `Error Uploading the Avatar`;
+        throw err;
       } else {
         return `Successfully Uploaded the Avatar`;
       }

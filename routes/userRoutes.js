@@ -7,8 +7,8 @@ const groupHandler = require(`../handlers/groupHandler`);
 module.exports = (app) => {
   app.put(`/api/user/updateProfile`, async (req, res) => {
     const { userId, request } = req.body;
-    const updatedUser = await userHandler.updateProfile(userId, request);
-    res.status(200).send(updatedUser);
+    const updateRes = await userHandler.updateProfile(userId, request);
+    res.status(updateRes.status).send(updateRes.message);
   });
 
   app.put(`/api/updateUserToAdmin/:userId/:pass`, async (req, res) => {
@@ -36,8 +36,9 @@ module.exports = (app) => {
 
   app.get(`/api/user/email/:email`, async (req, res) => {
     const { email } = req.params;
-    const foundUser = await userHandler.getUserByEmail(email);
-    res.status(200).send(foundUser);
+    const userInfo = await userHandler.getUserByEmail(email);
+    const emailSettings = await userHandler.getEmailSettings(userInfo._id);
+    res.status(200).send({ userInfo, emailSettings });
   });
 
   app.get(`/api/user/emailPref/:id`, async (req, res) => {
@@ -60,9 +61,11 @@ module.exports = (app) => {
   app.get(`/api/user/name/:username`, async (req, res) => {
     const { username } = req.params;
     const user = await userHandler.getUserByUsername(username);
-    const emailSettings = await userHandler.getEmailSettings(user._id);
+    if (!user) {
+      return res.status(400).send(`User ${username} not found!`);
+    }
     const avatar = await s3Handler.getUserAvatar(user._id);
-    res.status(200).send({ user, avatar, emailSettings });
+    res.status(200).send({ user, avatar });
   });
 
   app.post(`/api/user/purgeUserAndGroupDB/:pass`, (req, res) => {
@@ -78,9 +81,12 @@ module.exports = (app) => {
   app.put(`/api/user/avatar/:id`, (req, res) => {
     const { id } = req.params;
     const { image } = req.body;
-    s3Handler.uploadAvatar(id, image);
-
-    res.status(200).send(`success`);
+    try {
+      s3Handler.uploadAvatar(id, image);
+      res.status(200).send(`success`);
+    } catch (err) {
+      res.status(500).send('Error Saving the Avatar');
+    }
   });
 
   app.get(`/api/user/avatar/:id`, async (req, res) => {
@@ -132,9 +138,19 @@ module.exports = (app) => {
     res.sendStatus(200);
   });
 
-  app.put(`/api/user/emailPref/:userId/:LE/:RE`, (req, res) => {
+  app.put(`/api/user/email/settings/:userId/:LE/:RE`, (req, res) => {
     const { userId, LE, RE } = req.params;
     userHandler.updateEmailSettings(userId, LE, RE);
     res.sendStatus(200);
+  });
+
+  app.put(`/api/user/email/unsubscribe/:userId`, async (req, res) => {
+    const { userId } = req.params;
+    try {
+      await userHandler.unsubscribeEmails(userId);
+      res.sendStatus(200);
+    } catch (err) {
+      res.status(500).send(err);
+    }
   });
 };
