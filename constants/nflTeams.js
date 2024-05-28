@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   teams: [
     `ARI`,
     `ATL`,
@@ -67,6 +67,6 @@ module.exports = {
     { abbreviation: `TB`, id: 71 },
     { abbreviation: `TEN`, id: 67 },
     { abbreviation: `WAS`, id: 55 },
-    { abbreviation: `UNK`, id: 01 },
+    { abbreviation: `UNK`, id: 0o1 },
   ],
 };

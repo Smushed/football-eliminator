@@ -1,12 +1,10 @@
-const mongoose = require(`mongoose`);
-
-const Schema = mongoose.Schema;
+import { Schema, Types, model } from 'mongoose';
 
 const IdealRosterSchema = new Schema({
   G: {
     //GroupId
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Group",
+    type: Types.ObjectId,
+    ref: 'Group',
     required: true,
   },
   W: {
@@ -40,4 +38,4 @@ const IdealRosterSchema = new Schema({
   ],
 });
 
-module.exports = mongoose.model(`IdealRoster`, IdealRosterSchema);
+export default model('IdealRoster', IdealRosterSchema);

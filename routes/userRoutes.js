@@ -1,10 +1,10 @@
-require(`dotenv`).config();
-const userHandler = require(`../handlers/userHandler`);
-const rosterHandler = require(`../handlers/rosterHandler`);
-const s3Handler = require(`../handlers/s3Handler`);
-const groupHandler = require(`../handlers/groupHandler`);
+import 'dotenv/config.js';
+import userHandler from '../handlers/userHandler.js';
+import rosterHandler from '../handlers/rosterHandler.js';
+import s3Handler from '../handlers/s3Handler.js';
+import groupHandler from '../handlers/groupHandler.js';
 
-module.exports = (app) => {
+export default (app) => {
   app.put(`/api/user/updateProfile`, async (req, res) => {
     const { userId, request } = req.body;
     const updateRes = await userHandler.updateProfile(userId, request);

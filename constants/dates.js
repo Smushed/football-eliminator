@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   lockWeek2021: [
     new Date('09 Sep 2021 19:20:00 GMT-0500'),
     new Date('16 Sep 2021 19:20:00 GMT-0500'),

@@ -1,6 +1,4 @@
-const mongoose = require(`mongoose`);
-
-const Schema = mongoose.Schema;
+import { Schema, model } from 'mongoose';
 
 const PlayerDataSchema = new Schema({
   N: {
@@ -18,13 +16,13 @@ const PlayerDataSchema = new Schema({
   T: {
     //Team
     type: String,
-    default: `UNK`,
+    default: 'UNK',
     trim: true,
   },
   P: {
     //Position
     type: String,
-    default: `UNK`,
+    default: 'UNK',
   },
   A: Boolean, //Active
   R: Number, //Rank
@@ -47,4 +45,4 @@ const PlayerDataSchema = new Schema({
   },
 });
 
-module.exports = mongoose.model(`PlayerData`, PlayerDataSchema);
+export default model('PlayerData', PlayerDataSchema);

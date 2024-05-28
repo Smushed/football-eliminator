@@ -1,13 +1,13 @@
-require(`dotenv`).config();
-const userHandler = require(`../handlers/userHandler`);
-const groupHandler = require(`../handlers/groupHandler`);
-const scoringSystem = require(`../constants/scoringSystem`);
-const rosterHandler = require(`../handlers/rosterHandler`);
-const s3Handler = require(`../handlers/s3Handler`);
-const emailHandler = require('../handlers/emailHandler');
-const mySportsHandler = require(`../handlers/mySportsHandler`);
+import 'dotenv/config.js';
+import userHandler from '../handlers/userHandler.js';
+import groupHandler from '../handlers/groupHandler.js';
+import scoringSystem from '../constants/scoringSystem.js';
+import rosterHandler from '../handlers/rosterHandler.js';
+import s3Handler from '../handlers/s3Handler.js';
+import emailHandler from '../handlers/emailHandler.js';
+import mySportsHandler from '../handlers/mySportsHandler.js';
 
-module.exports = (app) => {
+export default (app) => {
   app.put(`/api/group/join/`, async (req, res) => {
     const { userId, groupId } = req.body;
     await groupHandler.addUser(userId, groupId);

@@ -1,6 +1,4 @@
-const mongoose = require(`mongoose`);
-
-const Schema = mongoose.Schema;
+import { Schema, model } from 'mongoose';
 
 const MatchUpsSchema = new Schema({
   S: {
@@ -23,4 +21,4 @@ const MatchUpsSchema = new Schema({
   ],
 });
 
-module.exports = mongoose.model(`MatchUps`, MatchUpsSchema);
+export default model(`MatchUps`, MatchUpsSchema);

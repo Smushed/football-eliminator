@@ -1,6 +1,4 @@
-const mongoose = require(`mongoose`);
-
-const Schema = mongoose.Schema;
+import { Schema, Types, model } from 'mongoose';
 
 const GroupSchema = new Schema({
   N: {
@@ -14,20 +12,12 @@ const GroupSchema = new Schema({
   UL: [
     //Userlist
     {
-      ID: mongoose.Schema.Types.ObjectId, //UserID
-      A: {
-        //Admin
-        type: Boolean,
-        default: false,
-      },
-      B: {
-        //Blocked
-        type: Boolean,
-        default: false,
-      },
+      ID: Types.ObjectId, //UserID
+      A: { type: Boolean, default: false }, //Admin
+      B: { type: Boolean, default: false }, //Blocked
       _id: false,
     },
   ],
 });
 
-module.exports = mongoose.model(`Group`, GroupSchema);
+export default model('Group', GroupSchema);

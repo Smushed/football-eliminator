@@ -1,17 +1,15 @@
-const mongoose = require(`mongoose`);
-
-const Schema = mongoose.Schema;
+import { Schema, Types, model } from 'mongoose';
 
 const UserScoresSchema = new Schema({
   U: {
     //User ID
-    type: mongoose.Schema.Types.ObjectId,
+    type: Types.ObjectId,
     ref: 'User',
     required: true,
   },
   G: {
     //GroupID
-    type: mongoose.Schema.Types.ObjectId,
+    type: Types.ObjectId,
     ref: 'Group',
     required: true,
   },
@@ -110,4 +108,4 @@ UserScoresSchema.index(
   }
 );
 
-module.exports = mongoose.model(`UserScores`, UserScoresSchema);
+export default model('UserScores', UserScoresSchema);

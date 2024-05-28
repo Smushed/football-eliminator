@@ -1,13 +1,11 @@
-const mongoose = require(`mongoose`);
-
-const Schema = mongoose.Schema;
+import { Schema, Types, model } from 'mongoose';
 
 const GroupScoreSchema = new Schema({
   G: {
     //GroupID
-    type: mongoose.Types.ObjectId,
+    type: Types.ObjectId,
     required: true,
-    ref: "Group",
+    ref: 'Group',
   },
   P: {
     //Passing
@@ -36,7 +34,7 @@ const GroupScoreSchema = new Schema({
       type: Number,
       default: 0,
     },
-    "2P": {
+    '2P': {
       //2PT Pass
       type: Number,
       default: 2,
@@ -74,7 +72,7 @@ const GroupScoreSchema = new Schema({
       type: Number,
       default: -2,
     },
-    "2P": {
+    '2P': {
       //2PT Rush
       type: Number,
       default: 2,
@@ -116,7 +114,7 @@ const GroupScoreSchema = new Schema({
       type: Number,
       default: -2,
     },
-    "2P": {
+    '2P': {
       //2PT Rec
       type: Number,
       default: 0,
@@ -163,4 +161,4 @@ const GroupScoreSchema = new Schema({
   },
 });
 
-module.exports = mongoose.model(`GroupScore`, GroupScoreSchema);
+export default model('GroupScore', GroupScoreSchema);

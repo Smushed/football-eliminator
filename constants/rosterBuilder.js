@@ -1,6 +1,6 @@
-const { table, getBorderCharacters } = require(`table`);
+import { table } from 'table';
 
-module.exports = {
+export default {
   rosterRow: (filledRoster, groupPos) => {
     return new Promise(async (res, rej) => {
       let rows = ``;

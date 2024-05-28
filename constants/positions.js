@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   rosterPositions: [
     { I: 0, N: `QB` },
     { I: 1, N: `RB` },

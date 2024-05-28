@@ -1,4 +1,4 @@
-const db = require(`../models`);
+import db from '../models/index.js';
 
 const checkDuplicateUser = async (checkedField, checkField1, checkField2) => {
   let result = false;
@@ -47,9 +47,9 @@ const fillOutUserForFrontEnd = async (user) => {
   return filledUser;
 };
 
-module.exports = {
+export default {
   getUserList: async () => {
-    const userlist = await db.User.find({});
+    const userlist = await db.User.find({}).exec();
     const filteredList = userlist.map((user) => {
       return {
         username: user.UN,
@@ -58,9 +58,10 @@ module.exports = {
         groupList: user.GL,
       };
     });
-
     return filteredList;
   },
+  getUsersEmail: async (userIdArray) =>
+    await db.User.find({ _id: { $in: userIdArray } }, { E: 1 }).exec(),
   updateProfile: async (userId, request) => {
     //They can only update one part of their profile at a time
     let toUpdate = {};
@@ -105,11 +106,15 @@ module.exports = {
     if (request.RE !== undefined) {
       toUpdate.RE = request.RE;
     }
-    db.UserEmailSettings.updateOne({ U: userId }, { $set: toUpdate }, (err) => {
-      if (err) {
-        return { status: 400, message: 'Error Saving Email Settings' };
+    db.UserReminderSettings.updateOne(
+      { U: userId },
+      { $set: toUpdate },
+      (err) => {
+        if (err) {
+          return { status: 400, message: 'Error Saving Email Settings' };
+        }
       }
-    });
+    );
     return { status: 200, message: `Updated`, UN: request.UN, E: request.E };
   },
   updateToAdmin: async (userId) => {
@@ -219,7 +224,7 @@ module.exports = {
         console.log(`UsedPlayers Deleted`);
       }
     });
-    db.UserEmailSettings.deleteMany({}, (err, res) => {
+    db.UserReminderSettings.deleteMany({}, (err, res) => {
       if (err) {
         console.log(err);
       } else {
@@ -251,19 +256,19 @@ module.exports = {
       res(filledUserList);
     }),
   getEmailSettings: async (userId) => {
-    let emailSettings = await db.UserEmailSettings.findOne({
+    let emailSettings = await db.UserReminderSettings.findOne({
       U: userId,
     })
       .lean()
       .exec();
     if (emailSettings === null) {
-      emailSettings = await db.UserEmailSettings.create({ U: userId });
+      emailSettings = await db.UserReminderSettings.create({ U: userId });
     }
     return emailSettings;
   },
   updateEmailSettings: async (userId, LE, RE) => {
     try {
-      await db.UserEmailSettings.findOneAndUpdate(
+      await db.UserReminderSettings.findOneAndUpdate(
         { U: userId },
         { LE, RE }
       ).exec();
@@ -273,7 +278,7 @@ module.exports = {
   },
   unsubscribeEmails: async (userId) => {
     try {
-      await db.UserEmailSettings.findOneAndUpdate(
+      await db.UserReminderSettings.findOneAndUpdate(
         { U: userId },
         { LE: false, RE: false }
       ).exec();
@@ -281,4 +286,14 @@ module.exports = {
       console.log(err);
     }
   },
+  getGroupEmailSettings: async (userList) =>
+    await db.UserReminderSettings.find(
+      {
+        U: { $in: userList },
+        LE: true,
+      },
+      { U: 1 }
+    )
+      .lean()
+      .exec(),
 };

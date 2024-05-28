@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   buckets: [`P`, `RU`, `RE`, `F`, `FG`],
   P: [`T`, `Y`, `I`, `A`, `C`, `2P`],
   RU: [`A`, `Y`, `T`, `20`, `40`, `F`, `2P`],
@@ -55,7 +55,7 @@ module.exports = {
       I: -2,
       A: 0,
       C: 0,
-      "2P": 2,
+      '2P': 2,
     },
     RU: {
       A: 0,
@@ -64,7 +64,7 @@ module.exports = {
       20: 0,
       40: 0,
       F: -2,
-      "2P": 2,
+      '2P': 2,
     },
     RE: {
       TA: 0,
@@ -74,7 +74,7 @@ module.exports = {
       20: 0,
       40: 0,
       F: -2,
-      "2P": 0,
+      '2P': 0,
     },
     F: {
       F: -2,
@@ -102,7 +102,7 @@ module.exports = {
       I: `Interception`,
       A: `Attempt`,
       C: `Completion`,
-      "2P": `2PT Pass`,
+      '2P': `2PT Pass`,
     },
     RU: {
       A: `Attempt`,
@@ -111,7 +111,7 @@ module.exports = {
       20: `20-39 Rush`,
       40: `40+ Rush`,
       F: `Fumbles`,
-      "2P": `2PT Rush`,
+      '2P': `2PT Rush`,
     },
     RE: {
       TA: `Target`,
@@ -121,7 +121,7 @@ module.exports = {
       20: `20-39 Rec`,
       40: `40+ Rec`,
       F: `Rec Fumble`,
-      "2P": `2PT Rec`,
+      '2P': `2PT Rec`,
     },
     F: {
       F: `Fumble`,

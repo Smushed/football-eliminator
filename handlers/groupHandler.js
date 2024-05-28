@@ -1,7 +1,7 @@
-const db = require(`../models`);
-const s3Handler = require(`./s3Handler`);
-const positions = require(`../constants/positions`);
-const mySportsHandler = require(`./mySportsHandler`);
+import 'dotenv/config.js';
+import db from '../models/index.js';
+import mySportsHandler from './mySportsHandler.js';
+import positions from '../constants/positions.js';
 
 const checkDuplicate = async (checkedField, groupToSearch, userID) => {
   let result = false;
@@ -179,7 +179,7 @@ const groupUpdater = {
   },
 };
 
-module.exports = {
+export default {
   createGroup: async (
     userId,
     newGroupScore,

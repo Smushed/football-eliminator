@@ -1,9 +1,9 @@
-require(`dotenv`).config();
-const db = require(`../models`);
-const userHandler = require(`./userHandler`);
-const groupHandler = require(`./groupHandler`);
-const mySportsHandler = require(`./mySportsHandler`);
-const positions = require(`../constants/positions`);
+import 'dotenv/config.js';
+import db from '../models/index.js';
+import userHandler from './userHandler.js';
+import groupHandler from './groupHandler.js';
+import mySportsHandler from './mySportsHandler.js';
+import positions from '../constants/positions.js';
 
 const checkDuplicateRoster = async (
   checkedField,
@@ -260,7 +260,7 @@ const checkRoster = async (groupId, newRoster) =>
     res({ valid: true, message: 'Valid Roster' });
   });
 
-module.exports = {
+export default {
   dummyRoster: async (userId, groupId, week, season, dummyRoster) => {
     //Brute force updating a user's roster
     return new Promise((res, rej) => {

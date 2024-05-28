@@ -1,12 +1,10 @@
-const mongoose = require(`mongoose`);
-
-const Schema = mongoose.Schema;
+import { Schema, Types, model } from 'mongoose';
 
 const UsedPlayerSchema = new Schema({
   U: {
     //UserId
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    type: Types.ObjectId,
+    ref: 'User',
     required: true,
   },
   S: {
@@ -16,7 +14,7 @@ const UsedPlayerSchema = new Schema({
   },
   G: {
     //GroupId
-    type: mongoose.Schema.Types.ObjectId,
+    type: Types.ObjectId,
     required: true,
   },
   P: {
@@ -27,4 +25,4 @@ const UsedPlayerSchema = new Schema({
   UP: [Number], //Used Players (MySportsId)
 });
 
-module.exports = mongoose.model(`UsedPlayers`, UsedPlayerSchema);
+export default model('UsedPlayers', UsedPlayerSchema);

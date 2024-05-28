@@ -1,6 +1,4 @@
-const mongoose = require(`mongoose`);
-
-const Schema = mongoose.Schema;
+import { Schema, model } from 'mongoose';
 
 const PlayerStatsSchema = new Schema({
   M: {
@@ -46,7 +44,7 @@ const PlayerStatsSchema = new Schema({
       type: Number,
       default: 0,
     },
-    "2P": {
+    '2P': {
       //TwoPtPassMade
       type: Number,
       default: 0,
@@ -94,7 +92,7 @@ const PlayerStatsSchema = new Schema({
       type: Number,
       default: 0,
     },
-    "2P": {
+    '2P': {
       //twoPtRushMade
       type: Number,
       default: 0,
@@ -137,7 +135,7 @@ const PlayerStatsSchema = new Schema({
       type: Number,
       default: 0,
     },
-    "2P": {
+    '2P': {
       //twoPtReceivingMade
       type: Number,
       default: 0,
@@ -185,4 +183,4 @@ const PlayerStatsSchema = new Schema({
   },
 });
 
-module.exports = mongoose.model(`PlayerStats`, PlayerStatsSchema);
+export default model('PlayerStats', PlayerStatsSchema);
