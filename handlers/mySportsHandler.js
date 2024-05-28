@@ -1,10 +1,9 @@
-const db = require(`../models`);
-const axios = require(`axios`);
-const positions = require(`../constants/positions`);
-const scoringSystem = require(`../constants/scoringSystem`);
-const s3Handler = require(`./s3Handler`);
-const nflTeams = require('../constants/nflTeams');
-require(`dotenv`).config();
+import 'dotenv/config.js';
+import axios from 'axios';
+import db from '../models/index.js';
+import positions from '../constants/positions.js';
+import nflTeams from '../constants/nflTeams.js';
+import scoringSystem from '../constants/scoringSystem.js';
 
 const mySportsFeedsAPI = process.env.MY_SPORTS_FEEDS_API;
 
@@ -584,7 +583,7 @@ const pullTeamData = async (season, team) => {
     });
 };
 
-module.exports = {
+export default {
   updateTestRoster: async (season) => {
     console.log(season);
     const team = 'PHI';

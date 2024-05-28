@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   appendHTML: async (email, userId) => {
     email += `<div style='text-align: center;
                                 margin-top: 20px;

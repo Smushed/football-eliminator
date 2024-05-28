@@ -1,21 +1,19 @@
-const mongoose = require(`mongoose`);
-
-const Schema = mongoose.Schema;
+import { Schema, Types, model } from 'mongoose';
 
 const UserRosterSchema = new Schema(
   {
     U: {
       //UserId
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      type: Types.ObjectId,
+      ref: 'User',
       required: true,
       unique: false,
     },
     G: {
       //GroupId
-      type: mongoose.Schema.Types.ObjectId,
+      type: Types.ObjectId,
       required: true,
-      ref: "Group",
+      ref: 'Group',
       unique: false,
     },
     W: {
@@ -67,4 +65,4 @@ UserRosterSchema.index(
   }
 );
 
-module.exports = mongoose.model(`UserRoster`, UserRosterSchema);
+export default model('UserRoster', UserRosterSchema);

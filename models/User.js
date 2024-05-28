@@ -1,6 +1,4 @@
-const mongoose = require(`mongoose`);
-
-const Schema = mongoose.Schema;
+import { Schema, Types, model } from 'mongoose';
 
 const UserSchema = new Schema({
   UN: {
@@ -16,13 +14,13 @@ const UserSchema = new Schema({
     unique: true,
     trim: true,
   },
-  GL: [mongoose.Schema.Types.ObjectId], //GroupList
+  GL: [Types.ObjectId], //GroupList
   A: {
     //Admin
     type: Boolean,
     default: false,
   },
-  MG: mongoose.Types.ObjectId, //Main Group
+  MG: Types.ObjectId, //Main Group
 });
 
-module.exports = mongoose.model(`User`, UserSchema);
+export default model('User', UserSchema);

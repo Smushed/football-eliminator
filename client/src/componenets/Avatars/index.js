@@ -98,6 +98,7 @@ const AvatarWrapper = ({ children }) => {
           cancelToken: axiosCancel.token,
         }
       );
+      console.log({ avatarRes });
       updateUserAvatars({ ...userAvatars, ...avatarRes.data });
     } catch (err) {
       console.log({ err });

@@ -1,6 +1,4 @@
-const mongoose = require(`mongoose`);
-
-const Schema = mongoose.Schema;
+import { Schema, model } from 'mongoose';
 
 const SeasonAndWeekSchema = new Schema({
   S: {
@@ -25,4 +23,4 @@ const SeasonAndWeekSchema = new Schema({
   },
 });
 
-module.exports = mongoose.model(`SeasonAndWeek`, SeasonAndWeekSchema);
+export default model('SeasonAndWeek', SeasonAndWeekSchema);

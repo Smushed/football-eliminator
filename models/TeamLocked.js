@@ -1,6 +1,4 @@
-const mongoose = require(`mongoose`);
-
-const Schema = mongoose.Schema;
+import { Schema, model } from 'mongoose';
 
 const TeamLockedSchema = new Schema({
   T: {
@@ -27,4 +25,4 @@ const TeamLockedSchema = new Schema({
   },
 });
 
-module.exports = mongoose.model(`TeamLocked`, TeamLockedSchema);
+export default model('TeamLocked', TeamLockedSchema);

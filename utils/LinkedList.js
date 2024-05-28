@@ -8,7 +8,7 @@ class ListNode {
 
 const createLinkedList = (arr) => {
   //create linked list from array
-  let head = new ListNode(arr[0]);
+  const head = new ListNode(arr[0]);
   let curr = head;
   for (let i = 1; i < arr.length; i++) {
     curr.next = new ListNode(arr[i]);
@@ -17,4 +17,4 @@ const createLinkedList = (arr) => {
   return head;
 };
 
-module.exports = { ListNode, createLinkedList };
+export { ListNode, createLinkedList };

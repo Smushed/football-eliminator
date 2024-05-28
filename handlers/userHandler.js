@@ -1,4 +1,4 @@
-const db = require(`../models`);
+import db from '../models/index.js';
 
 const checkDuplicateUser = async (checkedField, checkField1, checkField2) => {
   let result = false;
@@ -47,7 +47,7 @@ const fillOutUserForFrontEnd = async (user) => {
   return filledUser;
 };
 
-module.exports = {
+export default {
   getUserList: async () => {
     const userlist = await db.User.find({});
     const filteredList = userlist.map((user) => {

@@ -1,9 +1,9 @@
-const mySportsHandler = require(`../handlers/mySportsHandler`);
-const groupHandler = require('../handlers/groupHandler');
-const nflTeams = require(`../constants/nflTeams`);
-const s3Handler = require('../handlers/s3Handler');
+import mySportsHandler from '../handlers/mySportsHandler.js';
+import groupHandler from '../handlers/groupHandler.js';
+import nflTeams from '../constants/nflTeams.js';
+import s3Handler from '../handlers/s3Handler.js';
 
-module.exports = (app) => {
+export default (app) => {
   app.get(`/api/nfldata/updatePlayers/:season/:week`, async (req, res) => {
     const { season, week } = req.params;
 

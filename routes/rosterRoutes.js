@@ -1,10 +1,10 @@
-const rosterHandler = require(`../handlers/rosterHandler`);
-const groupHandler = require(`../handlers/groupHandler`);
-const mySportsHandler = require(`../handlers/mySportsHandler`);
-const positions = require(`../constants/positions`);
-const userHandler = require(`../handlers/userHandler`);
+import rosterHandler from '../handlers/rosterHandler.js';
+import groupHandler from '../handlers/groupHandler.js';
+import mySportsHandler from '../handlers/mySportsHandler.js';
+import positions from '../constants/positions.js';
+import userHandler from '../handlers/userHandler.js';
 
-module.exports = (app) => {
+export default (app) => {
   app.get(`/api/roster/players/available`, async (req, res) => {
     const { userId, searchedPosition, season, groupname } = req.query;
     const groupId = await groupHandler.getGroupData(groupname);

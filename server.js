@@ -1,22 +1,27 @@
-require(`dotenv`).config();
+import 'dotenv/config.js';
+import * as path from 'path';
+import express from 'express';
+import bodyParser from 'body-parser';
+import mongoose from 'mongoose';
+import { fileURLToPath } from 'url';
 
-const express = require(`express`);
-const path = require(`path`);
+import rosterRoutes from './routes/rosterRoutes.js';
+import mySportsRoutes from './routes/mySportsRoutes.js';
+import groupRoutes from './routes/groupRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import cronHandler from './handlers/cronHandler.js';
+
 const PORT = process.env.PORT || 8081;
 const app = express();
-
-const bodyParser = require(`body-parser`);
-
-//Setting up mongoose
-const mongoose = require(`mongoose`);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 app.use(bodyParser.urlencoded({ extended: true, limit: '5mb' }));
 app.use(bodyParser.json({ limit: '50mb' }));
 
-let MONGODB_URI = ``;
+let MONGODB_URI = '';
 
-if (process.env.NODE_ENV === `production`) {
-  app.use(express.static(path.join(__dirname, `./client/build`)));
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, './client/build')));
   MONGODB_URI = process.env.MONGO_ATLUS;
 } else {
   MONGODB_URI = `mongodb://127.0.0.1/fantasyEliminator`;
@@ -31,18 +36,19 @@ try {
   console.log(err);
 }
 
-require(`./routes/rosterRoutes`)(app);
-require(`./routes/mySportsRoutes`)(app);
-require(`./routes/groupRoutes`)(app);
-require(`./routes/userRoutes`)(app);
-if (process.env.CRON_ENABLED === `true`) {
-  require(`./handlers/cronHandler`);
+rosterRoutes(app);
+mySportsRoutes(app);
+groupRoutes(app);
+userRoutes(app);
+
+if (process.env.CRON_ENABLED === 'true') {
+  cronHandler();
 }
 
 // Send every other request to the React app
 // Define any API routes before this runs
-app.get(`*`, (req, res) => {
-  res.sendFile(path.join(__dirname, `./client/build/index.html`));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, './client/build/index.html'));
 });
 
 app.listen(PORT, () => {

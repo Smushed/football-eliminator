@@ -1,19 +1,26 @@
-const userHandler = require(`./userHandler`);
-const groupHandler = require(`./groupHandler`);
-const mySportsHandler = require(`./mySportsHandler`);
-const leaderBoardBuilder = require(`../constants/leaderBoardBuilder`);
-const rosterBuilder = require(`../constants/rosterBuilder`);
-const unsubscribe = require(`../constants/unsubscribe`);
+//https://github.com/aws/aws-sdk-js-v3/tree/main/clients/client-ses
+import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
+import userHandler from './userHandler.js';
+import groupHandler from './groupHandler.js';
+import leaderBoardBuilder from '../constants/leaderBoardBuilder.js';
+import rosterBuilder from '../constants/rosterBuilder.js';
+import unsubscribe from '../constants/unsubscribe.js';
 
-const AWS = require(`aws-sdk`);
-AWS.config.update({
+// const AWS = require(`aws-sdk`);
+// AWS.config.update({
+//   region: `us-east-2`,
+//   accessKeyId: process.env.AWS_KEY,
+//   secretAccessKey: process.env.AWS_SECRET_KEY,
+// });
+
+const sesClient = new SESClient({
   region: `us-east-2`,
   accessKeyId: process.env.AWS_KEY,
   secretAccessKey: process.env.AWS_SECRET_KEY,
 });
 
-const sendEmail = (user, subject, html, text) => {
-  var sesEmailBuilder = {
+const sendEmail = async (user, subject, html, text) => {
+  const sesEmailBuilder = {
     Destination: {
       ToAddresses: [user],
     },
@@ -34,19 +41,26 @@ const sendEmail = (user, subject, html, text) => {
       },
     },
     Source: `kevin@eliminator.football`,
+    ReplyToAddresses: ['smushedcode@gmail.com'],
   };
 
-  const sendPromise = new AWS.SES({ apiVersion: `2010-12-01` })
-    .sendEmail(sesEmailBuilder)
-    .promise();
+  const sendEmail = new SendEmailCommand(sesEmailBuilder);
+  try {
+    await sesClient.send(sendEmail);
+  } catch (err) {
+    console.log('Error Sending Email: ', { err });
+  }
+  // const sendPromise = new AWS.SES({ apiVersion: `2010-12-01` })
+  //   .sendEmail(sesEmailBuilder)
+  //   .promise();
 
-  sendPromise
-    .then(function (data) {
-      console.log(`Email sent to ${user}`);
-    })
-    .catch(function (err) {
-      console.error(err, err.stack);
-    });
+  // sendPromise
+  //   .then(function (data) {
+  //     console.log(`Email sent to ${user}`);
+  //   })
+  //   .catch(function (err) {
+  //     console.error(err, err.stack);
+  //   });
 };
 
 const composeWeeklyHTMLEmail = async (firstItem, secondItem, week) => {
@@ -219,7 +233,7 @@ const createIdealRoster = async (groupPos, roster, week) => {
   return { idealRosterHTML: rosterHTML, idealRosterText: rosterText };
 };
 
-module.exports = {
+export default {
   sendLeaderBoardEmail: async (group, season, week) => {
     const emailList = [];
     for (let user of group.UL) {
@@ -261,10 +275,13 @@ module.exports = {
       +week
     );
 
-    for (let user of emailList) {
-      const HTMLemail = await unsubscribe.appendHTML(HTMLTemplate, user.id);
-      const textEmail = await unsubscribe.appendText(textTemplate, user.id);
-      sendEmail(user.E, subject, HTMLemail, textEmail);
+    for (const user of emailList) {
+      if (user.id === '62ec2b8b41d5523d0075a4db') {
+        console.log("it's me");
+      }
+      // const HTMLemail = await unsubscribe.appendHTML(HTMLTemplate, user.id);
+      // const textEmail = await unsubscribe.appendText(textTemplate, user.id);
+      // sendEmail(user.E, subject, HTMLemail, textEmail);
     }
   },
   sendYearlyRecapEmail: async (
