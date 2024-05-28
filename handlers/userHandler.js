@@ -49,7 +49,7 @@ const fillOutUserForFrontEnd = async (user) => {
 
 export default {
   getUserList: async () => {
-    const userlist = await db.User.find({});
+    const userlist = await db.User.find({}).exec();
     const filteredList = userlist.map((user) => {
       return {
         username: user.UN,
@@ -58,9 +58,10 @@ export default {
         groupList: user.GL,
       };
     });
-
     return filteredList;
   },
+  getUsersEmail: async (userIdArray) =>
+    await db.User.find({ _id: { $in: userIdArray } }, { E: 1 }).exec(),
   updateProfile: async (userId, request) => {
     //They can only update one part of their profile at a time
     let toUpdate = {};
@@ -285,4 +286,14 @@ export default {
       console.log(err);
     }
   },
+  getGroupEmailSettings: async (userList) =>
+    await db.UserReminderSettings.find(
+      {
+        U: { $in: userList },
+        LE: true,
+      },
+      { U: 1 }
+    )
+      .lean()
+      .exec(),
 };

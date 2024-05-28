@@ -140,6 +140,15 @@ const updatePlayerData = async (season, week) => {
   return;
 };
 
+const testing = async () => {
+  const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
+  const groups = await groupHandler.getAllGroups();
+  for (let group of groups) {
+    if (group.N !== 'Demo Group')
+      emailHandler.sendLeaderBoardEmail(group, season, +week - 1);
+  }
+};
+
 export default () => {
   checkLockWeek();
   dailyScoreUpdate();
@@ -151,4 +160,5 @@ export default () => {
   updatePlayers();
   updateIdealRoster();
   emailLeaderboard();
+  // testing();
 };

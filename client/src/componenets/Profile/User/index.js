@@ -252,7 +252,6 @@ const UserProfile = ({ currentUser, pullUserData }) => {
       const groupList = await axios.get(
         `/api/group/details/byUser/${user._id}`
       );
-      console.log({ groupList });
       const builtUser = {
         password: '',
         id: user._id,
