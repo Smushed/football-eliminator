@@ -3,7 +3,6 @@ import * as Routes from './constants/routes';
 import { Route, BrowserRouter, Switch } from 'react-router-dom';
 import { withFirebase } from './componenets/Firebase';
 import axios from 'axios';
-import PropTypes from 'prop-types';
 import { Toaster } from 'react-hot-toast';
 
 import SignInOut from './componenets/SignInOut';
@@ -215,10 +214,6 @@ const App = ({ firebase }) => {
       </AvatarWrapper>
     </BrowserRouter>
   );
-};
-
-App.propTypes = {
-  firebase: PropTypes.any,
 };
 
 export default withFirebase(App);

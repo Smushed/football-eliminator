@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { withFirebase } from '../Firebase';
 import { Link } from 'react-router-dom';
 import { slide as Menu } from 'react-burger-menu';
-import PropTypes from 'prop-types';
 
 // SVGs are from Flatiron
 import RankingSVG from '../../constants/SVG/ranking.svg';
@@ -112,16 +111,6 @@ const SidePanel = ({
       </div>
     </Menu>
   );
-};
-
-SidePanel.propTypes = {
-  firebase: PropTypes.any,
-  user: PropTypes.object,
-  currentGroup: PropTypes.object,
-  showHideSideBar: PropTypes.func,
-  showSideBar: PropTypes.bool,
-  hardSetSideBar: PropTypes.func,
-  changeGroup: PropTypes.func,
 };
 
 export default withFirebase(SidePanel);

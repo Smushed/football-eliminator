@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
 import axios from 'axios';
 import { Tooltip } from 'react-tooltip';
 
@@ -260,22 +259,6 @@ const GroupRow = ({ group, joinGroup, season, userId }) => {
       </div>
     </div>
   );
-};
-
-GroupPage.propTypes = {
-  history: PropTypes.any,
-  email: PropTypes.string,
-  pullUserData: PropTypes.func,
-  season: PropTypes.string,
-  noGroup: PropTypes.bool,
-  userId: PropTypes.string,
-};
-
-GroupRow.propTypes = {
-  group: PropTypes.object,
-  joinGroup: PropTypes.func,
-  season: PropTypes.string,
-  userId: PropTypes.string,
 };
 
 export default Session(GroupPage);

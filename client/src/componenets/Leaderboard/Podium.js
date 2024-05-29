@@ -1,5 +1,4 @@
 import { memo, useContext } from 'react';
-import PropTypes from 'prop-types';
 import loading from '../../constants/SVG/loading.svg';
 import { AvatarContext } from '../Avatars';
 
@@ -77,10 +76,6 @@ const Stand = ({ avatar, username, totalScore, place }) => {
       </div>
     </div>
   );
-};
-
-Podium.propTypes = {
-  leaderboard: PropTypes.array,
 };
 
 export default Podium;

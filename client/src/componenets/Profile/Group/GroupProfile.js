@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import axios from 'axios';
 import Leaderboard from '../../Leaderboard/TableLeaderboard';
 
@@ -170,19 +169,6 @@ const GroupProfile = ({
       </div>
     </>
   );
-};
-
-GroupProfile.propTypes = {
-  groupName: PropTypes.string,
-  currentUser: PropTypes.object,
-  avatar: PropTypes.any,
-  handleChange: PropTypes.func,
-  updateAvatar: PropTypes.func,
-  groupInfo: PropTypes.object,
-  updateGroupInfo: PropTypes.func,
-  fileInputRef: PropTypes.any,
-  openCloseModal: PropTypes.func,
-  updateModalState: PropTypes.func,
 };
 
 export default GroupProfile;

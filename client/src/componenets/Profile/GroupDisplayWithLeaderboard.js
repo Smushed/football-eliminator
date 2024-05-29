@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import axios from 'axios';
 import DisplayBox from '../DisplayBox';
 import Leaderboard from '../Leaderboard/TableLeaderboard';
@@ -91,13 +90,6 @@ const GroupDisplayWithLeaderboard = ({
       </div>
     </div>
   );
-};
-
-GroupDisplayWithLeaderboard.propTypes = {
-  groupId: PropTypes.string,
-  currentUserId: PropTypes.string,
-  isCurrentUser: PropTypes.bool,
-  repullUser: PropTypes.func,
 };
 
 export default GroupDisplayWithLeaderboard;

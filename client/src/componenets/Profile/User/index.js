@@ -19,6 +19,7 @@ import {
   MainGroupInput,
   PasswordInput,
   UsernameInput,
+  PhoneNumberInput,
 } from '../ProfileInputs';
 
 const Alert = withReactContent(Swal);
@@ -42,6 +43,8 @@ const UserProfile = ({ currentUser, pullUserData }) => {
     leaderboardEmail: true,
     reminderEmail: true,
     groupList: [],
+    phoneNumber: '',
+    reminderText: false,
   });
 
   const fileInputRef = useRef(null);
@@ -77,23 +80,25 @@ const UserProfile = ({ currentUser, pullUserData }) => {
   };
 
   const handleChange = (e) => {
-    if (e.target.name === `avatar`) {
-      if (!!e.target.files[0].type.match(`image.*`)) {
-        if (e.target.files[0].type === 'image/webp') {
+    if (e.target.name === 'avatar') {
+      if (!!e.target.files[0].type.match('image.*')) {
+        const file = e.target.files[0];
+        fileInputRef.current.value = '';
+        if (file.type === 'image/webp') {
           notSupportedImage();
           e.target.value = '';
           return;
         }
-        Jimp.read(URL.createObjectURL(e.target.files[0]), async (err, img) => {
+        Jimp.read(URL.createObjectURL(file), async (err, img) => {
           if (err) {
             console.log(err);
-            toast.error(`Error processing image!`);
+            toast.error('Error processing image!');
             return;
           }
           const mime = await img.getBase64Async(Jimp.MIME_JPEG);
           setTempAvatar(mime);
         });
-        setModalState(`avatar`);
+        setModalState('avatar');
         openCloseModal(true);
       } else {
         notAnImage();
@@ -101,19 +106,28 @@ const UserProfile = ({ currentUser, pullUserData }) => {
       }
       return; //User cancelled the crop, return
     } else if (
-      e.target.name === `leaderboardEmail` ||
-      e.target.name === `reminderEmail`
+      e.target.name === 'leaderboardEmail' ||
+      e.target.name === 'reminderEmail' ||
+      e.target.name === 'reminderText'
     ) {
       setUserFieldsOnPage({
         ...userFieldsOnPage,
         [e.target.name]: e.target.checked,
       });
+      return;
+    } else if (e.target.name === 'phoneNumber') {
+      handlePhoneUpdate(e);
+      return;
     } else {
       setUserFieldsOnPage({
         ...userFieldsOnPage,
         [e.target.name]: e.target.value,
       });
     }
+  };
+
+  const handlePhoneUpdate = (e) => {
+    console.log({ key: e.keyCode });
   };
 
   const updateInfo = () => {
@@ -248,19 +262,24 @@ const UserProfile = ({ currentUser, pullUserData }) => {
 
   const createProfileFields = async (user) => {
     try {
-      const emailRes = await axios.get(`/api/user/emailPref/${user._id}`);
+      const reminder = await axios.get(`/api/user/reminderPref/${user._id}`, {
+        headers: { isCurrentUser: isCurrentUser.toString() },
+      });
       const groupList = await axios.get(
         `/api/group/details/byUser/${user._id}`
       );
+      console.log({ reminder });
       const builtUser = {
         password: '',
         id: user._id,
         username: user.UN,
         email: user.E,
-        leaderboardEmail: emailRes.data.LE,
-        reminderEmail: emailRes.data.RE,
+        leaderboardEmail: reminder.data.LE,
+        reminderEmail: reminder.data.RE,
         mainGroup: user.MG,
         groupList: groupList.data,
+        phoneNumber: reminder.data.PN || '',
+        reminderText: reminder.data.RT,
       };
       setOriginalState(builtUser);
       setUserFieldsOnPage(builtUser);
@@ -371,14 +390,14 @@ const UserProfile = ({ currentUser, pullUserData }) => {
               </div>
             </div>
             <div className='row justify-content-center'>
-              <div className='col-6 mt-5 text-center'>
+              <div className='col-md-12 col-lg-6 mt-5 text-center'>
                 <img
                   className={`rounded ${currentUser ? 'mt-5' : 'mt-1'}`}
                   name='avatar'
                   src={userAvatars[userFieldsOnPage.id]}
                 />
               </div>
-              <div className='col-6 mt-2'>
+              <div className='col-md-12 col-lg-6 mt-2'>
                 <UsernameInput
                   handleChange={handleChange}
                   placeholderUsername={userFieldsOnPage.username}
@@ -461,7 +480,7 @@ const UserProfile = ({ currentUser, pullUserData }) => {
                   </div>
                 </div>
               </div>
-              {currentUser && (
+              {isCurrentUser ? (
                 <div className='row justify-content-center mt-3 mb-4 text-center'>
                   <div className='col-6'>
                     <label className='btn btn-primary'>
@@ -470,26 +489,67 @@ const UserProfile = ({ currentUser, pullUserData }) => {
                         type='file'
                         hidden={true}
                         ref={fileInputRef}
+                        disabled={disableAllFields}
                         name='avatar'
                         onChange={handleChange}
                       />
                     </label>
                   </div>
                   <div className='col-6'>
-                    {isCurrentUser && (
-                      <button className='btn btn-primary' onClick={updateInfo}>
-                        Update Info
-                      </button>
-                    )}
+                    <button
+                      className='btn btn-primary'
+                      onClick={updateInfo}
+                      disabled={disableAllFields}
+                    >
+                      Update Info
+                    </button>
                   </div>
                 </div>
+              ) : (
+                <div className='mt-5' />
               )}
             </div>
           </div>
         </div>
-        <div className='d-flex mt-4 justify-content-center row text-center'>
-          <div className='col-5 border rounded'>Want Texts?</div>
-        </div>
+        {isCurrentUser && (
+          <div className='mt-5 justify-content-center row'>
+            <div className='col-md-12 col-lg-8 border rounded shadow'>
+              <div className='row mt-2 mb-3 justify-content-center'>
+                <div className='col-xs-12 col-lg-6 text-center'>
+                  <div className='form-switch row mt-3 mb-3'>
+                    <div className='col-1'>
+                      <input
+                        className='form-check-input'
+                        type='checkbox'
+                        role='switch'
+                        id='reminderTextSwitch'
+                        disabled={disableAllFields}
+                        checked={userFieldsOnPage.reminderText}
+                        onChange={handleChange}
+                        name='reminderText'
+                      />
+                    </div>
+                    <div className='col-10'>
+                      <label
+                        className='form-check-label'
+                        htmlFor='reminderTextSwitch'
+                      >
+                        Enable Texts Messages
+                      </label>
+                    </div>
+                  </div>
+                  <PhoneNumberInput
+                    phoneNumber={userFieldsOnPage.phoneNumber}
+                    disabled={
+                      disableAllFields || !userFieldsOnPage.reminderText
+                    }
+                    handleChange={handleChange}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <Modal
@@ -511,7 +571,6 @@ const UserProfile = ({ currentUser, pullUserData }) => {
               tempAvatar={tempAvatar}
               saveCroppedAvatar={saveCroppedAvatar}
               openCloseModal={openCloseModal}
-              fileInputRef={fileInputRef}
             />
           )
         )}

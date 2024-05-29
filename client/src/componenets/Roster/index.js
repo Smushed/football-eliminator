@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import PropTypes from 'prop-types';
 import fuzzysort from 'fuzzysort';
 
 import {
@@ -627,33 +626,6 @@ const Roster = ({
       </div>
     </div>
   );
-};
-
-Roster.propTypes = {
-  updateLockWeek: PropTypes.func,
-  appLevelLockWeek: PropTypes.number,
-  week: PropTypes.number,
-  season: PropTypes.string,
-  match: PropTypes.any,
-  username: PropTypes.string,
-  userId: PropTypes.string,
-  history: PropTypes.object,
-  noGroup: PropTypes.bool,
-};
-
-PlayerDisplayRow.propTypes = {
-  evenOrOddRow: PropTypes.number,
-  player: PropTypes.object,
-  addDropPlayer: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
-  sortedMatchups: PropTypes.object,
-};
-
-RosterDisplay.propTypes = {
-  groupPositions: PropTypes.array,
-  roster: PropTypes.array,
-  addDropPlayer: PropTypes.func,
-  mustDrop: PropTypes.bool,
-  pastLockWeek: PropTypes.bool,
 };
 
 export default Session(Roster);

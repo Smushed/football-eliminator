@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
 import * as Routes from '../../constants/routes';
@@ -36,9 +35,5 @@ const NavBar = ({ showHideSideBar }) => (
     </div>
   </nav>
 );
-
-NavBar.propTypes = {
-  showHideSideBar: PropTypes.func,
-};
 
 export default NavBar;

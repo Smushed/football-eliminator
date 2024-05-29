@@ -1,6 +1,5 @@
 import React, { useContext, memo } from 'react';
 import { Tooltip } from 'react-tooltip';
-import PropTypes from 'prop-types';
 
 import { AvatarContext } from '../Avatars';
 import BlankAvatar from '../../constants/logoImages/avatar/blankAvatar.png';
@@ -201,53 +200,5 @@ const PlayerDisplayTable = ({
     </table>
   </>
 );
-
-InjuryCol.propTypes = {
-  injury: PropTypes.object,
-  showInjury: PropTypes.func,
-};
-
-RosterDisplay.propTypes = {
-  groupPositions: PropTypes.array,
-  roster: PropTypes.array,
-  addDropPlayer: PropTypes.func,
-  mustDrop: PropTypes.bool,
-  pastLockWeek: PropTypes.bool,
-  headerText: PropTypes.string,
-  userId: PropTypes.string,
-};
-
-CurrentRosterRow.propTypes = {
-  mustDrop: PropTypes.bool,
-  player: PropTypes.object,
-  position: PropTypes.string,
-  addDropPlayer: PropTypes.func,
-  pastLockWeek: PropTypes.bool,
-};
-
-InjuryCol.propTypes = {
-  injury: PropTypes.object,
-  showInjury: PropTypes.func,
-};
-
-PlayerDisplayRow.propTypes = {
-  player: PropTypes.object,
-  addDropPlayer: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
-  sortedMatchups: PropTypes.oneOfType([
-    PropTypes.object,
-    PropTypes.array,
-    PropTypes.bool,
-  ]),
-};
-
-PlayerDisplayTable.propTypes = {
-  headerText: PropTypes.string,
-  playerList: PropTypes.array,
-  sortedMatchups: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
-  addDropPlayer: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
-  showInput: PropTypes.bool,
-  inputValue: PropTypes.string,
-  handleChange: PropTypes.func,
-};
 
 export { RosterDisplay, PlayerDisplayRow, PlayerDisplayTable };

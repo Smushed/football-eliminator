@@ -3,7 +3,6 @@ import { withRouter } from 'react-router-dom';
 import { withFirebase } from '../Firebase';
 import * as Routes from '../../constants/routes';
 import axios from 'axios';
-import PropTypes from 'prop-types';
 
 import './signInOutStyle.css';
 import ElimLogo from '../../constants/elimLogos/LargeElimLogo.png';
@@ -354,25 +353,6 @@ const SignInFormBase = ({
       </form>
     </div>
   );
-};
-
-SignInFormBase.propTypes = {
-  firebase: PropTypes.any,
-  history: PropTypes.any,
-  showPassword: PropTypes.string,
-  toggleShowPassword: PropTypes.func,
-};
-
-SignUpFormBase.propTypes = {
-  firebase: PropTypes.any,
-  history: PropTypes.any,
-  showPassword: PropTypes.string,
-  toggleShowPassword: PropTypes.func,
-};
-
-SwitchSignInUp.propTypes = {
-  switchView: PropTypes.func,
-  showSignIn: PropTypes.bool,
 };
 
 const SignUpForm = withRouter(withFirebase(SignUpFormBase));

@@ -3,7 +3,6 @@ import axios from 'axios';
 
 import { RosterDisplay } from '../Roster/RosterDisplay';
 import './homeStyle.css';
-import PropTypes from 'prop-types';
 import RosterCarousel from './RosterCarousel';
 import * as Routes from '../../constants/routes';
 import { WeekSearch } from '../Roster/SearchDropdowns';
@@ -234,15 +233,6 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
       </div>
     </div>
   );
-};
-
-Home.propTypes = {
-  season: PropTypes.string,
-  group: PropTypes.object,
-  week: PropTypes.number,
-  currentUser: PropTypes.object,
-  noGroup: PropTypes.bool,
-  history: PropTypes.any,
 };
 
 export default Session(Home);

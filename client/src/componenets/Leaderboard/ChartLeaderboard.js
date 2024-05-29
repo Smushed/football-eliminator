@@ -1,5 +1,4 @@
 import { memo, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -76,9 +75,5 @@ const ChartLeaderboard = memo(function ChartLeaderboard({ leaderboard }) {
     />
   );
 });
-
-ChartLeaderboard.propTypes = {
-  leaderboard: PropTypes.array,
-};
 
 export default ChartLeaderboard;

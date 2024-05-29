@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import PropTypes from 'prop-types';
 import toast from 'react-hot-toast';
 
 import './groupStyle.css';
@@ -480,23 +479,5 @@ const ScoringRow = ({ description, bucket, bucketKey, val, handleChange }) => (
     />
   </div>
 );
-
-ScoringRow.propTypes = {
-  description: PropTypes.string,
-  bucket: PropTypes.string,
-  bucketKey: PropTypes.string,
-  val: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  handleChange: PropTypes.func,
-};
-
-CreateGroup.propTypes = {
-  email: PropTypes.string,
-  pullUserData: PropTypes.func,
-  userId: PropTypes.string,
-  week: PropTypes.number,
-  groupId: PropTypes.string,
-  changeGroup: PropTypes.func,
-  history: PropTypes.object,
-};
 
 export default Session(CreateGroup);

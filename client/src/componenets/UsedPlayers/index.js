@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { PlayerDisplayRow } from '../Roster/RosterDisplay';
-import PropTypes from 'prop-types';
 
 import { loading, doneLoading } from '../LoadingAlert';
 import * as Routes from '../../constants/routes';
@@ -73,13 +72,6 @@ const UsedPlayers = ({ match, season, history, noGroup }) => {
       ))}
     </div>
   );
-};
-
-UsedPlayers.propTypes = {
-  match: PropTypes.any,
-  season: PropTypes.string,
-  history: PropTypes.object,
-  noGroup: PropTypes.bool,
 };
 
 export default Session(UsedPlayers);

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import PropTypes from 'prop-types';
 import ChartLeaderboard from './ChartLeaderboard';
 import Podium from './Podium';
 
@@ -45,12 +44,6 @@ const Leaderboard = ({ season, week, groupId }) => {
       </div>
     </div>
   );
-};
-
-Leaderboard.propTypes = {
-  season: PropTypes.string,
-  week: PropTypes.number,
-  groupId: PropTypes.string,
 };
 
 export default Leaderboard;

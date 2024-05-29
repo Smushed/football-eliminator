@@ -16,6 +16,16 @@ const UserReminderSettingSchema = new Schema({
     type: Boolean,
     default: true,
   },
+  RT: {
+    //Text reminders
+    type: Boolean,
+    default: false,
+  },
+  PN: {
+    //Phone Numbers
+    type: String,
+    default: '',
+  },
 });
 
 export default model('UserReminderSettings', UserReminderSettingSchema);

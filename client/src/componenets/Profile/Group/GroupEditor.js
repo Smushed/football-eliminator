@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
@@ -373,15 +372,6 @@ const GroupEditor = ({
       </div>
     </>
   );
-};
-
-GroupEditor.propTypes = {
-  groupInfo: PropTypes.object,
-  updatedFields: PropTypes.object,
-  changeUpdatedFields: PropTypes.func,
-  updateGroupInfo: PropTypes.func,
-  openCloseModal: PropTypes.func,
-  changeGroup: PropTypes.func,
 };
 
 export default GroupEditor;

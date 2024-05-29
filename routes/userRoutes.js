@@ -41,7 +41,7 @@ export default (app) => {
     res.status(200).send({ userInfo, emailSettings });
   });
 
-  app.get(`/api/user/emailPref/:id`, async (req, res) => {
+  app.get(`/api/user/reminderPref/:id`, async (req, res) => {
     const { id } = req.params;
     const emailPres = await userHandler.getEmailSettings(id);
     res.status(200).send(emailPres);

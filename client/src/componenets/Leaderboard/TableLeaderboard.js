@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
 import './leaderBoardStyle.css';
@@ -50,11 +49,5 @@ const Leaderboard = ({ groupName, week, leaderboard }) => (
     </tbody>
   </table>
 );
-
-Leaderboard.propTypes = {
-  groupName: PropTypes.string,
-  leaderboard: PropTypes.array,
-  week: PropTypes.number,
-};
 
 export default Leaderboard;

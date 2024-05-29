@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import * as Routes from '../../constants/routes';
 import axios from 'axios';
-import PropTypes from 'prop-types';
 import Session from '../Session';
 
 import PlayerEditor from './PlayerEditor';
@@ -172,14 +171,6 @@ const AdminPanel = ({ currentUser, season, week, groupId }) => {
       {/* IF the user is not an admin, return a blank div so they can't see anything */}
     </div>
   );
-};
-
-AdminPanel.propTypes = {
-  season: PropTypes.string,
-  week: PropTypes.number,
-  currentUser: PropTypes.object,
-  history: PropTypes.any,
-  groupId: PropTypes.string,
 };
 
 export default Session(AdminPanel);
