@@ -14,6 +14,14 @@ const UsedPlayers = ({ match, season, history, noGroup }) => {
   const axiosCancel = axios.CancelToken.source();
 
   useEffect(() => {
+    return function cancelAPICalls() {
+      if (axiosCancel) {
+        axiosCancel.cancel(`Unmounted`);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (noGroup) {
       history.push(Routes.groupPage);
       return;
@@ -22,12 +30,6 @@ const UsedPlayers = ({ match, season, history, noGroup }) => {
       getUsedPlayers();
       updateUsernameOfPage(match.params.username);
     }
-
-    return function cancelAPICalls() {
-      if (axiosCancel) {
-        axiosCancel.cancel(`Unmounted`);
-      }
-    };
   }, [season, match.params.username]);
 
   const getUsedPlayers = () => {

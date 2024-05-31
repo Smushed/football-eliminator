@@ -25,6 +25,14 @@ const GroupPage = ({
   const axiosCancel = axios.CancelToken.source();
 
   useEffect(() => {
+    return function cancelAPICalls() {
+      if (axiosCancel) {
+        axiosCancel.cancel(`Unmounted`);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (noGroup) {
       welcomeModal();
     }
@@ -122,18 +130,20 @@ const GroupRow = ({ group, joinGroup, season, userId }) => {
   const axiosCancel = axios.CancelToken.source();
 
   useEffect(() => {
+    return function cancelAPICalls() {
+      if (axiosCancel) {
+        axiosCancel.cancel(`Unmounted`);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     getAvatar(group.id);
     getTopScore(group.id, season);
     BuildULTooltip(group.UL);
     if (group.UL.length >= 1 && userId) {
       checkInGroup(userId);
     }
-
-    return function cancelAPICalls() {
-      if (axiosCancel) {
-        axiosCancel.cancel(`Unmounted`);
-      }
-    };
   }, [group.id, group.UL, season, userId]);
 
   const getAvatar = (groupId) => {

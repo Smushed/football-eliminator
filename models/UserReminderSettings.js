@@ -1,28 +1,23 @@
 import { Schema, Types, model } from 'mongoose';
 
 const UserReminderSettingSchema = new Schema({
-  U: {
-    //User ID
+  userId: {
     type: Types.ObjectId,
     unique: true,
   },
-  RE: {
-    //Reminder Emails
-    type: Boolean,
-    default: true,
-  },
-  LE: {
-    //Leaderboard emails
-    type: Boolean,
-    default: true,
-  },
-  RT: {
-    //Text reminders
+  reminderEmail: {
     type: Boolean,
     default: false,
   },
-  PN: {
-    //Phone Numbers
+  leaderboardEmail: {
+    type: Boolean,
+    default: true,
+  },
+  reminderText: {
+    type: Boolean,
+    default: false,
+  },
+  phoneNumber: {
     type: String,
     default: '',
   },

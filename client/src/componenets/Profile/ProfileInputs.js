@@ -201,6 +201,34 @@ const PhoneNumberInput = ({ phoneNumber, disabled, handleChange }) => (
   </div>
 );
 
+const GenericSwitch = ({
+  disableAllFields,
+  checkedVal,
+  handleChange,
+  displayName,
+  htmlName,
+}) => (
+  <div className='form-switch row'>
+    <div className='col-1 text-end'>
+      <input
+        className='form-check-input'
+        type='checkbox'
+        role='switch'
+        id={`${htmlName}Switch`}
+        disabled={disableAllFields}
+        checked={checkedVal}
+        onChange={handleChange}
+        name={htmlName}
+      />
+    </div>
+    <div className='col-8 text-start'>
+      <label className='form-check-label' htmlFor={`${htmlName}Switch`}>
+        {displayName}
+      </label>
+    </div>
+  </div>
+);
+
 export {
   AvatarInput,
   UsernameInput,
@@ -209,4 +237,5 @@ export {
   ConfirmPasswordInput,
   MainGroupInput,
   PhoneNumberInput,
+  GenericSwitch,
 };

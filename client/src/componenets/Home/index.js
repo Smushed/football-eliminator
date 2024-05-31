@@ -26,6 +26,14 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
   const axiosCancel = axios.CancelToken.source();
 
   useEffect(() => {
+    return function cancelAPICalls() {
+      if (axiosCancel) {
+        axiosCancel.cancel(`Unmounted`);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (week !== 0 && season !== `` && currentUser.username && group) {
       updateWeekOnPage(week);
       updateWeekSelect(week);
@@ -43,11 +51,6 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
         updateInitialPull(true);
       }
     }
-    return function cancelAPICalls() {
-      if (axiosCancel) {
-        axiosCancel.cancel(`Unmounted`);
-      }
-    };
   }, [week, season, currentUser.username, group]);
 
   useEffect(() => {

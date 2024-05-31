@@ -12,20 +12,17 @@ const GroupDisplayWithLeaderboard = ({
   const axiosCancel = axios.CancelToken.source();
 
   useEffect(() => {
+    if (axiosCancel) {
+      axiosCancel.cancel(`Unmounted`);
+    }
+  }, []);
+
+  useEffect(() => {
     if (groupId) {
       getLeaderboard(groupId);
       getGroupName(groupId);
     }
   }, [groupId]);
-
-  useEffect(
-    () => () => {
-      if (axiosCancel) {
-        axiosCancel.cancel(`Unmounted`);
-      }
-    },
-    []
-  );
 
   const [leaderboard, setLeaderboard] = useState([]);
   const [week, setWeek] = useState(1);
@@ -54,7 +51,9 @@ const GroupDisplayWithLeaderboard = ({
         setWeek(week);
 
         axios
-          .get(`/api/group/leaderboard/${season}/${week}/${gId}`)
+          .get(`/api/group/leaderboard/${season}/${week}/${gId}`, {
+            cancelToken: axiosCancel.token,
+          })
           .then((res2) => setLeaderboard(res2.data.leaderboard))
           .catch((err) => {
             if (err.message !== `Unmounted`) {

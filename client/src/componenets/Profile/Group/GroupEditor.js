@@ -22,16 +22,19 @@ const GroupEditor = ({
   const axiosCancel = axios.CancelToken.source();
 
   useEffect(() => {
-    if (groupInfo._id) {
-      pullGroupScoring(groupInfo._id);
-      getRosterPositions();
-      getGroupPositions(groupInfo._id);
-    }
     return function cancelAPICalls() {
       if (axiosCancel) {
         axiosCancel.cancel(`Unmounted`);
       }
     };
+  }, []);
+
+  useEffect(() => {
+    if (groupInfo._id) {
+      pullGroupScoring(groupInfo._id);
+      getRosterPositions();
+      getGroupPositions(groupInfo._id);
+    }
   }, [groupInfo._id]);
 
   const pullGroupScoring = (groupId) => {
@@ -219,11 +222,7 @@ const GroupEditor = ({
       data.groupDesc = updatedFields.groupDesc;
     }
     axios
-      .put(
-        `/api/group`,
-        { data, id: groupInfo._id },
-        { cancelToken: axiosCancel.token }
-      )
+      .put(`/api/group`, { data, id: groupInfo._id })
       .then(() => {
         if (updatedFields.groupName !== ``) {
           changeGroup(updatedFields.groupName);
@@ -232,7 +231,8 @@ const GroupEditor = ({
         }
         axios
           .get(
-            `/api/group/profile?name=${groupInfo.N}&avatar=true&positions=true`
+            `/api/group/profile?name=${groupInfo.N}&avatar=true&positions=true`,
+            { cancelToken: axiosCancel.token }
           )
           .then(
             (res) => {

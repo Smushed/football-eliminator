@@ -30,14 +30,17 @@ const GroupProfile = ({
   const axiosCancel = axios.CancelToken.source();
 
   useEffect(() => {
-    if (groupName) {
-      pullGroupInfo();
-    }
     return function cancelAPICalls() {
       if (axiosCancel) {
         axiosCancel.cancel(`Unmounted`);
       }
     };
+  }, []);
+
+  useEffect(() => {
+    if (groupName) {
+      pullGroupInfo();
+    }
   }, [groupName]);
 
   useEffect(() => {
@@ -85,7 +88,9 @@ const GroupProfile = ({
         updateSeason(season);
 
         axios
-          .get(`/api/group/leaderboard/${season}/${week}/${groupId}`)
+          .get(`/api/group/leaderboard/${season}/${week}/${groupId}`, {
+            cancelToken: axiosCancel.token,
+          })
           .then((res2) => updateLeaderboard(res2.data.leaderboard))
           .catch((err) => {
             if (err.message !== `Unmounted`) {

@@ -49,6 +49,11 @@ const CreateGroup = ({ email, pullUserData, userId, changeGroup, history }) => {
 
   useEffect(() => {
     getRosterPositions();
+    return function cancelAPICalls() {
+      if (axiosCancel) {
+        axiosCancel.cancel(`Unmounted`);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -73,7 +78,7 @@ const CreateGroup = ({ email, pullUserData, userId, changeGroup, history }) => {
       })
       .catch((err) => {
         if (err.message !== `Unmounted`) {
-          console.log(err);
+          console.log({ err });
         }
       });
   };
@@ -258,7 +263,7 @@ const CreateGroup = ({ email, pullUserData, userId, changeGroup, history }) => {
       })
       .catch((err) => {
         if (err.message !== `Unmounted`) {
-          console.log(err);
+          console.log({ err });
         }
       });
   };

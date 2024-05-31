@@ -27,14 +27,16 @@ const DisplayBox = ({
   const axiosCancel = axios.CancelToken.source();
 
   useEffect(() => {
-    type === `user` && getUserData();
-    type === `group` && getGroupData();
-
     return function cancelAPICalls() {
       if (axiosCancel) {
         axiosCancel.cancel(`Unmounted`);
       }
     };
+  }, []);
+
+  useEffect(() => {
+    type === `user` && getUserData();
+    type === `group` && getGroupData();
   }, [type]);
 
   const getUserData = () => {

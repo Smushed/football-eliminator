@@ -98,23 +98,6 @@ export default {
         return { status: 400, message: 'Error Updating User Profile' };
       }
     });
-
-    toUpdate = {};
-    if (request.LE !== undefined) {
-      toUpdate.LE = request.LE;
-    }
-    if (request.RE !== undefined) {
-      toUpdate.RE = request.RE;
-    }
-    db.UserReminderSettings.updateOne(
-      { U: userId },
-      { $set: toUpdate },
-      (err) => {
-        if (err) {
-          return { status: 400, message: 'Error Saving Email Settings' };
-        }
-      }
-    );
     return { status: 200, message: `Updated`, UN: request.UN, E: request.E };
   },
   updateToAdmin: async (userId) => {
@@ -257,30 +240,43 @@ export default {
     }),
   getEmailSettings: async (userId) => {
     let emailSettings = await db.UserReminderSettings.findOne({
-      U: userId,
+      userId,
     })
       .lean()
       .exec();
     if (emailSettings === null) {
-      emailSettings = await db.UserReminderSettings.create({ U: userId });
+      emailSettings = await db.UserReminderSettings.create({ userId });
     }
     return emailSettings;
   },
-  updateEmailSettings: async (userId, LE, RE) => {
+  updateEmailSettings: async (userId, updatedFields) => {
+    if (updatedFields.phoneNumber !== undefined) {
+      updatedFields.phoneNumber = updatedFields.phoneNumber.replace(/\D/g, '');
+      if (updatedFields.phoneNumber[0] === '1') {
+        updatedFields.phoneNumber = updatedFields.phoneNumber.substring(1);
+      }
+      if (updatedFields.phoneNumber.length !== 10) {
+        return { status: 400, message: 'Invalid Phone Number' };
+      }
+    }
     try {
       await db.UserReminderSettings.findOneAndUpdate(
-        { U: userId },
-        { LE, RE }
+        { userId },
+        updatedFields
       ).exec();
+      return {
+        status: 200,
+        message: 'User Updated',
+      };
     } catch (err) {
-      console.log(err);
+      return { status: 500, message: 'Error saving reminder settings' };
     }
   },
   unsubscribeEmails: async (userId) => {
     try {
       await db.UserReminderSettings.findOneAndUpdate(
-        { U: userId },
-        { LE: false, RE: false }
+        { userId },
+        { leaderboardEmail: false, reminderEmail: false }
       ).exec();
     } catch (err) {
       console.log(err);
@@ -289,10 +285,10 @@ export default {
   getGroupEmailSettings: async (userList) =>
     await db.UserReminderSettings.find(
       {
-        U: { $in: userList },
-        LE: true,
+        userId: { $in: userList },
+        leaderboardEmail: true,
       },
-      { U: 1 }
+      { userId: 1 }
     )
       .lean()
       .exec(),

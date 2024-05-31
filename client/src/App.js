@@ -68,9 +68,9 @@ const App = ({ firebase }) => {
       email: user.E,
       GL: user.GL,
       MG: user.MG || null,
-      E: {
-        RE: emailSettings.RE,
-        LE: emailSettings.LE,
+      emailSettings: {
+        reminderEmail: emailSettings.reminderEmail,
+        leaderboardEmail: emailSettings.leaderboardEmail,
       },
     };
     updateCurrentUser(currentUser);

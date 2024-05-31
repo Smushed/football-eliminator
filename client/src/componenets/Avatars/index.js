@@ -14,6 +14,14 @@ const AvatarWrapper = ({ children }) => {
   const axiosCancel = axios.CancelToken.source();
 
   useEffect(() => {
+    return function cancelAPICalls() {
+      if (axiosCancel) {
+        axiosCancel.cancel(`Unmounted`);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (waitingToProcess.length > 0) {
       moveFromWaitingToProcess(waitingToProcess);
     }
@@ -82,7 +90,6 @@ const AvatarWrapper = ({ children }) => {
         updatePlayerIdToPull([]);
       }
     } catch (err) {
-      console.log({ err });
       if (err.message !== `Unmounted`) {
         console.log(err);
       }

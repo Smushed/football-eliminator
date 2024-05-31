@@ -138,10 +138,14 @@ export default (app) => {
     res.sendStatus(200);
   });
 
-  app.put(`/api/user/email/settings/:userId/:LE/:RE`, (req, res) => {
-    const { userId, LE, RE } = req.params;
-    userHandler.updateEmailSettings(userId, LE, RE);
-    res.sendStatus(200);
+  app.put(`/api/user/email/settings/:userId`, async (req, res) => {
+    const { userId } = req.params;
+    const { updatedFields } = req.body;
+    const response = await userHandler.updateEmailSettings(
+      userId,
+      updatedFields
+    );
+    res.status(response.status).send(response.message);
   });
 
   app.put(`/api/user/email/unsubscribe/:userId`, async (req, res) => {
