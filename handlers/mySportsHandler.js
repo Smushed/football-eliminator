@@ -925,7 +925,7 @@ export default {
         });
         newRecord.save();
       } else {
-        homeTeamLockSearch.ST = game.schedule.startTime;
+        homeTeamLockSearch.startTime = game.schedule.startTime;
         homeTeamLockSearch.save();
       }
 
@@ -943,7 +943,7 @@ export default {
         });
         newRecord.save();
       } else {
-        awayTeamLockSearch.ST = game.schedule.startTime;
+        awayTeamLockSearch.startTime = game.schedule.startTime;
         awayTeamLockSearch.save();
       }
     }

@@ -283,14 +283,6 @@ const Roster = ({
 
   const checkLockPeriod = async (team) => {
     axios
-      .get(`/api/roster/lock/general`, { cancelToken: axiosCancel.token })
-      .then((res) => updateLockWeek(res.data.LW))
-      .catch((err) => {
-        if (err.message !== `Unmounted`) {
-          console.log(err);
-        }
-      });
-    axios
       .get(`/api/roster/lock/${season}/${weekOnPage}/${team}`, {
         cancelToken: axiosCancel.token,
       })

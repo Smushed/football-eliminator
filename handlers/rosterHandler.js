@@ -515,7 +515,7 @@ export default {
         });
       }
       const currDate = new Date();
-      return currDate < teamStart.ST;
+      return currDate < teamStart.startTime;
     } catch (err) {
       console.log(err);
       return false;

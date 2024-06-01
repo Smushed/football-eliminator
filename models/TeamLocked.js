@@ -6,7 +6,7 @@ const TeamLockedSchema = new Schema({
     required: true,
     trim: true,
   },
-  startingTime: {
+  startTime: {
     type: Date,
     required: true,
   },
