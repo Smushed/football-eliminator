@@ -16,7 +16,7 @@ const checkDuplicateRoster = async (
   let result = false;
   let searched;
   switch (checkedField) {
-    case `userRoster`:
+    case 'userRoster':
       try {
         searched = await db.UserRoster.findOne({
           U: userId,
@@ -31,13 +31,13 @@ const checkDuplicateRoster = async (
         console.log(err);
       }
       break;
-    case `usedPlayers`:
+    case 'usedPlayers':
       try {
         searched = await db.UsedPlayers.findOne({
-          U: userId,
-          S: season,
-          G: groupId,
-          P: position,
+          userId,
+          season,
+          groupId,
+          position,
         }).exec();
         if (searched !== null) {
           return true;
@@ -71,10 +71,10 @@ const sortPlayersByRank = (playerArray) => {
 
 const getUsedPlayers = async (userId, season, groupId, position) => {
   const currentUser = await db.UsedPlayers.findOne({
-    U: userId,
-    S: season,
-    G: groupId,
-    P: position,
+    userId,
+    season,
+    groupId,
+    position,
   }).exec();
   if (currentUser === null) {
     const createdUsedPlayers = await createUsedPlayers(
@@ -83,17 +83,17 @@ const getUsedPlayers = async (userId, season, groupId, position) => {
       groupId,
       position
     );
-    return createdUsedPlayers.UP;
+    return createdUsedPlayers.usedPlayers;
   } else {
-    return currentUser.UP;
+    return currentUser.usedPlayers;
   }
 };
 
 const getUsedPlayersNoPosition = async (userId, season, groupId) => {
   const usedPlayers = await db.UsedPlayers.find({
-    U: userId,
-    S: season,
-    G: groupId,
+    userId,
+    season,
+    groupId,
   }).exec();
   //If less than the max amount of used players, we need to make them here
   if (usedPlayers.length < 4) {
@@ -104,7 +104,7 @@ const getUsedPlayersNoPosition = async (userId, season, groupId) => {
       TE: false,
     };
     usedPlayers.forEach((dbUsedPlayer, i) => {
-      hasUsedPlayers[dbUsedPlayer.P] = true;
+      hasUsedPlayers[dbUsedPlayer.position] = true;
     });
     for (const key in hasUsedPlayers) {
       if (!hasUsedPlayers[key]) {
@@ -118,7 +118,7 @@ const getUsedPlayersNoPosition = async (userId, season, groupId) => {
 const createUsedPlayers = (userId, season, groupId, position) =>
   new Promise(async (res, rej) => {
     const isDupe = await checkDuplicateRoster(
-      `usedPlayers`,
+      'usedPlayers',
       userId,
       groupId,
       season,
@@ -126,14 +126,7 @@ const createUsedPlayers = (userId, season, groupId, position) =>
       position
     );
     if (!isDupe) {
-      res(
-        await db.UsedPlayers.create({
-          U: userId,
-          S: season,
-          G: groupId,
-          P: position,
-        })
-      );
+      res(await db.UsedPlayers.create({ userId, season, groupId, position }));
     }
   });
 
@@ -276,7 +269,7 @@ export default {
             });
           }
           await db.UsedPlayers.findOne(
-            { U: userId, S: season, G: groupId },
+            { userId, season, groupId },
             async (err, usedPlayers) => {
               if (usedPlayers === null) {
                 usedPlayers = createUsedPlayers(userId, season, groupId);
@@ -286,7 +279,7 @@ export default {
               const currentRoster = new Set(
                 rosterArray.filter((playerId) => playerId !== 0)
               );
-              const currentUsedPlayerArray = usedPlayers.UP;
+              const currentUsedPlayerArray = usedPlayers.usedPlayers;
               //filter out all the players who are being pulled from the current week
               const updatedUsedPlayers = currentUsedPlayerArray.filter(
                 (playerId) => !currentRoster.has(+playerId)
@@ -301,7 +294,7 @@ export default {
                 }
               }
 
-              usedPlayers.UP = updatedUsedPlayers;
+              usedPlayers.usedPlayers = updatedUsedPlayers;
               usedPlayers.save((err, result) => {
                 if (err) {
                   console.log(err);
@@ -354,10 +347,10 @@ export default {
   ) =>
     new Promise(async (res, rej) => {
       let usedPlayers = await db.UsedPlayers.findOne({
-        U: userId,
-        S: season,
-        G: groupId,
-        P: position,
+        userId,
+        season,
+        groupId,
+        position,
       }).exec();
       if (usedPlayers === null) {
         usedPlayers = await createUsedPlayers(
@@ -367,8 +360,6 @@ export default {
           position
         );
       }
-
-      //Check User Roster Here
 
       let newUsedPlayers = [];
       for (const playerId of usedPlayers.UP) {
@@ -382,11 +373,10 @@ export default {
       newUsedPlayers.push(addedPlayer);
       const validCheck = await checkRoster(groupId, roster);
       if (validCheck.valid === false) {
-        console.log('inside valid');
         rej(validCheck.message);
         return;
       }
-      usedPlayers.UP = newUsedPlayers;
+      usedPlayers.usedPlayers = newUsedPlayers;
       await usedPlayers.save();
 
       const currentRoster = await db.UserRoster.findOne({

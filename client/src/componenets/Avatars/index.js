@@ -11,16 +11,6 @@ const AvatarWrapper = ({ children }) => {
   const [waitingToProcess, updateWaitingToProcess] = useState([]);
   const [nextNode, updateNextNode] = useState(null);
 
-  const axiosCancel = axios.CancelToken.source();
-
-  useEffect(() => {
-    return function cancelAPICalls() {
-      if (axiosCancel) {
-        axiosCancel.cancel(`Unmounted`);
-      }
-    };
-  }, []);
-
   useEffect(() => {
     if (waitingToProcess.length > 0) {
       moveFromWaitingToProcess(waitingToProcess);
@@ -76,13 +66,9 @@ const AvatarWrapper = ({ children }) => {
 
   const getPlayerAvatars = async (playerIdLinkedList) => {
     try {
-      const avatarRes = await axios.post(
-        `/api/user/playerAvatars/`,
-        { avatars: playerIdLinkedList.val },
-        {
-          cancelToken: axiosCancel.token,
-        }
-      );
+      const avatarRes = await axios.post(`/api/user/playerAvatars/`, {
+        avatars: playerIdLinkedList.val,
+      });
       updatePlayerAvatars({ ...playerAvatars, ...avatarRes.data });
       if (nextNode) {
         updateNextNode(playerIdLinkedList.next);
@@ -90,27 +76,18 @@ const AvatarWrapper = ({ children }) => {
         updatePlayerIdToPull([]);
       }
     } catch (err) {
-      if (err.message !== `Unmounted`) {
-        console.log(err);
-      }
+      console.log(err);
     }
   };
 
   const getUserAvatars = async (userAvatarList) => {
     try {
-      const avatarRes = await axios.post(
-        `/api/user/userAvatars/`,
-        { userIdList: userAvatarList },
-        {
-          cancelToken: axiosCancel.token,
-        }
-      );
+      const avatarRes = await axios.post(`/api/user/userAvatars/`, {
+        userIdList: userAvatarList,
+      });
       updateUserAvatars({ ...userAvatars, ...avatarRes.data });
     } catch (err) {
-      console.log({ err });
-      if (err.message !== `Unmounted`) {
-        console.log(err);
-      }
+      console.log(err);
     }
   };
 

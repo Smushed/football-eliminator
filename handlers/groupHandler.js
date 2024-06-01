@@ -585,9 +585,9 @@ export default {
           U: delUserId,
         });
         await db.UsedPlayers.deleteOne({
-          G: group._id,
-          S: season,
-          U: delUserId,
+          groupId: group._id,
+          season: season,
+          userId: delUserId,
         });
         await db.UserRoster.deleteMany({
           G: group._id,
