@@ -10,9 +10,9 @@ const mySportsFeedsAPI = process.env.MY_SPORTS_FEEDS_API;
 const playerScoreHandler = async (playerId, season, week, groupScore) => {
   return new Promise(async (res, rej) => {
     const playerStats = await db.PlayerStats.findOne({
-      M: playerId,
-      W: week,
-      S: season,
+      mySportsId: playerId,
+      week: week,
+      season: season,
     }).exec();
     let weeklyScore = 0;
 
@@ -84,7 +84,6 @@ const addPlayerData = (player, team, stats, season, week) => {
 };
 
 const findPlayerInDB = async (playerID) => {
-  // eslint-disable-next-line no-async-promise-executor
   return new Promise(async (res, rej) => {
     try {
       const playerInDB = await db.PlayerData.findOne({ M: playerID }).exec();
@@ -105,9 +104,9 @@ const checkForWeeklyStats = async (mySportsId, stats, season, week) => {
   //If the player already has a record in the database, return it so we can update it.
   //If not return false so we can write a new record
   const player = await db.PlayerStats.findOne({
-    M: mySportsId,
-    W: week,
-    S: season,
+    mySportsId: mySportsId,
+    week: week,
+    season: season,
   });
   if (!player) {
     return false;
@@ -120,108 +119,112 @@ const checkForWeeklyStats = async (mySportsId, stats, season, week) => {
 const newWeeklyStats = (mySportsId, stats, season, week) => {
   //We need this because sometimes the object from MySports doesn't include parts (IE no kicking stats)
   const player = new db.PlayerStats();
-  player.M = parseInt(mySportsId);
-  player.S = season;
-  player.W = parseInt(week);
-  player.P = {};
-  player.RU = {};
-  player.RE = {};
-  player.F = 0;
-  player.FG = {};
+  player.mySportsId = parseInt(mySportsId);
+  player.season = season;
+  player.week = parseInt(week);
+  player.passing = {};
+  player.rushing = {};
+  player.receiving = {};
+  player.fumbles = {};
+  player.fieldGoal = {};
 
   if (stats.passing) {
-    player.P = {
-      T: stats.passing.passTD || 0,
-      Y: stats.passing.passYards || 0,
-      I: stats.passing.passInt || 0,
-      A: stats.passing.passAttempts || 0,
-      C: stats.passing.passCompletions || 0,
-      '2P': stats.twoPointAttempts.twoPtPassMade || 0,
+    player.passing = {
+      touchdowns: stats.passing.passTD || 0,
+      yards: stats.passing.passYards || 0,
+      interceptions: stats.passing.passInt || 0,
+      attempts: stats.passing.passAttempts || 0,
+      completions: stats.passing.passCompletions || 0,
+      plays20Plus: stats.passing.pass20Plus || 0,
+      plays40Plus: stats.passing.pass40Plus || 0,
+      twoPointMade: stats.twoPointAttempts.twoPtPassMade || 0,
     };
   } else {
-    player.P = {
-      T: 0,
-      Y: 0,
-      I: 0,
-      A: 0,
-      C: 0,
-      '2P': 0,
+    player.passing = {
+      touchdowns: 0,
+      yards: 0,
+      interceptions: 0,
+      attempts: 0,
+      completions: 0,
+      plays20Plus: 0,
+      plays40Plus: 0,
+      twoPointMade: 0,
     };
   }
 
   if (stats.rushing) {
-    player.RU = {
-      A: stats.rushing.rushAttempts || 0,
-      Y: stats.rushing.rushYards || 0,
-      T: stats.rushing.rushTD || 0,
-      20: stats.rushing.rush20Plus || 0,
-      40: stats.rushing.rush40Plus || 0,
-      F: stats.rushing.rushFumbles || 0,
-      '2P': stats.twoPointAttempts.twoPtRushMade || 0,
+    player.rushing = {
+      attempts: stats.rushing.rushAttempts || 0,
+      yards: stats.rushing.rushYards || 0,
+      touchdowns: stats.rushing.rushTD || 0,
+      plays20Plus: stats.rushing.rush20Plus || 0,
+      plays20Plus: stats.rushing.rush40Plus || 0,
+      fumbles: stats.rushing.rushFumbles || 0,
+      twoPointMade: stats.twoPointAttempts.twoPtRushMade || 0,
     };
   } else {
-    player.RU = {
-      A: 0,
-      Y: 0,
-      T: 0,
-      20: 0,
-      40: 0,
-      F: 0,
-      '2P': 0,
+    player.rushing = {
+      attempts: 0,
+      yards: 0,
+      touchdowns: 0,
+      plays20Plus: 0,
+      plays20Plus: 0,
+      fumbles: 0,
+      twoPointMade: 0,
     };
   }
 
   if (stats.receiving) {
-    player.RE = {
-      TA: stats.receiving.targets || 0,
-      R: stats.receiving.receptions || 0,
-      Y: stats.receiving.recYards || 0,
-      T: stats.receiving.recTD || 0,
-      20: stats.receiving.rec20Plus || 0,
-      40: stats.receiving.rec40Plus || 0,
-      F: stats.receiving.recFumbles || 0,
-      '2P': stats.twoPointAttempts.twoPtPassRec || 0,
+    player.receiving = {
+      targets: stats.receiving.targets || 0,
+      receptions: stats.receiving.receptions || 0,
+      yards: stats.receiving.recYards || 0,
+      touchdowns: stats.receiving.recTD || 0,
+      plays20Plus: stats.receiving.rec20Plus || 0,
+      plays40Plus: stats.receiving.rec40Plus || 0,
+      fumbles: stats.receiving.recFumbles || 0,
+      twoPointMade: stats.twoPointAttempts.twoPtPassRec || 0,
     };
   } else {
-    player.RE = {
-      TA: 0,
-      R: 0,
-      Y: 0,
-      T: 0,
-      20: 0,
-      40: 0,
-      F: 0,
-      '2P': 0,
+    player.receiving = {
+      targets: 0,
+      receptions: 0,
+      yards: 0,
+      touchdowns: 0,
+      plays20Plus: 0,
+      plays40Plus: 0,
+      fumbles: 0,
+      twoPointMade: 0,
     };
   }
 
-  if (stats.fumbles) {
-    player.F = {
-      F: stats.fumbles.fumLost || 0,
+  if (stats.fumble) {
+    player.fumbles = {
+      fumblesLost: stats.fumbles.fumLost || 0,
     };
   } else {
-    player.F = {
-      F: 0,
+    player.fumbles = {
+      fumblesLost: 0,
     };
   }
 
-  if (stats.fieldGoals) {
+  if (stats.fieldGoal) {
     player.FG = {
-      1: stats.fieldGoals.fgMade1_19 || 0,
-      20: stats.fieldGoals.fgMade20_29 || 0,
-      30: stats.fieldGoals.fgMade30_39 || 0,
-      40: stats.fieldGoals.fgMade40_49 || 0,
-      50: stats.fieldGoals.fgMade50Plus || 0,
-      X: stats.extraPointAttempts.xpMade || 0,
+      made1_19: stats.fieldGoals.fgMade1_19 || 0,
+      made20_29: stats.fieldGoals.fgMade20_29 || 0,
+      made30_39: stats.fieldGoals.fgMade30_39 || 0,
+      made40_49: stats.fieldGoals.fgMade40_49 || 0,
+      made50Plus: stats.fieldGoals.fgMade50Plus || 0,
+      extraPointMade: stats.extraPointAttempts.xpMade || 0,
     };
   } else {
     player.FG = {
-      1: 0,
-      20: 0,
-      30: 0,
-      40: 0,
-      50: 0,
-      X: 0,
+      made1_19: 0,
+      made20_29: 0,
+      made30_39: 0,
+      made40_49: 0,
+      made50Plus: 0,
+      extraPointMade: 0,
     };
   }
 
@@ -236,55 +239,57 @@ const newWeeklyStats = (mySportsId, stats, season, week) => {
 
 const updateWeekStats = (player, stats) => {
   if (stats.passing) {
-    player.P = {
-      T: stats.passing.passTD || 0,
-      Y: stats.passing.passYards || 0,
-      I: stats.passing.passInt || 0,
-      A: stats.passing.passAttempts || 0,
-      C: stats.passing.passCompletions || 0,
-      '2P': stats.twoPointAttempts.twoPtPassMade || 0,
+    player.passing = {
+      touchdowns: stats.passing.passTD || 0,
+      yards: stats.passing.passYards || 0,
+      interceptions: stats.passing.passInt || 0,
+      attempts: stats.passing.passAttempts || 0,
+      completions: stats.passing.passCompletions || 0,
+      plays20Plus: stats.passing.pass20Plus || 0,
+      plays40Plus: stats.passing.pass40Plus || 0,
+      twoPointMade: stats.twoPointAttempts.twoPtPassMade || 0,
     };
   }
 
   if (stats.rushing) {
-    player.RU = {
-      A: stats.rushing.rushAttempts || 0,
-      Y: stats.rushing.rushYards || 0,
-      T: stats.rushing.rushTD || 0,
-      20: stats.rushing.rush20Plus || 0,
-      40: stats.rushing.rush40Plus || 0,
-      F: stats.rushing.rushFumbles || 0,
-      '2P': stats.twoPointAttempts.twoPtRushMade || 0,
+    player.rushing = {
+      attempts: stats.rushing.rushAttempts || 0,
+      yards: stats.rushing.rushYards || 0,
+      touchdowns: stats.rushing.rushTD || 0,
+      plays20Plus: stats.rushing.rush20Plus || 0,
+      plays20Plus: stats.rushing.rush40Plus || 0,
+      fumbles: stats.rushing.rushFumbles || 0,
+      twoPointMade: stats.twoPointAttempts.twoPtRushMade || 0,
     };
   }
 
   if (stats.receiving) {
-    player.RE = {
-      TA: stats.receiving.targets || 0,
-      R: stats.receiving.receptions || 0,
-      Y: stats.receiving.recYards || 0,
-      T: stats.receiving.recTD || 0,
-      20: stats.receiving.rec20Plus || 0,
-      40: stats.receiving.rec40Plus || 0,
-      F: stats.receiving.recFumbles || 0,
-      '2P': stats.twoPointAttempts.twoPtPassRec || 0,
+    player.receiving = {
+      targets: stats.receiving.targets || 0,
+      receptions: stats.receiving.receptions || 0,
+      yards: stats.receiving.recYards || 0,
+      touchdowns: stats.receiving.recTD || 0,
+      plays20Plus: stats.receiving.rec20Plus || 0,
+      plays40Plus: stats.receiving.rec40Plus || 0,
+      fumbles: stats.receiving.recFumbles || 0,
+      twoPointMade: stats.twoPointAttempts.twoPtPassRec || 0,
     };
   }
 
   if (stats.fumbles) {
-    player.F = {
-      F: stats.fumbles.fumLost || 0,
+    player.fumble = {
+      fumblesLost: stats.fumbles.fumLost || 0,
     };
   }
 
   if (stats.fieldGoals) {
-    player.FG = {
-      1: stats.fieldGoals.fgMade1_19 || 0,
-      20: stats.fieldGoals.fgMade20_29 || 0,
-      30: stats.fieldGoals.fgMade30_39 || 0,
-      40: stats.fieldGoals.fgMade40_49 || 0,
-      50: stats.fieldGoals.fgMade50Plus || 0,
-      X: stats.extraPointAttempts.xpMade || 0,
+    player.fieldGoal = {
+      made1_19: stats.fieldGoals.fgMade1_19 || 0,
+      made20_29: stats.fieldGoals.fgMade20_29 || 0,
+      made30_39: stats.fieldGoals.fgMade30_39 || 0,
+      made40_49: stats.fieldGoals.fgMade40_49 || 0,
+      made50Plus: stats.fieldGoals.fgMade50Plus || 0,
+      extraPointMade: stats.extraPointAttempts.xpMade || 0,
     };
   }
 
@@ -675,7 +680,7 @@ export default {
         console.log(`ERR getting week ${week}`, err);
       }
 
-      console.log(`weekly data received, parsing`);
+      console.log('weekly data received, parsing');
       if (!search.data.gamelogs) return;
       for (let i = 0; i < search.data.gamelogs.length; i++) {
         const position =
@@ -683,22 +688,22 @@ export default {
           search.data.gamelogs[i].player.primaryPosition;
 
         if (
-          position === `QB` ||
-          position === `TE` ||
-          position === `WR` ||
-          position === `RB` ||
-          position === `K`
+          position === 'QB' ||
+          position === 'TE' ||
+          position === 'WR' ||
+          position === 'RB' ||
+          position === 'K'
         ) {
           //This searches the database and then returns their ID if they're there and false if they are not
           let player = await findPlayerInDB(search.data.gamelogs[i].player.id);
           if (!player) {
             //Need to break out player team incase the team part is null
             //This is for players that have retired or are not currently on a team in mySportsDB
-            let playerTeam = ``;
+            let playerTeam = '';
             if (search.data.gamelogs[i].team !== null) {
               playerTeam = search.data.gamelogs[i].team.abbreviation;
             } else {
-              playerTeam = `UNK`;
+              playerTeam = 'UNK';
             }
             //If they are not in the database then I need to first update the PlayerData collection
             addPlayerData(

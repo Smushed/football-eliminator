@@ -67,7 +67,6 @@ const updateForWeekdayGames = () =>
   schedule.scheduleJob('0 0-5 * 1,9-12 2,5', async function () {
     console.log(`Running bi-hourly Monday and Thursday game score`);
     const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
-    await mySportsHandler.getWeeklyData(season, week);
     updatePlayerData(season, week);
   });
 
@@ -140,15 +139,6 @@ const updatePlayerData = async (season, week) => {
   return;
 };
 
-const testing = async () => {
-  const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
-  const groups = await groupHandler.getAllGroups();
-  for (let group of groups) {
-    if (group.N !== 'Demo Group')
-      emailHandler.sendLeaderBoardEmail(group, season, +week - 1);
-  }
-};
-
 export default () => {
   checkLockWeek();
   dailyScoreUpdate();
@@ -160,5 +150,4 @@ export default () => {
   updatePlayers();
   updateIdealRoster();
   emailLeaderboard();
-  // testing();
 };

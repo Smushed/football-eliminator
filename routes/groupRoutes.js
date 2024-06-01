@@ -168,7 +168,7 @@ export default (app) => {
     });
   });
 
-  app.get(`/api/group/scoring/:groupId`, async (req, res) => {
+  app.get('/api/group/scoring/:groupId', async (req, res) => {
     const { withDesc } = req.query;
     const { groupId } = req.params;
     const response = {};
@@ -182,7 +182,7 @@ export default (app) => {
       F: groupScore.F,
     };
 
-    if (withDesc === `true`) {
+    if (withDesc === 'true') {
       response.map = scoringSystem.groupScoreMap;
       response.bucketMap = scoringSystem.groupScoreBucketMap;
     }

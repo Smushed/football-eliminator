@@ -1,182 +1,145 @@
 import { Schema, model } from 'mongoose';
 
 const PlayerStatsSchema = new Schema({
-  M: {
-    //mySportsId
+  mySportsId: {
     type: Number,
     required: true,
   },
-  W: {
-    //Week
+  week: {
     type: Number,
     required: true,
   },
-  S: {
-    //Season
+  season: {
     type: String,
     required: true,
     trim: true,
   },
-  P: {
-    //Passing
-    T: {
-      //PassTD
+  passing: {
+    touchdowns: {
       type: Number,
       default: 0,
     },
-    Y: {
-      //PassYards
+    yards: {
       type: Number,
       default: 0,
     },
-    I: {
-      //PassInt
+    interceptions: {
       type: Number,
       default: 0,
     },
-    A: {
-      //PassAttempts
+    attempts: {
       type: Number,
       default: 0,
     },
-    C: {
-      //PassCompletions
+    completions: {
       type: Number,
       default: 0,
     },
-    '2P': {
-      //TwoPtPassMade
+    twoPointMade: {
       type: Number,
       default: 0,
     },
-    20: {
-      //20Plus Passes
+    plays20Plus: {
       type: Number,
       default: 0,
     },
-    40: {
-      //40 Plus Passes
+    plays40Plus: {
       type: Number,
       default: 0,
     },
   },
-  RU: {
-    //Rushing
-    A: {
-      //RushingAttempts
+  rushing: {
+    attempts: {
       type: Number,
       default: 0,
     },
-    Y: {
-      //RushingYards
+    yards: {
       type: Number,
       default: 0,
     },
-    T: {
-      //RushingTD
+    touchdowns: {
       type: Number,
       default: 0,
     },
-    20: {
-      //Rushing20Plus
+    plays20Plus: {
       type: Number,
       default: 0,
     },
-    40: {
-      //Rushing40Plus
+    plays40Plus: {
       type: Number,
       default: 0,
     },
-    F: {
-      //RushingFumbles
+    fumbles: {
       type: Number,
       default: 0,
     },
-    '2P': {
-      //twoPtRushMade
+    twoPointMade: {
       type: Number,
       default: 0,
     },
   },
-  RE: {
-    //Receiving
-    TA: {
-      //ReceivingTargets
+  receiving: {
+    targets: {
       type: Number,
       default: 0,
     },
-    R: {
-      //ReceivingReceptions
+    receptions: {
       type: Number,
       default: 0,
     },
-    Y: {
-      //ReceivingYards
+    yards: {
       type: Number,
       default: 0,
     },
-    T: {
-      //ReceivingTD
+    touchdowns: {
       type: Number,
       default: 0,
     },
-    20: {
-      //Receiving20Plus
+    plays20Plus: {
       type: Number,
       default: 0,
     },
-    40: {
-      //Receiving40Plus
+    plays40Plus: {
       type: Number,
       default: 0,
     },
-    F: {
-      //ReceivingFumbles
+    fumbles: {
       type: Number,
       default: 0,
     },
-    '2P': {
-      //twoPtReceivingMade
+    twoPointMade: {
       type: Number,
       default: 0,
     },
   },
-  F: {
-    //FumblesLost
-    F: {
+  fumble: {
+    fumblesLost: {
       type: Number,
       default: 0,
     },
   },
-  FG: {
-    //FieldGoals
-    1: {
-      //1-19
+  fieldGoal: {
+    made1_19: {
       type: Number,
       default: 0,
     },
-    20: {
-      //20-29
+    made20_29: {
       type: Number,
       default: 0,
     },
-    30: {
-      //30-39
+    made30_39: {
       type: Number,
       default: 0,
     },
-    40: {
-      //40-49
+    made40_49: {
       type: Number,
       default: 0,
     },
-    50: {
-      //50+
+    made50Plus: {
       type: Number,
       default: 0,
     },
-    X: {
-      //extraPointMade
+    extraPointMade: {
       type: Number,
       default: 0,
     },
