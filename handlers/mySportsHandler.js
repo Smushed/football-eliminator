@@ -963,16 +963,13 @@ export default {
   pullSeasonAndWeekFromDB: async () =>
     new Promise(async (res, rej) => {
       const dbResponse = await db.SeasonAndWeek.find({}).exec();
-      const season = dbResponse[0].S;
-      const week = dbResponse[0].W;
-      const lockWeek = dbResponse[0].LW;
 
-      res({ season, week, lockWeek });
+      res(dbResponse[0]);
     }),
   updateCurrWeek: (currentWeek) =>
     new Promise(async (res, rej) => {
       try {
-        await db.SeasonAndWeek.updateMany({}, { $set: { W: currentWeek } });
+        await db.SeasonAndWeek.updateMany({}, { $set: { week: currentWeek } });
         res(`success!`);
       } catch (e) {
         console.log(e);
@@ -982,7 +979,7 @@ export default {
   updateLockWeek: (lockWeek) =>
     new Promise(async (res, rej) => {
       try {
-        await db.SeasonAndWeek.updateMany({}, { $set: { LW: lockWeek } });
+        await db.SeasonAndWeek.updateMany({}, { $set: { lockWeek: lockWeek } });
         res(`success!`);
       } catch (e) {
         console.log(e);

@@ -227,7 +227,7 @@ export default {
       { new: true }
     );
     const dbResponse = await db.SeasonAndWeek.find({}).exec();
-    await createUserScore(addedUserID, dbResponse[0].S, groupId);
+    await createUserScore(addedUserID, dbResponse[0].season, groupId);
 
     return groupDetail;
   },

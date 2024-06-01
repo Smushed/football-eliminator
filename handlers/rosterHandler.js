@@ -423,16 +423,15 @@ export default {
     const usedPlayers = await getUsedPlayers(userId, season, groupId, position);
 
     try {
-      dbSearch = await db.PlayerData.find(
+      const dbSearch = await db.PlayerData.find(
         { M: { $in: usedPlayers } },
         { N: 1, P: 1, T: 1, M: 1 }
       );
+      return dbSearch;
     } catch (err) {
       console.log(err);
       return { status: 500, res: 'DB Searching Error' };
     }
-
-    return dbSearch;
   },
   searchAvailablePlayerByTeam: async (groupId, userId, team, season) => {
     const usedPlayers = await getUsedPlayersNoPosition(userId, season, groupId);
@@ -495,7 +494,7 @@ export default {
   lockPeroid: async () => {
     try {
       const currData = await db.SeasonAndWeek.findOne();
-      return { LW: currData.LW };
+      return { lockWeek: currData.lockWeek };
     } catch (err) {
       return false;
     }

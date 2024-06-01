@@ -433,6 +433,7 @@ const Roster = ({
         title: `Locked!`,
         type: `warning`,
         text: `${team} has started for week ${weekOnPage}. Select a different player or week`,
+        confirmButtonText: 'Close',
       });
       return;
     }
