@@ -912,16 +912,16 @@ export default {
     }
     for (const game of search.data.games) {
       const homeTeamLockSearch = await db.TeamLocked.findOne({
-        T: game.schedule.homeTeam.abbreviation,
-        W: week,
-        S: season,
+        team: game.schedule.homeTeam.abbreviation,
+        week: week,
+        season: season,
       });
       if (!homeTeamLockSearch) {
         const newRecord = new db.TeamLocked({
-          T: game.schedule.homeTeam.abbreviation,
-          ST: game.schedule.startTime,
-          W: week,
-          S: season,
+          team: game.schedule.homeTeam.abbreviation,
+          startTime: game.schedule.startTime,
+          week: week,
+          season: season,
         });
         newRecord.save();
       } else {
@@ -930,16 +930,16 @@ export default {
       }
 
       const awayTeamLockSearch = await db.TeamLocked.findOne({
-        T: game.schedule.awayTeam.abbreviation,
-        W: week,
-        S: season,
+        team: game.schedule.awayTeam.abbreviation,
+        week: week,
+        season: season,
       });
       if (!awayTeamLockSearch) {
         const newRecord = new db.TeamLocked({
-          T: game.schedule.awayTeam.abbreviation,
-          ST: game.schedule.startTime,
-          W: week,
-          S: season,
+          team: game.schedule.awayTeam.abbreviation,
+          startTime: game.schedule.startTime,
+          week: week,
+          season: season,
         });
         newRecord.save();
       } else {

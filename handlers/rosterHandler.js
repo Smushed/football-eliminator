@@ -502,16 +502,16 @@ export default {
   checkTeamLock: async (season, week, team) => {
     try {
       let teamStart = await db.TeamLocked.findOne({
-        T: team,
-        W: week,
-        S: season,
+        team: team,
+        week: week,
+        season: season,
       });
       if (!teamStart) {
         await mySportsHandler.checkGameStarted(season, week);
         teamStart = await db.TeamLocked.findOne({
-          T: team,
-          W: week,
-          S: season,
+          team: team,
+          week: week,
+          season: season,
         });
       }
       const currDate = new Date();
