@@ -122,7 +122,7 @@ const findOneRoster = (userId, week, season, groupId) => {
 };
 
 const findOneUserById = (userId) => {
-  return db.User.findById(userId, { UN: 1 }).exec();
+  return db.User.findById(userId, { username: 1 }).exec();
 };
 
 const groupUpdater = {
@@ -200,7 +200,7 @@ export default {
     createGroupScore(newGroupFromDB._id, newGroupScore);
     //Add the new group to the user who created it
     await db.User.findByIdAndUpdate([userId], {
-      $push: { GL: newGroupFromDB._id },
+      $push: { groupList: newGroupFromDB._id },
     }); //Also saved the group that the user just added to their profile
 
     return newGroupFromDB;
@@ -251,13 +251,13 @@ export default {
       week
     );
     for (const user of userScoreList) {
-      const { UN } = await db.User.findById(user.U).exec();
+      const { username } = await db.User.findById(user.userId).exec();
       const filledOutUser = {
-        UID: user.U,
-        TS: user.TS,
-        UN,
-        CW: user[week],
-        LW: user[weekAccessor],
+        userId: user.userId,
+        totalScore: user.totalScore,
+        username,
+        currentWeek: user[week],
+        lockWeek: user[weekAccessor],
       };
       arrayForLeaderBoard.push(filledOutUser);
     }
@@ -269,8 +269,8 @@ export default {
       return false;
     }
     const clapper = {
-      N: `Clapper`,
-      D: `Everyone competing for the Clapper`,
+      name: `Clapper`,
+      description: `Everyone competing for the Clapper`,
     };
     const clapperFromDB = await db.Group.create(clapper);
     this.createGroupRoster(clapperFromDB._id);
@@ -358,11 +358,14 @@ export default {
         UL: [],
       };
       for (let ii = 0; ii < groupResponse[i].UL.length; ii++) {
-        const user = await db.User.findById(groupResponse[i].UL[ii].ID, 'UN');
+        const user = await db.User.findById(
+          groupResponse[i].UL[ii].ID,
+          'username'
+        );
         if (user) {
           filledData[i].UL.push({
-            UN: user.UN,
-            A: groupResponse[i].UL[ii].A,
+            username: user.username,
+            admin: groupResponse[i].UL[ii].A,
             _id: user._id.toString(),
           });
         }
@@ -533,7 +536,10 @@ export default {
   },
   updateMainGroup: async function (groupId, userId) {
     try {
-      await db.User.updateOne({ _id: userId }, { $set: { MG: groupId } });
+      await db.User.updateOne(
+        { _id: userId },
+        { $set: { mainGroup: groupId } }
+      );
     } catch (err) {
       console.log(err);
     }
@@ -574,9 +580,9 @@ export default {
       const groupPos = user.GL.map((groupId) => groupId.toString()).indexOf(
         group._id.toString()
       );
-      user.GL.splice(groupPos, 1);
-      if (user.MG.toString() === group._id.toString()) {
-        user.MG = null;
+      user.groupList.splice(groupPos, 1);
+      if (user.mainGroup.toString() === group._id.toString()) {
+        user.mainGroup = null;
       }
       try {
         await db.UserScores.deleteOne({
@@ -608,21 +614,26 @@ export default {
   },
   singleAdminCheck: async (group, userId) => {
     //A value of true means the user is the only admin and there are still others in the group
-    if (group.UL.length === 1) {
+    if (group.userlist.length === 1) {
       return false;
     }
-    const selfInGroup = group.UL.find((user) => user.ID.toString() === userId);
+    const selfInGroup = group.userlist.find(
+      (user) => user.ID.toString() === userId
+    );
     if (selfInGroup.A === false) {
       return false;
     }
 
-    const adminList = group.UL.filter((user) => user.A === true);
+    const adminList = group.userList.filter((user) => user.admin === true);
     if (adminList.length <= 1) {
-      const nonAdmins = group.UL.filter((user) => user.A === false);
+      const nonAdmins = group.userList.filter((user) => user.admin === false);
       const filledNonAdmins = [];
       for (let user of nonAdmins) {
-        const { UN, E, _id } = await db.User.findById(user.ID, 'UN E');
-        filledNonAdmins.push({ UN, E, _id });
+        const { username, email, _id } = await db.User.findById(
+          user.userId,
+          'username email'
+        );
+        filledNonAdmins.push({ username, email, _id });
       }
 
       return { status: true, nonAdmins: filledNonAdmins };

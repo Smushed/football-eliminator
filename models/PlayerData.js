@@ -1,45 +1,38 @@
 import { Schema, model } from 'mongoose';
 
 const PlayerDataSchema = new Schema({
-  N: {
-    //Name
+  name: {
     type: String,
     required: true,
     trim: true,
   },
-  M: {
-    //mySportsId
+  mySportsId: {
     type: Number,
     required: true,
     unique: true,
   },
-  T: {
-    //Team
+  team: {
     type: String,
     default: 'UNK',
     trim: true,
   },
-  P: {
-    //Position
+  position: {
     type: String,
     default: 'UNK',
   },
-  A: Boolean, //Active
-  R: Number, //Rank
-  I: {
-    //Injury
+  active: Boolean,
+  rank: Number,
+  injury: {
     type: {
-      D: String,
-      PP: String,
+      description: String,
+      playingProbability: String,
     },
   },
-  E: {
-    //Espn ID
+  espnId: {
     type: Number,
     default: 0,
   },
-  AV: {
-    //Avatar
+  avatar: {
     type: Boolean,
     default: false,
   },

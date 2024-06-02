@@ -1,20 +1,18 @@
 import { Schema, Types, model } from 'mongoose';
 
 const GroupSchema = new Schema({
-  N: {
-    //Name
+  name: {
     type: String,
     unique: true,
     required: true,
     trim: true,
   },
-  D: String, //Description
-  UL: [
-    //Userlist
+  description: String,
+  userlist: [
     {
-      ID: Types.ObjectId, //UserID
-      A: { type: Boolean, default: false }, //Admin
-      B: { type: Boolean, default: false }, //Blocked
+      userId: Types.ObjectId,
+      admin: { type: Boolean, default: false },
+      blocked: { type: Boolean, default: false },
       _id: false,
     },
   ],

@@ -1,34 +1,28 @@
 import { Schema, Types, model } from 'mongoose';
 
 const IdealRosterSchema = new Schema({
-  G: {
-    //GroupId
+  groupId: {
     type: Types.ObjectId,
     ref: 'Group',
     required: true,
   },
-  W: {
-    //Week
+  week: {
     type: Number,
     required: true,
   },
-  S: {
-    //Season
+  season: {
     type: String,
     required: true,
     trim: true,
   },
-  R: [
-    //Roster
+  roster: [
     {
-      M: {
-        //MySportsId
+      mySportId: {
         type: Number,
         required: true,
         default: 0,
       },
-      SC: {
-        //Score
+      score: {
         type: Number,
         required: true,
         default: 0,
@@ -37,5 +31,16 @@ const IdealRosterSchema = new Schema({
     },
   ],
 });
+
+IdealRosterSchema.index(
+  {
+    groupId: -1,
+    week: -1,
+    season: -1,
+  },
+  {
+    unique: true,
+  }
+);
 
 export default model('IdealRoster', IdealRosterSchema);

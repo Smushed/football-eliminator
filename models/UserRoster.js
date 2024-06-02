@@ -1,64 +1,86 @@
 import { Schema, Types, model } from 'mongoose';
 
-const UserRosterSchema = new Schema(
-  {
-    U: {
-      //UserId
-      type: Types.ObjectId,
-      ref: 'User',
-      required: true,
-      unique: false,
-    },
-    G: {
-      //GroupId
-      type: Types.ObjectId,
-      required: true,
-      ref: 'Group',
-      unique: false,
-    },
-    W: {
-      //Week
-      type: Number,
-      required: true,
-      unique: false,
-    },
-    S: {
-      //Season
-      type: String,
-      required: true,
-      trim: true,
-      unique: false,
-    },
-    R: [
-      //Roster
-      {
-        M: {
-          //MySportsId
-          type: Number,
-          required: true,
-          default: 0,
-        },
-        SC: {
-          //Score
-          type: Number,
-          required: true,
-          default: 0,
-        },
-        _id: false,
-      },
-    ],
+const UserRosterSchema = new Schema({
+  U: {
+    //UserId
+    type: Types.ObjectId,
+    ref: 'User',
   },
-  {
-    strict: false,
-  }
-);
+  G: {
+    //GroupId
+    type: Types.ObjectId,
+    ref: 'Group',
+  },
+  W: {
+    //Week
+    type: Number,
+  },
+  S: {
+    //Season
+    type: String,
+    trim: true,
+  },
+  R: [
+    //Roster
+    {
+      M: {
+        //MySportsId
+        type: Number,
+        required: true,
+        default: 0,
+      },
+      SC: {
+        //Score
+        type: Number,
+        required: true,
+        default: 0,
+      },
+      _id: false,
+    },
+  ],
+  userId: {
+    type: Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
+  groupId: {
+    type: Types.ObjectId,
+    required: true,
+    ref: 'Group',
+  },
+  week: {
+    type: Number,
+    required: true,
+  },
+  season: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  roster: [
+    {
+      mySportsId: {
+        type: Number,
+        required: true,
+        default: 0,
+      },
+      score: {
+        //Score
+        type: Number,
+        required: true,
+        default: 0,
+      },
+      _id: false,
+    },
+  ],
+});
 
 UserRosterSchema.index(
   {
-    U: 1,
-    G: -1,
-    W: -1,
-    S: -1,
+    userId: 1,
+    groupId: -1,
+    week: -1,
+    season: -1,
   },
   {
     unique: true,
