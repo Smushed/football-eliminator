@@ -494,22 +494,15 @@ const saveWeeklyUserScore = (userId, groupId, week, season, scoreArray) =>
     .clone()
     .exec();
 const saveOrUpdateMatchups = async (matchUpArray, season, week) => {
-  const pulledWeek = await db.MatchUps.findOne({ W: week, S: season });
+  const pulledWeek = await db.MatchUps.findOne({ week, season });
   if (pulledWeek === null || pulledWeek === undefined) {
-    db.MatchUps.create(
-      {
-        S: season,
-        W: week,
-        M: matchUpArray,
-      },
-      function (err, player) {
-        if (err) {
-          console.log(err);
-        }
-      }
-    );
+    await db.MatchUps.create({
+      season: season,
+      week: week,
+      M: matchUpArray,
+    }).exec();
   } else {
-    pulledWeek.M = matchUpArray;
+    pulledWeek.matchups = matchUpArray;
     await pulledWeek.save();
   }
   return true;
@@ -527,7 +520,7 @@ const getAndSaveUserScore = async (
   let weekScore = 0;
   for (let i = 0; i < userRoster.length; i++) {
     const currentScore = await getPlayerWeeklyScore(
-      userRoster[i].M,
+      userRoster[i].mySportsId,
       season,
       week,
       groupScore
@@ -743,10 +736,10 @@ export default {
   ) => {
     for (const user of groupList) {
       await getAndSaveUserScore(
-        user.R,
+        user.roster,
         season,
         week,
-        user.U,
+        user.userId,
         groupScore,
         groupId
       );
@@ -763,35 +756,36 @@ export default {
       rankedPlayersByPosition[position] = [];
       console.log(`Pulling ${position} for scoring`);
       const playersByPosition = await db.PlayerData.find(
-        { P: position, A: true },
-        { M: 1, N: 1, P: 1 }
-      );
+        { position: position, active: true },
+        { mySportsId: 1, name: 1, position: 1 }
+      )
+        .lean()
+        .exec();
       const rankingArray = [];
 
       //Iterate through every player, get their total score for the season
       for (let player of playersByPosition) {
-        const scoredPlayer = player.toObject();
-        scoredPlayer.score = 0;
+        player.score = 0;
         if (totalSeason) {
           for (let i = 1; i <= week; i++) {
-            scoredPlayer.score += await playerScoreHandler(
-              player.M,
+            player.score += await playerScoreHandler(
+              player.mySportsId,
               season,
               i,
               groupScore
             );
           }
         } else {
-          scoredPlayer.score += await playerScoreHandler(
-            player.M,
+          player.score += await playerScoreHandler(
+            player.mySportsId,
             season,
             week,
             groupScore
           );
         }
-        scoredPlayer.score = scoredPlayer.score.toFixed(2);
+        player.score = player.score.toFixed(2);
         //Put them in an array to rank them
-        rankingArray.push(scoredPlayer);
+        rankingArray.push(player);
       }
       //Sort the array by score so we can then divide it into the top performers
       rankingArray.sort((a, b) => {
@@ -814,7 +808,7 @@ export default {
           currentRank = rankingArray;
         }
         for (let player of currentRank) {
-          await db.PlayerData.findByIdAndUpdate(player._id, { R: i });
+          await db.PlayerData.findByIdAndUpdate(player._id, { rank: i });
         }
       }
     }
@@ -822,22 +816,25 @@ export default {
     return `Ranked Players Saved`;
   },
   fillUserRoster: async (playerIdRoster) => {
-    const mySportsIdArray = playerIdRoster.map((id) => id.M);
+    const mySportsIdArray = playerIdRoster.map((id) => id.mySportsId);
     let dbSearch;
     try {
       dbSearch = await db.PlayerData.find(
-        { M: { $in: mySportsIdArray } },
-        { P: 1, T: 1, M: 1, N: 1, I: 1, AV: 1 }
-      );
+        { mySportsId: { $in: mySportsIdArray } },
+        { position: 1, team: 1, mySportsId: 1, name: 1, injury: 1, avatar: 1 }
+      )
+        .lean()
+        .exec();
     } catch (err) {
       console.log(err);
     }
 
     const filledRoster = playerIdRoster.map((id) => {
-      const player = dbSearch.find((player) => player.M === id.M);
-      if (!player) return { M: 0, SC: 0 };
-      const { P, T, M, N, I, AV } = player;
-      return { P, T, M, N, I, AV, SC: id.SC };
+      const player = dbSearch.find(
+        (player) => player.mySportsId === id.mySportsId
+      );
+      if (!player) return { mySportsId: 0, score: 0 };
+      return { ...player, score: id.score };
     });
     return filledRoster;
   },
@@ -856,13 +853,9 @@ export default {
           }
         );
         const parsedGames = search.data.games.map((game) => {
-          const H = game.schedule.homeTeam.abbreviation;
-          const A = game.schedule.awayTeam.abbreviation;
-          let W = '';
-          if (game.schedule.weather) {
-            W = game.schedule.weather.description;
-          }
-          return { H, A, W };
+          const home = game.schedule.homeTeam.abbreviation;
+          const away = game.schedule.awayTeam.abbreviation;
+          return { home, away };
         });
 
         await saveOrUpdateMatchups(parsedGames, season, i);

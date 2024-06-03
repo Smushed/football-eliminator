@@ -218,9 +218,9 @@ const createIdealRoster = async (groupPos, roster, week) => {
 
 export default {
   sendLeaderBoardEmail: async (group, season, week) => {
-    let userIdArray = group.UL.map((user) => user.ID.toString());
+    let userIdArray = group.UL.map((user) => user.userId.toString());
     let emailList = await userHandler.getGroupEmailSettings(userIdArray);
-    userIdArray = emailList.map((user) => user.U.toString());
+    userIdArray = emailList.map((user) => user.userId.toString());
     emailList = await userHandler.getUsersEmail(userIdArray);
 
     const subject = `Eliminator - Week ${week}`;
@@ -232,7 +232,7 @@ export default {
       week
     );
     const filledIdealRoster = await mySportsHandler.fillUserRoster(
-      idealRoster.R
+      idealRoster.roster
     );
 
     const { leaderBoardHTML, leaderBoardText } = await createLeaderBoard(
@@ -259,11 +259,9 @@ export default {
     );
 
     for (const user of emailList) {
-      // if (user.id === '62ec2b8b41d5523d0075a4db') {
-      // }
       const HTMLemail = await unsubscribe.appendHTML(HTMLTemplate, user.id);
       const textEmail = await unsubscribe.appendText(textTemplate, user.id);
-      sendEmail(user.E, subject, HTMLemail, textEmail);
+      sendEmail(user.email, subject, HTMLemail, textEmail);
     }
   },
   sendYearlyRecapEmail: async (
@@ -285,14 +283,14 @@ export default {
 
     const highestUserWeekFullRoster = await createRoster(
       groupPos,
-      highestScoreUserWeek.R,
-      highestScoreUserWeek.W,
-      highestScoreUserWeek.UN
+      highestScoreUserWeek.roster,
+      highestScoreUserWeek.week,
+      highestScoreUserWeek.username
     );
     const bestIdealRosterFull = await createIdealRoster(
       groupPos,
-      bestIdealRoster.R,
-      bestIdealRoster.W
+      bestIdealRoster.roster,
+      bestIdealRoster.week
     );
 
     const textTemplate = composeYearlyTextEmail(
@@ -316,18 +314,18 @@ export default {
     );
 
     const emailList = [];
-    for (const user of group.UL) {
-      const emailPermission = await userHandler.getEmailSettings(user.ID);
-      if (emailPermission.LE) {
-        const { response } = await userHandler.getUserByID(user.ID);
-        emailList.push({ E: response.E, id: response._id });
+    for (const user of group.userlist) {
+      const emailPermission = await userHandler.getEmailSettings(user.userId);
+      if (emailPermission.leaderboardEmail) {
+        const { response } = await userHandler.getUserByID(user.userId);
+        emailList.push({ email: response.email, id: response._id });
       }
     }
 
     for (const user of emailList) {
       const HTMLemail = await unsubscribe.appendHTML(HTMLTemplate, user.id);
       const textEmail = await unsubscribe.appendText(textTemplate, user.id);
-      sendEmail(user.E, subject, HTMLemail, textEmail);
+      sendEmail(user.email, subject, HTMLemail, textEmail);
     }
   },
 };

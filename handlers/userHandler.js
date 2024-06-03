@@ -224,19 +224,14 @@ export default {
     }
     return { status: 200, message: 'All Good' };
   },
-  groupUserList: (userList) =>
+  fillUserListFromGroup: (userList) =>
     new Promise(async (res) => {
-      const filledUserList = [];
-      for (const user of userList) {
-        const userData = await db.User.findById(user.ID).exec();
-        filledUserList.push({
-          A: user.A, //using the GroupList admin
-          E: userData.E,
-          UN: userData.UN,
-          _id: userData._id,
-        });
-      }
-      res(filledUserList);
+      const userIdList = userList.map((id) => id);
+      res(
+        await db.User.find({ $in: userIdList }, { email: 1, username: 1 })
+          .lean()
+          .exec()
+      );
     }),
   getEmailSettings: async (userId) => {
     let emailSettings = await db.UserReminderSettings.findOne({

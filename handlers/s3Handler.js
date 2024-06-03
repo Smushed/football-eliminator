@@ -190,21 +190,21 @@ export default {
   getMultiplePlayerAvatars: async function (idArray) {
     const avatarsById = {};
     const playerAvatars = await db.PlayerData.find(
-      { M: { $in: idArray } },
-      { M: 1, AV: 1, _id: 0 }
+      { mySportsArray: { $in: idArray } },
+      { mySportsId: 1, avatar: 1, _id: 0 }
     ).exec();
     for (const id of playerAvatars) {
       let avatar;
-      if (id.AV) {
+      if (id.avatar) {
         const command = new GetObjectCommand({
           Bucket: 'football-eliminator',
-          Key: `playerAvatar/${id.M.toString()}`,
+          Key: `playerAvatar/${id.mySportsId.toString()}`,
         });
         avatar = await getAvatarFromAWS(command, false);
       } else {
         avatar = await this.getPlayerOutlineAvatar();
       }
-      avatarsById[id.M] = avatar;
+      avatarsById[id.mySportsId] = avatar;
     }
     return avatarsById;
   },
