@@ -54,7 +54,7 @@ const checkForAvailablePlayers = (usedPlayers, searchedPlayers) => {
   const usedPlayerSet = new Set(usedPlayers);
 
   const availablePlayerArray = searchedPlayers.filter(
-    (player) => !usedPlayerSet.has(player.M)
+    (player) => !usedPlayerSet.has(player.mySportsId)
   );
 
   const sortedPlayerArray = sortPlayersByRank(availablePlayerArray);
@@ -64,7 +64,7 @@ const checkForAvailablePlayers = (usedPlayers, searchedPlayers) => {
 
 const sortPlayersByRank = (playerArray) => {
   playerArray.sort((a, b) => {
-    return a.R - b.R;
+    return a.rank - b.rank;
   });
   return playerArray;
 };
@@ -126,7 +126,14 @@ const createUsedPlayers = (userId, season, groupId, position) =>
       position
     );
     if (!isDupe) {
-      res(await db.UsedPlayers.create({ userId, season, groupId, position }));
+      res(
+        await db.UsedPlayers.create({
+          userId,
+          season,
+          groupId,
+          position,
+        }).exec()
+      );
     }
   });
 
@@ -148,25 +155,27 @@ const checkDupeWeeklyRoster = async (userId, week, season, groupId) => {
 
 const createWeeklyRoster = async function (userId, week, season, groupId) {
   const groupRoster = await db.GroupRoster.findOne({ groupId: groupId });
-  const dupe = await checkDupeWeeklyRoster(userId, week, season, groupId);
-  if (dupe) {
+  if (await checkDupeWeeklyRoster(userId, week, season, groupId)) {
     return false;
   }
 
-  const userRoster = groupRoster.P.map((position) => ({ M: 0, S: 0 }));
-  const weeksRoster = {
-    U: userId,
-    W: week,
-    S: season,
-    G: groupId,
-    R: userRoster,
-  };
-  return await db.UserRoster.create(weeksRoster);
+  const roster = groupRoster.position.map(() => ({
+    mySportsId: 0,
+    score: 0,
+  }));
+
+  return await db.UserRoster.create({
+    userId,
+    week,
+    season,
+    groupId,
+    roster,
+  }).exec();
 };
 
 const getAllRostersByGroupAndWeek = async (season, week, groupId) =>
   new Promise(async (res, rej) => {
-    const group = await db.Group.findById([groupId]).exec();
+    const group = await db.Group.findById(groupId).exec();
     const userRosters = await db.UserRoster.find({
       season,
       week,
@@ -199,7 +208,7 @@ const sortUsersByScore = async (userRosterArray, groupId, season) =>
     for (let user of userRosterArray) {
       const userScore = await db.UserScores.findOne(
         { userId: user.userId, groupId: groupId, season: season },
-        'totalScore'
+        { totalScore: 1 }
       ).exec();
       if (!userScore) {
         continue;
@@ -211,7 +220,7 @@ const sortUsersByScore = async (userRosterArray, groupId, season) =>
         totalScore: userScore.totalScore,
       });
     }
-    sortedScores.sort((a, b) => b.TS - a.TS);
+    sortedScores.sort((a, b) => b.totalScore - a.totalScore);
     res(sortedScores);
   });
 
@@ -240,11 +249,18 @@ const checkRoster = async (groupId, newRoster) =>
       return;
     }
     for (const player of newRoster) {
-      if (player.M === 0) {
+      if (player.mySportsId === 0) {
         continue;
       }
-      const { P } = await db.PlayerData.findOne({ M: player.M }).exec();
-      currentPositionsOnRoster[P]++;
+      const { position } = await db.PlayerData.findOne(
+        {
+          mySportsId: player.mySportsId,
+        },
+        { position: 1 }
+      )
+        .lean()
+        .exec();
+      currentPositionsOnRoster[position]++;
     }
 
     for (const position of positions.positionArray) {
@@ -258,63 +274,62 @@ const checkRoster = async (groupId, newRoster) =>
 
 export default {
   dummyRoster: async (userId, groupId, week, season, dummyRoster) => {
-    //Brute force updating a user's roster
     return new Promise((res, rej) => {
       db.UserRoster.findOne(
-        { U: userId, G: groupId, W: week, S: season },
+        { userId, groupId, week, season },
         async (err, userRoster) => {
           if (userRoster === null) {
             userRoster = await db.UserRoster.create({
-              U: userId,
-              G: groupId,
-              W: week,
-              S: season,
-            });
+              userId,
+              groupId,
+              week,
+              season,
+            }).exec();
           }
-          await db.UsedPlayers.findOne(
-            { userId, season, groupId },
-            async (err, usedPlayers) => {
-              if (usedPlayers === null) {
-                usedPlayers = createUsedPlayers(userId, season, groupId);
-              }
-              //Create a set of players currently in the week. We want to pull them out of the UsedPlayer Array when we update them
-              const rosterArray = Object.values(userRoster.R);
-              const currentRoster = new Set(
-                rosterArray.filter((playerId) => playerId !== 0)
-              );
-              const currentUsedPlayerArray = usedPlayers.usedPlayers;
-              //filter out all the players who are being pulled from the current week
-              const updatedUsedPlayers = currentUsedPlayerArray.filter(
-                (playerId) => !currentRoster.has(+playerId)
-              );
-
-              //Add in all the players from the new players to the used player array
-              const dummyRosterArray = Object.values(dummyRoster);
-
-              for (const player of dummyRosterArray) {
-                if (parseInt(player) !== 0) {
-                  updatedUsedPlayers.push(player);
-                }
-              }
-
-              usedPlayers.usedPlayers = updatedUsedPlayers;
-              usedPlayers.save((err, result) => {
-                if (err) {
-                  console.log(err);
-                }
-              });
-            }
+          const usedPlayers = await db.UsedPlayers.findOne({
+            userId,
+            season,
+            groupId,
+          }).exec();
+          if (usedPlayers === null) {
+            usedPlayers = createUsedPlayers(userId, season, groupId);
+          }
+          //Create a set of players currently in the week. We want to pull them out of the UsedPlayer Array when we update them
+          const rosterArray = Object.values(userRoster.roster);
+          const currentRoster = new Set(
+            rosterArray.filter((playerId) => playerId !== 0)
           );
-          userRoster.R = dummyRoster;
-          userRoster.save((err, result) => {
+          const currentUsedPlayerArray = usedPlayers.usedPlayers;
+          //filter out all the players who are being pulled from the current week
+          const updatedUsedPlayers = currentUsedPlayerArray.filter(
+            (playerId) => !currentRoster.has(+playerId)
+          );
+
+          //Add in all the players from the new players to the used player array
+          const dummyRosterArray = Object.values(dummyRoster);
+
+          for (const player of dummyRosterArray) {
+            if (parseInt(player) !== 0) {
+              updatedUsedPlayers.push(player);
+            }
+          }
+
+          usedPlayers.usedPlayers = updatedUsedPlayers;
+          usedPlayers.save((err, result) => {
             if (err) {
               console.log(err);
-            } else {
-              res(result);
             }
           });
         }
       );
+      userRoster.roster = dummyRoster;
+      userRoster.save((err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          res(result);
+        }
+      });
     });
   },
   availablePlayers: async (userId, searchedPosition, season, groupId) => {
@@ -325,12 +340,15 @@ export default {
       searchedPosition
     );
 
-    //usedPlayers is the array from the database of all players that the user has used
-    //We need to grab ALL the playerIds that are currently active in the database and pull out any that are in the usedPlayers array
+    //TODO This should be a non inclusive search
     const searchedPlayers = await db.PlayerData.find(
-      { A: true, P: searchedPosition },
-      { M: 1, N: 1, P: 1, R: 1, T: 1, I: 1 }
-    ).exec();
+      { active: true, position: searchedPosition },
+      { mySportsId: 1, name: 1, position: 1, rank: 1, team: 1, injury: 1 }
+    )
+      .lean()
+      .exec();
+
+    //TODO Rather than iterate through the list here. Should speed up the original
     const availablePlayers = checkForAvailablePlayers(
       usedPlayers,
       searchedPlayers
@@ -365,7 +383,7 @@ export default {
       }
 
       let newUsedPlayers = [];
-      for (const playerId of usedPlayers.UP) {
+      for (const playerId of usedPlayers.usedPlayers) {
         if (playerId === addedPlayer) {
           rej("You've already used this player");
           return;
@@ -405,9 +423,15 @@ export default {
         groupId
       );
       for (const roster of allRosters) {
-        const filledRoster = await mySportsHandler.fillUserRoster(roster.R);
-        const user = await db.User.findById(roster.U);
-        userRosters.push({ UID: user._id, UN: user.UN, R: filledRoster });
+        const filledRoster = await mySportsHandler.fillUserRoster(
+          roster.roster
+        );
+        const user = await db.User.findById(roster.userId).exec();
+        userRosters.push({
+          userId: user._id,
+          username: user.UN,
+          roster: filledRoster,
+        });
       }
       const sortedUsers = await sortUsersByScore(userRosters, groupId, season);
       res(sortedUsers);
@@ -417,8 +441,8 @@ export default {
 
     try {
       const dbSearch = await db.PlayerData.find(
-        { M: { $in: usedPlayers } },
-        { N: 1, P: 1, T: 1, M: 1 }
+        { mySportsId: { $in: usedPlayers } },
+        { name: 1, position: 1, team: 1, mySportsId: 1 }
       );
       return dbSearch;
     } catch (err) {
@@ -430,8 +454,8 @@ export default {
     const usedPlayers = await getUsedPlayersNoPosition(userId, season, groupId);
 
     const playersByTeam = await db.PlayerData.find(
-      { A: true, T: team, P: { $ne: 'K' } },
-      { M: 1, N: 1, P: 1, R: 1, T: 1, I: 1 }
+      { active: true, team: team, P: { $ne: 'K' } },
+      { mySportsId: 1, name: 1, position: 1, rank: 1, team: 1, injury: 1 }
     );
 
     const availablePlayers = checkForAvailablePlayers(
@@ -476,18 +500,22 @@ export default {
   getUserRoster: async (userId, week, season, groupId) => {
     //This grabs the user roster, and if not it creates one.
     let roster = await db.UserRoster.findOne(
-      { U: userId, W: week, S: season, G: groupId },
-      { R: 1 }
-    );
+      { userId, week, season, groupId },
+      { roster: 1 }
+    )
+      .lean()
+      .exec();
     if (roster === null) {
       roster = await createWeeklyRoster(userId, week, season, groupId);
     }
-    return roster.R;
+    return roster.roster;
   },
   lockPeroid: async () => {
     try {
-      const currData = await db.SeasonAndWeek.findOne();
-      return { lockWeek: currData.lockWeek };
+      const { lockWeek } = await db.SeasonAndWeek.findOne({}, { lockWeek: 1 })
+        .lean()
+        .exec();
+      return { lockWeek };
     } catch (err) {
       return false;
     }
@@ -500,6 +528,7 @@ export default {
         season: season,
       });
       if (!teamStart) {
+        //TODO add a promise in checkGame
         await mySportsHandler.checkGameStarted(season, week);
         teamStart = await db.TeamLocked.findOne({
           team: team,
@@ -516,16 +545,15 @@ export default {
   },
   getTotalScore: async (userId) => {
     const { season } = await mySportsHandler.pullSeasonAndWeekFromDB();
-    let userScore;
     try {
-      userScore = await db.UserScores.findOne(
-        { U: userId, S: season },
-        { TS: 1 }
+      const { totalScore } = await db.UserScores.findOne(
+        { userId: userId, season: season },
+        { totalScore: 1 }
       ).exec();
+      return totalScore;
     } catch (err) {
       console.log(err);
     }
-    return userScore.TS;
   },
   scoreAllGroups: async (season, week) => {
     const allGroups = await groupHandler.getAllGroups();

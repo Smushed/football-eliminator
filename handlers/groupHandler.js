@@ -301,7 +301,7 @@ export default {
     return `working`;
   },
   findGroupIdByName: async (groupname) => {
-    const foundGroup = await db.Group.findOne({ N: groupname })
+    const foundGroup = await db.Group.findOne({ name: groupname })
       .collation({ locale: `en_US`, strength: 2 })
       .exec();
     return foundGroup._id;
@@ -589,7 +589,7 @@ export default {
   },
   removeUser: (group, delUserId, season) => {
     return new Promise(async (res) => {
-      const userInGroup = group.UL.find(
+      const userInGroup = group.userlist.find(
         (user) => user.ID.toString() === delUserId.toString()
       );
       if (!userInGroup) {

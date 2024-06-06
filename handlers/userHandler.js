@@ -4,21 +4,21 @@ const checkDuplicateUser = async (checkedField, checkField1, checkField2) => {
   let result = false;
   let searched;
   switch (checkedField) {
-    case `username`: {
-      searched = await db.User.findOne({ UN: checkField1 });
+    case 'username': {
+      searched = await db.User.findOne({ username: checkField1 });
       if (searched !== null) {
         result = true;
       }
       break;
     }
-    case `email`: {
-      searched = await db.User.findOne({ E: checkField1 });
+    case 'email': {
+      searched = await db.User.findOne({ email: checkField1 });
       if (searched !== null) {
         result = true;
       }
       break;
     }
-    case `group`: {
+    case 'group': {
       const dbUser = await db.User.findById(checkField1);
       const alreadyInGroup = await dbUser.GL.filter(
         (groupId) => groupId.toString() === checkField2.toString()
@@ -32,17 +32,19 @@ const checkDuplicateUser = async (checkedField, checkField1, checkField2) => {
 };
 
 const fillOutUserForFrontEnd = async (user) => {
-  const groupData = await db.Group.find({ _id: { $in: user.GL } }).exec();
+  const groupData = await db.Group.find({
+    _id: { $in: user.grouplist },
+  }).exec();
   const groupList = groupData.map((group) => {
-    return { N: group.N, D: group.D, _id: group._id };
+    return { name: group.name, description: group.description, _id: group._id };
   });
   const filledUser = {
-    UN: user.UN,
-    E: user.E,
+    username: user.username,
+    email: user.email,
     _id: user._id,
-    A: user.A,
-    GL: groupList,
-    MG: user.MG,
+    admin: user.admin,
+    grouplist: groupList,
+    mainGroup: user.mainGroup,
   };
   return filledUser;
 };
@@ -50,36 +52,33 @@ const fillOutUserForFrontEnd = async (user) => {
 export default {
   getUserList: async () => {
     const userlist = await db.User.find({}).exec();
-    const filteredList = userlist.map((user) => {
-      return {
-        username: user.UN,
-        email: user.E,
-        _id: user._id,
-        groupList: user.GL,
-      };
-    });
+    const filteredList = userlist.map((user) => ({
+      username: user.username,
+      email: user.email,
+      _id: user._id,
+      groupList: user.grouplist,
+    }));
     return filteredList;
   },
   getUsersEmail: async (userIdArray) =>
-    await db.User.find({ _id: { $in: userIdArray } }, { E: 1 }).exec(),
+    await db.User.find({ _id: { $in: userIdArray } }, { email: 1 }).exec(),
   updateProfile: async (userId, request) => {
-    //They can only update one part of their profile at a time
     let toUpdate = {};
     if (request.UN !== undefined) {
-      const dupeUser = await checkDuplicateUser('username', request.UN);
+      const dupeUser = await checkDuplicateUser('username', request.username);
       if (dupeUser) {
-        return { status: 409, message: `Username is in use` };
+        return { status: 409, message: 'Username is in use' };
       }
       if (request.UN.length > 20) {
         return {
           status: 413,
-          message: `Username must be at least 6 and under 20 characters`,
+          message: 'Username must be at least 6 and under 20 characters',
         };
       }
       toUpdate.UN = request.UN;
     }
     if (request.E !== undefined) {
-      const dupeUser = await checkDuplicateUser(`email`, request.E);
+      const dupeUser = await checkDuplicateUser('email', request.email);
       if (dupeUser) {
         return { status: 409, message: 'Email is in use' };
       }
@@ -98,33 +97,37 @@ export default {
         return { status: 400, message: 'Error Updating User Profile' };
       }
     });
-    return { status: 200, message: `Updated`, UN: request.UN, E: request.E };
+    return {
+      status: 200,
+      message: `Updated`,
+      UN: request.username,
+      E: request.email,
+    };
   },
   updateToAdmin: async (userId) => {
-    let dbResponse = ``;
-    await db.User.updateOne({ _id: userId }, { $set: { A: true } }, (err) => {
-      if (err) {
-        dbResponse = err;
-      } else {
-        dbResponse = `${userId} is now an admin!`;
-      }
-    });
-    return dbResponse;
+    const res = await db.User.updateOne(
+      { _id: userId },
+      { $set: { admin: true } }
+    )
+      .lean()
+      .exec();
+
+    return `${res.username} is now an admin!`;
   },
   saveNewUser: async (newUser) => {
     if (
-      !checkDuplicateUser(`username`, newUser.UN) ||
-      !checkDuplicateUser(`email`, newUser.E)
+      !checkDuplicateUser(`username`, newUser.username) ||
+      !checkDuplicateUser(`email`, newUser.email)
     ) {
       return false;
     }
 
-    const newUserInDB = await db.User.create(newUser);
+    const newUserInDB = await db.User.create(newUser).lean().exec();
 
     return { newUserInDB };
   },
   getUserByEmail: async (email) => {
-    const foundUser = await db.User.findOne({ E: email });
+    const foundUser = await db.User.findOne({ email }).lean().exec();
     const response = await fillOutUserForFrontEnd(foundUser);
 
     return response;
@@ -142,8 +145,9 @@ export default {
   },
   getUserByUsername: async (username) => {
     try {
-      const user = await db.User.findOne({ UN: username })
-        .collation({ locale: `en_US`, strength: 2 })
+      const user = await db.User.findOne({ username: username })
+        .collation({ locale: 'en_US', strength: 2 })
+        .lean()
         .exec();
       return user;
     } catch (err) {

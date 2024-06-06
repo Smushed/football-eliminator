@@ -31,18 +31,18 @@ const playerScoreHandler = async (playerId, season, week, groupScore) => {
 };
 
 const calculateScore = (playerStat, groupScore) => {
-  if (typeof playerStat === `undefined`) {
+  if (typeof playerStat === 'undefined') {
     return 0;
   }
   return +(playerStat * groupScore).toFixed(2);
 };
 
 const capitalizeFirstLetter = (str) => {
-  const strArr = str.split(` `);
+  const strArr = str.split(' ');
   for (let i = 0; i < strArr.length; i++) {
     strArr[i] = strArr[i].charAt(0).toUpperCase() + strArr[i].slice(1);
   }
-  return strArr.join(` `);
+  return strArr.join(' ');
 };
 
 const addPlayerData = (player, team, stats, season, week) => {
@@ -50,8 +50,8 @@ const addPlayerData = (player, team, stats, season, week) => {
     let injury = null;
     if (player.currentInjury) {
       injury = {
-        PP: player.currentInjury.playingProbability,
-        D: capitalizeFirstLetter(player.currentInjury.description),
+        playingProbability: player.currentInjury.playingProbability,
+        description: capitalizeFirstLetter(player.currentInjury.description),
       };
     }
     let espnMapping = null;
@@ -60,24 +60,23 @@ const addPlayerData = (player, team, stats, season, week) => {
     }
     db.PlayerData.create(
       {
-        N: `${player.firstName} ${player.lastName}`,
-        M: parseInt(player.id),
-        T: team,
-        P: player.primaryPosition || player.position,
-        A: true,
-        R: 7,
-        I: injury,
-        E: espnMapping,
+        name: `${player.firstName} ${player.lastName}`,
+        mySportsId: parseInt(player.id),
+        team: team,
+        position: player.primaryPosition || player.position,
+        active: true,
+        rank: 7,
+        injury: injury,
+        espnId: espnMapping,
       },
       function (err, newPlayer) {
         if (err) {
           console.log(err);
         }
-        //If we are adding a new player from the weekly update we cascade it down to add their stats
         if (stats) {
-          addWeeksStats(newPlayer.M, stats, season, week);
+          addWeeksStats(newPlayer.mySportsId, stats, season, week);
         }
-        res(newPlayer.M);
+        res(newPlayer.mySportsId);
       }
     );
   });
@@ -86,7 +85,9 @@ const addPlayerData = (player, team, stats, season, week) => {
 const findPlayerInDB = async (playerID) => {
   return new Promise(async (res, rej) => {
     try {
-      const playerInDB = await db.PlayerData.findOne({ M: playerID }).exec();
+      const playerInDB = await db.PlayerData.findOne({
+        mySportsId: playerID,
+      }).exec();
       //First check if the player is currently in the database
       if (playerInDB === null) {
         res(false);
@@ -94,20 +95,17 @@ const findPlayerInDB = async (playerID) => {
         res(playerInDB);
       }
     } catch (err) {
-      //TODO Do something more with the error
-      console.log(`what`, err);
+      console.log('Error getting player from DB: ', { err });
     }
   });
 };
 
 const checkForWeeklyStats = async (mySportsId, stats, season, week) => {
-  //If the player already has a record in the database, return it so we can update it.
-  //If not return false so we can write a new record
   const player = await db.PlayerStats.findOne({
     mySportsId: mySportsId,
     week: week,
     season: season,
-  });
+  }).exec();
   if (!player) {
     return false;
   }
@@ -125,7 +123,7 @@ const newWeeklyStats = (mySportsId, stats, season, week) => {
   player.passing = {};
   player.rushing = {};
   player.receiving = {};
-  player.fumbles = {};
+  player.fumble = {};
   player.fieldGoal = {};
 
   if (stats.passing) {
@@ -199,11 +197,11 @@ const newWeeklyStats = (mySportsId, stats, season, week) => {
   }
 
   if (stats.fumble) {
-    player.fumbles = {
+    player.fumble = {
       fumblesLost: stats.fumbles.fumLost || 0,
     };
   } else {
-    player.fumbles = {
+    player.fumble = {
       fumblesLost: 0,
     };
   }
@@ -316,7 +314,7 @@ const addWeeksStats = async (mySportsId, stats, season, week) => {
 const parsePlayerExternalMappings = (mappingArray) => {
   let espnMapping = null;
   for (let mapping of mappingArray) {
-    if (mapping.source === `ESPN`) {
+    if (mapping.source === 'ESPN') {
       espnMapping = mapping.id;
     }
   }
@@ -330,11 +328,11 @@ const parseRoster = async (playerArray, team) => {
     const position =
       playerArray[i].player.primaryPosition || playerArray[i].player.position;
     if (
-      position === `QB` ||
-      position === `TE` ||
-      position === `WR` ||
-      position === `RB` ||
-      position === `K`
+      position === 'QB' ||
+      position === 'TE' ||
+      position === 'WR' ||
+      position === 'RB' ||
+      position === 'K'
     ) {
       let dbPlayer = await findPlayerInDB(playerArray[i].player.id);
       if (dbPlayer === false || dbPlayer === undefined || dbPlayer === null) {
@@ -343,13 +341,14 @@ const parseRoster = async (playerArray, team) => {
         let injury = null;
         if (playerArray[i].player.currentInjury !== null) {
           injury = {
-            D: playerArray[i].player.currentInjury.description,
-            PP: playerArray[i].player.currentInjury.playingProbability,
+            description: playerArray[i].player.currentInjury.description,
+            playingProbability:
+              playerArray[i].player.currentInjury.playingProbability,
           };
         }
         let espnMapping;
-        if (dbPlayer.E) {
-          espnMapping = dbPlayer.E;
+        if (dbPlayer.espnId) {
+          espnMapping = dbPlayer.espnId;
         } else {
           espnMapping = parsePlayerExternalMappings(
             playerArray[i].player.externalMappings
@@ -366,15 +365,15 @@ const parseRoster = async (playerArray, team) => {
           espnMapping
         );
       }
-      totalPlayerArray.push(dbPlayer.M);
+      totalPlayerArray.push(dbPlayer.mySportsId);
     }
   }
-  const dbNFLRoster = await db.PlayerData.find({ T: team }).exec();
+  const dbNFLRoster = await db.PlayerData.find({ team }).exec();
   //Iterate through the players we have sitting in the database
   //Take out all the players which we just wrote to the database and update all the rest to be inactive
   const totalPlayerArrayIds = new Set(totalPlayerArray);
   const inactivePlayerArray = dbNFLRoster.filter(
-    (player) => !totalPlayerArrayIds.has(player.M)
+    (player) => !totalPlayerArrayIds.has(player.mySportsId)
   );
 
   //Now that we have all the players who are still registered as on team in the DB but not in the API we inactivate them
@@ -383,34 +382,36 @@ const parseRoster = async (playerArray, team) => {
   return inactivePlayerArray;
 };
 
-const inactivatePlayers = (inactivePlayerArray) => {
-  //This takes all the players which we determined as inactive before and updates them in the database
+const inactivatePlayers = async (inactivePlayerArray) => {
   for (const player of inactivePlayerArray) {
-    db.PlayerData.findOne({ M: player.M }, (err, dbPlayer) => {
-      dbPlayer.A = false;
-
-      dbPlayer.save((err, result) => {
-        if (err) {
-          console.log(`error ${dbPlayer.N}`, err);
-        } else {
-          return result;
-        }
-      });
+    const dbPlayer = await db.PlayerData.findOne({
+      mySportsId: player.mySportsId,
     });
-  }
-};
-
-const setPlayerToActive = (mySportsId) => {
-  db.PlayerData.findOne({ M: mySportsId }, (err, dbPlayer) => {
-    dbPlayer.A = true;
+    dbPlayer.active = false;
 
     dbPlayer.save((err, result) => {
       if (err) {
-        console.log(`error ${dbPlayer.N}`, err);
+        console.log(`Error setting ${dbPlayer.N} to inactive`, { err });
       } else {
         return result;
       }
     });
+  }
+};
+
+const setPlayerToActive = async (mySportsId) => {
+  const dbPlayer = await db.PlayerData.findOne(
+    { mySportsId },
+    (err, dbPlayer)
+  ).exec();
+  dbPlayer.active = true;
+
+  dbPlayer.save((err, result) => {
+    if (err) {
+      console.log(`Error setting ${dbPlayer.name} to active`, { err });
+    } else {
+      return result;
+    }
   });
 };
 
@@ -423,16 +424,19 @@ const updatePlayer = async (
 ) => {
   let confInjury = null;
   if (injury) {
-    confInjury = { PP: injury.PP, D: capitalizeFirstLetter(injury.D) };
+    confInjury = {
+      playingProbability: injury.playingProbability,
+      description: capitalizeFirstLetter(injury.description),
+    };
   }
   await db.PlayerData.findOneAndUpdate(
-    { M: mySportsId },
+    { mySportsId },
     {
-      T: team,
-      A: true,
-      I: confInjury,
-      P: position,
-      E: espnMapping,
+      team: team,
+      active: true,
+      injury: confInjury,
+      position: position,
+      espnMapping: espnMapping,
     }
   );
 };
@@ -552,23 +556,22 @@ const getPlayerWeeklyScore = async (playerId, season, week, groupScore) => {
 const pullTeamData = async (season, team) => {
   console.log(`Requesting ${team}`);
   await axios
-    .get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
+    .get('https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json', {
       auth: {
         username: mySportsFeedsAPI,
-        password: `MYSPORTSFEEDS`,
+        password: 'MYSPORTSFEEDS',
       },
       params: {
         season: season,
         team: team,
-        rosterstatus: `assigned-to-roster`,
+        rosterstatus: 'assigned-to-roster',
       },
     })
     .then((response) => {
-      // Then parses through the roster and pulls out of all the offensive players and updates their data
       parseRoster(response.data.players, team);
     })
     .catch((err) => {
-      console.log(`ERROR inside of pullTeamData: `, err);
+      console.log('ERROR inside of pullTeamData: ', { err });
       if (err.request) {
         if (err.request.status === 502 || err.request.status === 429) {
           if (team === undefined || team === 'undefined') {
@@ -582,40 +585,11 @@ const pullTeamData = async (season, team) => {
 };
 
 export default {
-  updateTestRoster: async (season) => {
-    console.log(season);
-    const team = 'PHI';
-    console.log(`Requesting ${team}`);
-    await axios
-      .get(`https://api.mysportsfeeds.com/v2.1/pull/nfl/players.json`, {
-        auth: {
-          username: mySportsFeedsAPI,
-          password: `MYSPORTSFEEDS`,
-        },
-        params: {
-          season: season,
-          team: team,
-          rosterstatus: `assigned-to-roster`,
-        },
-      })
-      .then(async (response) => {
-        // Then parses through the roster and pulls out of all the offensive players and updates their data
-        //This also gets any new players and adds them to the DB but inside this function
-        //Await because I want it to iterate through the whole roster that was provided before moving onto the next one
-        console.log(`working through ${team}`);
-
-        await parseRoster(response.data.players, team);
-      })
-      .catch((err) => {
-        //TODO Error handling if the AJAX failed
-        console.log(`ERROR`, err, `GET ERROR`);
-      });
-  },
   updateTeamRoster: (season, teams) => {
     // This loops through the array of all the teams above and gets the current rosters
     let i = 0;
     const rosterTimer = setInterval(async () => {
-      if (teams[i] !== `UNK`) {
+      if (teams[i] !== 'UNK') {
         await pullTeamData(season, teams[i]);
       }
       i++;
@@ -708,7 +682,7 @@ export default {
             );
           } else {
             //Need to ensure the player is set to active when their stats are entered in
-            setPlayerToActive(player.M);
+            setPlayerToActive(player.mySportsId);
             addWeeksStats(
               player.M,
               search.data.gamelogs[i].stats,
@@ -749,8 +723,6 @@ export default {
   },
   rankPlayers: async function (season, week, groupScore, totalSeason) {
     console.log(`Ranking Players for `, season, week);
-    //Loop through the positions of the players to then rank them
-    //We are doing the offense here, since D will be different
     const rankedPlayersByPosition = {};
     for (const position of positions.positionArray) {
       rankedPlayersByPosition[position] = [];
@@ -763,7 +735,6 @@ export default {
         .exec();
       const rankingArray = [];
 
-      //Iterate through every player, get their total score for the season
       for (let player of playersByPosition) {
         player.score = 0;
         if (totalSeason) {
@@ -784,10 +755,8 @@ export default {
           );
         }
         player.score = player.score.toFixed(2);
-        //Put them in an array to rank them
-        rankingArray.push(player);
+        rankingArray.push(player.mySportsId);
       }
-      //Sort the array by score so we can then divide it into the top performers
       rankingArray.sort((a, b) => {
         return b.score - a.score;
       });
@@ -807,13 +776,17 @@ export default {
         } else {
           currentRank = rankingArray;
         }
-        for (let player of currentRank) {
-          await db.PlayerData.findByIdAndUpdate(player._id, { rank: i });
-        }
+        await db.PlayerData.updateMany(
+          { _id: { $in: currentRank } },
+          { rank: i }
+        );
+        // for (let player of currentRank) {
+        //   await db.PlayerData.findByIdAndUpdate(player._id, { rank: i });
+        // }
       }
     }
-    console.log(`Done Ranking`);
-    return `Ranked Players Saved`;
+    console.log('Done Ranking');
+    return 'Ranked Players Saved';
   },
   fillUserRoster: async (playerIdRoster) => {
     const mySportsIdArray = playerIdRoster.map((id) => id.mySportsId);
@@ -955,7 +928,7 @@ export default {
   },
   pullSeasonAndWeekFromDB: async () =>
     new Promise(async (res, rej) => {
-      const dbResponse = await db.SeasonAndWeek.find({}).exec();
+      const dbResponse = await db.SeasonAndWeek.find({}).lean().exec();
 
       res(dbResponse[0]);
     }),

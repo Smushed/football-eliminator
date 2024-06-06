@@ -1,43 +1,6 @@
 import { Schema, Types, model } from 'mongoose';
 
 const UserRosterSchema = new Schema({
-  U: {
-    //UserId
-    type: Types.ObjectId,
-    ref: 'User',
-  },
-  G: {
-    //GroupId
-    type: Types.ObjectId,
-    ref: 'Group',
-  },
-  W: {
-    //Week
-    type: Number,
-  },
-  S: {
-    //Season
-    type: String,
-    trim: true,
-  },
-  R: [
-    //Roster
-    {
-      M: {
-        //MySportsId
-        type: Number,
-        required: true,
-        default: 0,
-      },
-      SC: {
-        //Score
-        type: Number,
-        required: true,
-        default: 0,
-      },
-      _id: false,
-    },
-  ],
   userId: {
     type: Types.ObjectId,
     ref: 'User',
