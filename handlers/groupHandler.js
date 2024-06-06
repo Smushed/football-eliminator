@@ -59,7 +59,7 @@ const checkDuplicate = async (checkedField, groupToSearch, userId) => {
 
 const updateUserScore = async (groupId, season, prevWeek, week) =>
   new Promise(async (res) => {
-    const group = await db.Group.findById(groupId).exec();
+    const group = await db.Group.findById(groupId).lean().exec();
     for (const user of group.userlist) {
       createUserScore(user.userId, season, groupId);
     }
@@ -103,14 +103,20 @@ const createGroupRoster = async (groupId, rosterSpots) => {
 };
 
 const createGroupScore = (groupId, groupScore) => {
-  const { P, RU, RE, F, FG } = groupScore;
-  db.GroupScore.create({ G: groupId, P, RU, RE, F, FG });
+  db.GroupScore.create({
+    groupId: groupId,
+    passing: groupScore.passing,
+    rushing: groupScore.rushing,
+    receiving: groupScore.receiving,
+    fumble: groupScore.fumble,
+    fieldGoal: groupScore.fumble,
+  });
 };
 
 const createUserScore = async (userId, season, groupId) => {
   const checkDupeUser = await checkDuplicate('userScore', userId, groupId);
   if (!checkDupeUser) {
-    await db.UserScores.create({ userId, groupId, season });
+    await db.UserScores.create({ userId, groupId, season }).exec();
   }
 };
 
@@ -121,7 +127,7 @@ const getTopScorerForWeek = (userScores, week) => {
 };
 
 const getTopScoreForWeek = (userScores) => {
-  userScores.sort((a, b) => b.TS - a.TS);
+  userScores.sort((a, b) => b.totalScore - a.totalScore);
   const topWeekScore = userScores.shift();
   return topWeekScore;
 };
@@ -211,39 +217,37 @@ export default {
     if (dupe) {
       return false;
     }
-    const newGroup = {
+    const newGroupFromDB = await db.Group.create({
       name: groupName,
       description: groupDesc,
-    };
-    const newGroupFromDB = await db.Group.create(newGroup).exec();
+    }).exec();
     createGroupRoster(newGroupFromDB._id, groupPositions);
     createGroupScore(newGroupFromDB._id, newGroupScore);
-    //Add the new group to the user who created it
+
     await db.User.findByIdAndUpdate(userId, {
       $push: { groupList: newGroupFromDB._id },
-    }); //Also saved the group that the user just added to their profile
+    });
 
     return newGroupFromDB;
   },
-  // Invite other users to the group
   addUser: async (addedUserID, groupId, isAdmin = false) => {
-    //Checks if the user is already added to the group and returns 500 if they are
     const isDuplicate = await checkDuplicate('userlist', groupId, addedUserID);
 
     if (isDuplicate) {
       return 500;
     }
 
-    const newUserForGroup = {
-      admin: isAdmin,
-      blocked: false,
-      userId: addedUserID,
-    };
-
-    //get the user ID, add them to the array userlist within the group
     const groupDetail = await db.Group.findByIdAndUpdate(
       groupId,
-      { $push: { userlist: newUserForGroup } },
+      {
+        $push: {
+          userlist: {
+            admin: isAdmin,
+            blocked: false,
+            userId: addedUserID,
+          },
+        },
+      },
       { new: true }
     )
       .lean()
@@ -255,15 +259,12 @@ export default {
   },
   getGroupData: async (groupName) => {
     const groupData = await db.Group.findOne({ name: groupName })
-      .collation({ locale: `en_US`, strength: 2 })
+      .collation({ locale: 'en_US', strength: 2 })
       .lean()
       .exec();
     return groupData;
   },
-  getGroupDataById: async (groupId) => {
-    const groupData = await db.Group.findById(groupId).exec();
-    return groupData;
-  },
+  getGroupDataById: async (groupId) => await db.Group.findById(groupId).exec(),
   getLeaderBoard: async (groupId, season, week) => {
     const arrayForLeaderBoard = [];
     const weekAccessor = (week === 1 ? 1 : week - 1).toString();
@@ -274,7 +275,7 @@ export default {
       week
     );
     for (const user of userScoreList) {
-      const { username } = await db.User.findById(user.userId).exec();
+      const { username } = await db.User.findById(user.userId).lean().exec();
       const filledOutUser = {
         userId: user.userId,
         totalScore: user.totalScore,
@@ -284,31 +285,32 @@ export default {
       };
       arrayForLeaderBoard.push(filledOutUser);
     }
-    arrayForLeaderBoard.sort((a, b) => b.TS - a.TS);
+    arrayForLeaderBoard.sort((a, b) => b.totalScore - a.totalScore);
     return arrayForLeaderBoard;
   },
-  createClapper: async function () {
-    if (!checkDuplicate('group', 'Clapper')) {
+  createGenericGroup: async function () {
+    if (!checkDuplicate('group', 'Eliminator')) {
       return false;
     }
-    const clapper = {
-      name: `Clapper`,
-      description: `Everyone competing for the Clapper`,
-    };
-    const clapperFromDB = await db.Group.create(clapper);
+    const clapperFromDB = await db.Group.create({
+      name: 'Eliminator',
+      description: 'General group for everyone to join',
+    })
+      .lean()
+      .exec();
     this.createGroupRoster(clapperFromDB._id);
     this.createGroupScore(clapperFromDB._id);
-    return `working`;
+    return 'working';
   },
   findGroupIdByName: async (groupname) => {
     const foundGroup = await db.Group.findOne({ name: groupname })
-      .collation({ locale: `en_US`, strength: 2 })
+      .collation({ locale: 'en_US', strength: 2 })
       .exec();
     return foundGroup._id;
   },
   createGeneralGroupRoster: async (groupId) =>
     new Promise(async (res, rej) => {
-      const dbResponse = await db.GroupRoster.create({ G: groupId }).exec();
+      const dbResponse = await db.GroupRoster.create({ groupId }).exec();
       res(dbResponse);
     }),
   getGroupPositions: async (groupId) =>
@@ -387,7 +389,9 @@ export default {
         const user = await db.User.findById(
           groupResponse[i].userlist[ii].userId,
           { username: 1 }
-        );
+        )
+          .lean()
+          .exec();
         if (user) {
           filledData[i].userlist.push({
             username: user.username,
@@ -432,12 +436,16 @@ export default {
     const allGroups = await this.getAllGroups();
     for (const group of allGroups) {
       let idealRoster = await db.IdealRoster.findOne({
-        G: group._id,
-        S: season,
-        W: week,
+        groupId: group._id,
+        season: season,
+        week: week,
       }).exec();
       if (!idealRoster) {
-        idealRoster = new db.IdealRoster({ G: group._id, S: season, W: week });
+        idealRoster = new db.IdealRoster({
+          group: group._id,
+          season: season,
+          week: week,
+        });
       }
       this.updateIdealRoster(group._id, season, week, idealRoster);
     }
@@ -548,7 +556,6 @@ export default {
     const updatedArray = Object.keys(updatedFields);
     const errors = [];
     for (let i = 0; i < updatedArray.length; i++) {
-      //Returns false if no errors
       const updateRes = await groupUpdater[updatedArray[i]](
         group,
         updatedFields[updatedArray[i]]
@@ -573,15 +580,17 @@ export default {
   topScoreForGroup: async function (groupId, season) {
     return new Promise(async (res) => {
       const scores = await db.UserScores.find(
-        { G: groupId, S: season },
-        `U TS`
+        { groupId, season },
+        `userId totalScore`
       ).exec();
       const topScore = await getTopScoreForWeek(scores);
       res(topScore);
     });
   },
   checkAdmin: async (group, adminId) => {
-    const selfInGroup = group.UL.find((user) => user.ID.toString() === adminId);
+    const selfInGroup = group.userlist.find(
+      (user) => user.userId.toString() === adminId
+    );
     if (!selfInGroup) {
       return false;
     }
@@ -590,14 +599,14 @@ export default {
   removeUser: (group, delUserId, season) => {
     return new Promise(async (res) => {
       const userInGroup = group.userlist.find(
-        (user) => user.ID.toString() === delUserId.toString()
+        (user) => user.userId.toString() === delUserId.toString()
       );
       if (!userInGroup) {
         res({ status: false, message: 'User not found in group.' });
       }
 
       const userPos = group.userlist
-        .map((user) => user.ID.toString())
+        .map((user) => user.userId.toString())
         .indexOf(delUserId);
       group.userlist.splice(userPos, 1);
 
@@ -688,8 +697,8 @@ export default {
       { groupId: groupId, season: season },
       { userId: 1, totalScore: 1 }
     )
-      .lean()
       .sort('-totalScore')
+      .lean()
       .exec();
     const user = await db.User.findById(topScore.userId, { username: 1 })
       .lean()
@@ -702,7 +711,7 @@ export default {
       .exec();
     const groupList = await db.Group.find(
       { _id: { $in: userGroupList.grouplist } },
-      'N'
+      'name'
     ).exec();
     return groupList;
   },

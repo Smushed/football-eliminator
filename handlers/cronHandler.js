@@ -12,7 +12,7 @@ import nflTeams from '../constants/nflTeams.js';
 const checkLockWeek = () =>
   schedule.scheduleJob('22 * * 1,9-12 *', async function () {
     //Need to update which week we're currently in
-    const currDate = moment.utc(new Date()).tz(`America/Chicago`).toDate();
+    const currDate = moment.utc(new Date()).tz('America/Chicago').toDate();
     console.log(`Checking start week and lock week ${currDate}`);
 
     const currDBWeeks = await mySportsHandler.pullSeasonAndWeekFromDB();
@@ -23,7 +23,7 @@ const checkLockWeek = () =>
 // Update Scores every day at 3am Chicago time
 const dailyScoreUpdate = () =>
   schedule.scheduleJob('0 9 * 1,9-12 *', async function () {
-    console.log(`Running player roster update`);
+    console.log('Running player roster update');
     const { season } = await mySportsHandler.pullSeasonAndWeekFromDB();
     mySportsHandler.updateTeamRoster(season, nflTeams.teams);
 
@@ -33,18 +33,19 @@ const dailyScoreUpdate = () =>
 const scorePlayersAndGroups = () =>
   schedule.scheduleJob('15 9 * 1,9-12 *', async function () {
     const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
-    console.log(`Scoring players and groups update`);
+    console.log('Scoring players and groups update');
     updatePlayerData(season, week);
   });
 
 //Rank the Players
 const updateAndRankPlayers = () =>
   schedule.scheduleJob('30 9 * 1,9-12 *', async function () {
-    console.log(`Running roster and score update`);
+    console.log('Running roster and score update');
     const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
     await rosterHandler.scoreAllGroups(season, week);
 
-    const clapper = await groupHandler.getGroupData(`Eliminator`); //Default to the clapper as the 'main' group
+    //Default to the clapper as the 'main' group for the rankings
+    const clapper = await groupHandler.getGroupData('Eliminator');
     const groupScore = await groupHandler.getGroupScore(clapper._id);
 
     const rankedPlayers = await mySportsHandler.rankPlayers(
@@ -65,7 +66,7 @@ const updateTeamRoster = () =>
 // Thursday and Monday games (these are in UTC)
 const updateForWeekdayGames = () =>
   schedule.scheduleJob('0 0-5 * 1,9-12 2,5', async function () {
-    console.log(`Running bi-hourly Monday and Thursday game score`);
+    console.log('Running bi-hourly Monday and Thursday game score');
     const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
     updatePlayerData(season, week);
   });
@@ -73,7 +74,7 @@ const updateForWeekdayGames = () =>
 // Update most often on Sunday
 const updateBiHourlySundays = () =>
   schedule.scheduleJob('0 17-23 * 1,9-12 0', async function () {
-    console.log(`Running bi-hourly Sunday job`);
+    console.log('Running bi-hourly Sunday job');
     const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
     updatePlayerData(season, week);
   });
@@ -81,7 +82,7 @@ const updateBiHourlySundays = () =>
 // Before email is sent out update the players
 const updatePlayers = () =>
   schedule.scheduleJob('00 12 * 1,9-12 2', async function () {
-    console.log(`Running scoring again an hour before email is sent out`);
+    console.log('Running scoring again an hour before email is sent out');
     const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
     await mySportsHandler.getEveryWeekData(season, week);
     await rosterHandler.scoreAllGroups(season, week);
@@ -90,7 +91,7 @@ const updatePlayers = () =>
 //Right before the Leaderboard is sent out update the ideal roster
 const updateIdealRoster = () =>
   schedule.scheduleJob('20 12 * 1,9-12 2', async function () {
-    console.log(`Updating Ideal Roster`);
+    console.log('Updating Ideal Roster');
     const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
     groupHandler.updateAllIdealRosters(season, +week - 1);
   });
@@ -98,7 +99,7 @@ const updateIdealRoster = () =>
 //Send out the Leaderboard every Tuesday
 const emailLeaderboard = () =>
   schedule.scheduleJob('30 12 * 1,9-12 2', async function () {
-    console.log(`Sending out the weekly email`);
+    console.log('Sending out the weekly email');
     const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
     const groups = await groupHandler.getAllGroups();
     for (let group of groups) {
