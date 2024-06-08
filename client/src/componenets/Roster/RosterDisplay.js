@@ -18,28 +18,31 @@ const CurrentRosterRow = memo(function CurrentRosterRow({
         {position}
       </th>
       <td>
-        {player && player.M !== 0 && !pastLockWeek && player.I && (
-          <InjuryCol injury={player.I} />
-        )}
+        {player &&
+          player.mySportsId !== 0 &&
+          !pastLockWeek &&
+          player.injury && <InjuryCol injury={player.injury} />}
       </td>
       <td>
         {player && (
           <img
             className='playerAvatar'
-            src={playerAvatars[player.M] || BlankAvatar}
+            src={playerAvatars[player.mySportsId] || BlankAvatar}
           />
         )}
       </td>
-      <td>{player && player.N && player.N}</td>
-      <td>{player && player.T}</td>
+      <td>{player && player.name && player.name}</td>
+      <td>{player && player.team}</td>
       {pastLockWeek === true ? (
-        <td>{player && player.SC.toFixed(2)}</td>
+        <td>{player && player.score.toFixed(2)}</td>
       ) : (
         <td className='pb-0'>
-          {player && player.M && addDropPlayer ? (
+          {player && player.mySportsId && addDropPlayer ? (
             <button
               className='custom-button'
-              onClick={() => addDropPlayer(player.M, player.T, 'drop')}
+              onClick={() =>
+                addDropPlayer(player.mySportsId, player.team, 'drop')
+              }
             >
               Drop
             </button>
@@ -83,7 +86,7 @@ const RosterDisplay = memo(function RosterDisplay({
           ? roster.map((player, i) => (
               <CurrentRosterRow
                 key={i}
-                position={player.P}
+                position={player.position}
                 player={player}
                 addDropPlayer={addDropPlayer}
                 pastLockWeek={pastLockWeek}
@@ -93,7 +96,7 @@ const RosterDisplay = memo(function RosterDisplay({
               <CurrentRosterRow
                 key={i}
                 pastLockWeek={pastLockWeek}
-                position={position.N}
+                position={position.name}
                 player={roster[i]}
                 addDropPlayer={addDropPlayer}
               />
@@ -108,10 +111,10 @@ const InjuryCol = ({ injury }) => {
     <span
       className='injuryCol redText'
       data-tooltip-id='injuryTooltip'
-      data-tooltip-html={injury.D}
+      data-tooltip-html={injury.description}
     >
       <Tooltip id='injuryTooltip' data-tooltip />
-      {injury.PP[0]}
+      {injury.playingProbability[0]}
     </span>
   );
 };
@@ -120,17 +123,17 @@ const PlayerDisplayRow = ({ player, addDropPlayer, sortedMatchups }) => {
   const { playerAvatars } = useContext(AvatarContext);
   return (
     <tr className='align-middle playerDisplayRowHeight'>
-      <td>{player.I && <InjuryCol injury={player.I} />}</td>
+      <td>{player.injury && <InjuryCol injury={player.injury} />}</td>
       <td>
-        <img src={player && playerAvatars[player.M]} />
+        <img src={player && playerAvatars[player.mySportsId]} />
       </td>
-      <td>{player.N && player.N}</td>
-      <td>{player.T && player.T}</td>
+      <td>{player.name && player.name}</td>
+      <td>{player.team && player.team}</td>
       {sortedMatchups && (
         <td className='oppWidth'>
-          {sortedMatchups[player.T]
-            ? `${sortedMatchups[player.T].h ? 'v' : '@'} ${
-                sortedMatchups[player.T].v
+          {sortedMatchups[player.team]
+            ? `${sortedMatchups[player.team].home ? 'v' : '@'} ${
+                sortedMatchups[player.team].opponent
               }`
             : `BYE`}
         </td>
@@ -139,7 +142,7 @@ const PlayerDisplayRow = ({ player, addDropPlayer, sortedMatchups }) => {
         <td className='pb-0'>
           <button
             className='custom-button'
-            onClick={() => addDropPlayer(player.M, player.T, 'add')}
+            onClick={() => addDropPlayer(player.mySportsId, player.team, 'add')}
           >
             Add
           </button>

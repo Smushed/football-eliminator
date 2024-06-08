@@ -108,7 +108,7 @@ export default (app) => {
         //Setting this blank roster if we are currently in week 1 there is no previous week to compare
         const blankRoster = await groupHandler.getBlankRoster(groupId);
         const bestRoster = { roster: blankRoster, username: '' };
-        res.status(200).send({ bestRoster, leaderRoster: blankRoster });
+        res.status(200).send({ bestRoster, roster: blankRoster });
         return;
       } else {
         const userScores = await groupHandler.getCurrAndLastWeekScores(
@@ -119,12 +119,12 @@ export default (app) => {
         Promise.all([
           groupHandler.getBestRoster(groupId, season, +week, userScores),
           groupHandler.getLeaderRoster(userScores, groupId, week, season),
-        ]).then(async ([bestRoster, leaderRoster]) => {
+        ]).then(async ([bestRoster, roster]) => {
           if (!bestRoster) {
             const blankRoster = await groupHandler.getBlankRoster(groupId);
             bestRoster = { roster: blankRoster, username: '' };
           }
-          return res.status(200).send({ bestRoster, leaderRoster });
+          return res.status(200).send({ bestRoster, roster });
         });
       }
     }

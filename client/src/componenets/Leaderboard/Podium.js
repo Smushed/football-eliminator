@@ -12,21 +12,21 @@ const Podium = memo(function Podium({ leaderboard }) {
       <div className='row justify-content-center d-flex h-100'>
         <div className='row align-items-end pb-4 justify-content-evenly'>
           <Stand
-            avatar={userAvatars[leaderboard[1].UID]}
-            username={leaderboard[1].UN}
-            totalScore={leaderboard[1].TS}
+            avatar={userAvatars[leaderboard[1].userId]}
+            username={leaderboard[1].username}
+            totalScore={leaderboard[1].totalScore}
             place={2}
           />
           <Stand
-            avatar={userAvatars[leaderboard[0].UID]}
-            username={leaderboard[0].UN}
-            totalScore={leaderboard[0].TS}
+            avatar={userAvatars[leaderboard[0].userId]}
+            username={leaderboard[0].username}
+            totalScore={leaderboard[0].totalScore}
             place={1}
           />
           <Stand
-            avatar={userAvatars[leaderboard[2].UID]}
-            username={leaderboard[2].UN}
-            totalScore={leaderboard[2].TS}
+            avatar={userAvatars[leaderboard[2].UuserIdID]}
+            username={leaderboard[2].username}
+            totalScore={leaderboard[2].totalScore}
             place={3}
           />
         </div>

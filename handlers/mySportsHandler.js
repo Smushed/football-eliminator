@@ -832,8 +832,8 @@ export default {
   sortMatchups: async (matchups) => {
     const matchupsDisplay = {};
     for (let team of matchups) {
-      matchupsDisplay[team.home] = { vrs: team.away, home: true };
-      matchupsDisplay[team.away] = { vrs: team.home, home: false };
+      matchupsDisplay[team.home] = { opponent: team.away, home: true };
+      matchupsDisplay[team.away] = { opponent: team.home, home: false };
     }
     return matchupsDisplay;
   },

@@ -68,8 +68,10 @@ export default (app) => {
   app.get('/api/nfldata/matchups/:season/:week', async (req, res) => {
     const { season, week } = req.params;
     const matchups = await mySportsHandler.getMatchups(season, week);
-    const sortedMatchups = await mySportsHandler.sortMatchups(matchups.M);
-    res.status(200).send({ matchups: matchups.M, sortedMatchups });
+    const sortedMatchups = await mySportsHandler.sortMatchups(
+      matchups.matchups
+    );
+    res.status(200).send({ matchups: matchups.matchups, sortedMatchups });
   });
 
   app.post('/api/nfldata/pullMatchUpsForDB/:season/:week', async (req, res) => {

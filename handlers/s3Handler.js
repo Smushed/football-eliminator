@@ -195,7 +195,7 @@ export default {
   getMultiplePlayerAvatars: async function (idArray) {
     const avatarsById = {};
     const playerAvatars = await db.PlayerData.find(
-      { mySportsArray: { $in: idArray } },
+      { mySportsId: { $in: idArray } },
       { mySportsId: 1, avatar: 1, _id: 0 }
     )
       .lean()

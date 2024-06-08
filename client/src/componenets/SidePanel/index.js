@@ -59,7 +59,7 @@ const SidePanel = ({
         </div>
       </Link>
       <Link
-        to={`/roster/${currentGroup.N}/${username}`}
+        to={`/roster/${currentGroup.name}/${username}`}
         onClick={() => showHideSideBar()}
       >
         <div className='sidebarItemWrapper'>
@@ -68,7 +68,7 @@ const SidePanel = ({
         </div>
       </Link>
       <Link
-        to={`/usedPlayers/${currentGroup.N}/${username}`}
+        to={`/usedPlayers/${currentGroup.name}/${username}`}
         onClick={() => showHideSideBar()}
       >
         <div className='sidebarItemWrapper'>
@@ -88,14 +88,14 @@ const SidePanel = ({
           <div className='sideBarItem'>Profile Page</div>
         </div>
       </Link>
-      {user.GL && (
+      {user.grouplist && (
         <select
           className='form-select groupDropdown'
           value={currentGroup._id}
           onChange={groupSelect}
         >
-          {user.GL &&
-            user.GL.map((group) => (
+          {user.grouplist &&
+            user.grouplist.map((group) => (
               <option key={group._id} value={group._id}>
                 {group.N}
               </option>

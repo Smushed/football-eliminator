@@ -23,8 +23,8 @@ const Unsubscribe = ({ match }) => {
       })
       .catch(() => {
         Alert.fire({
-          title: `Error Unsubscribing`,
-          text: `Contact Kevin - smushedcode@gmail.com`,
+          title: 'Error Unsubscribing',
+          text: 'Contact Kevin - smushedcode@gmail.com',
           showConfirmButton: false,
           showCancelButton: true,
           icon: 'warning',

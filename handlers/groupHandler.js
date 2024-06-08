@@ -281,7 +281,7 @@ export default {
         totalScore: user.totalScore,
         username: username,
         currentWeek: user[week],
-        lockWeek: user[weekAccessor],
+        lastWeek: user[weekAccessor],
       };
       arrayForLeaderBoard.push(filledOutUser);
     }

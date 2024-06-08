@@ -17,7 +17,7 @@ const IdealRosterSchema = new Schema({
   },
   roster: [
     {
-      mySportId: {
+      mySportsId: {
         type: Number,
         required: true,
         default: 0,

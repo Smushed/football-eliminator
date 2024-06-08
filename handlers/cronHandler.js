@@ -140,6 +140,26 @@ const updatePlayerData = async (season, week) => {
   return;
 };
 
+// import db from '../models/index.js';
+
+// const test = async () => {
+//   const idealRoster = await db.IdealRoster.find();
+//   for (let i = 0; i < idealRoster.length; i++) {
+//     const newRoster = [];
+//     for (let ii = 0; ii < idealRoster[i].R.length; ii++) {
+//       const newPlayer = {};
+//       newPlayer.mySportsId = idealRoster[i].R[ii].mySportId;
+//       newPlayer.score = idealRoster[i].R[ii].score;
+//       newRoster.push(newPlayer);
+//       // idealRoster[i].roster[ii].mySportsId = idealRoster[i].R[ii].mySportId;
+//       // idealRoster[i].roster[ii].score = idealRoster[i].R[ii].score;
+//     }
+//     await db.IdealRoster.findByIdAndUpdate(idealRoster[i]._id, {
+//       roster: newRoster,
+//     });
+//   }
+// };
+
 export default () => {
   checkLockWeek();
   dailyScoreUpdate();
@@ -151,4 +171,5 @@ export default () => {
   updatePlayers();
   updateIdealRoster();
   emailLeaderboard();
+  // test();
 };

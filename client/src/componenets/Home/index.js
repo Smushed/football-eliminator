@@ -79,7 +79,7 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
         return;
       })
       .catch((err) => {
-        if (err.message !== `Unmounted`) {
+        if (err.message !== 'Unmounted') {
           console.log(err);
         }
       });
@@ -92,17 +92,16 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
       })
       .then((res) => {
         updateIdealRoster(res.data);
-        const playerIds = res.data.map((player) => player.M);
+        const playerIds = res.data.map((player) => player.mySportsId);
         addPlayerAvatarsToPull(playerIds);
       })
       .catch((err) => {
-        if (err.message !== `Unmounted`) {
+        if (err.message !== 'Unmounted') {
           console.log(err);
         }
       });
 
   const getBestCurrLeadRoster = (season, week, groupId) =>
-    //This gets both the best roster from the previous week as well as the current leader's roster for the current week
     axios
       .get(`/api/group/roster/bestAndLead/${season}/${week}/${groupId}`, {
         cancelToken: axiosCancel.token,
@@ -111,18 +110,18 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
         if (!res.data.bestRoster) {
           return;
         }
-        const { U, R } = res.data.bestRoster;
-        if (U) {
-          updateBestRosterUser(U);
+        const { username, roster } = res.data.bestRoster;
+        if (username) {
+          updateBestRosterUser(username);
         }
-        if (R) {
-          updateBestRoster(R);
-          const playerIds = R.map((player) => player.M);
+        if (roster) {
+          updateBestRoster(roster);
+          const playerIds = roster.map((player) => player.mySportsId);
           addPlayerAvatarsToPull(playerIds);
         }
       })
       .catch((err) => {
-        if (err.message !== `Unmounted`) {
+        if (err.message !== 'Unmounted') {
           console.log(err);
         }
         throw err;
@@ -135,19 +134,19 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
       })
       .then((res) => {
         updateWeeklyGroupRosters(res.data);
-        addUserAvatarsToPull(res.data.map((roster) => roster.UID));
+        addUserAvatarsToPull(res.data.map((roster) => roster.userId));
         const playerIds = [];
         for (const roster of res.data) {
-          for (const player of roster.R) {
-            if (player.M !== 0) {
-              playerIds.push(player.M);
+          for (const player of roster.roster) {
+            if (player.mySportsId !== 0) {
+              playerIds.push(player.mySportsId);
             }
           }
         }
         addPlayerAvatarsToPull(playerIds);
       })
       .catch((err) => {
-        if (err.message !== `Unmounted`) {
+        if (err.message !== 'Unmounted') {
           console.log(err);
         }
         throw err;
@@ -204,7 +203,7 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
       </div>
       <div className='row justify-content-center mt-1'>
         <div className='text-center fs-3 fw-bold pt-2 col-4'>
-          {group.N} Week {weekOnPage} Rosters
+          {group.name} Week {weekOnPage} Rosters
         </div>
         <div className='col-4'>
           <div className='row'>
@@ -219,16 +218,16 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
         </div>
         <div className='d-flex flex-wrap justify-content-evenly row mt-1'>
           {weeklyGroupRosters.map((inGroupRoster) => (
-            <div className='col-xs-12 col-lg-6' key={inGroupRoster.UN}>
+            <div className='col-xs-12 col-lg-6' key={inGroupRoster.username}>
               <RosterDisplay
                 groupPositions={groupPositions}
-                roster={inGroupRoster.R}
+                roster={inGroupRoster.roster}
                 pastLockWeek={true}
                 headerText={`${
-                  inGroupRoster.UN +
-                  (inGroupRoster.UN.slice(-1) === `s` ? `'` : `'s`)
+                  inGroupRoster.username +
+                  (inGroupRoster.username.slice(-1) === `s` ? `'` : `'s`)
                 } Roster`}
-                userId={inGroupRoster.UID}
+                userId={inGroupRoster.userId}
               />
             </div>
           ))}

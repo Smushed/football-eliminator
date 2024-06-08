@@ -38,7 +38,7 @@ const UserInfoUpdateForm = ({
     email: '',
     password: '',
     mainGroup: '',
-    groupList: [],
+    grouplist: [],
   });
 
   const { addUserAvatarsToPull, repullUserAvatars, userAvatars } =
@@ -187,17 +187,17 @@ const UserInfoUpdateForm = ({
 
   const createProfileFields = async (user) => {
     try {
-      const groupList = await axios.get(
+      const grouplist = await axios.get(
         `/api/group/details/byUser/${user._id}`,
         { cancelToken: axiosCancel.token }
       );
       const builtUser = {
         password: '',
         id: user._id,
-        username: user.UN,
-        email: user.E,
-        mainGroup: user.MG,
-        groupList: groupList.data,
+        username: user.username,
+        email: user.email,
+        mainGroup: user.mainGroup,
+        grouplist: grouplist.data,
       };
       setOriginalState(builtUser);
       setUserFieldsOnPage(builtUser);
@@ -251,11 +251,11 @@ const UserInfoUpdateForm = ({
         );
     }
     if (updatedFields.username !== undefined) {
-      request.UN = updatedFields.username.trim();
+      request.username = updatedFields.username.trim();
       needToUpdateDb = true;
     }
     if (updatedFields.mainGroup !== undefined) {
-      request.MG = updatedFields.mainGroup;
+      request.mainGroup = updatedFields.mainGroup;
       needToUpdateDb = true;
     }
     if (needToUpdateDb) {
@@ -264,7 +264,7 @@ const UserInfoUpdateForm = ({
         .then(() => {
           pullUserData(currentUser.email);
           if (request.UN !== undefined) {
-            history.push(`/profile/user/${request.UN}`);
+            history.push(`/profile/user/${request.username}`);
             return;
           }
           userProfilePull(params.name);
@@ -363,7 +363,7 @@ const UserInfoUpdateForm = ({
           <div className='row justify-content-center'>
             <div className='col-12'>
               <MainGroupInput
-                groupList={userFieldsOnPage.groupList}
+                grouplist={userFieldsOnPage.grouplist}
                 mainGroup={userFieldsOnPage.mainGroup}
                 handleChange={handleChange}
                 disabled={disableAllFields}
