@@ -64,30 +64,30 @@ export default {
     await db.User.find({ _id: { $in: userIdArray } }, { email: 1 }).exec(),
   updateProfile: async (userId, request) => {
     let toUpdate = {};
-    if (request.UN !== undefined) {
+    if (request.username !== undefined) {
       const dupeUser = await checkDuplicateUser('username', request.username);
       if (dupeUser) {
         return { status: 409, message: 'Username is in use' };
       }
-      if (request.UN.length > 20) {
+      if (request.username.length > 20 || request.username.length < 6) {
         return {
           status: 413,
           message: 'Username must be at least 6 and under 20 characters',
         };
       }
-      toUpdate.UN = request.UN;
+      toUpdate.username = request.username;
     }
-    if (request.E !== undefined) {
+    if (request.email !== undefined) {
       const dupeUser = await checkDuplicateUser('email', request.email);
       if (dupeUser) {
         return { status: 409, message: 'Email is in use' };
       }
-      toUpdate.E = request.E;
+      toUpdate.email = request.email;
     }
-    if (request.MG !== undefined) {
-      const foundGroup = await db.Group.findById(request.MG);
+    if (request.mainGroup !== undefined) {
+      const foundGroup = await db.Group.findById(request.mainGroup);
       if (foundGroup) {
-        toUpdate.MG = request.MG;
+        toUpdate.mainGroup = request.mainGroup;
       } else {
         return { status: 400, message: 'Group Id not found' };
       }
@@ -99,7 +99,7 @@ export default {
     });
     return {
       status: 200,
-      message: `Updated`,
+      message: 'Updated',
       UN: request.username,
       E: request.email,
     };
@@ -116,8 +116,8 @@ export default {
   },
   saveNewUser: async (newUser) => {
     if (
-      !checkDuplicateUser(`username`, newUser.username) ||
-      !checkDuplicateUser(`email`, newUser.email)
+      !checkDuplicateUser('username', newUser.username) ||
+      !checkDuplicateUser('email', newUser.email)
     ) {
       return false;
     }
@@ -132,11 +132,11 @@ export default {
 
     return response;
   },
-  getUserByID: async (userID) => {
+  getUserByID: async (userId) => {
     let response;
     let status = 200;
     try {
-      response = await db.User.findById(userID);
+      response = await db.User.findById(userId);
     } catch (err) {
       response = 'No User Found!';
       status = 400;
@@ -159,72 +159,72 @@ export default {
       if (err) {
         console.log(err);
       } else {
-        console.log(`User Deleted`);
+        console.log('User Deleted');
       }
     });
     db.UserRoster.deleteMany({}, (err, res) => {
       if (err) {
         console.log(err);
       } else {
-        console.log(`User Roster Deleted`);
+        console.log('User Roster Deleted');
       }
     });
     db.UserScores.deleteMany({}, (err, res) => {
       if (err) {
         console.log(err);
       } else {
-        console.log(`User Score Deleted`);
+        console.log('User Score Deleted');
       }
     });
     db.Group.deleteMany({}, (err, res) => {
       if (err) {
         console.log(err);
       } else {
-        console.log(`Group Deleted`);
+        console.log('Group Deleted');
       }
     });
     db.GroupRoster.deleteMany({}, (err, res) => {
       if (err) {
         console.log(err);
       } else {
-        console.log(`Group Roster Deleted`);
+        console.log('Group Roster Deleted');
       }
     });
     db.GroupScore.deleteMany({}, (err, res) => {
       if (err) {
         console.log(err);
       } else {
-        console.log(`Group Score Deleted`);
+        console.log('Group Score Deleted');
       }
     });
     db.SeasonAndWeek.deleteMany({}, (err, res) => {
       if (err) {
         console.log(err);
       } else {
-        console.log(`Season & Week Deleted`);
+        console.log('Season & Week Deleted');
       }
     });
     db.UsedPlayers.deleteMany({}, (err, res) => {
       if (err) {
         console.log(err);
       } else {
-        console.log(`UsedPlayers Deleted`);
+        console.log('UsedPlayers Deleted');
       }
     });
     db.UserReminderSettings.deleteMany({}, (err, res) => {
       if (err) {
         console.log(err);
       } else {
-        console.log(`UserEmailSetting Deleted`);
+        console.log('UserEmailSetting Deleted');
       }
     });
   },
   addGroupToList: async (userId, groupId) => {
-    const isInGroup = await checkDuplicateUser(`group`, userId, groupId);
+    const isInGroup = await checkDuplicateUser('group', userId, groupId);
     if (isInGroup) {
       return { status: 409, message: 'Group already added to user!' };
     } else {
-      await db.User.findByIdAndUpdate([userId], { $push: { GL: groupId } });
+      await db.User.findByIdAndUpdate(userId, { $push: { GL: groupId } });
     }
     return { status: 200, message: 'All Good' };
   },

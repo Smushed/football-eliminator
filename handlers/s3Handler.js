@@ -80,19 +80,19 @@ const getAvatarFromAWS = async (getCommand, isUser) =>
   });
 
 const updatePlayerAvatarFromLinkedList = (node) => {
-  if (node.val.E === 0) {
+  if (node.val.espnId === 0) {
     if (node.next) {
       updatePlayerAvatarFromLinkedList(node.next);
     }
     return;
   }
   Jimp.read(
-    `https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/${node.val.E}.png&w=50&h=36&cb=1`
+    `https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/${node.val.espnId}.png&w=50&h=36&cb=1`
   )
     .then(async (img) => {
       const command = new PutObjectCommand({
         Bucket: 'football-eliminator/playerAvatar',
-        Key: node.val.M.toString(),
+        Key: node.val.mySportsId.toString(),
         Body: buf,
         ContentEncoding: `base64`,
         ContentType: `image/png`,
@@ -104,25 +104,30 @@ const updatePlayerAvatarFromLinkedList = (node) => {
       );
       client.send(command).then(
         () => {
-          db.PlayerData.findOneAndUpdate({ M: node.val.M }, { AV: true }).then(
-            () => {
-              if (node.next) {
-                updatePlayerAvatarFromLinkedList(node.next);
-              } else {
-                console.log('Finished updating player avatars');
-              }
+          db.PlayerData.findOneAndUpdate(
+            { mySportsId: node.val.mySportsId },
+            { avatar: true }
+          ).then(() => {
+            if (node.next) {
+              updatePlayerAvatarFromLinkedList(node.next);
+            } else {
+              console.log('Finished updating player avatars');
             }
-          );
+          });
           return;
         },
         (err) => {
-          console.log(`Error Uploading the Avatar`, err);
-          return `Error Uploading the Avatar`;
+          console.log('Error Uploading the Avatar', err);
+          return 'Error Uploading the Avatar';
         }
       );
     })
     .catch((err) =>
-      console.log('Error Jimp Reading image from ESPN. ID: ', node.val.E, err)
+      console.log(
+        'Error Jimp Reading image from ESPN. ID: ',
+        node.val.espnId,
+        err
+      )
     );
 };
 
@@ -192,7 +197,9 @@ export default {
     const playerAvatars = await db.PlayerData.find(
       { mySportsArray: { $in: idArray } },
       { mySportsId: 1, avatar: 1, _id: 0 }
-    ).exec();
+    )
+      .lean()
+      .exec();
     for (const id of playerAvatars) {
       let avatar;
       if (id.avatar) {

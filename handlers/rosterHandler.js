@@ -19,10 +19,10 @@ const checkDuplicateRoster = async (
     case 'userRoster':
       try {
         searched = await db.UserRoster.findOne({
-          U: userId,
-          W: week,
-          G: groupId,
-          S: season,
+          userId,
+          week,
+          groupId,
+          season,
         }).exec();
         if (searched !== null) {
           return true;
@@ -154,7 +154,7 @@ const checkDupeWeeklyRoster = async (userId, week, season, groupId) => {
 };
 
 const createWeeklyRoster = async function (userId, week, season, groupId) {
-  const groupRoster = await db.GroupRoster.findOne({ groupId: groupId });
+  const groupRoster = await db.GroupRoster.findOne({ groupId });
   if (await checkDupeWeeklyRoster(userId, week, season, groupId)) {
     return false;
   }
@@ -206,6 +206,7 @@ const sortUsersByScore = async (userRosterArray, groupId, season) =>
   new Promise(async (res) => {
     const sortedScores = [];
     for (let user of userRosterArray) {
+      //TODO One pull from DB
       const userScore = await db.UserScores.findOne(
         { userId: user.userId, groupId: groupId, season: season },
         { totalScore: 1 }
@@ -252,6 +253,7 @@ const checkRoster = async (groupId, newRoster) =>
       if (player.mySportsId === 0) {
         continue;
       }
+      //TODO One DB pull
       const { position } = await db.PlayerData.findOne(
         {
           mySportsId: player.mySportsId,
@@ -340,7 +342,7 @@ export default {
       searchedPosition
     );
 
-    //TODO This should be a non inclusive search
+    //TODO This should be a non inclusive search, finding players that are available rather than getting ALL players and filtering them down
     const searchedPlayers = await db.PlayerData.find(
       { active: true, position: searchedPosition },
       { mySportsId: 1, name: 1, position: 1, rank: 1, team: 1, injury: 1 }
@@ -401,18 +403,18 @@ export default {
       await usedPlayers.save();
 
       const currentRoster = await db.UserRoster.findOne({
-        U: userId,
-        G: groupId,
-        W: week,
-        S: season,
+        userId,
+        groupId,
+        week,
+        season,
       }).exec();
       const newRoster = [];
       for (const player of roster) {
-        newRoster.push({ M: +player.M, S: 0 } || 0);
+        newRoster.push({ mySportsId: +player.mySportsId, score: 0 } || 0);
       }
-      currentRoster.R = newRoster;
+      currentRoster.roster = newRoster;
       await currentRoster.save();
-      res(currentRoster.R);
+      res(currentRoster.roster);
     }),
   getAllRostersForGroup: async (season, week, groupId) =>
     new Promise(async (res, rej) => {
@@ -429,7 +431,7 @@ export default {
         const user = await db.User.findById(roster.userId).exec();
         userRosters.push({
           userId: user._id,
-          username: user.UN,
+          username: user.username,
           roster: filledRoster,
         });
       }
@@ -466,11 +468,9 @@ export default {
     return availablePlayers;
   },
   allSeasonRoster: async function (userId, season) {
-    //This goes through a users data and get each week
     const scoredAllSeason = [];
 
-    //Go to 16 because the javascript needs to start at 0. Just account for it here and on the front end
-    for (let i = 16; i >= 0; i--) {
+    for (let i = 17; i >= 0; i--) {
       const weeklyUserRoster = await this.userRoster(userId, i + 1, season);
       const parsedWeeklyRoster = [];
 
@@ -498,7 +498,6 @@ export default {
     return scoredAllSeason;
   },
   getUserRoster: async (userId, week, season, groupId) => {
-    //This grabs the user roster, and if not it creates one.
     let roster = await db.UserRoster.findOne(
       { userId, week, season, groupId },
       { roster: 1 }
@@ -528,7 +527,6 @@ export default {
         season: season,
       });
       if (!teamStart) {
-        //TODO add a promise in checkGame
         await mySportsHandler.checkGameStarted(season, week);
         teamStart = await db.TeamLocked.findOne({
           team: team,
@@ -547,7 +545,7 @@ export default {
     const { season } = await mySportsHandler.pullSeasonAndWeekFromDB();
     try {
       const { totalScore } = await db.UserScores.findOne(
-        { userId: userId, season: season },
+        { userId, season },
         { totalScore: 1 }
       ).exec();
       return totalScore;
@@ -558,7 +556,7 @@ export default {
   scoreAllGroups: async (season, week) => {
     const allGroups = await groupHandler.getAllGroups();
     for (const group of allGroups) {
-      console.log(`scoring ${group.N}`);
+      console.log(`scoring ${group.name}`);
       let groupScore;
       for (let i = 1; i <= week; i++) {
         const groupRosters = await getAllRostersByGroupAndWeek(
@@ -673,7 +671,7 @@ export default {
     const userDetails = await userHandler.getUserByID(bestScore.userId);
     return {
       player: player,
-      username: userDetails.response.UN,
+      username: userDetails.response.username,
       week: bestScore.week,
       score: bestScore.score,
     };
