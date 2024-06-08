@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { PlayerDisplayRow } from '../Roster/RosterDisplay';
-import PropTypes from 'prop-types';
 
 import { loading, doneLoading } from '../LoadingAlert';
 import * as Routes from '../../constants/routes';
@@ -15,6 +14,14 @@ const UsedPlayers = ({ match, season, history, noGroup }) => {
   const axiosCancel = axios.CancelToken.source();
 
   useEffect(() => {
+    return function cancelAPICalls() {
+      if (axiosCancel) {
+        axiosCancel.cancel(`Unmounted`);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (noGroup) {
       history.push(Routes.groupPage);
       return;
@@ -23,12 +30,6 @@ const UsedPlayers = ({ match, season, history, noGroup }) => {
       getUsedPlayers();
       updateUsernameOfPage(match.params.username);
     }
-
-    return function cancelAPICalls() {
-      if (axiosCancel) {
-        axiosCancel.cancel(`Unmounted`);
-      }
-    };
   }, [season, match.params.username]);
 
   const getUsedPlayers = () => {
@@ -73,13 +74,6 @@ const UsedPlayers = ({ match, season, history, noGroup }) => {
       ))}
     </div>
   );
-};
-
-UsedPlayers.propTypes = {
-  match: PropTypes.any,
-  season: PropTypes.string,
-  history: PropTypes.object,
-  noGroup: PropTypes.bool,
 };
 
 export default Session(UsedPlayers);

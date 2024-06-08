@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Modal from 'react-modal';
-import PropTypes from 'prop-types';
 import toast from 'react-hot-toast';
 import Session from '../Session';
 
@@ -184,15 +183,6 @@ const Profile = ({
       </Modal>
     </>
   );
-};
-
-Profile.propTypes = {
-  authUser: PropTypes.any,
-  currentUser: PropTypes.object,
-  firebase: PropTypes.any,
-  match: PropTypes.any,
-  history: PropTypes.any,
-  pullUserData: PropTypes.func,
 };
 
 export default Session(Profile);

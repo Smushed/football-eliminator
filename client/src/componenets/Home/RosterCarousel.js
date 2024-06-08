@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { RosterDisplay } from '../Roster/RosterDisplay';
@@ -40,15 +39,5 @@ const RosterCarousel = ({
     </div>
   </Carousel>
 );
-
-RosterCarousel.propTypes = {
-  week: PropTypes.number,
-  bestRosterUser: PropTypes.string,
-  groupPositions: PropTypes.array,
-  bestRoster: PropTypes.array,
-  idealRoster: PropTypes.array,
-  leaderboard: PropTypes.array,
-  leaderRoster: PropTypes.array,
-};
 
 export default RosterCarousel;

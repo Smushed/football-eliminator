@@ -1,24 +1,32 @@
 import { Schema, model } from 'mongoose';
 
 const MatchUpsSchema = new Schema({
-  S: {
-    //Season
+  season: {
     type: String,
     required: true,
     trim: true,
   },
-  W: {
-    //Week
+  week: {
     type: Number,
     required: true,
   },
-  M: [
+  matchups: [
     {
-      H: String, //Home
-      A: String, //Away
+      home: String,
+      away: String,
       _id: false,
     },
   ],
 });
 
-export default model(`MatchUps`, MatchUpsSchema);
+MatchUpsSchema.index(
+  {
+    season: 1,
+    week: 1,
+  },
+  {
+    unique: true,
+  }
+);
+
+export default model('MatchUps', MatchUpsSchema);

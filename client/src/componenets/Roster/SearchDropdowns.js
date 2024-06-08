@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 import './rosterStyle.css';
 
@@ -135,25 +134,5 @@ const PositionSearch = ({
     </div>
   </div>
 );
-
-WeekSearch.propTypes = {
-  weekSelect: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  handleChange: PropTypes.func,
-  customSeasonWeekSearch: PropTypes.func,
-  disabled: PropTypes.bool,
-};
-
-TeamSearch.propTypes = {
-  teamSelect: PropTypes.string,
-  handleChange: PropTypes.func,
-  searchByTeam: PropTypes.func,
-};
-
-PositionSearch.propTypes = {
-  positionSelect: PropTypes.string,
-  handleChange: PropTypes.func,
-  disabled: PropTypes.bool,
-  positionSearch: PropTypes.func,
-};
 
 export { PositionSearch, TeamSearch, WeekSearch };

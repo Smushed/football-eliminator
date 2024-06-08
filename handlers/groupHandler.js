@@ -3,13 +3,15 @@ import db from '../models/index.js';
 import mySportsHandler from './mySportsHandler.js';
 import positions from '../constants/positions.js';
 
-const checkDuplicate = async (checkedField, groupToSearch, userID) => {
+const checkDuplicate = async (checkedField, groupToSearch, userId) => {
   let result = false;
   let searched;
   switch (checkedField) {
-    case `group`:
+    case 'group':
       try {
-        searched = await db.Group.findOne({ N: groupToSearch }).exec();
+        searched = await db.Group.findOne({ name: groupToSearch })
+          .lean()
+          .exec();
         //If there is a group with that name return true
         if (searched !== null) {
           result = true;
@@ -18,16 +20,16 @@ const checkDuplicate = async (checkedField, groupToSearch, userID) => {
         console.log(err);
       }
       break;
-    case `userlist`:
+    case 'userlist':
       //Grabs the group that the user is looking to add the user to
       try {
-        searched = await db.Group.findById(groupToSearch);
+        searched = await db.Group.findById(groupToSearch).lean().exec();
       } catch (err) {
         console.log(err);
       }
       try {
-        const isInGroup = await searched.UL.filter(
-          (user) => user._id === userID
+        const isInGroup = searched.userlist.filter(
+          (user) => user._id === userId
         );
         if (isInGroup.length > 0) {
           result = true;
@@ -36,12 +38,14 @@ const checkDuplicate = async (checkedField, groupToSearch, userID) => {
         console.log(err);
       }
       break;
-    case `userScore`:
+    case 'userScore':
       try {
         searched = await db.UserScores.findOne({
-          U: userID,
-          G: groupToSearch,
-        }).exec();
+          userId: userId,
+          groupId: groupToSearch,
+        })
+          .lean()
+          .exec();
         if (searched !== null) {
           result = true;
         }
@@ -55,23 +59,27 @@ const checkDuplicate = async (checkedField, groupToSearch, userID) => {
 
 const updateUserScore = async (groupId, season, prevWeek, week) =>
   new Promise(async (res) => {
-    const group = await db.Group.findById([groupId]).exec();
-    for (const user of group.UL) {
-      createUserScore(user.ID, season, groupId);
+    const group = await db.Group.findById(groupId).lean().exec();
+    for (const user of group.userlist) {
+      createUserScore(user.userId, season, groupId);
     }
     res(
       await db.UserScores.find(
-        { G: groupId, S: season },
-        `U ${prevWeek} ${week} TS`
-      ).exec()
+        { groupId: groupId, season: season },
+        `userId ${prevWeek} ${week} totalScore`
+      )
+        .lean()
+        .exec()
     );
   });
 
 const getUserScoreList = async (groupId, season, prevWeek, week) => {
   const userScores = await db.UserScores.find(
-    { G: groupId, S: season },
-    `U ${prevWeek} ${week} TS`
-  ).exec();
+    { groupId, season },
+    `userId ${prevWeek} ${week} totalScore`
+  )
+    .lean()
+    .exec();
   for (const score of userScores) {
     if (score[week] === undefined) {
       score[week] = 0;
@@ -85,21 +93,31 @@ const getUserScoreList = async (groupId, season, prevWeek, week) => {
 };
 
 const createGroupRoster = async (groupId, rosterSpots) => {
-  const dbResponse = db.GroupRoster.create({ G: groupId, P: rosterSpots });
+  const dbResponse = db.GroupRoster.create({
+    groupId: groupId,
+    position: rosterSpots,
+  })
+    .lean()
+    .exec();
   return dbResponse;
 };
 
 const createGroupScore = (groupId, groupScore) => {
-  const { P, RU, RE, F, FG } = groupScore;
-  db.GroupScore.create({ G: groupId, P, RU, RE, F, FG });
+  db.GroupScore.create({
+    groupId: groupId,
+    passing: groupScore.passing,
+    rushing: groupScore.rushing,
+    receiving: groupScore.receiving,
+    fumble: groupScore.fumble,
+    fieldGoal: groupScore.fumble,
+  });
 };
 
 const createUserScore = async (userId, season, groupId) => {
-  const checkDupeUser = await checkDuplicate(`userScore`, userId, groupId);
+  const checkDupeUser = await checkDuplicate('userScore', userId, groupId);
   if (!checkDupeUser) {
-    await db.UserScores.create({ U: userId, G: groupId, S: season });
+    await db.UserScores.create({ userId, groupId, season }).exec();
   }
-  return;
 };
 
 const getTopScorerForWeek = (userScores, week) => {
@@ -109,67 +127,75 @@ const getTopScorerForWeek = (userScores, week) => {
 };
 
 const getTopScoreForWeek = (userScores) => {
-  userScores.sort((a, b) => b.TS - a.TS);
+  userScores.sort((a, b) => b.totalScore - a.totalScore);
   const topWeekScore = userScores.shift();
   return topWeekScore;
 };
 
 const findOneRoster = (userId, week, season, groupId) => {
-  return db.UserRoster.findOne(
-    { U: userId, W: week, S: season, G: groupId },
-    { R: 1 }
-  ).exec();
+  return db.UserRoster.findOne({ userId, week, season, groupId }, { roster: 1 })
+    .lean()
+    .exec();
 };
 
 const findOneUserById = (userId) => {
-  return db.User.findById(userId, { UN: 1 }).exec();
+  return db.User.findById(userId, { username: 1 }).exec();
 };
 
 const groupUpdater = {
   groupScore: async (group, field) => {
-    //If the user left just a negative sign in there take it out and add a zero
     const fields = Object.keys(field);
     for (let i = 0; i < fields.length; i++) {
       const innerFields = Object.keys(field[fields[i]]);
       for (let ii = 0; ii < innerFields.length; ii++) {
-        if (field[fields[i]][innerFields[ii]] === `-`) {
+        //If the user left just a negative sign in there take it out and add a zero
+        if (field[fields[i]][innerFields[ii]] === '-') {
           field[fields[i]][innerFields[ii]] = 0;
         }
       }
     }
     try {
       await db.GroupScore.findOneAndUpdate(
-        { G: group._id },
-        { P: field.P, RU: field.RU, RE: field.RE, FG: field.FG, F: field.F }
+        { groupScore: group._id },
+        {
+          position: field.position,
+          rushing: field.rushing,
+          receiving: field.receiving,
+          fieldGoal: field.fieldGoal,
+          fumble: field.fumble,
+        }
       );
     } catch {
-      return `Group Score Error`;
+      return 'Group Score Error';
     }
     return false;
   },
   groupDesc: async (group, field) => {
-    group.D = field;
+    group.description = field;
     try {
       await group.save();
     } catch {
-      return `Group Desc Error`;
+      return 'Group Desc Error';
     }
     return false;
   },
   groupName: async (group, field) => {
-    group.N = field;
+    group.name = field;
     try {
       await group.save();
     } catch {
-      return `Group Name Error`;
+      return 'Group Name Error';
     }
     return false;
   },
   groupPos: async (group, field) => {
     try {
-      await db.GroupRoster.findOneAndUpdate({ G: group._id }, { P: field });
+      await db.GroupRoster.findOneAndUpdate(
+        { G: group._id },
+        { position: field }
+      );
     } catch {
-      return `Group Position Error`;
+      return 'Group Position Error';
     }
     return false;
   },
@@ -191,56 +217,54 @@ export default {
     if (dupe) {
       return false;
     }
-    const newGroup = {
-      N: groupName,
-      D: groupDesc,
-    };
-    const newGroupFromDB = await db.Group.create(newGroup);
+    const newGroupFromDB = await db.Group.create({
+      name: groupName,
+      description: groupDesc,
+    }).exec();
     createGroupRoster(newGroupFromDB._id, groupPositions);
     createGroupScore(newGroupFromDB._id, newGroupScore);
-    //Add the new group to the user who created it
-    await db.User.findByIdAndUpdate([userId], {
-      $push: { GL: newGroupFromDB._id },
-    }); //Also saved the group that the user just added to their profile
+
+    await db.User.findByIdAndUpdate(userId, {
+      $push: { groupList: newGroupFromDB._id },
+    });
 
     return newGroupFromDB;
   },
-  // Invite other users to the group
   addUser: async (addedUserID, groupId, isAdmin = false) => {
-    //Checks if the user is already added to the group and returns 500 if they are
-    const isDuplicate = await checkDuplicate(`userlist`, groupId, addedUserID);
+    const isDuplicate = await checkDuplicate('userlist', groupId, addedUserID);
 
     if (isDuplicate) {
       return 500;
     }
 
-    const newUserForGroup = {
-      A: isAdmin,
-      B: false,
-      ID: addedUserID,
-    };
-
-    //get the user ID, add them to the array userlist within the group
     const groupDetail = await db.Group.findByIdAndUpdate(
       groupId,
-      { $push: { UL: newUserForGroup } },
+      {
+        $push: {
+          userlist: {
+            admin: isAdmin,
+            blocked: false,
+            userId: addedUserID,
+          },
+        },
+      },
       { new: true }
-    );
-    const dbResponse = await db.SeasonAndWeek.find({}).exec();
-    await createUserScore(addedUserID, dbResponse[0].S, groupId);
+    )
+      .lean()
+      .exec();
+    const dbResponse = await db.SeasonAndWeek.find({}).lean().exec();
+    await createUserScore(addedUserID, dbResponse[0].season, groupId);
 
     return groupDetail;
   },
   getGroupData: async (groupName) => {
-    const groupData = await db.Group.findOne({ N: groupName })
-      .collation({ locale: `en_US`, strength: 2 })
+    const groupData = await db.Group.findOne({ name: groupName })
+      .collation({ locale: 'en_US', strength: 2 })
+      .lean()
       .exec();
     return groupData;
   },
-  getGroupDataById: async (groupId) => {
-    const groupData = await db.Group.findById([groupId]).exec();
-    return groupData;
-  },
+  getGroupDataById: async (groupId) => await db.Group.findById(groupId).exec(),
   getLeaderBoard: async (groupId, season, week) => {
     const arrayForLeaderBoard = [];
     const weekAccessor = (week === 1 ? 1 : week - 1).toString();
@@ -251,48 +275,54 @@ export default {
       week
     );
     for (const user of userScoreList) {
-      const { UN } = await db.User.findById(user.U).exec();
+      const { username } = await db.User.findById(user.userId).lean().exec();
       const filledOutUser = {
-        UID: user.U,
-        TS: user.TS,
-        UN,
-        CW: user[week],
-        LW: user[weekAccessor],
+        userId: user.userId,
+        totalScore: user.totalScore,
+        username: username,
+        currentWeek: user[week],
+        lastWeek: user[weekAccessor],
       };
       arrayForLeaderBoard.push(filledOutUser);
     }
-    arrayForLeaderBoard.sort((a, b) => b.TS - a.TS);
+    arrayForLeaderBoard.sort((a, b) => b.totalScore - a.totalScore);
     return arrayForLeaderBoard;
   },
-  createClapper: async function () {
-    if (!checkDuplicate('group', 'Clapper')) {
+  createGenericGroup: async function () {
+    if (!checkDuplicate('group', 'Eliminator')) {
       return false;
     }
-    const clapper = {
-      N: `Clapper`,
-      D: `Everyone competing for the Clapper`,
-    };
-    const clapperFromDB = await db.Group.create(clapper);
+    const clapperFromDB = await db.Group.create({
+      name: 'Eliminator',
+      description: 'General group for everyone to join',
+    })
+      .lean()
+      .exec();
     this.createGroupRoster(clapperFromDB._id);
     this.createGroupScore(clapperFromDB._id);
-    return `working`;
+    return 'working';
   },
   findGroupIdByName: async (groupname) => {
-    const foundGroup = await db.Group.findOne({ N: groupname })
-      .collation({ locale: `en_US`, strength: 2 })
+    const foundGroup = await db.Group.findOne({ name: groupname })
+      .collation({ locale: 'en_US', strength: 2 })
       .exec();
     return foundGroup._id;
   },
   createGeneralGroupRoster: async (groupId) =>
     new Promise(async (res, rej) => {
-      const dbResponse = await db.GroupRoster.create({ G: groupId }).exec();
+      const dbResponse = await db.GroupRoster.create({ groupId }).exec();
       res(dbResponse);
     }),
   getGroupPositions: async (groupId) =>
     new Promise(async (res, rej) => {
       try {
-        const dbResponse = await db.GroupRoster.findOne({ G: groupId }).exec();
-        res(dbResponse.P);
+        const { position } = await db.GroupRoster.findOne(
+          { groupId },
+          { position: 1 }
+        )
+          .lean()
+          .exec();
+        res(position);
       } catch (err) {
         console.log(`Error: ${err}`);
         rej(Error('Cannot Find Group Positions'));
@@ -332,37 +362,40 @@ export default {
   getGroupScore: async (groupId) =>
     new Promise(async (res, rej) => {
       try {
-        const dbResponse = await db.GroupScore.findOne({ G: groupId }).exec();
-        res(dbResponse);
+        res(await db.GroupScore.findOne({ groupId }).lean().exec());
       } catch (err) {
-        console.log({ err, location: 'getGroupScore in groupHandler' });
         rej('Error getting group score in group handler');
       }
     }),
   mapGroupPositions: async (groupPositions, positionMap) => {
     const groupMap = [];
     for (const position of groupPositions) {
-      groupMap.push(positionMap[position.I]);
+      groupMap.push(positionMap[position.id]);
     }
     return groupMap;
   },
   getGroupList: async () => {
     const filledData = [];
-    const groupResponse = await db.Group.find().exec();
+    const groupResponse = await db.Group.find().lean().exec();
 
     for (let i = 0; i < groupResponse.length; i++) {
       filledData[i] = {
-        N: groupResponse[i].N,
-        D: groupResponse[i].D,
-        id: groupResponse[i]._id,
-        UL: [],
+        name: groupResponse[i].name,
+        description: groupResponse[i].description,
+        groupId: groupResponse[i]._id,
+        userlist: [],
       };
-      for (let ii = 0; ii < groupResponse[i].UL.length; ii++) {
-        const user = await db.User.findById(groupResponse[i].UL[ii].ID, 'UN');
+      for (let ii = 0; ii < groupResponse[i].userlist.length; ii++) {
+        const user = await db.User.findById(
+          groupResponse[i].userlist[ii].userId,
+          { username: 1 }
+        )
+          .lean()
+          .exec();
         if (user) {
-          filledData[i].UL.push({
-            UN: user.UN,
-            A: groupResponse[i].UL[ii].A,
+          filledData[i].userlist.push({
+            username: user.username,
+            admin: groupResponse[i].userlist[ii].admin,
             _id: user._id.toString(),
           });
         }
@@ -373,15 +406,15 @@ export default {
   getIdealRoster: async function (groupId, season, week) {
     return new Promise(async (res) => {
       const idealRosterResponse = await db.IdealRoster.findOne({
-        G: groupId,
-        S: season,
-        W: week,
+        groupId,
+        season,
+        week,
       }).exec();
       if (idealRosterResponse === null) {
         let newIdealRoster = new db.IdealRoster({
-          G: groupId,
-          S: season,
-          W: week,
+          groupId,
+          season,
+          week,
         });
         try {
           const updatedIdealRoster = await this.updateIdealRoster(
@@ -403,12 +436,16 @@ export default {
     const allGroups = await this.getAllGroups();
     for (const group of allGroups) {
       let idealRoster = await db.IdealRoster.findOne({
-        G: group._id,
-        S: season,
-        W: week,
+        groupId: group._id,
+        season: season,
+        week: week,
       }).exec();
       if (!idealRoster) {
-        idealRoster = new db.IdealRoster({ G: group._id, S: season, W: week });
+        idealRoster = new db.IdealRoster({
+          group: group._id,
+          season: season,
+          week: week,
+        });
       }
       this.updateIdealRoster(group._id, season, week, idealRoster);
     }
@@ -438,20 +475,20 @@ export default {
 
             if (highScorers.length === 1) {
               idealArray.push({
-                M: highScorers[0].M,
-                SC: highScorers[0].score,
+                mySportsId: highScorers[0].mySportsId,
+                score: highScorers[0].score,
               });
             } else {
               highScorers.sort((a, b) => {
                 return b.score - a.score;
               });
               idealArray.push({
-                M: highScorers[0].M,
-                SC: highScorers[0].score,
+                mySportsId: highScorers[0].mySportsId,
+                score: highScorers[0].score,
               });
             }
           }
-          idealRoster.R = idealArray;
+          idealRoster.roster = idealArray;
           idealRoster.save();
 
           res(idealRoster);
@@ -462,12 +499,12 @@ export default {
   getBlankRoster: async function (groupId) {
     const groupPositions = await this.getGroupPositions(groupId);
     if (!groupPositions) {
-      return [{ M: 0, P: 'QB', SC: 0 }];
+      return [{ mySportsId: 0, position: 'QB', score: 0 }];
     }
     const blankRoster = groupPositions.map((position) => ({
-      M: 0,
-      P: position.N,
-      SC: 0,
+      mySportsId: 0,
+      position: position.name,
+      score: 0,
     }));
     return blankRoster;
   },
@@ -475,9 +512,8 @@ export default {
     const lastWeek = (week - 1).toString();
     const scoresCopy = [...userScores];
     const topWeekScore = await getTopScorerForWeek(scoresCopy, lastWeek);
-    //Doing this here because rosterHandler.js doesn't want to be exported to any other file for some reason
     const topUserRoster = await findOneRoster(
-      topWeekScore.U,
+      topWeekScore.userId,
       lastWeek,
       season,
       groupId
@@ -485,9 +521,9 @@ export default {
     if (!topUserRoster) {
       return null;
     }
-    const foundUser = await findOneUserById(topWeekScore.U);
-    const R = await mySportsHandler.fillUserRoster(topUserRoster.R);
-    return { R, U: foundUser.UN }; //Short hand for roster and user
+    const foundUser = await findOneUserById(topWeekScore.userId);
+    const roster = await mySportsHandler.fillUserRoster(topUserRoster.roster);
+    return { roster, username: foundUser.username };
   },
   getCurrAndLastWeekScores: async (groupId, season, week) => {
     const weekAccessor = (week === 1 ? 1 : week - 1).toString();
@@ -497,7 +533,7 @@ export default {
     const scoresCopy = [...userScores];
     const topWeekScore = await getTopScoreForWeek(scoresCopy);
     let topUserRoster = await findOneRoster(
-      topWeekScore.U,
+      topWeekScore.userId,
       week,
       season,
       groupId
@@ -505,8 +541,8 @@ export default {
     if (topUserRoster === null) {
       return this.getBlankRoster(groupId);
     }
-    const R = await mySportsHandler.fillUserRoster(topUserRoster.R);
-    return R; //Don't need to get user here because the front end already has the leader and the username. Avoid the extra DB call
+    const roster = await mySportsHandler.fillUserRoster(topUserRoster.roster);
+    return roster;
   },
   getBestUserForBox: async function (userScores) {
     return new Promise(async (res) => {
@@ -520,7 +556,6 @@ export default {
     const updatedArray = Object.keys(updatedFields);
     const errors = [];
     for (let i = 0; i < updatedArray.length; i++) {
-      //Returns false if no errors
       const updateRes = await groupUpdater[updatedArray[i]](
         group,
         updatedFields[updatedArray[i]]
@@ -533,7 +568,10 @@ export default {
   },
   updateMainGroup: async function (groupId, userId) {
     try {
-      await db.User.updateOne({ _id: userId }, { $set: { MG: groupId } });
+      await db.User.updateOne(
+        { _id: userId },
+        { $set: { mainGroup: groupId } }
+      );
     } catch (err) {
       console.log(err);
     }
@@ -542,60 +580,62 @@ export default {
   topScoreForGroup: async function (groupId, season) {
     return new Promise(async (res) => {
       const scores = await db.UserScores.find(
-        { G: groupId, S: season },
-        `U TS`
+        { groupId, season },
+        `userId totalScore`
       ).exec();
       const topScore = await getTopScoreForWeek(scores);
       res(topScore);
     });
   },
   checkAdmin: async (group, adminId) => {
-    const selfInGroup = group.UL.find((user) => user.ID.toString() === adminId);
+    const selfInGroup = group.userlist.find(
+      (user) => user.userId.toString() === adminId
+    );
     if (!selfInGroup) {
       return false;
     }
-    return selfInGroup.A;
+    return selfInGroup.admin;
   },
   removeUser: (group, delUserId, season) => {
     return new Promise(async (res) => {
-      const userInGroup = group.UL.find(
-        (user) => user.ID.toString() === delUserId.toString()
+      const userInGroup = group.userlist.find(
+        (user) => user.userId.toString() === delUserId.toString()
       );
       if (!userInGroup) {
         res({ status: false, message: 'User not found in group.' });
       }
 
-      const userPos = group.UL.map((user) => user.ID.toString()).indexOf(
-        delUserId
-      );
-      group.UL.splice(userPos, 1);
+      const userPos = group.userlist
+        .map((user) => user.userId.toString())
+        .indexOf(delUserId);
+      group.userlist.splice(userPos, 1);
 
       const user = await db.User.findById(delUserId).exec();
-      const groupPos = user.GL.map((groupId) => groupId.toString()).indexOf(
-        group._id.toString()
-      );
-      user.GL.splice(groupPos, 1);
-      if (user.MG.toString() === group._id.toString()) {
-        user.MG = null;
+      const groupPos = user.grouplist
+        .map((groupId) => groupId.toString())
+        .indexOf(group._id.toString());
+      user.grouplist.splice(groupPos, 1);
+      if (user.mainGroup.toString() === group._id.toString()) {
+        user.mainGroup = null;
       }
       try {
         await db.UserScores.deleteOne({
-          G: group._id,
-          S: season,
-          U: delUserId,
+          groupId: group._id,
+          season: season,
+          userId: delUserId,
         });
         await db.UsedPlayers.deleteOne({
-          G: group._id,
-          S: season,
-          U: delUserId,
+          groupId: group._id,
+          season: season,
+          userId: delUserId,
         });
         await db.UserRoster.deleteMany({
-          G: group._id,
-          S: season,
-          U: delUserId,
+          groupId: group._id,
+          season: season,
+          userId: delUserId,
         });
         await user.save();
-        if (group.UL.length <= 1) {
+        if (group.userlist.length <= 1) {
           await db.Group.deleteOne({ _id: group._id });
         } else {
           await group.save();
@@ -607,22 +647,26 @@ export default {
     });
   },
   singleAdminCheck: async (group, userId) => {
-    //A value of true means the user is the only admin and there are still others in the group
-    if (group.UL.length === 1) {
+    if (group.userlist.length === 1) {
       return false;
     }
-    const selfInGroup = group.UL.find((user) => user.ID.toString() === userId);
-    if (selfInGroup.A === false) {
+    const selfInGroup = group.userlist.find(
+      (user) => user.userId.toString() === userId
+    );
+    if (selfInGroup.admin === false) {
       return false;
     }
 
-    const adminList = group.UL.filter((user) => user.A === true);
+    const adminList = group.userList.filter((user) => user.admin === true);
     if (adminList.length <= 1) {
-      const nonAdmins = group.UL.filter((user) => user.A === false);
+      const nonAdmins = group.userList.filter((user) => user.admin === false);
       const filledNonAdmins = [];
       for (let user of nonAdmins) {
-        const { UN, E, _id } = await db.User.findById(user.ID, 'UN E');
-        filledNonAdmins.push({ UN, E, _id });
+        const { username, email, _id } = await db.User.findById(
+          user.userId,
+          'username email'
+        );
+        filledNonAdmins.push({ username, email, _id });
       }
 
       return { status: true, nonAdmins: filledNonAdmins };
@@ -631,9 +675,9 @@ export default {
     }
   },
   upgradeToAdmin: async (group, userId) => {
-    group.UL = group.UL.map((user) => {
-      if (user.ID.toString() === userId) {
-        return { ID: user.ID, A: true, B: false };
+    group.userlist = group.userlist.map((user) => {
+      if (user.userId.toString() === userId) {
+        return { userId: user.userId, admin: true, blocked: false };
       } else {
         return user;
       }
@@ -643,26 +687,31 @@ export default {
   },
   getAllGroups: async () => {
     try {
-      return await db.Group.find().exec();
+      return await db.Group.find().lean().exec();
     } catch (err) {
       console.log(err);
     }
   },
   getYearlyWinner: async (groupId, season) => {
     const topScore = await db.UserScores.findOne(
-      { G: groupId, S: season },
-      { U: 1, TS: 1 }
+      { groupId: groupId, season: season },
+      { userId: 1, totalScore: 1 }
     )
-      .sort('-TS')
+      .sort('-totalScore')
+      .lean()
       .exec();
-    const user = await db.User.findById(topScore.U, 'UN').exec();
-    return { UN: user.UN, TS: topScore.TS };
+    const user = await db.User.findById(topScore.userId, { username: 1 })
+      .lean()
+      .exec();
+    return { username: user.username, totalScore: topScore.totalScore };
   },
   getGroupDataByUserId: async (userId) => {
-    const userGroupList = await db.User.findById(userId, 'GL').exec();
+    const userGroupList = await db.User.findById(userId, { grouplist: 1 })
+      .lean()
+      .exec();
     const groupList = await db.Group.find(
-      { _id: { $in: userGroupList.GL } },
-      'N'
+      { _id: { $in: userGroupList.grouplist } },
+      'name'
     ).exec();
     return groupList;
   },

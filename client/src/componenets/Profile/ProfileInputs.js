@@ -1,5 +1,3 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import EyeSVG from '../../constants/SVG/eye.svg';
 import EyeSlashSVG from '../../constants/SVG/eye-slash.svg';
 
@@ -183,42 +181,53 @@ const MainGroupInput = ({ groupList, mainGroup, handleChange, disabled }) => (
   </div>
 );
 
-AvatarInput.propTypes = {
-  fileInputRef: PropTypes.any,
-  handleChange: PropTypes.func,
-};
+const PhoneNumberInput = ({ phoneNumber, disabled, handleChange }) => (
+  <div className='row mt-2'>
+    <div className='col-12'>
+      <small className='form-label' htmlFor='phoneNumber'>
+        Phone Number:
+      </small>
+      <div className='input-group'>
+        <input
+          className='form-control'
+          name='phoneNumber'
+          value={phoneNumber}
+          type='tel'
+          disabled={disabled}
+          onChange={handleChange}
+        />
+      </div>
+    </div>
+  </div>
+);
 
-UsernameInput.propTypes = {
-  handleChange: PropTypes.func,
-  username: PropTypes.string,
-  currentUserName: PropTypes.string,
-};
-
-EmailInput.propTypes = {
-  email: PropTypes.string,
-  handleChange: PropTypes.func,
-  authUser: PropTypes.any,
-};
-
-PasswordInput.propTypes = {
-  handleChange: PropTypes.func,
-  password: PropTypes.string,
-  showPassword: PropTypes.string,
-  toggleShowPassword: PropTypes.func,
-};
-
-ConfirmPasswordInput.propTypes = {
-  handleChange: PropTypes.func,
-  password: PropTypes.string,
-  showPassword: PropTypes.string,
-  toggleShowPassword: PropTypes.func,
-};
-
-MainGroupInput.propTypes = {
-  currentUser: PropTypes.object,
-  mainGroup: PropTypes.string,
-  handleChange: PropTypes.func,
-};
+const GenericSwitch = ({
+  disableAllFields,
+  checkedVal,
+  handleChange,
+  displayName,
+  htmlName,
+}) => (
+  <div className='form-switch row'>
+    <div className='col-1 text-end'>
+      <input
+        className='form-check-input'
+        type='checkbox'
+        role='switch'
+        id={`${htmlName}Switch`}
+        disabled={disableAllFields}
+        checked={checkedVal}
+        onChange={handleChange}
+        name={htmlName}
+      />
+    </div>
+    <div className='col-8 text-start'>
+      <label className='form-check-label' htmlFor={`${htmlName}Switch`}>
+        {displayName}
+      </label>
+    </div>
+  </div>
+);
 
 export {
   AvatarInput,
@@ -227,4 +236,6 @@ export {
   PasswordInput,
   ConfirmPasswordInput,
   MainGroupInput,
+  PhoneNumberInput,
+  GenericSwitch,
 };

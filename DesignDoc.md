@@ -50,7 +50,6 @@ If they create a group then they are taken to a page where they can then configu
         - User can email other people outside of the app to come and join the group
 
 ## Group Structure
-TODO
 
 # MVP
 MVP for this project will be allowing users to pick a player to play each week. Also not allowing the user to pick the same player in another week. At the end of the week (Tuesday morning) the stats pulling software will run and the user will have their stats updated.

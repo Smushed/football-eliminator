@@ -1,26 +1,23 @@
 import { Schema, Types, model } from 'mongoose';
 
 const UserSchema = new Schema({
-  UN: {
-    //Username
+  username: {
     type: String,
     unique: true,
     trim: true,
     maxLength: 20,
   },
-  E: {
-    //Email
+  email: {
     type: String,
     unique: true,
     trim: true,
   },
-  GL: [Types.ObjectId], //GroupList
-  A: {
-    //Admin
+  grouplist: [Types.ObjectId],
+  admin: {
     type: Boolean,
     default: false,
   },
-  MG: Types.ObjectId, //Main Group
+  mainGroup: Types.ObjectId,
 });
 
 export default model('User', UserSchema);

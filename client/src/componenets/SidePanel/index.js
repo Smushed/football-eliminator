@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { withFirebase } from '../Firebase';
 import { Link } from 'react-router-dom';
 import { slide as Menu } from 'react-burger-menu';
-import PropTypes from 'prop-types';
 
 // SVGs are from Flatiron
 import RankingSVG from '../../constants/SVG/ranking.svg';
@@ -60,7 +59,7 @@ const SidePanel = ({
         </div>
       </Link>
       <Link
-        to={`/roster/${currentGroup.N}/${username}`}
+        to={`/roster/${currentGroup.name}/${username}`}
         onClick={() => showHideSideBar()}
       >
         <div className='sidebarItemWrapper'>
@@ -69,7 +68,7 @@ const SidePanel = ({
         </div>
       </Link>
       <Link
-        to={`/usedPlayers/${currentGroup.N}/${username}`}
+        to={`/usedPlayers/${currentGroup.name}/${username}`}
         onClick={() => showHideSideBar()}
       >
         <div className='sidebarItemWrapper'>
@@ -89,14 +88,14 @@ const SidePanel = ({
           <div className='sideBarItem'>Profile Page</div>
         </div>
       </Link>
-      {user.GL && (
+      {user.grouplist && (
         <select
           className='form-select groupDropdown'
           value={currentGroup._id}
           onChange={groupSelect}
         >
-          {user.GL &&
-            user.GL.map((group) => (
+          {user.grouplist &&
+            user.grouplist.map((group) => (
               <option key={group._id} value={group._id}>
                 {group.N}
               </option>
@@ -112,16 +111,6 @@ const SidePanel = ({
       </div>
     </Menu>
   );
-};
-
-SidePanel.propTypes = {
-  firebase: PropTypes.any,
-  user: PropTypes.object,
-  currentGroup: PropTypes.object,
-  showHideSideBar: PropTypes.func,
-  showSideBar: PropTypes.bool,
-  hardSetSideBar: PropTypes.func,
-  changeGroup: PropTypes.func,
 };
 
 export default withFirebase(SidePanel);

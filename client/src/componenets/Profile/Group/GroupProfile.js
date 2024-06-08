@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import axios from 'axios';
 import Leaderboard from '../../Leaderboard/TableLeaderboard';
 
@@ -31,14 +30,17 @@ const GroupProfile = ({
   const axiosCancel = axios.CancelToken.source();
 
   useEffect(() => {
-    if (groupName) {
-      pullGroupInfo();
-    }
     return function cancelAPICalls() {
       if (axiosCancel) {
         axiosCancel.cancel(`Unmounted`);
       }
     };
+  }, []);
+
+  useEffect(() => {
+    if (groupName) {
+      pullGroupInfo();
+    }
   }, [groupName]);
 
   useEffect(() => {
@@ -86,7 +88,9 @@ const GroupProfile = ({
         updateSeason(season);
 
         axios
-          .get(`/api/group/leaderboard/${season}/${week}/${groupId}`)
+          .get(`/api/group/leaderboard/${season}/${week}/${groupId}`, {
+            cancelToken: axiosCancel.token,
+          })
           .then((res2) => updateLeaderboard(res2.data.leaderboard))
           .catch((err) => {
             if (err.message !== `Unmounted`) {
@@ -170,19 +174,6 @@ const GroupProfile = ({
       </div>
     </>
   );
-};
-
-GroupProfile.propTypes = {
-  groupName: PropTypes.string,
-  currentUser: PropTypes.object,
-  avatar: PropTypes.any,
-  handleChange: PropTypes.func,
-  updateAvatar: PropTypes.func,
-  groupInfo: PropTypes.object,
-  updateGroupInfo: PropTypes.func,
-  fileInputRef: PropTypes.any,
-  openCloseModal: PropTypes.func,
-  updateModalState: PropTypes.func,
 };
 
 export default GroupProfile;

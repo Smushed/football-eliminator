@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
 import './leaderBoardStyle.css';
@@ -25,22 +24,22 @@ const Leaderboard = ({ groupName, week, leaderboard }) => (
     <tbody>
       {leaderboard &&
         leaderboard.map((user) => (
-          <tr key={user.UN}>
-            <td>{user.UN}</td>
+          <tr key={user.username}>
+            <td>{user.username}</td>
             <td>
-              {user.LW.toLocaleString('en-US', {
+              {user.lastWeek.toLocaleString('en-US', {
                 maximumFractionDigits: 2,
                 minimumFractionDigits: 2,
               })}
             </td>
             <td className='d-none d-md-block'>
-              {user.CW.toLocaleString('en-US', {
+              {user.currentWeek.toLocaleString('en-US', {
                 maximumFractionDigits: 2,
                 minimumFractionDigits: 2,
               })}
             </td>
             <td>
-              {user.TS.toLocaleString('en-US', {
+              {user.totalScore.toLocaleString('en-US', {
                 maximumFractionDigits: 2,
                 minimumFractionDigits: 2,
               })}
@@ -50,11 +49,5 @@ const Leaderboard = ({ groupName, week, leaderboard }) => (
     </tbody>
   </table>
 );
-
-Leaderboard.propTypes = {
-  groupName: PropTypes.string,
-  leaderboard: PropTypes.array,
-  week: PropTypes.number,
-};
 
 export default Leaderboard;

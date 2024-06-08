@@ -1,160 +1,138 @@
 import { Schema, Types, model } from 'mongoose';
 
 const GroupScoreSchema = new Schema({
-  G: {
-    //GroupID
+  groupId: {
     type: Types.ObjectId,
     required: true,
     ref: 'Group',
   },
-  P: {
-    //Passing
-    T: {
-      //TD
+  passing: {
+    touchdowns: {
       type: Number,
       default: 4,
     },
-    Y: {
-      //Pass Yards
+    yards: {
       type: Number,
       default: 0.04,
     },
-    I: {
-      //Int
+    interceptions: {
       type: Number,
       default: -2,
     },
-    A: {
-      //Attempts
+    attempts: {
       type: Number,
       default: 0,
     },
-    C: {
-      //Completions
+    completions: {
       type: Number,
       default: 0,
     },
-    '2P': {
+    twoPointMade: {
       //2PT Pass
       type: Number,
       default: 2,
     },
-  },
-  RU: {
-    //Rushing
-    A: {
-      //Attempts
+    plays20Plus: {
       type: Number,
       default: 0,
     },
-    Y: {
-      //Rush Yards
+    plays40Plus: {
+      type: Number,
+      default: 0,
+    },
+  },
+  rushing: {
+    attempts: {
+      type: Number,
+      default: 0,
+    },
+    yards: {
       type: Number,
       default: 0.1,
     },
-    T: {
-      //Rush TD
+    touchdowns: {
       type: Number,
       default: 6,
     },
-    20: {
-      //20Plus Rush
+    plays20Plus: {
       type: Number,
       default: 0,
     },
-    40: {
-      //40Plus Rush
+    plays40Plus: {
       type: Number,
       default: 0,
     },
-    F: {
-      //Fumbles
+    fumbles: {
       type: Number,
       default: -2,
     },
-    '2P': {
-      //2PT Rush
+    twoPointMade: {
       type: Number,
       default: 2,
     },
   },
-  RE: {
-    TA: {
-      //Targets
+  receiving: {
+    targets: {
       type: Number,
       default: 0,
     },
-    R: {
-      //Receptions
+    receptions: {
       type: Number,
       default: 0,
     },
-    Y: {
-      //Rec Yards
+    yards: {
       type: Number,
       default: 0.1,
     },
-    T: {
-      //Rec TD
+    touchdowns: {
       type: Number,
       default: 6,
     },
-    20: {
-      //20Plus Rec
+    plays20Plus: {
       type: Number,
       default: 0,
     },
-    40: {
-      //40Plus Rec
+    plays40Plus: {
       type: Number,
       default: 0,
     },
-    F: {
-      //Rec Fumble
+    fumbles: {
       type: Number,
       default: -2,
     },
-    '2P': {
-      //2PT Rec
+    twoPointMade: {
       type: Number,
       default: 0,
     },
   },
-  F: {
-    F: {
-      //Fumble
+  fumble: {
+    fumblesLost: {
       type: Number,
       default: -2,
     },
   },
-  FG: {
-    1: {
-      //1-19 FG
+  fieldGoal: {
+    made1_19: {
       type: Number,
       default: 2,
     },
-    20: {
-      //20-29 FG
+    made20_29: {
       type: Number,
       default: 2,
     },
-    30: {
-      //30-39 FG
+    made30_39: {
       type: Number,
       default: 2,
     },
-    40: {
-      //40-49 FG
+    made40_49: {
       type: Number,
       default: 3,
     },
-    50: {
-      //50 plus FG
+    made50Plus: {
       type: Number,
       default: 5,
     },
-    X: {
-      //Extra Point
+    extraPointMade: {
       type: Number,
       default: 1,
     },

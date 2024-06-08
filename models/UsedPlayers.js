@@ -1,28 +1,24 @@
 import { Schema, Types, model } from 'mongoose';
 
 const UsedPlayerSchema = new Schema({
-  U: {
-    //UserId
+  userId: {
     type: Types.ObjectId,
     ref: 'User',
     required: true,
   },
-  S: {
-    //Season
+  season: {
     type: String,
     required: true,
   },
-  G: {
-    //GroupId
+  groupId: {
     type: Types.ObjectId,
     required: true,
   },
-  P: {
-    //Position
+  position: {
     type: String,
     required: true,
   },
-  UP: [Number], //Used Players (MySportsId)
+  usedPlayers: [Number],
 });
 
 export default model('UsedPlayers', UsedPlayerSchema);

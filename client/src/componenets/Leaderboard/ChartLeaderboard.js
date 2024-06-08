@@ -1,5 +1,4 @@
 import { memo, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -26,8 +25,8 @@ const ChartLeaderboard = memo(function ChartLeaderboard({ leaderboard }) {
 
   useEffect(() => {
     if (leaderboard && leaderboard.length > 0) {
-      updateUserNameList(leaderboard.map((user) => user.UN));
-      updateChartData(leaderboard.map((user) => user.TS));
+      updateUserNameList(leaderboard.map((user) => user.username));
+      updateChartData(leaderboard.map((user) => user.totalScore));
     }
   }, [leaderboard]);
 
@@ -51,8 +50,13 @@ const ChartLeaderboard = memo(function ChartLeaderboard({ leaderboard }) {
       tooltip: {
         callbacks: {
           label: function (context) {
-            const user = leaderboard.find((user) => user.UN === context.label);
-            return [`Last Week ${user.LW}`, `Total Score ${user.TS}`];
+            const user = leaderboard.find(
+              (user) => user.username === context.label
+            );
+            return [
+              `Last Week ${user.lastWeek}`,
+              `Total Score ${user.totalScore}`,
+            ];
           },
         },
       },
@@ -76,9 +80,5 @@ const ChartLeaderboard = memo(function ChartLeaderboard({ leaderboard }) {
     />
   );
 });
-
-ChartLeaderboard.propTypes = {
-  leaderboard: PropTypes.array,
-};
 
 export default ChartLeaderboard;

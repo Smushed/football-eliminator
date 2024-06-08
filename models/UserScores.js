@@ -1,25 +1,21 @@
 import { Schema, Types, model } from 'mongoose';
 
 const UserScoresSchema = new Schema({
-  U: {
-    //User ID
+  userId: {
     type: Types.ObjectId,
     ref: 'User',
     required: true,
   },
-  G: {
-    //GroupID
+  groupId: {
     type: Types.ObjectId,
     ref: 'Group',
     required: true,
   },
-  S: {
-    //Season
+  season: {
     type: String,
     required: true,
   },
-  TS: {
-    //Total Score
+  totalScore: {
     type: Number,
     default: 0,
   },
@@ -99,9 +95,9 @@ const UserScoresSchema = new Schema({
 
 UserScoresSchema.index(
   {
-    U: 1,
-    G: -1,
-    S: -1,
+    userId: 1,
+    groupId: -1,
+    season: -1,
   },
   {
     unique: true,

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
 import axios from 'axios';
 import { Tooltip } from 'react-tooltip';
 
@@ -24,6 +23,14 @@ const GroupPage = ({
   const [groupList, updateGroupList] = useState([]);
 
   const axiosCancel = axios.CancelToken.source();
+
+  useEffect(() => {
+    return function cancelAPICalls() {
+      if (axiosCancel) {
+        axiosCancel.cancel(`Unmounted`);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (noGroup) {
@@ -123,18 +130,20 @@ const GroupRow = ({ group, joinGroup, season, userId }) => {
   const axiosCancel = axios.CancelToken.source();
 
   useEffect(() => {
+    return function cancelAPICalls() {
+      if (axiosCancel) {
+        axiosCancel.cancel(`Unmounted`);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     getAvatar(group.id);
     getTopScore(group.id, season);
     BuildULTooltip(group.UL);
     if (group.UL.length >= 1 && userId) {
       checkInGroup(userId);
     }
-
-    return function cancelAPICalls() {
-      if (axiosCancel) {
-        axiosCancel.cancel(`Unmounted`);
-      }
-    };
   }, [group.id, group.UL, season, userId]);
 
   const getAvatar = (groupId) => {
@@ -260,22 +269,6 @@ const GroupRow = ({ group, joinGroup, season, userId }) => {
       </div>
     </div>
   );
-};
-
-GroupPage.propTypes = {
-  history: PropTypes.any,
-  email: PropTypes.string,
-  pullUserData: PropTypes.func,
-  season: PropTypes.string,
-  noGroup: PropTypes.bool,
-  userId: PropTypes.string,
-};
-
-GroupRow.propTypes = {
-  group: PropTypes.object,
-  joinGroup: PropTypes.func,
-  season: PropTypes.string,
-  userId: PropTypes.string,
 };
 
 export default Session(GroupPage);

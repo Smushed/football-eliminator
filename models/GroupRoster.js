@@ -1,25 +1,23 @@
 import { Schema, Types, model } from 'mongoose';
 
 const GroupRosterSchema = new Schema({
-  G: {
-    //GroupId
+  groupId: {
     type: Types.ObjectId,
     ref: 'Group',
     unique: true,
     required: true,
   },
-  P: {
-    //Positions
+  position: {
     type: Array,
     default: [
-      { N: 'QB', I: 0 },
-      { N: 'RB', I: 1 },
-      { N: 'RB', I: 1 },
-      { N: 'WR', I: 2 },
-      { N: 'WR', I: 2 },
-      { N: 'RB/WR', I: 6 },
-      { N: 'TE', I: 3 },
-      { N: 'K', I: 4 },
+      { name: 'QB', id: 0 },
+      { name: 'RB', id: 1 },
+      { name: 'RB', id: 1 },
+      { name: 'WR', id: 2 },
+      { name: 'WR', id: 2 },
+      { name: 'RB/WR', id: 6 },
+      { name: 'TE', id: 3 },
+      { name: 'K', id: 4 },
     ],
   },
 });

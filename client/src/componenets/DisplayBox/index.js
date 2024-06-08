@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
@@ -28,14 +27,16 @@ const DisplayBox = ({
   const axiosCancel = axios.CancelToken.source();
 
   useEffect(() => {
-    type === `user` && getUserData();
-    type === `group` && getGroupData();
-
     return function cancelAPICalls() {
       if (axiosCancel) {
         axiosCancel.cancel(`Unmounted`);
       }
     };
+  }, []);
+
+  useEffect(() => {
+    type === `user` && getUserData();
+    type === `group` && getGroupData();
   }, [type]);
 
   const getUserData = () => {
@@ -194,15 +195,6 @@ const DisplayBox = ({
       )}
     </div>
   );
-};
-
-DisplayBox.propTypes = {
-  boxContent: PropTypes.string,
-  type: PropTypes.string,
-  buttonActive: PropTypes.bool, //Button Active for removing users from a group (if group page) or leaving group (if user profile page)
-  currUserId: PropTypes.string,
-  currPageId: PropTypes.string,
-  updatePage: PropTypes.func,
 };
 
 export default DisplayBox;

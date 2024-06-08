@@ -5,7 +5,7 @@ import positions from '../constants/positions.js';
 import userHandler from '../handlers/userHandler.js';
 
 export default (app) => {
-  app.get(`/api/roster/players/available`, async (req, res) => {
+  app.get('/api/roster/players/available', async (req, res) => {
     const { userId, searchedPosition, season, groupname } = req.query;
     const groupId = await groupHandler.getGroupData(groupname);
     const availablePlayers = await rosterHandler.availablePlayers(
@@ -17,27 +17,25 @@ export default (app) => {
     res.status(200).send(availablePlayers);
   });
 
-  app.get(`/api/roster/user/:season/:week/:groupname/:username`, (req, res) => {
+  app.get('/api/roster/user/:season/:week/:groupname/:username', (req, res) => {
     const { groupname, username, week, season } = req.params;
 
     //Checks if this route received the userId before it was ready in react
     //The check already comes in as the string undefined, rather than undefined itself. It comes in as truthly
     if (
-      username === `undefined` ||
+      username === 'undefined' ||
       week === 0 ||
-      season === `` ||
-      groupname === `undefined`
+      season === '' ||
+      groupname === 'undefined'
     ) {
       console.log({ groupname, username, week, season });
       res
         .status(400)
         .send(
-          `Bad URL. Try refreshing or going home and coming back if this persists`
+          'Bad URL. Try refreshing or going home and coming back if this persists'
         );
       return;
     }
-    //This can be broken out into sets, where one set is needed for the next set
-    //Rather than making this all await calls we can batch together calls that can go at the same time. Speeding up the process considerably
     Promise.all([
       groupHandler.findGroupIdByName(groupname),
       userHandler.getUserByUsername(username),
@@ -56,13 +54,12 @@ export default (app) => {
               mySportsHandler.fillUserRoster(playerIdRoster),
             ])
               .then(([groupMap, userRoster]) => {
-                const response = {
-                  userRoster,
-                  groupPositions,
-                  groupMap,
+                res.status(200).send({
+                  userRoster: userRoster,
+                  groupPositions: groupPositions,
+                  groupMap: groupMap,
                   positionArray: positions.positionArray,
-                };
-                res.status(200).send(response);
+                });
               })
               .catch((err) => console.log(`User Roster Layer 3`, err));
           })
@@ -202,7 +199,7 @@ export default (app) => {
       season,
       +previousWeek
     );
-    const response = await mySportsHandler.fillUserRoster(idealRoster.R);
+    const response = await mySportsHandler.fillUserRoster(idealRoster.roster);
     res.status(200).send(response);
   });
 };

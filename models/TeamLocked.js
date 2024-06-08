@@ -1,24 +1,20 @@
 import { Schema, model } from 'mongoose';
 
 const TeamLockedSchema = new Schema({
-  T: {
-    //Team
+  team: {
     type: String,
     required: true,
     trim: true,
   },
-  ST: {
-    //Starting Time
+  startTime: {
     type: Date,
     required: true,
   },
-  W: {
-    //Week this time is for
+  week: {
     type: Number,
     required: true,
   },
-  S: {
-    //Season
+  season: {
     type: String,
     required: true,
     trim: true,

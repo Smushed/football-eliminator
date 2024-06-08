@@ -51,7 +51,7 @@ const composeWeeklyHTMLEmail = async (firstItem, secondItem, week) => {
   return `<div style='font-weight:600;
                         font-size: 24px;
                         margin-bottom: 15px;'>
-    Onto week ${week + 1}
+    Week ${week} Eliminator Results
     </div>
 
     ${firstItem}
@@ -60,7 +60,7 @@ const composeWeeklyHTMLEmail = async (firstItem, secondItem, week) => {
 };
 
 const composeWeeklyTextEmail = async (firstItem, secondItem, week) => {
-  return `Onto week ${week + 1}
+  return `Week ${week} Eliminator Results
 
     ${firstItem}
     
@@ -79,8 +79,8 @@ const composeYearlyHTMLEmail = async (
   let body = `<div style='font-size: 24px;
                         margin-bottom: 15px;'>
                         This is the end of the season for the Eliminator! First, congrats to <strong>${
-                          yearlyWinner.UN
-                        }</strong> for winning with a score of <strong>${yearlyWinner.TS.toFixed(
+                          yearlyWinner.username
+                        }</strong> for winning with a score of <strong>${yearlyWinner.totalScore.toFixed(
     2
   )}</strong>!
     </div>`;
@@ -102,20 +102,20 @@ const composeYearlyHTMLEmail = async (
 
   body += `<div style='font-size: 18px;
           margin-bottom: 15px;'>
-            The best play for a week was from ${bestUserPlayer.UN} in week ${bestUserPlayer.W} playing ${bestUserPlayer.P.N} with a score of ${bestUserPlayer.SC}!
+            The best play for a week was from ${bestUserPlayer.username} in week ${bestUserPlayer.week} playing ${bestUserPlayer.player.name} with a score of ${bestUserPlayer.score}!
           </div>`;
 
   body +=
     `<div style='font-size: 18px;
           margin-bottom: 15px;'>
-            The best week for this year was from ${bestUserWeek.UN} in week ${bestUserWeek.W} with a score of ${bestUserWeek.SC}!
+            The best week for this year was from ${bestUserWeek.uername} in week ${bestUserWeek.week} with a score of ${bestUserWeek.score}!
           </div>` + bestUserWeekRoster;
 
   body +=
     `<div style='font-size: 18px;
           margin-bottom: 15px;
           margin-top: 15px;'>
-            Finally, the best ideal roster for this year was from week ${bestIdealRoster.W} with a whopping score of ${bestIdealRoster.SC}!
+            Finally, the best ideal roster for this year was from week ${bestIdealRoster.week} with a whopping score of ${bestIdealRoster.score}!
           </div>` + bestIdealRosterFull;
 
   return body;
@@ -134,8 +134,8 @@ const composeYearlyTextEmail = (
   
   `;
   let body = `This is the end of the season for the Eliminator! First, congrats to ${
-    yearlyWinner.UN
-  } for winning with a score of ${yearlyWinner.TS.toFixed(2)}!`;
+    yearlyWinner.username
+  } for winning with a score of ${yearlyWinner.totalScore.toFixed(2)}!`;
   body += spacer;
   body += `Thank you to everyone for playing again for another year. This year there was a lot of back end work on my end to get the eliminator to a standard I'm happy with. (It was really easy to hack if you just tweak the right fields). Moving forward, I plan on keeping this going for another year and making a lot of improvements into next year. Some of my highest priorities are to redesign the UI to make it more user friendly and enjoyable to use. Another would be setting up email / text reminders for weekly rosters (something that I could really use). I hope you stick with me!
   
@@ -145,14 +145,14 @@ const composeYearlyTextEmail = (
     `The leaderboard for the whole season:
   ` + leaderboard;
   body += spacer;
-  body += `The best play for a week was from ${bestUserPlayer.UN} in week ${bestUserPlayer.W} playing ${bestUserPlayer.P.N} with a score of ${bestUserPlayer.SC}!`;
+  body += `The best play for a week was from ${bestUserPlayer.username} in week ${bestUserPlayer.week} playing ${bestUserPlayer.player.name} with a score of ${bestUserPlayer.score}!`;
   body += spacer;
   body +=
-    `The best week for this year was from ${bestUserWeek.UN} in week ${bestUserWeek.W} with a score of ${bestUserWeek.SC}!
+    `The best week for this year was from ${bestUserWeek.username} in week ${bestUserWeek.week} with a score of ${bestUserWeek.score}!
   ` + bestUserWeekRoster;
   body += spacer;
   body +=
-    `Finally, the best ideal roster for this year was from week ${bestIdealRoster.W} with a whopping score of ${bestIdealRoster.SC}!
+    `Finally, the best ideal roster for this year was from week ${bestIdealRoster.week} with a whopping score of ${bestIdealRoster.score}!
   ` + bestIdealRosterFull;
   return body;
 };
@@ -166,14 +166,14 @@ const createLeaderBoard = async (group, season, week) => {
   const rows = await leaderBoardBuilder.leaderBoardRowBuilder(leaderBoard);
   const leaderBoardHTML = leaderBoardBuilder.leaderBoardTemplate(
     rows,
-    group.N,
+    group.name,
     week
   );
 
   const textRows = await leaderBoardBuilder.leaderBoardTextRows(leaderBoard);
   const leaderBoardText = leaderBoardBuilder.leaderBoardTextTemplate(
     textRows,
-    group.N,
+    group.name,
     week
   );
 
@@ -218,9 +218,9 @@ const createIdealRoster = async (groupPos, roster, week) => {
 
 export default {
   sendLeaderBoardEmail: async (group, season, week) => {
-    let userIdArray = group.UL.map((user) => user.ID.toString());
+    let userIdArray = group.userlist.map((user) => user.userId.toString());
     let emailList = await userHandler.getGroupEmailSettings(userIdArray);
-    userIdArray = emailList.map((user) => user.U.toString());
+    userIdArray = emailList.map((user) => user.userId.toString());
     emailList = await userHandler.getUsersEmail(userIdArray);
 
     const subject = `Eliminator - Week ${week}`;
@@ -232,7 +232,7 @@ export default {
       week
     );
     const filledIdealRoster = await mySportsHandler.fillUserRoster(
-      idealRoster.R
+      idealRoster.roster
     );
 
     const { leaderBoardHTML, leaderBoardText } = await createLeaderBoard(
@@ -259,11 +259,9 @@ export default {
     );
 
     for (const user of emailList) {
-      // if (user.id === '62ec2b8b41d5523d0075a4db') {
-      // }
       const HTMLemail = await unsubscribe.appendHTML(HTMLTemplate, user.id);
       const textEmail = await unsubscribe.appendText(textTemplate, user.id);
-      sendEmail(user.E, subject, HTMLemail, textEmail);
+      sendEmail(user.email, subject, HTMLemail, textEmail);
     }
   },
   sendYearlyRecapEmail: async (
@@ -275,7 +273,7 @@ export default {
     bestIdealRoster,
     bestScorePlayerByUser
   ) => {
-    const subject = `Yearly Recap for the Eliminator!`;
+    const subject = 'Yearly Recap for the Eliminator!';
     const groupPos = await groupHandler.getGroupPositions(group._id.toString());
     const { leaderBoardHTML, leaderBoardText } = await createLeaderBoard(
       group,
@@ -285,14 +283,14 @@ export default {
 
     const highestUserWeekFullRoster = await createRoster(
       groupPos,
-      highestScoreUserWeek.R,
-      highestScoreUserWeek.W,
-      highestScoreUserWeek.UN
+      highestScoreUserWeek.roster,
+      highestScoreUserWeek.week,
+      highestScoreUserWeek.username
     );
     const bestIdealRosterFull = await createIdealRoster(
       groupPos,
-      bestIdealRoster.R,
-      bestIdealRoster.W
+      bestIdealRoster.roster,
+      bestIdealRoster.week
     );
 
     const textTemplate = composeYearlyTextEmail(
@@ -316,18 +314,18 @@ export default {
     );
 
     const emailList = [];
-    for (const user of group.UL) {
-      const emailPermission = await userHandler.getEmailSettings(user.ID);
-      if (emailPermission.LE) {
-        const { response } = await userHandler.getUserByID(user.ID);
-        emailList.push({ E: response.E, id: response._id });
+    for (const user of group.userlist) {
+      const emailPermission = await userHandler.getEmailSettings(user.userId);
+      if (emailPermission.leaderboardEmail) {
+        const { response } = await userHandler.getUserByID(user.userId);
+        emailList.push({ email: response.email, id: response._id });
       }
     }
 
     for (const user of emailList) {
       const HTMLemail = await unsubscribe.appendHTML(HTMLTemplate, user.id);
       const textEmail = await unsubscribe.appendText(textTemplate, user.id);
-      sendEmail(user.E, subject, HTMLemail, textEmail);
+      sendEmail(user.email, subject, HTMLemail, textEmail);
     }
   },
 };

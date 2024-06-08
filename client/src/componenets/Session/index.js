@@ -1,6 +1,5 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import PropTypes from 'prop-types';
 
 import { withFirebase } from '../Firebase';
 import * as Routes from '../../constants/routes';
@@ -25,11 +24,6 @@ const Session = (Component) => {
       return <Component {...this.props} />;
     }
   }
-
-  WithAuthorization.propTypes = {
-    firebase: PropTypes.any,
-    history: PropTypes.any,
-  };
 
   return withRouter(withFirebase(WithAuthorization));
 };

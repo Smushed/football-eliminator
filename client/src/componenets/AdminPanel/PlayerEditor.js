@@ -2,7 +2,6 @@ import React from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import PropTypes from 'prop-types';
 
 const Alert = withReactContent(Swal);
 
@@ -72,12 +71,6 @@ const PlayerEditor = ({ season, week, groupId }) => {
       </div>
     </div>
   );
-};
-
-PlayerEditor.propTypes = {
-  season: PropTypes.string,
-  week: PropTypes.string,
-  groupId: PropTypes.string,
 };
 
 export default PlayerEditor;

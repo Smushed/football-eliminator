@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import axios from 'axios';
 import DisplayBox from '../DisplayBox';
 import Leaderboard from '../Leaderboard/TableLeaderboard';
@@ -13,20 +12,17 @@ const GroupDisplayWithLeaderboard = ({
   const axiosCancel = axios.CancelToken.source();
 
   useEffect(() => {
+    if (axiosCancel) {
+      axiosCancel.cancel(`Unmounted`);
+    }
+  }, []);
+
+  useEffect(() => {
     if (groupId) {
       getLeaderboard(groupId);
       getGroupName(groupId);
     }
   }, [groupId]);
-
-  useEffect(
-    () => () => {
-      if (axiosCancel) {
-        axiosCancel.cancel(`Unmounted`);
-      }
-    },
-    []
-  );
 
   const [leaderboard, setLeaderboard] = useState([]);
   const [week, setWeek] = useState(1);
@@ -55,7 +51,9 @@ const GroupDisplayWithLeaderboard = ({
         setWeek(week);
 
         axios
-          .get(`/api/group/leaderboard/${season}/${week}/${gId}`)
+          .get(`/api/group/leaderboard/${season}/${week}/${gId}`, {
+            cancelToken: axiosCancel.token,
+          })
           .then((res2) => setLeaderboard(res2.data.leaderboard))
           .catch((err) => {
             if (err.message !== `Unmounted`) {
@@ -91,13 +89,6 @@ const GroupDisplayWithLeaderboard = ({
       </div>
     </div>
   );
-};
-
-GroupDisplayWithLeaderboard.propTypes = {
-  groupId: PropTypes.string,
-  currentUserId: PropTypes.string,
-  isCurrentUser: PropTypes.bool,
-  repullUser: PropTypes.func,
 };
 
 export default GroupDisplayWithLeaderboard;

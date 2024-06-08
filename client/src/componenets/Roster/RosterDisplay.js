@@ -1,6 +1,5 @@
 import React, { useContext, memo } from 'react';
 import { Tooltip } from 'react-tooltip';
-import PropTypes from 'prop-types';
 
 import { AvatarContext } from '../Avatars';
 import BlankAvatar from '../../constants/logoImages/avatar/blankAvatar.png';
@@ -19,28 +18,31 @@ const CurrentRosterRow = memo(function CurrentRosterRow({
         {position}
       </th>
       <td>
-        {player && player.M !== 0 && !pastLockWeek && player.I && (
-          <InjuryCol injury={player.I} />
-        )}
+        {player &&
+          player.mySportsId !== 0 &&
+          !pastLockWeek &&
+          player.injury && <InjuryCol injury={player.injury} />}
       </td>
       <td>
         {player && (
           <img
             className='playerAvatar'
-            src={playerAvatars[player.M] || BlankAvatar}
+            src={playerAvatars[player.mySportsId] || BlankAvatar}
           />
         )}
       </td>
-      <td>{player && player.N && player.N}</td>
-      <td>{player && player.T}</td>
+      <td>{player && player.name && player.name}</td>
+      <td>{player && player.team}</td>
       {pastLockWeek === true ? (
-        <td>{player && player.SC.toFixed(2)}</td>
+        <td>{player && player.score.toFixed(2)}</td>
       ) : (
         <td className='pb-0'>
-          {player && player.M && addDropPlayer ? (
+          {player && player.mySportsId && addDropPlayer ? (
             <button
               className='custom-button'
-              onClick={() => addDropPlayer(player.M, player.T, 'drop')}
+              onClick={() =>
+                addDropPlayer(player.mySportsId, player.team, 'drop')
+              }
             >
               Drop
             </button>
@@ -84,7 +86,7 @@ const RosterDisplay = memo(function RosterDisplay({
           ? roster.map((player, i) => (
               <CurrentRosterRow
                 key={i}
-                position={player.P}
+                position={player.position}
                 player={player}
                 addDropPlayer={addDropPlayer}
                 pastLockWeek={pastLockWeek}
@@ -94,7 +96,7 @@ const RosterDisplay = memo(function RosterDisplay({
               <CurrentRosterRow
                 key={i}
                 pastLockWeek={pastLockWeek}
-                position={position.N}
+                position={position.name}
                 player={roster[i]}
                 addDropPlayer={addDropPlayer}
               />
@@ -109,10 +111,10 @@ const InjuryCol = ({ injury }) => {
     <span
       className='injuryCol redText'
       data-tooltip-id='injuryTooltip'
-      data-tooltip-html={injury.D}
+      data-tooltip-html={injury.description}
     >
       <Tooltip id='injuryTooltip' data-tooltip />
-      {injury.PP[0]}
+      {injury.playingProbability[0]}
     </span>
   );
 };
@@ -121,17 +123,17 @@ const PlayerDisplayRow = ({ player, addDropPlayer, sortedMatchups }) => {
   const { playerAvatars } = useContext(AvatarContext);
   return (
     <tr className='align-middle playerDisplayRowHeight'>
-      <td>{player.I && <InjuryCol injury={player.I} />}</td>
+      <td>{player.injury && <InjuryCol injury={player.injury} />}</td>
       <td>
-        <img src={player && playerAvatars[player.M]} />
+        <img src={player && playerAvatars[player.mySportsId]} />
       </td>
-      <td>{player.N && player.N}</td>
-      <td>{player.T && player.T}</td>
+      <td>{player.name && player.name}</td>
+      <td>{player.team && player.team}</td>
       {sortedMatchups && (
         <td className='oppWidth'>
-          {sortedMatchups[player.T]
-            ? `${sortedMatchups[player.T].h ? 'v' : '@'} ${
-                sortedMatchups[player.T].v
+          {sortedMatchups[player.team]
+            ? `${sortedMatchups[player.team].home ? 'v' : '@'} ${
+                sortedMatchups[player.team].opponent
               }`
             : `BYE`}
         </td>
@@ -140,7 +142,7 @@ const PlayerDisplayRow = ({ player, addDropPlayer, sortedMatchups }) => {
         <td className='pb-0'>
           <button
             className='custom-button'
-            onClick={() => addDropPlayer(player.M, player.T, 'add')}
+            onClick={() => addDropPlayer(player.mySportsId, player.team, 'add')}
           >
             Add
           </button>
@@ -201,53 +203,5 @@ const PlayerDisplayTable = ({
     </table>
   </>
 );
-
-InjuryCol.propTypes = {
-  injury: PropTypes.object,
-  showInjury: PropTypes.func,
-};
-
-RosterDisplay.propTypes = {
-  groupPositions: PropTypes.array,
-  roster: PropTypes.array,
-  addDropPlayer: PropTypes.func,
-  mustDrop: PropTypes.bool,
-  pastLockWeek: PropTypes.bool,
-  headerText: PropTypes.string,
-  userId: PropTypes.string,
-};
-
-CurrentRosterRow.propTypes = {
-  mustDrop: PropTypes.bool,
-  player: PropTypes.object,
-  position: PropTypes.string,
-  addDropPlayer: PropTypes.func,
-  pastLockWeek: PropTypes.bool,
-};
-
-InjuryCol.propTypes = {
-  injury: PropTypes.object,
-  showInjury: PropTypes.func,
-};
-
-PlayerDisplayRow.propTypes = {
-  player: PropTypes.object,
-  addDropPlayer: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
-  sortedMatchups: PropTypes.oneOfType([
-    PropTypes.object,
-    PropTypes.array,
-    PropTypes.bool,
-  ]),
-};
-
-PlayerDisplayTable.propTypes = {
-  headerText: PropTypes.string,
-  playerList: PropTypes.array,
-  sortedMatchups: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
-  addDropPlayer: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
-  showInput: PropTypes.bool,
-  inputValue: PropTypes.string,
-  handleChange: PropTypes.func,
-};
 
 export { RosterDisplay, PlayerDisplayRow, PlayerDisplayTable };

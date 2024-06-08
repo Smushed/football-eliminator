@@ -3,7 +3,6 @@ import * as Routes from './constants/routes';
 import { Route, BrowserRouter, Switch } from 'react-router-dom';
 import { withFirebase } from './componenets/Firebase';
 import axios from 'axios';
-import PropTypes from 'prop-types';
 import { Toaster } from 'react-hot-toast';
 
 import SignInOut from './componenets/SignInOut';
@@ -63,15 +62,15 @@ const App = ({ firebase }) => {
 
   const setCurrentUser = (user, emailSettings) => {
     const currentUser = {
-      username: user.UN,
+      username: user.username,
       userId: user._id,
-      isAdmin: user.A,
-      email: user.E,
-      GL: user.GL,
-      MG: user.MG || null,
-      E: {
-        RE: emailSettings.RE,
-        LE: emailSettings.LE,
+      isAdmin: user.admin,
+      email: user.email,
+      GL: user.grouplist,
+      MG: user.mainGroup || null,
+      emailSettings: {
+        reminderEmail: emailSettings.reminderEmail,
+        leaderboardEmail: emailSettings.leaderboardEmail,
       },
     };
     updateCurrentUser(currentUser);
@@ -79,19 +78,19 @@ const App = ({ firebase }) => {
 
   const initGroup = async (user) => {
     updateNoGroup(false);
-    if (user.MG) {
-      const res = await axios.get(`/api/group/details/${user.MG}`);
-      updateCurrentGroup({ N: res.data.N, _id: user.MG });
+    if (user.mainGroup) {
+      const res = await axios.get(`/api/group/details/${user.mainGroup}`);
+      updateCurrentGroup({ name: res.data.name, _id: user.mainGroup });
     } else {
       axios.put(`/api/user/group/main/${user.GL[0]._id}/${user._id}`);
-      updateCurrentGroup({ N: user.GL[0].N, _id: user.GL[0]._id });
+      updateCurrentGroup({ name: user.grouplist[0].name, _id: user.GL[0]._id });
     }
     getSeasonAndWeek();
   };
 
   const changeGroup = async (groupId) => {
     const res = await axios.get(`/api/group/details/${groupId}`);
-    updateCurrentGroup({ N: res.data.N, _id: res.data._id });
+    updateCurrentGroup({ name: res.data.name, _id: res.data._id });
   };
 
   const getSeasonAndWeek = async () => {
@@ -101,7 +100,7 @@ const App = ({ firebase }) => {
     updateLockWeek(data.lockWeek);
   };
 
-  const userHasGroup = (user) => user.GL.length > 0;
+  const userHasGroup = (user) => user.grouplist.length > 0;
 
   const showHideSideBar = () => updateShowSideBar(!showSideBar);
 
@@ -181,7 +180,6 @@ const App = ({ firebase }) => {
                 season={currentSeason}
                 noGroup={noGroup}
                 appLevelLockWeek={lockWeek}
-                updateLockWeek={updateLockWeek}
               />
             )}
           />
@@ -215,10 +213,6 @@ const App = ({ firebase }) => {
       </AvatarWrapper>
     </BrowserRouter>
   );
-};
-
-App.propTypes = {
-  firebase: PropTypes.any,
 };
 
 export default withFirebase(App);

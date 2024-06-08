@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import PropTypes from 'prop-types';
 import ChartLeaderboard from './ChartLeaderboard';
-import Podium from './Podium';
+
+import './leaderBoardStyle.css';
 
 const Leaderboard = ({ season, week, groupId }) => {
   const [leaderboard, updateLeaderboard] = useState([]);
@@ -22,6 +22,14 @@ const Leaderboard = ({ season, week, groupId }) => {
 
   const axiosCancel = axios.CancelToken.source();
 
+  useEffect(() => {
+    return function cancelAPICalls() {
+      if (axiosCancel) {
+        axiosCancel.cancel(`Unmounted`);
+      }
+    };
+  }, []);
+
   const getLeaderBoard = (season, week, groupId) =>
     axios
       .get(`/api/group/leaderboard/${season}/${week}/${groupId}`, {
@@ -33,24 +41,17 @@ const Leaderboard = ({ season, week, groupId }) => {
       })
       .catch((err) => {
         if (err.message !== `Unmounted`) {
-          console.log(err);
+          console.log({ err });
         }
-        throw err;
       });
 
   return (
-    <div className='row border pb-2 mb-2 mt-2 leaderboardContainter'>
-      <div className='col-12'>
+    <div className='row border pb-2 mb-2 mt-2 justify-content-center leaderboardContainter'>
+      <div className='col-md-12 col-lg-10'>
         <ChartLeaderboard leaderboard={leaderboard} />
       </div>
     </div>
   );
-};
-
-Leaderboard.propTypes = {
-  season: PropTypes.string,
-  week: PropTypes.number,
-  groupId: PropTypes.string,
 };
 
 export default Leaderboard;
