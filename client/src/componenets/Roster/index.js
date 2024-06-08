@@ -414,8 +414,7 @@ const Roster = ({
       });
       return;
     }
-    const isLocked = true;
-    // const isLocked = await checkLockPeriod(team);
+    const isLocked = await checkLockPeriod(team);
     if (!isLocked) {
       Alert.fire({
         title: 'Locked!',
