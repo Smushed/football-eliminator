@@ -47,7 +47,7 @@ const AvatarWrapper = ({ children }) => {
     let idMapNodeCount = 0;
 
     for (let i = 0; i < isWorkingSlice.length; i++) {
-      if (idMapNodeCount === 10) {
+      if (idMapNodeCount === 20) {
         idMap.push(idMapNode);
         idMapNodeCount = 0;
         idMapNode = [];
@@ -66,8 +66,9 @@ const AvatarWrapper = ({ children }) => {
 
   const getPlayerAvatars = async (playerIdLinkedList) => {
     try {
-      const avatarRes = await axios.post(`/api/user/playerAvatars/`, {
-        avatars: playerIdLinkedList.val,
+      const avatarRes = await axios.post(`/api/avatar/ids/`, {
+        idArray: playerIdLinkedList.val,
+        isUser: false,
       });
       updatePlayerAvatars({ ...playerAvatars, ...avatarRes.data });
       if (nextNode) {
@@ -82,8 +83,9 @@ const AvatarWrapper = ({ children }) => {
 
   const getUserAvatars = async (userAvatarList) => {
     try {
-      const avatarRes = await axios.post(`/api/user/userAvatars/`, {
-        userIdList: userAvatarList,
+      const avatarRes = await axios.post(`/api/avatar/ids/`, {
+        idArray: userAvatarList,
+        isUser: true,
       });
       updateUserAvatars({ ...userAvatars, ...avatarRes.data });
     } catch (err) {

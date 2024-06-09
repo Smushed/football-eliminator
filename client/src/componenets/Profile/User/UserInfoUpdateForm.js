@@ -107,7 +107,7 @@ const UserInfoUpdateForm = ({
   };
 
   const saveAvatarToAWS = (updatedAvatar) => {
-    fetch(`/api/user/avatar/${currentUser.userId}`, {
+    fetch(`/api/avatar/${currentUser.userId}`, {
       method: 'PUT',
       headers: {
         Accept: 'application/json',

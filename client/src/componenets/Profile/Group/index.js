@@ -102,7 +102,7 @@ const Profile = ({
     const idToUpdate =
       match.params.type === `user` ? currentUser.userId : groupInfo._id;
     //Using Fetch here to send along the base64 encoded image
-    fetch(`/api/user/avatar/${idToUpdate}`, {
+    fetch(`/api/avatar/${idToUpdate}`, {
       method: `PUT`,
       headers: {
         Accept: 'application/json',
