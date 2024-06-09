@@ -5,11 +5,11 @@ import {
   PutObjectCommand,
   GetObjectCommand,
 } from '@aws-sdk/client-s3';
-import { fileURLToPath } from 'url';
-import * as path from 'path';
 import Jimp from 'jimp';
 import db from '../models/index.js';
 import { createLinkedList } from '../utils/LinkedList.js';
+import { getPlayerOutline, getUserGenericAvatar } from '../utils/JimpUtils.js';
+import cacheHandler from './cacheHandler.js';
 
 const client = new S3Client({
   region: 'us-east-2',
@@ -18,8 +18,6 @@ const client = new S3Client({
     secretAccessKey: process.env.AWS_SECRET_KEY,
   },
 });
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const verifyAvatar = (base64Avatar) => {
   return new Promise((res, rej) => {
@@ -49,18 +47,6 @@ const genericUserAvatar = async () => {
   res(genAvatar);
 };
 
-const readWithJimp = (image, mimeType) =>
-  new Promise((res, rej) => {
-    Jimp.read(image)
-      .then(async (img) => {
-        res(await img.getBase64Async(mimeType));
-      })
-      .catch((err) => {
-        console.log({ err });
-        res();
-      });
-  });
-
 const getAvatarFromAWS = async (getCommand, isUser) =>
   new Promise(async (res, rej) => {
     try {
@@ -71,11 +57,11 @@ const getAvatarFromAWS = async (getCommand, isUser) =>
       if (err.Code !== 'NoSuchKey') {
         console.log({ err });
       }
-      let avatarPath = '../constants/images/playerOutline.png';
       if (isUser) {
-        avatarPath = '../constants/images/stockFootballPlayer.jpg';
+        res(await getUserGenericAvatar());
+      } else {
+        res(await getPlayerOutline());
       }
-      res(await readWithJimp(join(__dirname, avatarPath), Jimp.MIME_JPEG));
     }
   });
 
@@ -147,6 +133,7 @@ export default {
     });
     try {
       await client.send(command);
+      cacheHandler.addToCache({ id, base64Avatar });
     } catch (err) {
       console.log(`Error Uploading Avatar for ${id}   err: `, err);
     }
@@ -182,16 +169,6 @@ export default {
     });
     return await getAvatarFromAWS(command, false);
   },
-  getPlayerOutlineAvatar: () => {
-    return new Promise(async (res) => {
-      res(
-        await readWithJimp(
-          join(__dirname, '../constants/images/playerOutline.png'),
-          Jimp.MIME_JPEG
-        )
-      );
-    });
-  },
   getMultiplePlayerAvatars: async function (idArray) {
     const avatarsById = {};
     const playerAvatars = await db.PlayerData.find(
@@ -209,7 +186,7 @@ export default {
         });
         avatar = await getAvatarFromAWS(command, false);
       } else {
-        avatar = await this.getPlayerOutlineAvatar();
+        avatar = getPlayerOutline();
       }
       avatarsById[id.mySportsId] = avatar;
     }

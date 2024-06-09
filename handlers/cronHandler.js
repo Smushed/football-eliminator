@@ -1,3 +1,4 @@
+import 'dotenv/config.js';
 import schedule from 'node-schedule';
 import moment from 'moment-timezone';
 import dates from '../constants/dates.js';
@@ -5,6 +6,7 @@ import mySportsHandler from '../handlers/mySportsHandler.js';
 import rosterHandler from '../handlers/rosterHandler.js';
 import groupHandler from '../handlers/groupHandler.js';
 import emailHandler from '../handlers/emailHandler.js';
+import cacheHandler from './cacheHandler.js';
 import nflTeams from '../constants/nflTeams.js';
 
 // Schedule a job for the 22nd minute of each hour
@@ -108,6 +110,12 @@ const emailLeaderboard = () =>
     }
   });
 
+//Every day at 2am reseed the cache
+const seedCache = () =>
+  schedule.scheduleJob('00 08 * 1,9-12 *', async function () {
+    cacheHandler.initCache();
+  });
+
 const allScheduledGames = (season) => {
   let i = 1;
   mySportsHandler.pullMatchUpsForDB(season, 18);
@@ -140,26 +148,6 @@ const updatePlayerData = async (season, week) => {
   return;
 };
 
-// import db from '../models/index.js';
-
-// const test = async () => {
-//   const idealRoster = await db.IdealRoster.find();
-//   for (let i = 0; i < idealRoster.length; i++) {
-//     const newRoster = [];
-//     for (let ii = 0; ii < idealRoster[i].R.length; ii++) {
-//       const newPlayer = {};
-//       newPlayer.mySportsId = idealRoster[i].R[ii].mySportId;
-//       newPlayer.score = idealRoster[i].R[ii].score;
-//       newRoster.push(newPlayer);
-//       // idealRoster[i].roster[ii].mySportsId = idealRoster[i].R[ii].mySportId;
-//       // idealRoster[i].roster[ii].score = idealRoster[i].R[ii].score;
-//     }
-//     await db.IdealRoster.findByIdAndUpdate(idealRoster[i]._id, {
-//       roster: newRoster,
-//     });
-//   }
-// };
-
 export default () => {
   checkLockWeek();
   dailyScoreUpdate();
@@ -171,5 +159,5 @@ export default () => {
   updatePlayers();
   updateIdealRoster();
   emailLeaderboard();
-  // test();
+  seedCache();
 };

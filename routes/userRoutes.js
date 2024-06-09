@@ -73,35 +73,6 @@ export default (app) => {
   //   res.status(200).send(`success`);
   // });
 
-  app.put('/api/user/avatar/:id', (req, res) => {
-    const { id } = req.params;
-    const { image } = req.body;
-    try {
-      s3Handler.uploadAvatar(id, image);
-      res.status(200).send('success');
-    } catch (err) {
-      res.status(500).send('Error Saving the Avatar');
-    }
-  });
-
-  app.get('/api/user/avatar/:id', async (req, res) => {
-    const { id } = req.params;
-    const avatar = await s3Handler.getUserAvatar(id);
-    res.status(200).send(avatar);
-  });
-
-  app.post('/api/user/userAvatars', async (req, res) => {
-    const { userIdList } = req.body;
-    const response = await s3Handler.getMultipleUserAvatars(userIdList);
-    res.status(200).send(response);
-  });
-
-  app.post('/api/user/playerAvatars', async (req, res) => {
-    const { avatars } = req.body;
-    const response = await s3Handler.getMultiplePlayerAvatars(avatars);
-    res.status(200).send(response);
-  });
-
   app.get('/api/user/profile/box/:userId', async (req, res) => {
     const { userId } = req.params;
     Promise.all([

@@ -10,6 +10,8 @@ import mySportsRoutes from './routes/mySportsRoutes.js';
 import groupRoutes from './routes/groupRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import cronHandler from './handlers/cronHandler.js';
+import cacheHandler from './handlers/cacheHandler.js';
+import avatarRoutes from './routes/avatarRoutes.js';
 
 const PORT = process.env.PORT || 8081;
 const app = express();
@@ -40,13 +42,16 @@ rosterRoutes(app);
 mySportsRoutes(app);
 groupRoutes(app);
 userRoutes(app);
+avatarRoutes(app);
 
 if (process.env.CRON_ENABLED === 'true') {
   cronHandler();
 }
 
-// Send every other request to the React app
-// Define any API routes before this runs
+if (process.env.CACHE_ENABLED === 'true') {
+  cacheHandler.initCache();
+}
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, './client/build/index.html'));
 });
