@@ -22,7 +22,7 @@ const checkLockWeek = () =>
     startWeek(currDate, currDBWeeks, 1);
   });
 
-// Update Scores every day at 3am Chicago time
+// Check Player Rosters at 3am Chicago Time
 const dailyScoreUpdate = () =>
   schedule.scheduleJob('0 9 * 1,9-12 *', async function () {
     console.log('Running player roster update');
@@ -32,31 +32,21 @@ const dailyScoreUpdate = () =>
     allScheduledGames(season);
   });
 
+//3:15am get weekly data and save it
 const scorePlayersAndGroups = () =>
   schedule.scheduleJob('15 9 * 1,9-12 *', async function () {
     const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
     console.log('Scoring players and groups update');
-    updatePlayerData(season, week);
+    updatePlayersWithWeeklyData(season, week);
   });
 
-//Rank the Players
+//3:30am rank the players, after weekly pull was complete
 const updateAndRankPlayers = () =>
   schedule.scheduleJob('30 9 * 1,9-12 *', async function () {
     console.log('Running roster and score update');
     const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
     await rosterHandler.scoreAllGroups(season, week);
-
-    //Default to the clapper as the 'main' group for the rankings
-    const clapper = await groupHandler.getGroupData('Eliminator');
-    const groupScore = await groupHandler.getGroupScore(clapper._id);
-
-    const rankedPlayers = await mySportsHandler.rankPlayers(
-      season,
-      week,
-      groupScore,
-      true
-    );
-    await mySportsHandler.savePlayerRank(rankedPlayers);
+    await rosterHandler.rankPlayersBasedOnGroup(season, week, 'Eliminator');
   });
 
 const updateTeamRoster = () =>
@@ -68,17 +58,17 @@ const updateTeamRoster = () =>
 // Thursday and Monday games (these are in UTC)
 const updateForWeekdayGames = () =>
   schedule.scheduleJob('0 0-5 * 1,9-12 2,5', async function () {
-    console.log('Running bi-hourly Monday and Thursday game score');
+    console.log('Running hourly Monday and Thursday game score');
     const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
-    updatePlayerData(season, week);
+    updatePlayersWithWeeklyData(season, week);
   });
 
-// Update most often on Sunday
+// Update every hour on Sunday
 const updateBiHourlySundays = () =>
   schedule.scheduleJob('0 17-23 * 1,9-12 0', async function () {
-    console.log('Running bi-hourly Sunday job');
+    console.log('Running hourly Sunday job');
     const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
-    updatePlayerData(season, week);
+    updatePlayersWithWeeklyData(season, week);
   });
 
 // Before email is sent out update the players
@@ -86,7 +76,7 @@ const updatePlayers = () =>
   schedule.scheduleJob('00 12 * 1,9-12 2', async function () {
     console.log('Running scoring again an hour before email is sent out');
     const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
-    await mySportsHandler.getEveryWeekData(season, week);
+    updatePlayersWithWeeklyData();
     await rosterHandler.scoreAllGroups(season, week);
   });
 
@@ -142,10 +132,15 @@ const startWeek = (currDate, currDBWeeks, currWeek) => {
   }
 };
 
-const updatePlayerData = async (season, week) => {
-  await mySportsHandler.getWeeklyData(season, week);
+const updatePlayersWithWeeklyData = async (season, week) => {
+  const playersByPosition = await mySportsHandler.getWeeklyData(season, week);
+  await mySportsHandler.updatePlayerDataFromWeeklyPull(playersByPosition);
+  await mySportsHandler.updatePlayerScoresForWeek(
+    playersByPosition,
+    season,
+    week
+  );
   await rosterHandler.scoreAllGroups(season, week);
-  return;
 };
 
 export default () => {

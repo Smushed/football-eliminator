@@ -22,26 +22,27 @@ const sendEmail = async (user, subject, html, text) => {
     Message: {
       Body: {
         Html: {
-          Charset: `UTF-8`,
+          Charset: 'UTF-8',
           Data: html,
         },
         Text: {
-          Charset: `UTF-8`,
+          Charset: 'UTF-8',
           Data: text,
         },
       },
       Subject: {
-        Charset: `UTF-8`,
+        Charset: 'UTF-8',
         Data: subject,
       },
     },
-    Source: `kevin@eliminator.football`,
+    Source: 'kevin@eliminator.football',
     ReplyToAddresses: ['smushedcode@gmail.com'],
   };
 
   const sendEmail = new SendEmailCommand(sesEmailBuilder);
   try {
     await client.send(sendEmail);
+    console.log(`Email sent to ${user}`);
   } catch (err) {
     console.log('Error Sending Email: ', { err });
   }
@@ -229,7 +230,7 @@ export default {
     const idealRoster = await groupHandler.getIdealRoster(
       group._id,
       season,
-      week
+      week + 1
     );
     const filledIdealRoster = await mySportsHandler.fillUserRoster(
       idealRoster.roster
@@ -259,9 +260,12 @@ export default {
     );
 
     for (const user of emailList) {
-      const HTMLemail = await unsubscribe.appendHTML(HTMLTemplate, user.id);
-      const textEmail = await unsubscribe.appendText(textTemplate, user.id);
-      sendEmail(user.email, subject, HTMLemail, textEmail);
+      if (user.email === 'smushedcode@gmail.com') {
+        console.log('hit');
+        const HTMLemail = await unsubscribe.appendHTML(HTMLTemplate, user.id);
+        const textEmail = await unsubscribe.appendText(textTemplate, user.id);
+        // sendEmail(user.email, subject, HTMLemail, textEmail);
+      }
     }
   },
   sendYearlyRecapEmail: async (

@@ -3,7 +3,7 @@ import { table } from 'table';
 export default {
   leaderBoardRowBuilder: (leaderboard) => {
     return new Promise(async (res, rej) => {
-      let rows = ``;
+      let rows = '';
       for (let i = 0; i < leaderboard.length; i++) {
         rows += `<div style='margin-left: 10px;
                                     margin-right: 10px;
@@ -16,12 +16,12 @@ export default {
                             justify-self: flex-start;
                             padding-left: 35px; 
                             text-overflow: ellipsis;'>
-                    ${leaderboard[i].UN}
+                    ${leaderboard[i].username}
                 </div>
                 <div style='width: 25%;
                             text-align: center; 
                             text-overflow: ellipsis;'>
-                    ${leaderboard[i].CW.toLocaleString('en-US', {
+                    ${leaderboard[i].currentWeek.toLocaleString('en-US', {
                       maximumFractionDigits: 2,
                       minimumFractionDigits: 2,
                     })}
@@ -30,7 +30,7 @@ export default {
                             text-align: center;
                             padding-right: 20px; 
                             text-overflow: ellipsis;'>
-                    ${leaderboard[i].TS.toLocaleString('en-US', {
+                    ${leaderboard[i].totalScore.toLocaleString('en-US', {
                       maximumFractionDigits: 2,
                       minimumFractionDigits: 2,
                     })}
@@ -73,7 +73,7 @@ export default {
                     <span style='width: 20%;
                                 font-size: 24px;
                                 font-weight: 600;'>
-                        Week ${week}
+                        Week ${week + 1}
                     </span>
                 </div>
                 <div style='margin-left: 10px;
@@ -109,16 +109,16 @@ export default {
     return new Promise(async (res, rej) => {
       let rows = [];
       for (let i = 0; i < leaderboard.length; i++) {
-        const username = leaderboard[i].UN;
-        const currWeek = leaderboard[i].CW.toLocaleString('en-US', {
+        const username = leaderboard[i].username;
+        const currentWeek = leaderboard[i].currentWeek.toLocaleString('en-US', {
           maximumFractionDigits: 2,
           minimumFractionDigits: 2,
         });
-        const totalScore = leaderboard[i].TS.toLocaleString('en-US', {
+        const totalScore = leaderboard[i].totalScore.toLocaleString('en-US', {
           maximumFractionDigits: 2,
           minimumFractionDigits: 2,
         });
-        rows.push([username, currWeek, totalScore]);
+        rows.push([username, currentWeek, totalScore]);
       }
       res(rows);
     });

@@ -17,7 +17,7 @@ export default {
                                     overflow: hidden;'>
                     <div style='padding-top: 8px;
                                 min-width: 70px;'>
-                        ${groupPos[i].N}
+                        ${groupPos[i].name}
                     </div>
                     <div style='width: 80%;'>
                         <div style='width: 90%;
@@ -26,17 +26,17 @@ export default {
                             <div style='padding-top: 8px;
                                         padding-bottom: 8px;
                                         min-width: 150px;'>
-                                ${filledRoster[i].N}
+                                ${filledRoster[i].name}
                             </div>
                             <div style='padding-top: 8px;
                                         padding-bottom: 8px;
                                         min-width: 40px;'>
-                                ${filledRoster[i].T}
+                                ${filledRoster[i].team}
                             </div>
                             <div style='padding-top: 8px;
                                         padding-bottom: 8px;
                                         min-width: 40px;'>
-                                ${filledRoster[i].SC.toFixed(2)}
+                                ${filledRoster[i].score.toFixed(2)}
                             </div>
                         </div>
                     </div>
@@ -75,10 +75,10 @@ export default {
     let rows = [];
     for (let i = 0; i < filledRoster.length; i++) {
       rows.push([
-        groupPos[i].N,
-        filledRoster[i].N,
-        filledRoster[i].T,
-        filledRoster[i].SC.toFixed(2),
+        groupPos[i].name,
+        filledRoster[i].name,
+        filledRoster[i].team,
+        filledRoster[i].score.toFixed(2),
       ]);
     }
     return rows;
