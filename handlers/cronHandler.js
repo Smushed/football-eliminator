@@ -144,25 +144,16 @@ const updatePlayersWithWeeklyData = async (season, week) => {
   await rosterHandler.scoreAllGroups(season, week);
 };
 
-import db from '../models/index.js';
-
-const test = async () => {
-  const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
-  const group = await db.Group.findOne({ name: 'Eliminator' });
-  emailHandler.sendLeaderBoardEmail(group, season, +week - 1);
-};
-
 export default () => {
-  // checkLockWeek();
-  // dailyScoreUpdate();
-  // scorePlayersAndGroups();
-  // updateAndRankPlayers();
-  // updateTeamRoster();
-  // updateForWeekdayGames();
-  // updateBiHourlySundays();
-  // updatePlayers();
-  // updateIdealRoster();
-  // emailLeaderboard();
-  // seedCache();
-  test();
+  checkLockWeek();
+  dailyScoreUpdate();
+  scorePlayersAndGroups();
+  updateAndRankPlayers();
+  updateTeamRoster();
+  updateForWeekdayGames();
+  updateBiHourlySundays();
+  updatePlayers();
+  updateIdealRoster();
+  emailLeaderboard();
+  seedCache();
 };

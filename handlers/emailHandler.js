@@ -49,33 +49,25 @@ const sendEmail = async (user, subject, html, text) => {
   }
 };
 
-const cssStyles = `<style>
-    .container {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      background-color: #FFFFFF;
-    }
-    @media (min-width: 960px) {
-      width: 960px;
-    }
-    .eliminatorLogo {
-      max-width: 100%
-    }
-</style>`;
-
 const composeWeeklyHTMLEmail = async (firstItem, secondItem) => {
-  return `${cssStyles}
-  <div class='container'>
-    <div class='eliminatorLogoContainer'>
-      <img class='eliminatorLogo' src='https://www.eliminator.football/static/media/ElimLogoNoThe.8e4988fefb0acb6998ff.png' alt='EliminatorLogo'></img>
+  return `<div style='width: 100%;
+                      max-width: fit-content;
+                      margin-left: auto;
+                      margin-right: auto;'>
+    <div style='text-align: center;'>
+      <a href='https://www.eliminator.football' target='_blank'>
+        <img style='max-width: 350px;' src='https://i.imgur.com/tp67gkG.png' alt='EliminatorLogo'></img>
+      </a>
     </div>
   
     ${firstItem}
   
-    ${secondItem}
+    <div style='width: 100%;
+                max-width: fit-content;
+                margin-left: auto;
+                margin-right: auto;'>
+      ${secondItem}
+    </div>
   </div>`;
 };
 
@@ -183,15 +175,14 @@ const createLeaderBoard = async (group, season, week) => {
     season,
     week
   );
-  const leaderBoardImage = leaderBoardBuilder.createLeaderBoardChart(
-    leaderBoard,
+  const rows = await leaderBoardBuilder.leaderBoardRowBuilder(leaderBoard);
+  const leaderBoardHTML = leaderBoardBuilder.leaderBoardTemplate(
+    rows,
     group.name,
     week
   );
-  const leaderBoardHTML =
-    leaderBoardBuilder.leaderBoardTemplate(leaderBoardImage);
-
   const textRows = await leaderBoardBuilder.leaderBoardTextRows(leaderBoard);
+
   const leaderBoardText = leaderBoardBuilder.leaderBoardTextTemplate(
     textRows,
     group.name,
@@ -290,8 +281,15 @@ export default {
 
     for (const user of emailList) {
       if (user.email === 'smushedcode@gmail.com') {
-        const HTMLemail = await unsubscribe.appendHTML(HTMLTemplate, user.id);
-        const textEmail = await unsubscribe.appendText(textTemplate, user.id);
+        console.log({ toString: user._id.toString(), noString: user._id });
+        const HTMLemail = unsubscribe.appendHTML(
+          HTMLTemplate,
+          user._id.toString()
+        );
+        const textEmail = unsubscribe.appendText(
+          textTemplate,
+          user._id.toString()
+        );
         sendEmail(user.email, subject, HTMLemail, textEmail);
       }
     }
@@ -353,7 +351,7 @@ export default {
         emailList.push({ email: response.email, id: response._id });
       }
     }
-
+    console.log({ emailList });
     for (const user of emailList) {
       const HTMLemail = await unsubscribe.appendHTML(HTMLTemplate, user.id);
       const textEmail = await unsubscribe.appendText(textTemplate, user.id);

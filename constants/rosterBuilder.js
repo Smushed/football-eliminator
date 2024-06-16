@@ -53,20 +53,20 @@ export default {
                                 font-size: 24px;
                                 font-weight: 600;
                                 text-align: center;'>
-                        User ${username} from week ${week}
+                        User ${username} from Week ${week}
                     </div>
                     ${rows}
                 </div>`;
   },
   idealRosterBuilder: async (rows, week) => {
     return `<div style='width: 355px;
-                            border: 1px solid lightgray';
-                            border-radius: 15px;>
+                        border: 1px solid lightgray';
+                        border-radius: 10px;>
                     <div style='background-color: rgb(166, 241, 166);
                                 font-size: 24px;
                                 font-weight: 600;
                                 text-align: center;'>
-                        Ideal Roster from week ${week}
+                        Ideal Roster from Week ${week}
                       </div>
                       ${rows}
                   </div>`;
