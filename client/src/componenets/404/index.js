@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { home } from '../../constants/routes';
 import PoorBaby from './Champs.jpg';
-import whiteBackground from '../../constants/elimLogos/ElimLogoNoTheWhiteBackground.png';
+import whiteBackground from '../../constants/elimLogos/DarkModeLargeElimLogo.png';
 import './404style.css';
 
 const FourOFour = () => {
