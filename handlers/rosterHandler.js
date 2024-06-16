@@ -137,27 +137,8 @@ const createUsedPlayers = (userId, season, groupId, position) =>
     }
   });
 
-const checkDupeWeeklyRoster = async (userId, week, season, groupId) => {
-  const search = await db.UserRoster.findOne({
-    userId,
-    week,
-    season,
-    groupId,
-  })
-    .lean()
-    .exec();
-  if (search !== null) {
-    return true;
-  } else {
-    return false;
-  }
-};
-
 const createWeeklyRoster = async function (userId, week, season, groupId) {
   const groupRoster = await db.GroupRoster.findOne({ groupId });
-  if (await checkDupeWeeklyRoster(userId, week, season, groupId)) {
-    return false;
-  }
 
   const roster = groupRoster.position.map(() => ({
     mySportsId: 0,
@@ -173,28 +154,22 @@ const createWeeklyRoster = async function (userId, week, season, groupId) {
   }).exec();
 };
 
-const getAllRostersByGroupAndWeek = async (season, week, groupId) =>
+const getWeeklyGroupRostersCreateIfNotExist = async (season, week, group) =>
   new Promise(async (res, rej) => {
-    const group = await db.Group.findById(groupId).exec();
     const userRosters = await db.UserRoster.find({
-      season,
-      week,
-      groupId,
+      season: season,
+      week: week,
+      groupId: group._id,
     })
       .lean()
       .exec();
     const completeRosters = userRosters.slice(0);
+    const userIdArray = userRosters.map((roster) => roster.userId);
     if (group.userlist.length !== userRosters.length) {
-      for (let user of group.userlist) {
-        let isIncluded = false;
-        for (let userRoster of userRosters) {
-          if (userRoster.userId.toString() === user.userId.toString()) {
-            isIncluded = true;
-          }
-        }
-        if (!isIncluded) {
+      for (const user of group.userlist) {
+        if (!userIdArray.includes(user.userId)) {
           completeRosters.push(
-            await createWeeklyRoster(user.userId, week, season, groupId)
+            await createWeeklyRoster(user.userId, week, season, group._id)
           );
         }
       }
@@ -223,12 +198,6 @@ const sortUsersByScore = async (userRosterArray, groupId, season) =>
     }
     sortedScores.sort((a, b) => b.totalScore - a.totalScore);
     res(sortedScores);
-  });
-
-const pullGroupRostersForScoring = async (season, week, groupId) =>
-  new Promise(async (res, rej) => {
-    const allRosters = await getAllRostersByGroupAndWeek(season, week, groupId);
-    res(allRosters);
   });
 
 const checkRoster = async (groupId, newRoster) =>
@@ -419,10 +388,11 @@ export default {
   getAllRostersForGroup: async (season, week, groupId) =>
     new Promise(async (res, rej) => {
       const userRosters = [];
-      const allRosters = await getAllRostersByGroupAndWeek(
+      const group = await db.Group.findById(groupId);
+      const allRosters = await getWeeklyGroupRostersCreateIfNotExist(
         season,
         week,
-        groupId
+        group
       );
       for (const roster of allRosters) {
         const filledRoster = await mySportsHandler.fillUserRoster(
@@ -554,38 +524,47 @@ export default {
     }
   },
   scoreAllGroups: async (season, week) => {
-    const allGroups = await groupHandler.getAllGroups();
+    const allGroups = await db.Group.find().lean().exec();
     for (const group of allGroups) {
-      console.log(`scoring ${group.name}`);
-      let groupScore;
+      console.log(`Scoring ${group.name}`);
+      const groupScore = await db.GroupScore.findOne({ groupId: group._id })
+        .lean()
+        .exec();
       for (let i = 1; i <= week; i++) {
-        const groupRosters = await getAllRostersByGroupAndWeek(
+        const groupRosters = await getWeeklyGroupRostersCreateIfNotExist(
           season,
           i,
-          group._id
+          group
         );
-        groupScore = await groupHandler.getGroupScore(group._id);
-        await mySportsHandler.calculateWeeklyScore(
-          groupRosters,
-          season,
-          i,
-          group._id,
-          groupScore
-        );
-        console.log(`done scoring week ${i}`);
-      }
-      if (group.N === `Eliminator`) {
-        console.log('Starting to Rank players');
-        const rankedPlayers = await mySportsHandler.rankPlayers(
-          season,
-          week,
-          groupScore,
-          true
-        );
-        console.log('Saving player Ranks');
-        await mySportsHandler.savePlayerRank(rankedPlayers);
+
+        for (const user of groupRosters) {
+          await mySportsHandler.updateUserWeeklyAndTotalScore(
+            user.roster,
+            season,
+            i,
+            user.userId,
+            groupScore,
+            group._id
+          );
+        }
+        console.log(`Done scoring week ${i}`);
       }
     }
+  },
+  rankPlayersBasedOnGroup: async (season, week, groupName) => {
+    const { _id } = await db.Group.findOne({ name: groupName }, { _id: 1 })
+      .lean()
+      .exec();
+    const groupScore = await db.GroupScore.findOne({ groupId: _id });
+    console.log('Starting to Rank players');
+    const rankedPlayersByPosition = await mySportsHandler.rankPlayers(
+      season,
+      week,
+      groupScore,
+      true
+    );
+    console.log('Saving player Ranks');
+    await mySportsHandler.savePlayerRank(rankedPlayersByPosition);
   },
   getBestUserWeek: async function (groupId, season, maxWeek) {
     const fullSeasonGroupScore = await db.UserScores.find({

@@ -5,6 +5,7 @@ import leaderBoardBuilder from '../constants/leaderBoardBuilder.js';
 import rosterBuilder from '../constants/rosterBuilder.js';
 import unsubscribe from '../constants/unsubscribe.js';
 import mySportsHandler from './mySportsHandler.js';
+import db from '../models/index.js';
 
 const client = new SESClient({
   region: 'us-east-2',
@@ -22,41 +23,52 @@ const sendEmail = async (user, subject, html, text) => {
     Message: {
       Body: {
         Html: {
-          Charset: `UTF-8`,
+          Charset: 'UTF-8',
           Data: html,
         },
         Text: {
-          Charset: `UTF-8`,
+          Charset: 'UTF-8',
           Data: text,
         },
       },
       Subject: {
-        Charset: `UTF-8`,
+        Charset: 'UTF-8',
         Data: subject,
       },
     },
-    Source: `kevin@eliminator.football`,
+    Source: 'kevin@eliminator.football',
     ReplyToAddresses: ['smushedcode@gmail.com'],
   };
 
   const sendEmail = new SendEmailCommand(sesEmailBuilder);
   try {
     await client.send(sendEmail);
+    console.log(`Email sent to ${user}`);
   } catch (err) {
     console.log('Error Sending Email: ', { err });
   }
 };
 
-const composeWeeklyHTMLEmail = async (firstItem, secondItem, week) => {
-  return `<div style='font-weight:600;
-                        font-size: 24px;
-                        margin-bottom: 15px;'>
-    Week ${week} Eliminator Results
+const composeWeeklyHTMLEmail = async (firstItem, secondItem) => {
+  return `<div style='width: 100%;
+                      max-width: fit-content;
+                      margin-left: auto;
+                      margin-right: auto;'>
+    <div style='text-align: center;'>
+      <a href='https://www.eliminator.football' target='_blank'>
+        <img style='max-width: 350px;' src='https://i.imgur.com/tp67gkG.png' alt='EliminatorLogo'></img>
+      </a>
     </div>
-
+  
     ${firstItem}
-    
-    ${secondItem}`;
+  
+    <div style='width: 100%;
+                max-width: fit-content;
+                margin-left: auto;
+                margin-right: auto;'>
+      ${secondItem}
+    </div>
+  </div>`;
 };
 
 const composeWeeklyTextEmail = async (firstItem, secondItem, week) => {
@@ -169,8 +181,8 @@ const createLeaderBoard = async (group, season, week) => {
     group.name,
     week
   );
-
   const textRows = await leaderBoardBuilder.leaderBoardTextRows(leaderBoard);
+
   const leaderBoardText = leaderBoardBuilder.leaderBoardTextTemplate(
     textRows,
     group.name,
@@ -219,9 +231,19 @@ const createIdealRoster = async (groupPos, roster, week) => {
 export default {
   sendLeaderBoardEmail: async (group, season, week) => {
     let userIdArray = group.userlist.map((user) => user.userId.toString());
-    let emailList = await userHandler.getGroupEmailSettings(userIdArray);
+    let emailList = await db.UserReminderSettings.find(
+      {
+        userId: { $in: userIdArray },
+        leaderboardEmail: true,
+      },
+      { userId: 1 }
+    )
+      .lean()
+      .exec();
     userIdArray = emailList.map((user) => user.userId.toString());
-    emailList = await userHandler.getUsersEmail(userIdArray);
+    emailList = await db.User.find({ _id: { $in: userIdArray } }, { email: 1 })
+      .lean()
+      .exec();
 
     const subject = `Eliminator - Week ${week}`;
 
@@ -229,7 +251,7 @@ export default {
     const idealRoster = await groupHandler.getIdealRoster(
       group._id,
       season,
-      week
+      week + 1
     );
     const filledIdealRoster = await mySportsHandler.fillUserRoster(
       idealRoster.roster
@@ -246,7 +268,6 @@ export default {
       filledIdealRoster,
       week
     );
-
     const HTMLTemplate = await composeWeeklyHTMLEmail(
       leaderBoardHTML,
       idealRosterHTML,
@@ -259,9 +280,18 @@ export default {
     );
 
     for (const user of emailList) {
-      const HTMLemail = await unsubscribe.appendHTML(HTMLTemplate, user.id);
-      const textEmail = await unsubscribe.appendText(textTemplate, user.id);
-      sendEmail(user.email, subject, HTMLemail, textEmail);
+      if (user.email === 'smushedcode@gmail.com') {
+        console.log({ toString: user._id.toString(), noString: user._id });
+        const HTMLemail = unsubscribe.appendHTML(
+          HTMLTemplate,
+          user._id.toString()
+        );
+        const textEmail = unsubscribe.appendText(
+          textTemplate,
+          user._id.toString()
+        );
+        sendEmail(user.email, subject, HTMLemail, textEmail);
+      }
     }
   },
   sendYearlyRecapEmail: async (
@@ -321,7 +351,7 @@ export default {
         emailList.push({ email: response.email, id: response._id });
       }
     }
-
+    console.log({ emailList });
     for (const user of emailList) {
       const HTMLemail = await unsubscribe.appendHTML(HTMLTemplate, user.id);
       const textEmail = await unsubscribe.appendText(textTemplate, user.id);

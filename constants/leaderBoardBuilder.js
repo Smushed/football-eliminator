@@ -1,6 +1,43 @@
 import { table } from 'table';
+import QuickChart from 'quickchart-js';
 
 export default {
+  createLeaderBoardChart: (leaderBoard, groupName, week) => {
+    const chartOptions = {
+      maintainAspectRatio: true,
+      title: {
+        display: true,
+        text: `Week ${week} ${groupName} Leaderboard`,
+      },
+      legend: {
+        display: false,
+      },
+    };
+    const usernameList = leaderBoard.map((user) => user.username);
+    const chartData = leaderBoard.map((user) => user.totalScore);
+    const chart = new QuickChart();
+    chart.setConfig({
+      type: 'horizontalBar',
+      data: {
+        labels: usernameList,
+        datasets: [
+          {
+            label: 'Leaderboard',
+            data: chartData,
+            borderColor: '#65a865',
+            backgroundColor: '#90EE90',
+          },
+        ],
+      },
+      options: chartOptions,
+    });
+    chart.setWidth(500);
+    chart.setHeight(300);
+
+    return `<div>
+      <img style='max-width: 960px;' src=${chart.getUrl()} alt='Having Trouble Reading this email? Allow Remote Content'></img>
+    </div>`;
+  },
   leaderBoardRowBuilder: (leaderboard) => {
     return new Promise(async (res, rej) => {
       let rows = ``;
@@ -16,12 +53,12 @@ export default {
                             justify-self: flex-start;
                             padding-left: 35px; 
                             text-overflow: ellipsis;'>
-                    ${leaderboard[i].UN}
+                    ${leaderboard[i].username}
                 </div>
                 <div style='width: 25%;
                             text-align: center; 
                             text-overflow: ellipsis;'>
-                    ${leaderboard[i].CW.toLocaleString('en-US', {
+                    ${leaderboard[i].currentWeek.toLocaleString('en-US', {
                       maximumFractionDigits: 2,
                       minimumFractionDigits: 2,
                     })}
@@ -30,7 +67,7 @@ export default {
                             text-align: center;
                             padding-right: 20px; 
                             text-overflow: ellipsis;'>
-                    ${leaderboard[i].TS.toLocaleString('en-US', {
+                    ${leaderboard[i].totalScore.toLocaleString('en-US', {
                       maximumFractionDigits: 2,
                       minimumFractionDigits: 2,
                     })}
@@ -42,7 +79,8 @@ export default {
     });
   },
   leaderBoardTemplate: (userRows, groupName, week) => {
-    return `<div style='width: 500px;'>
+    return `<div style='width: 500px;
+                        margin-top: 15px'>
             <div style='border: 1px solid lightgray;
                         border-radius: 10px;
                         margin: auto;
@@ -60,9 +98,11 @@ export default {
                             background-color: rgb(166, 241, 166);
                             border-top-left-radius: 10px;
                             border-top-right-radius: 10px;'>
-                    <span style='width: 35%;
+                    <span style='width: 30%;
                                 font-size: 24px;
-                                font-weight: 600;'>
+                                font-weight: 600;
+                                margin-left: 10px;
+                                margin-top: 4px;'>
                             ${groupName}
                     </span>
                     <span style='width: 45%;
@@ -72,7 +112,8 @@ export default {
                     </span>
                     <span style='width: 20%;
                                 font-size: 24px;
-                                font-weight: 600;'>
+                                font-weight: 600;
+                                margin-top: 5px;'>
                         Week ${week}
                     </span>
                 </div>
@@ -105,24 +146,23 @@ export default {
             </div>
         </div>`;
   },
-  leaderBoardTextRows: (leaderboard) => {
-    return new Promise(async (res, rej) => {
+  leaderBoardTextRows: (leaderboard) =>
+    new Promise(async (res, rej) => {
       let rows = [];
       for (let i = 0; i < leaderboard.length; i++) {
-        const username = leaderboard[i].UN;
-        const currWeek = leaderboard[i].CW.toLocaleString('en-US', {
+        const username = leaderboard[i].username;
+        const currentWeek = leaderboard[i].currentWeek.toLocaleString('en-US', {
           maximumFractionDigits: 2,
           minimumFractionDigits: 2,
         });
-        const totalScore = leaderboard[i].TS.toLocaleString('en-US', {
+        const totalScore = leaderboard[i].totalScore.toLocaleString('en-US', {
           maximumFractionDigits: 2,
           minimumFractionDigits: 2,
         });
-        rows.push([username, currWeek, totalScore]);
+        rows.push([username, currentWeek, totalScore]);
       }
       res(rows);
-    });
-  },
+    }),
   leaderBoardTextTemplate: (rows, groupName, week) => {
     const tableConfig = {
       columns: { 1: { width: 20 } },

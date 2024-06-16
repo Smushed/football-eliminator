@@ -7,28 +7,33 @@ import scoringSystem from '../constants/scoringSystem.js';
 
 const mySportsFeedsAPI = process.env.MY_SPORTS_FEEDS_API;
 
-const playerScoreHandler = async (playerId, season, week, groupScore) => {
-  return new Promise(async (res, rej) => {
+const calculateWeeklyPlayerScore = async (playerId, season, week, groupScore) =>
+  new Promise(async (res, rej) => {
+    if (playerId === 0) {
+      res(0);
+    }
     const playerStats = await db.PlayerStats.findOne({
       mySportsId: playerId,
       week: week,
       season: season,
-    }).exec();
+    })
+      .lean()
+      .exec();
     let weeklyScore = 0;
 
     if (playerStats) {
-      for (let bucket of scoringSystem.buckets) {
-        for (let field of scoringSystem[bucket])
+      for (const bucket of scoringSystem.buckets) {
+        for (const field of scoringSystem[bucket]) {
           weeklyScore += calculateScore(
             playerStats[bucket][field],
             groupScore[bucket][field]
           );
+        }
       }
     }
     weeklyScore = +weeklyScore.toFixed(2);
     res(weeklyScore);
   });
-};
 
 const calculateScore = (playerStat, groupScore) => {
   if (typeof playerStat === 'undefined') {
@@ -45,7 +50,7 @@ const capitalizeFirstLetter = (str) => {
   return strArr.join(' ');
 };
 
-const addPlayerData = (player, team, stats, season, week) => {
+const addPlayerData = (player, team) => {
   return new Promise(async (res, rej) => {
     let injury = null;
     if (player.currentInjury) {
@@ -67,12 +72,7 @@ const addPlayerData = (player, team, stats, season, week) => {
       rank: 7,
       injury: injury,
       espnId: espnMapping,
-    })
-      .lean()
-      .exec();
-    if (stats) {
-      addWeeksStats(newPlayer.mySportsId, stats, season, week);
-    }
+    });
     res(newPlayer.mySportsId);
   });
 };
@@ -94,30 +94,19 @@ const findPlayerInDB = async (playerID) => {
   });
 };
 
-const checkForWeeklyStats = async (mySportsId, stats, season, week) => {
-  const player = await db.PlayerStats.findOne({
-    mySportsId: mySportsId,
-    week: week,
+const playerStatBuilder = (mySportsPlayer, season, week) => {
+  const player = {
+    mySportsId: parseInt(mySportsPlayer.player.id),
     season: season,
-  }).exec();
-  if (!player) {
-    return false;
-  }
-  updateWeekStats(player, stats);
+    week: parseInt(week),
+    passing: {},
+    rushing: {},
+    receiving: {},
+    fumble: {},
+    fieldGoal: {},
+  };
 
-  return true;
-};
-
-const newWeeklyStats = (mySportsId, stats, season, week) => {
-  const player = new db.PlayerStats();
-  player.mySportsId = parseInt(mySportsId);
-  player.season = season;
-  player.week = parseInt(week);
-  player.passing = {};
-  player.rushing = {};
-  player.receiving = {};
-  player.fumble = {};
-  player.fieldGoal = {};
+  const { stats } = mySportsPlayer;
 
   if (stats.passing) {
     player.passing = {
@@ -189,87 +178,13 @@ const newWeeklyStats = (mySportsId, stats, season, week) => {
     };
   }
 
-  if (stats.fumble) {
+  if (stats.fumbles) {
     player.fumble = {
       fumblesLost: stats.fumbles.fumLost || 0,
     };
   } else {
     player.fumble = {
       fumblesLost: 0,
-    };
-  }
-
-  if (stats.fieldGoal) {
-    player.FG = {
-      made1_19: stats.fieldGoals.fgMade1_19 || 0,
-      made20_29: stats.fieldGoals.fgMade20_29 || 0,
-      made30_39: stats.fieldGoals.fgMade30_39 || 0,
-      made40_49: stats.fieldGoals.fgMade40_49 || 0,
-      made50Plus: stats.fieldGoals.fgMade50Plus || 0,
-      extraPointMade: stats.extraPointAttempts.xpMade || 0,
-    };
-  } else {
-    player.FG = {
-      made1_19: 0,
-      made20_29: 0,
-      made30_39: 0,
-      made40_49: 0,
-      made50Plus: 0,
-      extraPointMade: 0,
-    };
-  }
-
-  player.save(function (err) {
-    if (err) {
-      console.log(err);
-    }
-  });
-
-  return;
-};
-
-const updateWeekStats = (player, stats) => {
-  if (stats.passing) {
-    player.passing = {
-      touchdowns: stats.passing.passTD || 0,
-      yards: stats.passing.passYards || 0,
-      interceptions: stats.passing.passInt || 0,
-      attempts: stats.passing.passAttempts || 0,
-      completions: stats.passing.passCompletions || 0,
-      plays20Plus: stats.passing.pass20Plus || 0,
-      plays40Plus: stats.passing.pass40Plus || 0,
-      twoPointMade: stats.twoPointAttempts.twoPtPassMade || 0,
-    };
-  }
-
-  if (stats.rushing) {
-    player.rushing = {
-      attempts: stats.rushing.rushAttempts || 0,
-      yards: stats.rushing.rushYards || 0,
-      touchdowns: stats.rushing.rushTD || 0,
-      plays20Plus: stats.rushing.rush20Plus || 0,
-      plays20Plus: stats.rushing.rush40Plus || 0,
-      fumbles: stats.rushing.rushFumbles || 0,
-      twoPointMade: stats.twoPointAttempts.twoPtRushMade || 0,
-    };
-  }
-
-  if (stats.receiving) {
-    player.receiving = {
-      targets: stats.receiving.targets || 0,
-      receptions: stats.receiving.receptions || 0,
-      yards: stats.receiving.recYards || 0,
-      touchdowns: stats.receiving.recTD || 0,
-      plays20Plus: stats.receiving.rec20Plus || 0,
-      plays40Plus: stats.receiving.rec40Plus || 0,
-      fumbles: stats.receiving.recFumbles || 0,
-      twoPointMade: stats.twoPointAttempts.twoPtPassRec || 0,
-    };
-  }
-
-  if (stats.fumbles) {
-    player.fumble = {
-      fumblesLost: stats.fumbles.fumLost || 0,
     };
   }
 
@@ -282,22 +197,18 @@ const updateWeekStats = (player, stats) => {
       made50Plus: stats.fieldGoals.fgMade50Plus || 0,
       extraPointMade: stats.extraPointAttempts.xpMade || 0,
     };
+  } else {
+    player.fieldGoal = {
+      made1_19: 0,
+      made20_29: 0,
+      made30_39: 0,
+      made40_49: 0,
+      made50Plus: 0,
+      extraPointMade: 0,
+    };
   }
 
-  player.save(function (err) {
-    if (err) {
-      console.log(err);
-    }
-  });
-
-  return;
-};
-
-const addWeeksStats = async (mySportsId, stats, season, week) => {
-  const exists = await checkForWeeklyStats(mySportsId, stats, season, week);
-  if (!exists) {
-    newWeeklyStats(mySportsId, stats, season, week);
-  }
+  return player;
 };
 
 const parsePlayerExternalMappings = (mappingArray) => {
@@ -323,7 +234,9 @@ const parseRoster = async (playerArray, team) => {
       position === 'RB' ||
       position === 'K'
     ) {
-      let dbPlayer = await findPlayerInDB(playerArray[i].player.id);
+      let dbPlayer = await db.PlayerData.findOne({
+        mySportsId: playerArray[i].player.id,
+      }).exec();
       if (dbPlayer === false || dbPlayer === undefined || dbPlayer === null) {
         dbPlayer = await addPlayerData(playerArray[i].player, team);
       } else {
@@ -386,23 +299,6 @@ const inactivatePlayers = async (inactivePlayerArray) => {
   }
 };
 
-const setPlayerToActive = async (mySportsId) => {
-  //TODO Update this to findAndUpdate
-  const dbPlayer = await db.PlayerData.findOne(
-    { mySportsId },
-    (err, dbPlayer)
-  ).exec();
-  dbPlayer.active = true;
-
-  dbPlayer.save((err, result) => {
-    if (err) {
-      console.log(`Error setting ${dbPlayer.name} to active`, { err });
-    } else {
-      return result;
-    }
-  });
-};
-
 const updatePlayer = async (
   mySportsId,
   team,
@@ -430,7 +326,7 @@ const updatePlayer = async (
 };
 
 const saveUserScore = async (userId, groupId, season, week, weekScore) => {
-  let status = 200;
+  console.log({ userId, groupId, season, week, weekScore });
   try {
     const userScore = await db.UserScores.findOne({
       userId,
@@ -470,27 +366,9 @@ const saveUserScore = async (userId, groupId, season, week, weekScore) => {
     );
   }
 
-  return status;
+  return;
 };
 
-const saveWeeklyUserScore = async (
-  userId,
-  groupId,
-  week,
-  season,
-  scoreArray
-) => {
-  const weeklyUser = await db.UserRoster.findOne({
-    userId,
-    groupId,
-    week,
-    season,
-  }).exec();
-  for (let i = 0; i < weeklyUser.roster.length; i++) {
-    weeklyUser.roster[i].score = scoreArray[i];
-  }
-  weeklyUser.save();
-};
 const saveOrUpdateMatchups = async (matchUpArray, season, week) => {
   const pulledWeek = await db.MatchUps.findOne({ week, season });
   if (pulledWeek === null || pulledWeek === undefined) {
@@ -504,47 +382,6 @@ const saveOrUpdateMatchups = async (matchUpArray, season, week) => {
     await pulledWeek.save();
   }
   return true;
-};
-
-const getAndSaveUserScore = async (
-  userRoster,
-  season,
-  week,
-  userId,
-  groupScore,
-  groupId
-) => {
-  let weeklyRosterScore = [];
-  let weekScore = 0;
-  for (let i = 0; i < userRoster.length; i++) {
-    const currentScore = await getPlayerWeeklyScore(
-      userRoster[i].mySportsId,
-      season,
-      week,
-      groupScore
-    );
-    const currentScoreNum = +currentScore.toFixed(2);
-    weekScore += currentScoreNum;
-    weeklyRosterScore[i] = currentScoreNum;
-  }
-  try {
-    await saveWeeklyUserScore(userId, groupId, week, season, weeklyRosterScore);
-    await saveUserScore(userId, groupId, season, week, weekScore);
-  } catch (err) {
-    console.log('ERROR in getAndSaveUserScore', err);
-  }
-  return;
-};
-
-const getPlayerWeeklyScore = async (playerId, season, week, groupScore) => {
-  return new Promise(async (res, rej) => {
-    if (playerId === 0) {
-      res(0);
-    }
-    let weeklyScore = 0;
-    weeklyScore = await playerScoreHandler(playerId, season, week, groupScore);
-    res(weeklyScore);
-  });
 };
 
 const pullTeamData = (season, team) => {
@@ -590,13 +427,15 @@ export default {
       if (i >= teams.length) {
         clearInterval(rosterTimer);
       }
-    }, 10000);
+    }, 40000);
 
     return { text: 'Update Roster Process Kicked off' };
   },
   getMassData: async function (currentSeason) {
     //This loops through the the seasons and weeks and pulls through all of the data for the players
-    const weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
+    const weeks = [
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+    ];
 
     for (let i = 0; i < weeks.length; i++) {
       //We send what week we're currently on to the weeklydata where that's used to update pull the API and parse the data
@@ -613,6 +452,7 @@ export default {
     };
     return testReturn;
   },
+  //TODO combine this with above
   getEveryWeekData: async function (season, maxWeek) {
     for (let i = 1; i <= maxWeek; i++) {
       await this.getWeeklyData(season, i);
@@ -638,74 +478,127 @@ export default {
 
       console.log('weekly data received, parsing');
       if (!search.data.gamelogs) return;
+      const playersByPosition = {
+        QB: [],
+        RB: [],
+        WR: [],
+        TE: [],
+        K: [],
+      };
       for (let i = 0; i < search.data.gamelogs.length; i++) {
         const position =
           search.data.gamelogs[i].player.position ||
           search.data.gamelogs[i].player.primaryPosition;
-
-        if (
-          position === 'QB' ||
-          position === 'TE' ||
-          position === 'WR' ||
-          position === 'RB' ||
-          position === 'K'
-        ) {
-          let player = await findPlayerInDB(search.data.gamelogs[i].player.id);
-          if (!player) {
-            let playerTeam = '';
-            if (search.data.gamelogs[i].team !== null) {
-              playerTeam = search.data.gamelogs[i].team.abbreviation;
-            } else {
-              playerTeam = 'UNK';
-            }
-            addPlayerData(
-              search.data.gamelogs[i].player,
-              playerTeam,
-              search.data.gamelogs[i].stats,
-              season,
-              week
-            );
-          } else {
-            setPlayerToActive(player.mySportsId);
-            addWeeksStats(
-              player.mySportsId,
-              search.data.gamelogs[i].stats,
-              season,
-              week
-            );
-          }
+        if (playersByPosition[position]) {
+          playersByPosition[position].push({
+            player: search.data.gamelogs[i].player,
+            team: search.data.gamelogs[i].team,
+            stats: search.data.gamelogs[i].stats,
+          });
         }
       }
-
-      const response = {
-        status: 200,
-        text: `DB Updated`,
-      };
-      console.log(`get weekly data done week ${week} season ${season}`);
-      res(response);
+      console.log(`Weekly data parsed`);
+      res(playersByPosition);
     }),
-  calculateWeeklyScore: async (
-    groupList,
+  updatePlayerDataFromWeeklyPull: async (playersByPosition) => {
+    console.log('Updating Player Data Schema');
+    for (const position in playersByPosition) {
+      for (const player of playersByPosition[position]) {
+        try {
+          await db.PlayerData.findOneAndUpdate(
+            { mySportsId: player.player.id },
+            {
+              name: `${player.player.firstName} ${player.player.lastName}`,
+              mySportsId: parseInt(player.player.id),
+              team: player.team.abbreviation,
+              position: player.player.primaryPosition || player.player.position,
+              active: true,
+              injury: null,
+              espnId: null,
+            },
+            { upsert: true }
+          ).exec();
+        } catch (err) {
+          console.log(
+            `Error updating player ${player.player.firstName} ${player.player.lastName}`,
+            { err }
+          );
+        }
+      }
+    }
+    console.log('Player Data finished updating');
+  },
+  updatePlayerScoresForWeek: async (playersByPosition, season, week) => {
+    console.log('Updating Player Scores with weekly data');
+    for (const position in playersByPosition) {
+      for (const player of playersByPosition[position]) {
+        const weekStats = playerStatBuilder(player, season, week);
+        try {
+          await db.PlayerStats.findOneAndUpdate(
+            {
+              mySportsId: parseInt(player.player.id),
+              season: season,
+              week: week,
+            },
+            {
+              mySportsId: player.player.id,
+              season: season,
+              week: week,
+              ...weekStats,
+            },
+            { upsert: true }
+          ).exec();
+        } catch (err) {
+          console.log(
+            `Error updating player ${player.player.firstName} ${player.player.lastName}`,
+            { err }
+          );
+        }
+      }
+    }
+    console.log('Finished updating Player Scores');
+  },
+  updateUserWeeklyAndTotalScore: async (
+    userRoster,
     season,
     week,
-    groupId,
-    groupScore
+    userId,
+    groupScore,
+    groupId
   ) => {
-    for (const user of groupList) {
-      await getAndSaveUserScore(
-        user.roster,
+    let weeklyRosterScore = [];
+    let weekScore = 0;
+    for (let i = 0; i < userRoster.length; i++) {
+      const currentScore = await calculateWeeklyPlayerScore(
+        userRoster[i].mySportsId,
         season,
         week,
-        user.userId,
-        groupScore,
-        groupId
+        groupScore
       );
-    }
 
+      const currentScoreNum = +currentScore.toFixed(2);
+      weekScore += currentScoreNum;
+      weeklyRosterScore[i] = currentScoreNum;
+    }
+    try {
+      const weeklyUser = await db.UserRoster.findOne({
+        userId,
+        groupId,
+        week,
+        season,
+      }).exec();
+      for (let i = 0; i < weeklyUser.roster.length; i++) {
+        weeklyUser.roster[i].score = weeklyRosterScore[i];
+      }
+
+      await saveUserScore(userId, groupId, season, week, weekScore);
+    } catch (err) {
+      console.log('ERROR in updateUserWeeklyAndTotalScore', { err });
+    }
     return;
   },
-  rankPlayers: async function (season, week, groupScore, totalSeason) {
-    console.log(`Ranking Players for `, season, week);
+  rankPlayers: async function (season, week, groupScore) {
+    console.log(`Ranking Players for ${season} ${week}`);
     const rankedPlayersByPosition = {};
     for (const position of positions.positionArray) {
       rankedPlayersByPosition[position] = [];
@@ -720,25 +613,20 @@ export default {
 
       for (let player of playersByPosition) {
         player.score = 0;
-        if (totalSeason) {
-          for (let i = 1; i <= week; i++) {
-            player.score += await playerScoreHandler(
-              player.mySportsId,
-              season,
-              i,
-              groupScore
-            );
-          }
-        } else {
-          player.score += await playerScoreHandler(
+        for (let i = 1; i <= week; i++) {
+          player.score += await calculateWeeklyPlayerScore(
             player.mySportsId,
             season,
-            week,
+            i,
             groupScore
           );
         }
+
         player.score = player.score.toFixed(2);
-        rankingArray.push(player.mySportsId);
+        rankingArray.push({
+          mySportsId: player.mySportsId,
+          score: player.score,
+        });
       }
       rankingArray.sort((a, b) => {
         return b.score - a.score;
@@ -748,19 +636,21 @@ export default {
     return rankedPlayersByPosition;
   },
   savePlayerRank: async (rankedPlayersByPosition) => {
-    //Get them into 7 different categories, each 10 big until the 8th rank, which is just all the rest
+    //Get them into 7 different categories, each len 10 until the 8th rank, which is just all the rest
     for (const position in rankedPlayersByPosition) {
       const rankingArray = [...rankedPlayersByPosition[position]];
       console.log(`Saving ${position}`);
       for (let i = 1; i <= 8; i++) {
         let currentRank = [];
         if (i !== 8) {
-          currentRank = rankingArray.splice(0, 9);
+          currentRank = rankingArray
+            .splice(0, 9)
+            .map((player) => player.mySportsId);
         } else {
-          currentRank = rankingArray;
+          currentRank = rankingArray.map((player) => player.mySportsId);
         }
         await db.PlayerData.updateMany(
-          { _id: { $in: currentRank } },
+          { mySportsId: { $in: currentRank } },
           { rank: i }
         );
       }
@@ -838,7 +728,7 @@ export default {
     return matchupsDisplay;
   },
   singleWeekPlayerScore: async (playerId, season, week, groupScore) => {
-    return await playerScoreHandler(playerId, season, week, groupScore);
+    return await calculateWeeklyPlayerScore(playerId, season, week, groupScore);
   },
   checkGameStarted: async (season, week) => {
     let search;
