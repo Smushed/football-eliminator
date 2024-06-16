@@ -427,7 +427,7 @@ export default {
       if (i >= teams.length) {
         clearInterval(rosterTimer);
       }
-    }, 80000);
+    }, 40000);
 
     return { text: 'Update Roster Process Kicked off' };
   },

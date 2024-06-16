@@ -461,7 +461,7 @@ export default {
         }
 
         Promise.all([
-          mySportsHandler.rankPlayers(season, week, groupScore, false),
+          mySportsHandler.rankPlayers(season, week, groupScore),
           this.mapGroupPositions(groupPositions, positions.positionMap),
         ]).then(async ([rankedPlayers, groupPositionMap]) => {
           const idealArray = [];

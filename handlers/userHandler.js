@@ -60,8 +60,6 @@ export default {
     }));
     return filteredList;
   },
-  getUsersEmail: async (userIdArray) =>
-    await db.User.find({ _id: { $in: userIdArray } }, { email: 1 }).exec(),
   updateProfile: async (userId, request) => {
     let toUpdate = {};
     if (request.username !== undefined) {
@@ -281,14 +279,4 @@ export default {
       console.log(err);
     }
   },
-  getGroupEmailSettings: async (userList) =>
-    await db.UserReminderSettings.find(
-      {
-        userId: { $in: userList },
-        leaderboardEmail: true,
-      },
-      { userId: 1 }
-    )
-      .lean()
-      .exec(),
 };

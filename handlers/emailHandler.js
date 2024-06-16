@@ -5,6 +5,7 @@ import leaderBoardBuilder from '../constants/leaderBoardBuilder.js';
 import rosterBuilder from '../constants/rosterBuilder.js';
 import unsubscribe from '../constants/unsubscribe.js';
 import mySportsHandler from './mySportsHandler.js';
+import db from '../models/index.js';
 
 const client = new SESClient({
   region: 'us-east-2',
@@ -48,16 +49,34 @@ const sendEmail = async (user, subject, html, text) => {
   }
 };
 
-const composeWeeklyHTMLEmail = async (firstItem, secondItem, week) => {
-  return `<div style='font-weight:600;
-                        font-size: 24px;
-                        margin-bottom: 15px;'>
-    Week ${week} Eliminator Results
-    </div>
+const cssStyles = `<style>
+    .container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      background-color: #FFFFFF;
+    }
+    @media (min-width: 960px) {
+      width: 960px;
+    }
+    .eliminatorLogo {
+      max-width: 100%
+    }
+</style>`;
 
+const composeWeeklyHTMLEmail = async (firstItem, secondItem) => {
+  return `${cssStyles}
+  <div class='container'>
+    <div class='eliminatorLogoContainer'>
+      <img class='eliminatorLogo' src='https://www.eliminator.football/static/media/ElimLogoNoThe.8e4988fefb0acb6998ff.png' alt='EliminatorLogo'></img>
+    </div>
+  
     ${firstItem}
-    
-    ${secondItem}`;
+  
+    ${secondItem}
+  </div>`;
 };
 
 const composeWeeklyTextEmail = async (firstItem, secondItem, week) => {
@@ -164,12 +183,13 @@ const createLeaderBoard = async (group, season, week) => {
     season,
     week
   );
-  const rows = await leaderBoardBuilder.leaderBoardRowBuilder(leaderBoard);
-  const leaderBoardHTML = leaderBoardBuilder.leaderBoardTemplate(
-    rows,
+  const leaderBoardImage = leaderBoardBuilder.createLeaderBoardChart(
+    leaderBoard,
     group.name,
     week
   );
+  const leaderBoardHTML =
+    leaderBoardBuilder.leaderBoardTemplate(leaderBoardImage);
 
   const textRows = await leaderBoardBuilder.leaderBoardTextRows(leaderBoard);
   const leaderBoardText = leaderBoardBuilder.leaderBoardTextTemplate(
@@ -220,9 +240,19 @@ const createIdealRoster = async (groupPos, roster, week) => {
 export default {
   sendLeaderBoardEmail: async (group, season, week) => {
     let userIdArray = group.userlist.map((user) => user.userId.toString());
-    let emailList = await userHandler.getGroupEmailSettings(userIdArray);
+    let emailList = await db.UserReminderSettings.find(
+      {
+        userId: { $in: userIdArray },
+        leaderboardEmail: true,
+      },
+      { userId: 1 }
+    )
+      .lean()
+      .exec();
     userIdArray = emailList.map((user) => user.userId.toString());
-    emailList = await userHandler.getUsersEmail(userIdArray);
+    emailList = await db.User.find({ _id: { $in: userIdArray } }, { email: 1 })
+      .lean()
+      .exec();
 
     const subject = `Eliminator - Week ${week}`;
 
@@ -247,7 +277,6 @@ export default {
       filledIdealRoster,
       week
     );
-
     const HTMLTemplate = await composeWeeklyHTMLEmail(
       leaderBoardHTML,
       idealRosterHTML,
@@ -261,10 +290,9 @@ export default {
 
     for (const user of emailList) {
       if (user.email === 'smushedcode@gmail.com') {
-        console.log('hit');
         const HTMLemail = await unsubscribe.appendHTML(HTMLTemplate, user.id);
         const textEmail = await unsubscribe.appendText(textTemplate, user.id);
-        // sendEmail(user.email, subject, HTMLemail, textEmail);
+        sendEmail(user.email, subject, HTMLemail, textEmail);
       }
     }
   },

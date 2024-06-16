@@ -49,8 +49,9 @@ const updateAndRankPlayers = () =>
     await rosterHandler.rankPlayersBasedOnGroup(season, week, 'Eliminator');
   });
 
+//Iterate through the NFL rosters to sort players at 3:35am
 const updateTeamRoster = () =>
-  schedule.scheduleJob('30 9 * 1,9-12 *', async function () {
+  schedule.scheduleJob('35 9 * 1,9-12 *', async function () {
     const { season } = await mySportsHandler.pullSeasonAndWeekFromDB();
     mySportsHandler.updateTeamRoster(season, nflTeams.teams);
   });
@@ -95,7 +96,7 @@ const emailLeaderboard = () =>
     const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
     const groups = await groupHandler.getAllGroups();
     for (let group of groups) {
-      if (group.N !== 'Demo Group')
+      if (group.name !== 'Demo Group')
         emailHandler.sendLeaderBoardEmail(group, season, +week - 1);
     }
   });
@@ -143,16 +144,25 @@ const updatePlayersWithWeeklyData = async (season, week) => {
   await rosterHandler.scoreAllGroups(season, week);
 };
 
+import db from '../models/index.js';
+
+const test = async () => {
+  const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
+  const group = await db.Group.findOne({ name: 'Eliminator' });
+  emailHandler.sendLeaderBoardEmail(group, season, +week - 1);
+};
+
 export default () => {
-  checkLockWeek();
-  dailyScoreUpdate();
-  scorePlayersAndGroups();
-  updateAndRankPlayers();
-  updateTeamRoster();
-  updateForWeekdayGames();
-  updateBiHourlySundays();
-  updatePlayers();
-  updateIdealRoster();
-  emailLeaderboard();
-  seedCache();
+  // checkLockWeek();
+  // dailyScoreUpdate();
+  // scorePlayersAndGroups();
+  // updateAndRankPlayers();
+  // updateTeamRoster();
+  // updateForWeekdayGames();
+  // updateBiHourlySundays();
+  // updatePlayers();
+  // updateIdealRoster();
+  // emailLeaderboard();
+  // seedCache();
+  test();
 };
