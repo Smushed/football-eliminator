@@ -280,18 +280,15 @@ export default {
     );
 
     for (const user of emailList) {
-      if (user.email === 'smushedcode@gmail.com') {
-        console.log({ toString: user._id.toString(), noString: user._id });
-        const HTMLemail = unsubscribe.appendHTML(
-          HTMLTemplate,
-          user._id.toString()
-        );
-        const textEmail = unsubscribe.appendText(
-          textTemplate,
-          user._id.toString()
-        );
-        sendEmail(user.email, subject, HTMLemail, textEmail);
-      }
+      const HTMLemail = unsubscribe.appendHTML(
+        HTMLTemplate,
+        user._id.toString()
+      );
+      const textEmail = unsubscribe.appendText(
+        textTemplate,
+        user._id.toString()
+      );
+      sendEmail(user.email, subject, HTMLemail, textEmail);
     }
   },
   sendYearlyRecapEmail: async (
