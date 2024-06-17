@@ -101,6 +101,14 @@ const emailLeaderboard = () =>
     }
   });
 
+//Every 8am on Thursday send out reminder emails
+const reminderEmails = () =>
+  schedule.scheduleJob('00 14 * 1,9-12 4', async function () {
+    console.log('Sending out reminder emails');
+    const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
+    emailHandler.sendRecapEmails(season, week);
+  });
+
 //Every day at 2am reseed the cache
 const seedCache = () =>
   schedule.scheduleJob('00 08 * 1,9-12 *', async function () {
@@ -156,4 +164,5 @@ export default () => {
   updateIdealRoster();
   emailLeaderboard();
   seedCache();
+  reminderEmails();
 };

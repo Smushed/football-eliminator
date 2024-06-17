@@ -49,7 +49,7 @@ const sendEmail = async (user, subject, html, text) => {
   }
 };
 
-const composeWeeklyHTMLEmail = async (firstItem, secondItem) => {
+const composeWeeklyHTMLEmail = (firstItem, secondItem) => {
   return `<div style='width: 100%;
                       max-width: fit-content;
                       margin-left: auto;
@@ -71,7 +71,7 @@ const composeWeeklyHTMLEmail = async (firstItem, secondItem) => {
   </div>`;
 };
 
-const composeWeeklyTextEmail = async (firstItem, secondItem, week) => {
+const composeWeeklyTextEmail = (firstItem, secondItem, week) => {
   return `Week ${week} Eliminator Results
 
     ${firstItem}
@@ -167,6 +167,25 @@ const composeYearlyTextEmail = (
     `Finally, the best ideal roster for this year was from week ${bestIdealRoster.week} with a whopping score of ${bestIdealRoster.score}!
   ` + bestIdealRosterFull;
   return body;
+};
+
+const composeReminderHTMLEmail = (week, groupName, username) => {
+  return `<div style='margin-top: 25px;
+                      font-size: 22px;
+                      text-align: center;'>
+    You have empty players on your eliminator roster for week ${week}.
+  </div>
+  <div style='margin-top: 25px;
+              font-size: 22px;
+              text-align: center;'>
+    Fill our your roster here: <a href='https://www.eliminator.football/roster/${groupName}/${username}' target='_blank'>Your Roster</a>
+  </div>`;
+};
+
+const composeReminderTextEmail = (week, groupName, username) => {
+  return `You have empty players on your eliminator roster for week ${week}
+  
+  Fill out your roster here: https://www.eliminator.football/roster/${groupName}/${username}`;
 };
 
 const createLeaderBoard = async (group, season, week) => {
@@ -268,12 +287,12 @@ export default {
       filledIdealRoster,
       week
     );
-    const HTMLTemplate = await composeWeeklyHTMLEmail(
+    const HTMLTemplate = composeWeeklyHTMLEmail(
       leaderBoardHTML,
       idealRosterHTML,
       +week
     );
-    const textTemplate = await composeWeeklyTextEmail(
+    const textTemplate = composeWeeklyTextEmail(
       leaderBoardText,
       idealRosterText,
       +week
@@ -348,11 +367,77 @@ export default {
         emailList.push({ email: response.email, id: response._id });
       }
     }
-    console.log({ emailList });
     for (const user of emailList) {
       const HTMLemail = await unsubscribe.appendHTML(HTMLTemplate, user.id);
       const textEmail = await unsubscribe.appendText(textTemplate, user.id);
       sendEmail(user.email, subject, HTMLemail, textEmail);
+    }
+  },
+  sendRecapEmails: async (season, week) => {
+    const allGroups = await db.Group.find().lean().exec();
+    for (const group of allGroups) {
+      if (group.name === 'Demo Group') {
+        continue;
+      }
+      let userIdArray = group.userlist.map((user) => user.userId.toString());
+      const reminderSettings = await db.UserReminderSettings.find(
+        {
+          userId: { $in: userIdArray },
+          reminderEmail: true,
+        },
+        { userId: 1 }
+      )
+        .lean()
+        .exec();
+
+      userIdArray = reminderSettings.map((user) => user.userId);
+      const userRosters = await db.UserRoster.find(
+        {
+          userId: { $in: userIdArray },
+          season: season,
+          week: week,
+        },
+        { roster: 1, userId: 1 }
+      )
+        .lean()
+        .exec();
+      userIdArray = [];
+      for (const weeklyRoster of userRosters) {
+        const nonZeroMySportsId = weeklyRoster.roster.filter(
+          (rosterSpot) => rosterSpot.mySportsId === 0
+        );
+        if (nonZeroMySportsId.length > 0) {
+          userIdArray.push(weeklyRoster.userId);
+        }
+      }
+      const userEmails = await db.User.find(
+        { _id: { $in: userIdArray } },
+        { email: 1, username: 1 }
+      )
+        .lean()
+        .exec();
+      const subject = `Empty Roster Spots in the Eliminator for Week ${week}`;
+      for (const user of userEmails) {
+        //Send out the reminder emails here
+        const HTMLTemplate = composeWeeklyHTMLEmail(
+          composeReminderHTMLEmail(week, group.name, user.username),
+          ''
+        );
+        const textTemplate = composeReminderTextEmail(
+          week,
+          group.name,
+          user.username
+        );
+        const HTMLemail = unsubscribe.appendHTML(
+          HTMLTemplate,
+          user._id.toString()
+        );
+        const textEmail = unsubscribe.appendText(
+          textTemplate,
+          user._id.toString()
+        );
+        sendEmail(user.email, subject, HTMLemail, textEmail);
+      }
     }
   },
 };
