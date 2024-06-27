@@ -6,6 +6,7 @@ import rosterHandler from '../handlers/rosterHandler.js';
 import s3Handler from '../handlers/s3Handler.js';
 import emailHandler from '../handlers/emailHandler.js';
 import mySportsHandler from '../handlers/mySportsHandler.js';
+import { verifyGroupAdminByEmail } from '../handlers/authHandler.js';
 
 export default (app) => {
   app.put('/api/group/join/', async (req, res) => {
@@ -28,7 +29,9 @@ export default (app) => {
         groupData._id.toString()
       );
     }
-    groupData.userlist = await userHandler.fillUserListFromGroup(groupData.UL);
+    groupData.userlist = await userHandler.fillUserListFromGroup(
+      groupData.userlist
+    );
 
     if (groupData) {
       res.status(200).send(group);
@@ -46,6 +49,9 @@ export default (app) => {
   app.get('/api/group/details/:id', async (req, res) => {
     const { id } = req.params;
     const groupInfo = await groupHandler.getGroupDataById(id);
+    groupInfo.userlist = await userHandler.fillUserListFromGroup(
+      groupInfo.userlist
+    );
     res.status(200).send(groupInfo);
   });
 
@@ -169,17 +175,24 @@ export default (app) => {
   });
 
   app.put('/api/group/', async (req, res) => {
-    const { data, id } = req.body;
-    if (data && Object.keys(data).length === 0 && data.constructor === Object) {
-      res.status(400).send('Nothing to update!');
-      return;
+    try {
+      const { data } = req.body;
+      await verifyGroupAdminByEmail(req.currentUser, data.groupId);
+      const response = await groupHandler.updateGroup(data);
+      res.status(response.status).send(response.message);
+    } catch (err) {
+      res.status(err.status).send(err.message);
     }
-    const response = await groupHandler.updateGroup(data, id);
-    if (response.length === 0) {
-      res.sendStatus(200);
-    } else {
-      res.sendStatus(400);
-    }
+  });
+
+  app.put('/api/group/scoring', async (req, res) => {
+    const { data, groupId } = req.body;
+    console.log({ data });
+  });
+
+  app.put('/api/group/positions', async (req, res) => {
+    const { data, groupId } = req.body;
+    console.log({ data });
   });
 
   app.get('/api/group/topScore/:groupId/:season', async (req, res) => {

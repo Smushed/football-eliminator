@@ -6,14 +6,14 @@ import * as Routes from '../../constants/routes';
 import ElimLogo from '../../constants/elimLogos/ElimLogoNoThe.png';
 import SmallElimLogo from '../../constants/elimLogos/SmallElimLogoText.png';
 
-const NavBar = ({ showHideSideBar }) => (
+const NavBar = ({ toggleSideBar }) => (
   <nav className='navbar navbar-light border-bottom border-2'>
     <div className='row w-100'>
       <div className='d-flex'>
         <div
           className='ms-5 mt-3'
           role='button'
-          onClick={() => showHideSideBar()}
+          onClick={() => toggleSideBar()}
         >
           <svg viewBox='0 0 100 80' width='40' height='40'>
             <rect width='100' height='20' rx='6'></rect>

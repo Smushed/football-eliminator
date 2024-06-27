@@ -2,11 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import fuzzysort from 'fuzzysort';
 
-import {
-  RosterDisplay,
-  PlayerDisplayRow,
-  PlayerDisplayTable,
-} from './RosterDisplay';
+import { RosterDisplay, PlayerDisplayTable } from './RosterDisplay';
 import Session from '../Session';
 
 import Swal from 'sweetalert2';
@@ -18,7 +14,7 @@ import { loading, doneLoading } from '../LoadingAlert';
 import { WeekSearch, PositionSearch, TeamSearch } from './SearchDropdowns';
 import * as Routes from '../../constants/routes';
 import { toast } from 'react-hot-toast';
-import { AvatarContext } from '../Avatars';
+import { AvatarContext } from '../../contexts/Avatars';
 
 const Alert = withReactContent(Swal);
 

@@ -3,6 +3,7 @@ import userHandler from '../handlers/userHandler.js';
 import rosterHandler from '../handlers/rosterHandler.js';
 import s3Handler from '../handlers/s3Handler.js';
 import groupHandler from '../handlers/groupHandler.js';
+import { verifyUserLoggedIn } from '../handlers/authHandler.js';
 
 export default (app) => {
   app.put('/api/user/updateProfile', async (req, res) => {
@@ -30,10 +31,15 @@ export default (app) => {
   });
 
   app.get('/api/user/email/:email', async (req, res) => {
-    const { email } = req.params;
-    const userInfo = await userHandler.getUserByEmail(email);
-    const emailSettings = await userHandler.getEmailSettings(userInfo._id);
-    res.status(200).send({ userInfo, emailSettings });
+    try {
+      await verifyUserLoggedIn(req.currentUser);
+      const { email } = req.params;
+      const userInfo = await userHandler.getUserByEmail(email);
+      const emailSettings = await userHandler.getEmailSettings(userInfo._id);
+      res.status(200).send({ userInfo, emailSettings });
+    } catch (err) {
+      res.status(err.status).send(err.message);
+    }
   });
 
   app.get('/api/user/reminderPref/:id', async (req, res) => {

@@ -13,7 +13,7 @@ import {
   PasswordInput,
   UsernameInput,
 } from '../ProfileInputs';
-import { AvatarContext } from '../../Avatars';
+import { AvatarContext } from '../../../contexts/Avatars';
 import { differencesInObj } from '../../../utils/genericTools';
 
 const Alert = withReactContent(Swal);
@@ -263,7 +263,7 @@ const UserInfoUpdateForm = ({
         .put(`/api/user/updateProfile`, { request, userId: currentUser.userId })
         .then(() => {
           pullUserData(currentUser.email);
-          if (request.UN !== undefined) {
+          if (request.username !== undefined) {
             history.push(`/profile/user/${request.username}`);
             return;
           }
