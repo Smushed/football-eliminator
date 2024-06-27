@@ -170,7 +170,7 @@ const groupUpdater = {
     }
     return false;
   },
-  groupDesc: async (group, field) => {
+  groupDescription: async (group, field) => {
     group.description = field;
     try {
       await group.save();
@@ -188,7 +188,7 @@ const groupUpdater = {
     }
     return false;
   },
-  groupPos: async (group, field) => {
+  groupPosition: async (group, field) => {
     try {
       await db.GroupRoster.findOneAndUpdate(
         { G: group._id },
@@ -197,10 +197,6 @@ const groupUpdater = {
     } catch {
       return 'Group Position Error';
     }
-    return false;
-  },
-  groupAvatar: async (group, field) => {
-    s3Handler.uploadAvatar(group.id.toString(), field);
     return false;
   },
 };
@@ -264,7 +260,8 @@ export default {
       .exec();
     return groupData;
   },
-  getGroupDataById: async (groupId) => await db.Group.findById(groupId).exec(),
+  getGroupDataById: async (groupId) =>
+    await db.Group.findById(groupId).lean().exec(),
   getLeaderBoard: async (groupId, season, week) => {
     const arrayForLeaderBoard = [];
     const weekAccessor = (week === 1 ? 1 : week - 1).toString();
@@ -551,20 +548,27 @@ export default {
       res(topWeekScore);
     });
   },
-  updateGroup: async function (updatedFields, groupId) {
-    const group = await this.getGroupDataById(groupId);
-    const updatedArray = Object.keys(updatedFields);
-    const errors = [];
-    for (let i = 0; i < updatedArray.length; i++) {
-      const updateRes = await groupUpdater[updatedArray[i]](
-        group,
-        updatedFields[updatedArray[i]]
-      );
-      if (updateRes) {
-        errors.push(updateRes);
+  updateGroup: async (updatedGroup) => {
+    try {
+      if (updatedGroup.name.length < 6 || updatedGroup.description.length < 6) {
+        return {
+          status: 400,
+          message: 'Name & description must be at least 6 characters',
+        };
       }
+
+      await db.Group.findByIdAndUpdate(updatedGroup.groupId, {
+        name: updatedGroup.name,
+        description: updatedGroup.description,
+      });
+      return { status: 200, message: 'Group successfully updated' };
+    } catch (err) {
+      console.log(
+        `Error updating group: ${updatedGroup.name}. ID: ${updatedGroup.groupId} err: `,
+        { err }
+      );
+      return { status: 400, message: 'Error updating group!' };
     }
-    return errors;
   },
   updateMainGroup: async function (groupId, userId) {
     try {

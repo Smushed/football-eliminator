@@ -157,7 +157,7 @@ const EmailInput = ({ email, handleChange, placeholderEmail, disabled }) => (
   </div>
 );
 
-const MainGroupInput = ({ groupList, mainGroup, handleChange, disabled }) => (
+const MainGroupInput = ({ grouplist, mainGroup, handleChange, disabled }) => (
   <div className='row mt-2'>
     <div className='col-12'>
       <small className='form-label'>Main Group:</small>
@@ -169,10 +169,10 @@ const MainGroupInput = ({ groupList, mainGroup, handleChange, disabled }) => (
           disabled={disabled}
           onChange={handleChange}
         >
-          {groupList &&
-            groupList.map((group) => (
+          {grouplist &&
+            grouplist.map((group) => (
               <option key={group._id} value={group._id}>
-                {group.N}
+                {group.name}
               </option>
             ))}
         </select>

@@ -437,32 +437,19 @@ export default {
 
     return availablePlayers;
   },
-  allSeasonRoster: async function (userId, season) {
+  userAllRostersForSeason: async function (userId, groupId, season) {
     const scoredAllSeason = [];
 
     for (let i = 17; i >= 0; i--) {
-      const weeklyUserRoster = await this.userRoster(userId, i + 1, season);
-      const parsedWeeklyRoster = [];
-
-      for (let ii = 0; ii < weeklyUserRoster.length; ii++) {
-        const newPlayer = {
-          full_name: weeklyUserRoster[ii].full_name,
-          team: weeklyUserRoster[ii].team,
-          position: weeklyUserRoster[ii].position,
-          mySportsId: weeklyUserRoster[ii].mySportsId,
-        };
-
-        const playerScore = await mySportsHandler.getPlayerWeeklyScore(
-          newPlayer.mySportsId,
-          season,
-          i + 1
-        );
-
-        newPlayer.score = playerScore.toFixed(2);
-
-        parsedWeeklyRoster.push(newPlayer);
-      }
-      scoredAllSeason[i] = parsedWeeklyRoster;
+      const weeklyUserRoster = await this.getUserRoster(
+        userId,
+        i + 1,
+        season,
+        groupId
+      );
+      scoredAllSeason.push(
+        await mySportsHandler.fillUserRoster(weeklyUserRoster)
+      );
     }
 
     return scoredAllSeason;

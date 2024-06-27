@@ -228,9 +228,9 @@ export default {
   },
   fillUserListFromGroup: (userList) =>
     new Promise(async (res) => {
-      const userIdList = userList.map((id) => id);
+      const userIdList = userList.map((user) => user.userId);
       res(
-        await db.User.find({ $in: userIdList }, { email: 1, username: 1 })
+        await db.User.find({ _id: { $in: userIdList } })
           .lean()
           .exec()
       );

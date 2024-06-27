@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import * as Routes from './constants/routes';
 import { Route, BrowserRouter, Switch } from 'react-router-dom';
 import { withFirebase } from './componenets/Firebase';
@@ -16,29 +16,26 @@ import GroupPage from './componenets/GroupPage/';
 import CreateGroup from './componenets/GroupPage/CreateGroup';
 import FourOFour from './componenets/404';
 import SidePanel from './componenets/SidePanel';
-import AvatarWrapper from './componenets/Avatars';
+import AvatarWrapper from './contexts/Avatars';
 import Unsubscribe from './componenets/Unsubscribe';
+import { CurrentUserContext } from './contexts/CurrentUser';
 
 const App = ({ firebase }) => {
-  const [noGroup, updateNoGroup] = useState(false);
-  const [authUser, updateAuthUser] = useState(null);
-  const [currentUser, updateCurrentUser] = useState({});
-  const [currentWeek, updateCurrentWeek] = useState(0);
-  const [currentSeason, updateCurrentSeason] = useState(``);
-  const [currentGroup, updateCurrentGroup] = useState({});
-  const [showSideBar, updateShowSideBar] = useState(false);
-  const [lockWeek, updateLockWeek] = useState(0);
+  const [noGroup, setNoGroup] = useState(false);
+  const [currentWeek, setCurrentWeek] = useState(0);
+  const [currentSeason, setCurrentSeason] = useState(``);
+  const [currentGroup, setCurrentGroup] = useState({});
+  const [showSideBar, setShowSideBar] = useState(false);
+  const [lockWeek, setLockWeek] = useState(0);
 
   const listener = useRef(null);
+
+  const { currentUser, setCurrentUser } = useContext(CurrentUserContext);
 
   useEffect(() => {
     listener.current = firebase.auth.onAuthStateChanged((authUser) => {
       if (authUser) {
-        updateAuthUser(authUser);
-        pullUserData(authUser.email);
-      } else {
-        updateAuthUser(null);
-        updateCurrentUser({});
+        pullUserData(authUser);
       }
       return function cleanup() {
         listener();
@@ -46,21 +43,26 @@ const App = ({ firebase }) => {
     });
   }, [firebase]);
 
-  const pullUserData = (email) => {
+  const pullUserData = (authUser) => {
     return new Promise(async (res) => {
-      const dbResponse = await axios.get(`/api/user/email/${email}`);
-      setCurrentUser(dbResponse.data.userInfo, dbResponse.data.emailSettings);
+      const dbResponse = await axios.get(`/api/user/email/${authUser.email}`, {
+        headers: { token: authUser._delegate.accessToken },
+      });
+      updateCurrentUser(
+        dbResponse.data.userInfo,
+        dbResponse.data.emailSettings
+      );
 
       if (userHasGroup(dbResponse.data.userInfo)) {
         initGroup(dbResponse.data.userInfo);
       } else {
-        updateNoGroup(true);
+        setNoGroup(true);
       }
       res();
     });
   };
 
-  const setCurrentUser = (user, emailSettings) => {
+  const updateCurrentUser = (user, emailSettings) => {
     const currentUser = {
       username: user.username,
       userId: user._id,
@@ -73,38 +75,38 @@ const App = ({ firebase }) => {
         leaderboardEmail: emailSettings.leaderboardEmail,
       },
     };
-    updateCurrentUser(currentUser);
+    setCurrentUser(currentUser);
   };
 
   const initGroup = async (user) => {
-    updateNoGroup(false);
+    setNoGroup(false);
     if (user.mainGroup) {
       const res = await axios.get(`/api/group/details/${user.mainGroup}`);
-      updateCurrentGroup({ name: res.data.name, _id: user.mainGroup });
+      setCurrentGroup({ name: res.data.name, _id: user.mainGroup });
     } else {
       axios.put(`/api/user/group/main/${user.GL[0]._id}/${user._id}`);
-      updateCurrentGroup({ name: user.grouplist[0].name, _id: user.GL[0]._id });
+      setCurrentGroup({ name: user.grouplist[0].name, _id: user.GL[0]._id });
     }
     getSeasonAndWeek();
   };
 
   const changeGroup = async (groupId) => {
     const res = await axios.get(`/api/group/details/${groupId}`);
-    updateCurrentGroup({ name: res.data.name, _id: res.data._id });
+    setCurrentGroup({ name: res.data.name, _id: res.data._id });
   };
 
   const getSeasonAndWeek = async () => {
-    const { data } = await axios.get(`/api/nfldata/currentSeasonAndWeek`);
-    updateCurrentSeason(data.season);
-    updateCurrentWeek(data.week);
-    updateLockWeek(data.lockWeek);
+    const { data } = await axios.get('/api/nfldata/currentSeasonAndWeek');
+    setCurrentSeason(data.season);
+    setCurrentWeek(data.week);
+    setLockWeek(data.lockWeek);
   };
 
   const userHasGroup = (user) => user.grouplist.length > 0;
 
-  const showHideSideBar = () => updateShowSideBar(!showSideBar);
+  const toggleSideBar = () => setShowSideBar(!showSideBar);
 
-  const hardSetSideBar = (toggle) => updateShowSideBar(toggle);
+  const hardSetSideBar = (toggle) => setShowSideBar(toggle);
 
   return (
     <BrowserRouter>
@@ -115,11 +117,11 @@ const App = ({ firebase }) => {
           noGroup={noGroup}
           currentGroup={currentGroup}
           user={currentUser}
-          showHideSideBar={showHideSideBar}
+          toggleSideBar={toggleSideBar}
           hardSetSideBar={hardSetSideBar}
           changeGroup={changeGroup}
         />
-        {authUser && <NavBar showHideSideBar={showHideSideBar} />}
+        {currentUser.email && <NavBar toggleSideBar={toggleSideBar} />}
 
         <Switch>
           <Route
@@ -138,12 +140,7 @@ const App = ({ firebase }) => {
           <Route
             path={Routes.adminPanel}
             render={() => (
-              <AdminPanel
-                currentUser={currentUser}
-                week={currentWeek}
-                season={currentSeason}
-                groupId={currentGroup._id}
-              />
+              <AdminPanel currentUser={currentUser} season={currentSeason} />
             )}
           />
           <Route
@@ -151,7 +148,7 @@ const App = ({ firebase }) => {
             path={Routes.groupPage}
             render={() => (
               <GroupPage
-                email={authUser && authUser.email}
+                email={currentUser.email}
                 pullUserData={pullUserData}
                 season={currentSeason}
                 noGroup={noGroup}
@@ -197,7 +194,7 @@ const App = ({ firebase }) => {
             path={Routes.createGroup}
             render={() => (
               <CreateGroup
-                email={authUser && authUser.email}
+                email={currentUser.email}
                 pullUserData={pullUserData}
                 changeGroup={changeGroup}
                 userId={currentUser.userId}

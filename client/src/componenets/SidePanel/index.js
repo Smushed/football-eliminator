@@ -20,7 +20,7 @@ const SidePanel = ({
   firebase,
   user,
   currentGroup,
-  showHideSideBar,
+  toggleSideBar,
   showSideBar,
   hardSetSideBar,
   changeGroup,
@@ -52,7 +52,7 @@ const SidePanel = ({
           alt={`Eliminator Logo`}
         />
       </div>
-      <Link to={Routes.home} onClick={() => showHideSideBar()}>
+      <Link to={Routes.home} onClick={() => toggleSideBar()}>
         <div className='sidebarItemWrapper firstSidebarItem'>
           <img className='sidebarSVG' src={RankingSVG} alt='Ranking Logo' />
           <div className='sideBarItem'>Leaderboard</div>
@@ -60,7 +60,7 @@ const SidePanel = ({
       </Link>
       <Link
         to={`/roster/${currentGroup.name}/${username}`}
-        onClick={() => showHideSideBar()}
+        onClick={() => toggleSideBar()}
       >
         <div className='sidebarItemWrapper'>
           <img className='sidebarSVG' src={ListSVG} alt='Roster Logo' />
@@ -69,20 +69,20 @@ const SidePanel = ({
       </Link>
       <Link
         to={`/usedPlayers/${currentGroup.name}/${username}`}
-        onClick={() => showHideSideBar()}
+        onClick={() => toggleSideBar()}
       >
         <div className='sidebarItemWrapper'>
           <img className='sidebarSVG' src={PlayerSVG} alt='Used Players Logo' />
           <div className='sideBarItem'>Used Players</div>
         </div>
       </Link>
-      <Link to={Routes.groupPage} onClick={() => showHideSideBar()}>
+      <Link to={Routes.groupPage} onClick={() => toggleSideBar()}>
         <div className='sidebarItemWrapper'>
           <img className='sidebarSVG' src={GroupSVG} alt='Group Logo' />
           <div className='sideBarItem'>Group Page</div>
         </div>
       </Link>
-      <Link to={`/profile/user/${username}`} onClick={() => showHideSideBar()}>
+      <Link to={`/profile/user/${username}`} onClick={() => toggleSideBar()}>
         <div className='sidebarItemWrapper'>
           <img className='sidebarSVG' src={UserSVG} alt='User Logo' />
           <div className='sideBarItem'>Profile Page</div>

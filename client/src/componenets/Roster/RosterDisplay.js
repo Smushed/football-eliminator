@@ -1,7 +1,7 @@
 import React, { useContext, memo } from 'react';
 import { Tooltip } from 'react-tooltip';
 
-import { AvatarContext } from '../Avatars';
+import { AvatarContext } from '../../contexts/Avatars';
 import BlankAvatar from '../../constants/logoImages/avatar/blankAvatar.png';
 
 const CurrentRosterRow = memo(function CurrentRosterRow({
@@ -83,9 +83,8 @@ const RosterDisplay = memo(function RosterDisplay({
       </thead>
       <tbody>
         {mustDrop
-          ? roster.map((player, i) => (
+          ? roster.map((player) => (
               <CurrentRosterRow
-                key={i}
                 position={player.position}
                 player={player}
                 addDropPlayer={addDropPlayer}
@@ -94,7 +93,6 @@ const RosterDisplay = memo(function RosterDisplay({
             ))
           : groupPositions.map((position, i) => (
               <CurrentRosterRow
-                key={i}
                 pastLockWeek={pastLockWeek}
                 position={position.name}
                 player={roster[i]}

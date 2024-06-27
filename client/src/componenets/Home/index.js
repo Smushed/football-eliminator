@@ -7,7 +7,7 @@ import RosterCarousel from './RosterCarousel';
 import * as Routes from '../../constants/routes';
 import { WeekSearch } from '../Roster/SearchDropdowns';
 import Session from '../Session';
-import { AvatarContext } from '../Avatars';
+import { AvatarContext } from '../../contexts/Avatars';
 import Leaderboard from '../Leaderboard';
 
 const Home = ({ season, group, week, currentUser, noGroup, history }) => {
@@ -202,7 +202,7 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
         </div>
       </div>
       <div className='row justify-content-center mt-1'>
-        <div className='text-center fs-3 fw-bold pt-2 col-4'>
+        <div className='text-center fs-3 fw-bold pt-3 col-5'>
           {group.name} Week {weekOnPage} Rosters
         </div>
         <div className='col-4'>
@@ -225,7 +225,7 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
                 pastLockWeek={true}
                 headerText={`${
                   inGroupRoster.username +
-                  (inGroupRoster.username.slice(-1) === `s` ? `'` : `'s`)
+                  (inGroupRoster.username.slice(-1) === 's' ? "'" : "'s")
                 } Roster`}
                 userId={inGroupRoster.userId}
               />
