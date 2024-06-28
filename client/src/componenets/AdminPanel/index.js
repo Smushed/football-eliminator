@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import * as Routes from '../../constants/routes';
 import Session from '../Session';
 import { useParams, useHistory } from 'react-router-dom';
@@ -6,8 +6,9 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { AdminRosterDisplay } from './AdminRoster';
 import { getAuth } from 'firebase/auth';
+import { CurrentUserContext } from '../../contexts/CurrentUser';
 
-const AdminPanel = ({ currentUser, season }) => {
+const AdminPanel = ({ season }) => {
   const [groupSelect, setGroupSelect] = useState('');
   const [groupList, setGroupList] = useState([]);
   const [currentGroup, setCurrentGroup] = useState({});
@@ -16,6 +17,8 @@ const AdminPanel = ({ currentUser, season }) => {
   const [groupPositions, setGroupPositions] = useState({});
   const [groupScore, setGroupScore] = useState({});
   const [groupWindow, setGroupWindow] = useState('score');
+
+  const { currentUser } = useContext(CurrentUserContext);
 
   useEffect(() => {
     pullGroupList();

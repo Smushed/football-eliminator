@@ -8,12 +8,13 @@ import * as Routes from '../../constants/routes';
 import { WeekSearch } from '../Roster/SearchDropdowns';
 import Session from '../Session';
 import { AvatarContext } from '../../contexts/Avatars';
+import { CurrentUserContext } from '../../contexts/CurrentUser';
 import Leaderboard from '../Leaderboard';
+import { axiosHandler, httpErrorHandler } from '../../utils/axiosHandler';
 
-const Home = ({ season, group, week, currentUser, noGroup, history }) => {
+const Home = ({ season, group, week, history }) => {
   const [idealRoster, updateIdealRoster] = useState([]);
-  const [bestRoster, updateBestRoster] = useState([]);
-  const [bestRosterUser, updateBestRosterUser] = useState(``);
+  const [bestRoster, updateBestRoster] = useState({ username: '', roster: [] });
   const [weeklyGroupRosters, updateWeeklyGroupRosters] = useState([]);
   const [groupPositions, updateGroupPositions] = useState([]);
   const [weekSelect, updateWeekSelect] = useState(1);
@@ -22,6 +23,7 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
 
   const { addPlayerAvatarsToPull, addUserAvatarsToPull } =
     useContext(AvatarContext);
+  const { currentUser, userHasGroup } = useContext(CurrentUserContext);
 
   const axiosCancel = axios.CancelToken.source();
 
@@ -34,14 +36,15 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
   }, []);
 
   useEffect(() => {
-    if (week !== 0 && season !== `` && currentUser.username && group) {
+    if (week !== 0 && season !== '' && currentUser.username && group) {
       updateWeekOnPage(week);
       updateWeekSelect(week);
       getAllRostersForWeek(season, week, group._id);
       getGroupPositions(group._id);
       if (!initialPull) {
         try {
-          pullIdealCurrLeader(season, week, group._id);
+          getIdealRoster(season, week, group._id);
+          getBestCurrLeadRoster(season, week, group._id);
         } catch (err) {
           console.log(
             'Error doing initial pull of Leaderboard, Ideal and Leader. Error: ',
@@ -54,103 +57,77 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
   }, [week, season, currentUser.username, group]);
 
   useEffect(() => {
-    if (noGroup) {
+    if (!userHasGroup) {
       history.push(Routes.groupPage);
       return;
     }
-  }, [noGroup]);
+  }, [userHasGroup]);
 
-  const pullIdealCurrLeader = async (season, week, groupId) => {
+  const getGroupPositions = async (groupId) => {
     try {
-      await getIdealRoster(season, week, groupId);
-      await getBestCurrLeadRoster(season, week, groupId);
+      const { data } = await axiosHandler.get(
+        `/api/group/positions/${groupId}`,
+        axiosCancel.token
+      );
+      updateGroupPositions(data);
     } catch (err) {
-      throw err;
+      httpErrorHandler(err);
     }
   };
 
-  const getGroupPositions = (groupId) => {
-    axios
-      .get(`/api/group/positions/${groupId}`, {
-        cancelToken: axiosCancel.token,
-      })
-      .then((res) => {
-        updateGroupPositions(res.data);
-        return;
-      })
-      .catch((err) => {
-        if (err.message !== 'Unmounted') {
-          console.log(err);
-        }
-      });
+  const getIdealRoster = async (season, week, groupId) => {
+    try {
+      const { data } = await axiosHandler.get(
+        `/api/roster/ideal/${season}/${week}/${groupId}`,
+        axiosCancel.token
+      );
+      updateIdealRoster(data);
+      const playerIds = data.map((player) => player.mySportsId);
+      addPlayerAvatarsToPull(playerIds);
+    } catch (err) {
+      httpErrorHandler(err);
+    }
   };
 
-  const getIdealRoster = (season, week, groupId) =>
-    axios
-      .get(`/api/roster/ideal/${season}/${week}/${groupId}`, {
-        cancelToken: axiosCancel.token,
-      })
-      .then((res) => {
-        updateIdealRoster(res.data);
-        const playerIds = res.data.map((player) => player.mySportsId);
-        addPlayerAvatarsToPull(playerIds);
-      })
-      .catch((err) => {
-        if (err.message !== 'Unmounted') {
-          console.log(err);
-        }
-      });
+  const getBestCurrLeadRoster = async (season, week, groupId) => {
+    try {
+      const { data } = await axiosHandler.get(
+        `/api/group/roster/bestAndLead/${season}/${week}/${groupId}`,
+        axiosCancel.token
+      );
+      if (!data.bestRoster) {
+        return;
+      }
+      updateBestRoster(data.bestRoster);
+      const playerIds = data.bestRoster.roster.map(
+        (player) => player.mySportsId
+      );
+      addPlayerAvatarsToPull(playerIds);
+    } catch (err) {
+      httpErrorHandler(err);
+    }
+  };
 
-  const getBestCurrLeadRoster = (season, week, groupId) =>
-    axios
-      .get(`/api/group/roster/bestAndLead/${season}/${week}/${groupId}`, {
-        cancelToken: axiosCancel.token,
-      })
-      .then((res) => {
-        if (!res.data.bestRoster) {
-          return;
-        }
-        const { username, roster } = res.data.bestRoster;
-        if (username) {
-          updateBestRosterUser(username);
-        }
-        if (roster) {
-          updateBestRoster(roster);
-          const playerIds = roster.map((player) => player.mySportsId);
-          addPlayerAvatarsToPull(playerIds);
-        }
-      })
-      .catch((err) => {
-        if (err.message !== 'Unmounted') {
-          console.log(err);
-        }
-        throw err;
-      });
-
-  const getAllRostersForWeek = (season, week, groupId) => {
-    axios
-      .get(`/api/roster/group/all/${season}/${week}/${groupId}`, {
-        cancelToken: axiosCancel.token,
-      })
-      .then((res) => {
-        updateWeeklyGroupRosters(res.data);
-        addUserAvatarsToPull(res.data.map((roster) => roster.userId));
-        const playerIds = [];
-        for (const roster of res.data) {
-          for (const player of roster.roster) {
-            if (player.mySportsId !== 0) {
-              playerIds.push(player.mySportsId);
-            }
+  const getAllRostersForWeek = async (season, week, groupId) => {
+    try {
+      const { data } = await axiosHandler.get(
+        `/api/roster/group/all/${season}/${week}/${groupId}`,
+        axiosCancel.token
+      );
+      updateWeeklyGroupRosters(data);
+      addUserAvatarsToPull(data.map((roster) => roster.userId));
+      const playerIds = new Set();
+      for (const roster of data) {
+        for (const player of roster.roster) {
+          if (player.mySportsId !== 0) {
+            playerIds.add(player.mySportsId);
           }
         }
-        addPlayerAvatarsToPull(playerIds);
-      })
-      .catch((err) => {
-        if (err.message !== 'Unmounted') {
-          console.log(err);
-        }
-        throw err;
-      });
+      }
+      addPlayerAvatarsToPull(playerIds);
+    } catch (err) {
+      httpErrorHandler(err);
+    }
   };
 
   const handleChange = (e) => {
@@ -183,9 +160,11 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
           <div className='row'>
             <div className='col-12'>
               <RosterDisplay
-                headerText={`Best from Week ${week - 1} - ${bestRosterUser}`}
+                headerText={`Best from Week ${week - 1} - ${
+                  bestRoster.username
+                }`}
                 groupPositions={groupPositions}
-                roster={bestRoster}
+                roster={bestRoster.roster}
                 pastLockWeek={true}
               />
             </div>
@@ -194,8 +173,8 @@ const Home = ({ season, group, week, currentUser, noGroup, history }) => {
         <div className='col-md-12 d-block d-lg-none'>
           <RosterCarousel
             week={weekForLeaderboard}
-            bestRosterUser={bestRosterUser}
-            bestRoster={bestRoster}
+            bestRosterUser={bestRoster.username}
+            bestRoster={bestRoster.roster}
             groupPositions={groupPositions}
             idealRoster={idealRoster}
           />

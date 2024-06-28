@@ -15,19 +15,11 @@ import { WeekSearch, PositionSearch, TeamSearch } from './SearchDropdowns';
 import * as Routes from '../../constants/routes';
 import { toast } from 'react-hot-toast';
 import { AvatarContext } from '../../contexts/Avatars';
+import { CurrentUserContext } from '../../contexts/CurrentUser';
 
 const Alert = withReactContent(Swal);
 
-const Roster = ({
-  appLevelLockWeek,
-  week,
-  season,
-  match,
-  username,
-  userId,
-  history,
-  noGroup,
-}) => {
+const Roster = ({ appLevelLockWeek, week, season, match, userId, history }) => {
   const [userRoster, updateUserRoster] = useState([]);
   const [availablePlayers, updateAvaliablePlayers] = useState([]);
   const [positionSelect, updatePositionSelect] = useState('QB');
@@ -35,7 +27,6 @@ const Roster = ({
   const [lastPosSearch, updateLastPosSearch] = useState('');
   const [weekSelect, updateWeekSelect] = useState(0);
   const [weekOnPage, updateWeekOnPage] = useState(0);
-  const [currentUser, updateCurrentUser] = useState(false);
   const [usernameOfPage, updateUsernameOfPage] = useState('');
   const [groupPositions, updateGroupPositions] = useState([]);
   const [positionArray, updatePositionArray] = useState([]);
@@ -52,6 +43,7 @@ const Roster = ({
   const [availPlayersToShow, updateAvailPlayersToShow] = useState([]);
 
   const { addPlayerAvatarsToPull } = useContext(AvatarContext);
+  const { currentUser, userHasGroup } = useContext(CurrentUserContext);
 
   const axiosCancel = axios.CancelToken.source();
 
@@ -64,7 +56,7 @@ const Roster = ({
   }, []);
 
   useEffect(() => {
-    if (noGroup) {
+    if (!userHasGroup) {
       history.push(Routes.groupPage);
       return;
     }
@@ -72,14 +64,16 @@ const Roster = ({
     if (week !== 0 && season !== '') {
       primaryPull(+week, match.params.username);
     }
-  }, [week, season, match.params.username, noGroup]);
+  }, [week, season, match.params.username, userHasGroup]);
 
   useEffect(() => {
     if (playerSearch === '') {
       updateAvailPlayersToShow(availablePlayers);
       return;
     }
-    const results = fuzzysort.go(playerSearch, availablePlayers, { key: 'N' });
+    const results = fuzzysort.go(playerSearch, availablePlayers, {
+      key: 'name',
+    });
 
     updateAvailPlayersToShow(results.map((player) => player.obj));
   }, [playerSearch]);
@@ -118,7 +112,7 @@ const Roster = ({
   };
 
   const checkCurrentUser = () => {
-    if (username === match.params.username) {
+    if (currentUser.username === match.params.username) {
       updateCurrentUser(true);
     } else {
       updateCurrentUser(false);
@@ -246,10 +240,10 @@ const Roster = ({
       loading();
       axios
         .put('/api/roster/user/update', {
-          userId: userId,
-          roster,
-          droppedPlayer,
-          addedPlayer,
+          userId: currentUser.userId,
+          roster: roster,
+          droppedPlayer: droppedPlayer,
+          addedPlayer: addedPlayer,
           week: weekSelect,
           season: season,
           groupname: match.params.groupname,
@@ -276,7 +270,7 @@ const Roster = ({
     });
 
   const checkLockPeriod = async (team) => {
-    axios
+    await axios
       .get(`/api/roster/lock/${season}/${weekOnPage}/${team}`, {
         cancelToken: axiosCancel.token,
       })
@@ -296,7 +290,7 @@ const Roster = ({
   const searchByTeam = () => {
     axios
       .get(
-        `/api/roster/getPlayersByTeam/${season}/${userId}/${match.params.groupname}/${teamSelect}`,
+        `/api/roster/getPlayersByTeam/${season}/${usernameOfPage}/${match.params.groupname}/${teamSelect}`,
         { cancelToken: axiosCancel.token }
       )
       .then((res) => {

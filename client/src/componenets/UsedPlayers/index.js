@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { PlayerDisplayRow } from '../Roster/RosterDisplay';
 
@@ -6,12 +6,15 @@ import { loading, doneLoading } from '../LoadingAlert';
 import * as Routes from '../../constants/routes';
 import './usedPlayerStyle.css';
 import Session from '../Session';
+import { CurrentUserContext } from '../../contexts/CurrentUser';
 
-const UsedPlayers = ({ match, season, history, noGroup }) => {
+const UsedPlayers = ({ match, season, history }) => {
   const [usedPlayers, updateUsedPlayers] = useState({});
   const [usernameOfPage, updateUsernameOfPage] = useState(``);
 
   const axiosCancel = axios.CancelToken.source();
+
+  const { userHasGroup } = useContext(CurrentUserContext);
 
   useEffect(() => {
     return function cancelAPICalls() {
@@ -22,7 +25,7 @@ const UsedPlayers = ({ match, season, history, noGroup }) => {
   }, []);
 
   useEffect(() => {
-    if (noGroup) {
+    if (!userHasGroup) {
       history.push(Routes.groupPage);
       return;
     }

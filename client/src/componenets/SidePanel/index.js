@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { withFirebase } from '../Firebase';
 import { Link } from 'react-router-dom';
 import { slide as Menu } from 'react-burger-menu';
+import { CurrentUserContext } from '../../contexts/CurrentUser';
 
 // SVGs are from Flatiron
 import RankingSVG from '../../constants/SVG/ranking.svg';
@@ -9,7 +10,6 @@ import ListSVG from '../../constants/SVG/list.svg';
 import PlayerSVG from '../../constants/SVG/player.svg';
 import GroupSVG from '../../constants/SVG/group.svg';
 import UserSVG from '../../constants/SVG/user.svg';
-
 import * as Routes from '../../constants/routes';
 
 import SignOutIcon from './SignOut.png';
@@ -18,7 +18,6 @@ import './sidePanelStyle.css';
 
 const SidePanel = ({
   firebase,
-  user,
   currentGroup,
   toggleSideBar,
   showSideBar,
@@ -26,6 +25,8 @@ const SidePanel = ({
   changeGroup,
 }) => {
   useEffect(() => {}, [showSideBar]);
+
+  const { currentUser } = useContext(CurrentUserContext);
 
   const signUserOut = () => {
     firebase.doSignOut();
@@ -35,8 +36,6 @@ const SidePanel = ({
   const groupSelect = (e) => {
     changeGroup(e.target.value);
   };
-
-  const username = user.username;
 
   return (
     <Menu
@@ -59,7 +58,7 @@ const SidePanel = ({
         </div>
       </Link>
       <Link
-        to={`/roster/${currentGroup.name}/${username}`}
+        to={`/roster/${currentGroup.name}/${currentUser.username}`}
         onClick={() => toggleSideBar()}
       >
         <div className='sidebarItemWrapper'>
@@ -68,7 +67,7 @@ const SidePanel = ({
         </div>
       </Link>
       <Link
-        to={`/usedPlayers/${currentGroup.name}/${username}`}
+        to={`/usedPlayers/${currentGroup.name}/${currentUser.username}`}
         onClick={() => toggleSideBar()}
       >
         <div className='sidebarItemWrapper'>
@@ -82,24 +81,26 @@ const SidePanel = ({
           <div className='sideBarItem'>Group Page</div>
         </div>
       </Link>
-      <Link to={`/profile/user/${username}`} onClick={() => toggleSideBar()}>
+      <Link
+        to={`/profile/user/${currentUser.username}`}
+        onClick={() => toggleSideBar()}
+      >
         <div className='sidebarItemWrapper'>
           <img className='sidebarSVG' src={UserSVG} alt='User Logo' />
           <div className='sideBarItem'>Profile Page</div>
         </div>
       </Link>
-      {user.grouplist && (
+      {currentUser.grouplist && (
         <select
           className='form-select groupDropdown'
           value={currentGroup._id}
           onChange={groupSelect}
         >
-          {user.grouplist &&
-            user.grouplist.map((group) => (
-              <option key={group._id} value={group._id}>
-                {group.N}
-              </option>
-            ))}
+          {currentUser.grouplist.map((group) => (
+            <option key={group._id} value={group._id}>
+              {group.name}
+            </option>
+          ))}
         </select>
       )}
 

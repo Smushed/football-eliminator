@@ -3,7 +3,7 @@ import * as Routes from './constants/routes';
 import { Route, BrowserRouter, Switch } from 'react-router-dom';
 import { withFirebase } from './componenets/Firebase';
 import axios from 'axios';
-import { Toaster } from 'react-hot-toast';
+import { Toaster, toast } from 'react-hot-toast';
 
 import SignInOut from './componenets/SignInOut';
 import NavBar from './componenets/NavBar/';
@@ -19,9 +19,9 @@ import SidePanel from './componenets/SidePanel';
 import AvatarWrapper from './contexts/Avatars';
 import Unsubscribe from './componenets/Unsubscribe';
 import { CurrentUserContext } from './contexts/CurrentUser';
+import { axiosHandler, httpErrorHandler } from './utils/axiosHandler';
 
 const App = ({ firebase }) => {
-  const [noGroup, setNoGroup] = useState(false);
   const [currentWeek, setCurrentWeek] = useState(0);
   const [currentSeason, setCurrentSeason] = useState(``);
   const [currentGroup, setCurrentGroup] = useState({});
@@ -30,7 +30,8 @@ const App = ({ firebase }) => {
 
   const listener = useRef(null);
 
-  const { currentUser, setCurrentUser } = useContext(CurrentUserContext);
+  const { currentUser, setCurrentUser, setUserHasGroup } =
+    useContext(CurrentUserContext);
 
   useEffect(() => {
     listener.current = firebase.auth.onAuthStateChanged((authUser) => {
@@ -43,23 +44,22 @@ const App = ({ firebase }) => {
     });
   }, [firebase]);
 
-  const pullUserData = (authUser) => {
-    return new Promise(async (res) => {
-      const dbResponse = await axios.get(`/api/user/email/${authUser.email}`, {
-        headers: { token: authUser._delegate.accessToken },
-      });
-      updateCurrentUser(
-        dbResponse.data.userInfo,
-        dbResponse.data.emailSettings
+  const pullUserData = async (authUser) => {
+    try {
+      const { data } = await axiosHandler.get(
+        `/api/user/email/${authUser.email}`
       );
 
-      if (userHasGroup(dbResponse.data.userInfo)) {
-        initGroup(dbResponse.data.userInfo);
+      updateCurrentUser(data.userInfo, data.emailSettings);
+
+      if (data.userInfo.grouplist.length > 0) {
+        initGroup(data.userInfo);
       } else {
-        setNoGroup(true);
+        setUserHasGroup(false);
       }
-      res();
-    });
+    } catch (err) {
+      httpErrorHandler(err);
+    }
   };
 
   const updateCurrentUser = (user, emailSettings) => {
@@ -68,8 +68,8 @@ const App = ({ firebase }) => {
       userId: user._id,
       isAdmin: user.admin,
       email: user.email,
-      GL: user.grouplist,
-      MG: user.mainGroup || null,
+      grouplist: user.grouplist,
+      mainGroup: user.mainGroup || null,
       emailSettings: {
         reminderEmail: emailSettings.reminderEmail,
         leaderboardEmail: emailSettings.leaderboardEmail,
@@ -79,13 +79,20 @@ const App = ({ firebase }) => {
   };
 
   const initGroup = async (user) => {
-    setNoGroup(false);
+    setUserHasGroup(true);
     if (user.mainGroup) {
-      const res = await axios.get(`/api/group/details/${user.mainGroup}`);
+      const res = await axiosHandler.get(
+        `/api/group/details/${user.mainGroup}`
+      );
       setCurrentGroup({ name: res.data.name, _id: user.mainGroup });
     } else {
-      axios.put(`/api/user/group/main/${user.GL[0]._id}/${user._id}`);
-      setCurrentGroup({ name: user.grouplist[0].name, _id: user.GL[0]._id });
+      axiosHandler.put(
+        `/api/user/group/main/${user.grouplist[0]._id}/${user._id}`
+      );
+      setCurrentGroup({
+        name: user.grouplist[0].name,
+        _id: user.grouplist[0]._id,
+      });
     }
     getSeasonAndWeek();
   };
@@ -102,8 +109,6 @@ const App = ({ firebase }) => {
     setLockWeek(data.lockWeek);
   };
 
-  const userHasGroup = (user) => user.grouplist.length > 0;
-
   const toggleSideBar = () => setShowSideBar(!showSideBar);
 
   const hardSetSideBar = (toggle) => setShowSideBar(toggle);
@@ -111,12 +116,10 @@ const App = ({ firebase }) => {
   return (
     <BrowserRouter>
       <AvatarWrapper>
-        <Toaster />
+        <Toaster position='top-right' />
         <SidePanel
           showSideBar={showSideBar}
-          noGroup={noGroup}
           currentGroup={currentGroup}
-          user={currentUser}
           toggleSideBar={toggleSideBar}
           hardSetSideBar={hardSetSideBar}
           changeGroup={changeGroup}
@@ -129,31 +132,21 @@ const App = ({ firebase }) => {
             path={Routes.home}
             render={() => (
               <Home
-                noGroup={noGroup}
                 season={currentSeason}
                 group={currentGroup}
                 week={currentWeek}
-                currentUser={currentUser}
               />
             )}
           />
           <Route
             path={Routes.adminPanel}
-            render={() => (
-              <AdminPanel currentUser={currentUser} season={currentSeason} />
-            )}
+            render={() => <AdminPanel season={currentSeason} />}
           />
           <Route
             exact
             path={Routes.groupPage}
             render={() => (
-              <GroupPage
-                email={currentUser.email}
-                pullUserData={pullUserData}
-                season={currentSeason}
-                noGroup={noGroup}
-                userId={currentUser.userId}
-              />
+              <GroupPage pullUserData={pullUserData} season={currentSeason} />
             )}
           />
           <Route path={Routes.signin} render={() => <SignInOut />} />
@@ -171,11 +164,8 @@ const App = ({ firebase }) => {
             path={Routes.roster}
             render={() => (
               <Roster
-                username={currentUser.username}
-                userId={currentUser.userId}
                 week={currentWeek}
                 season={currentSeason}
-                noGroup={noGroup}
                 appLevelLockWeek={lockWeek}
               />
             )}
@@ -183,11 +173,7 @@ const App = ({ firebase }) => {
           <Route
             path={Routes.usedPlayers}
             render={(props) => (
-              <UsedPlayers
-                {...props}
-                noGroup={noGroup}
-                season={currentSeason}
-              />
+              <UsedPlayers {...props} season={currentSeason} />
             )}
           />
           <Route

@@ -3,7 +3,7 @@ import userHandler from '../handlers/userHandler.js';
 import rosterHandler from '../handlers/rosterHandler.js';
 import s3Handler from '../handlers/s3Handler.js';
 import groupHandler from '../handlers/groupHandler.js';
-import { verifyUserLoggedIn } from '../handlers/authHandler.js';
+import { authMiddleware, verifyUserLoggedIn } from '../handlers/authHandler.js';
 
 export default (app) => {
   app.put('/api/user/updateProfile', async (req, res) => {
@@ -30,7 +30,7 @@ export default (app) => {
     res.json(newUserInDB);
   });
 
-  app.get('/api/user/email/:email', async (req, res) => {
+  app.get('/api/user/email/:email', authMiddleware, async (req, res) => {
     try {
       await verifyUserLoggedIn(req.currentUser);
       const { email } = req.params;

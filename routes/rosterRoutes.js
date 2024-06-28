@@ -148,14 +148,14 @@ export default (app) => {
   );
 
   app.get(
-    '/api/roster/getPlayersByTeam/:season/:userId/:groupname/:team',
+    '/api/roster/getPlayersByTeam/:season/:username/:groupname/:team',
     async (req, res) => {
-      const { groupname, userId, team, season } = req.params;
+      const { groupname, username, team, season } = req.params;
 
       const groupId = await groupHandler.findGroupIdByName(groupname);
       const playersByTeam = await rosterHandler.searchAvailablePlayerByTeam(
         groupId,
-        userId,
+        username,
         team,
         season
       );

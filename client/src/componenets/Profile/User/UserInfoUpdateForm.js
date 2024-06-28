@@ -116,19 +116,11 @@ const UserInfoUpdateForm = ({
       body: JSON.stringify({ image: updatedAvatar }),
     })
       .then(() => {
-        toast.success('Avatar Saved', {
-          position: 'top-right',
-          duration: 4000,
-        });
+        toast.success('Avatar Saved');
         repullUserAvatars([userFieldsOnPage.id]);
         return;
       })
-      .catch(() =>
-        toast.error('Error Saving the Avatar', {
-          position: 'top-right',
-          duration: 4000,
-        })
-      );
+      .catch(() => toast.error('Error Saving the Avatar'));
   };
 
   const saveCroppedAvatar = (mime) => {

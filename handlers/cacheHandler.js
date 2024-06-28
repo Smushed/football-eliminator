@@ -51,6 +51,7 @@ export default {
           res(playerAvatar);
         }
       }
+      res(pulledValue);
     }),
   pullManyFromCache: (idArray, isUser) =>
     new Promise(async (res) => {

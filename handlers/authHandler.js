@@ -22,12 +22,12 @@ initializeApp({
 
 const notAuthorizedError = { message: 'Unauthorized', status: 401 };
 
-const verifyTokenMiddleware = (req, res, next) => {
-  if (!req.headers.token) {
+const authMiddleware = (req, res, next) => {
+  if (!req.headers.authorization) {
     next();
   } else {
     getAuth()
-      .verifyIdToken(req.headers.token)
+      .verifyIdToken(req.headers.authorization)
       .then((decodedToken) => {
         req.currentUser = decodedToken.email;
         next();
@@ -51,10 +51,9 @@ const verifyGroupAdminByEmail = async (userEmail, groupId) => {
 };
 
 const verifyUserLoggedIn = async (userEmail) => {
-  console.log({ userEmail });
   if (userEmail === null || userEmail === undefined || userEmail === '') {
     throw notAuthorizedError;
   }
 };
 
-export { verifyGroupAdminByEmail, verifyUserLoggedIn, verifyTokenMiddleware };
+export { verifyGroupAdminByEmail, verifyUserLoggedIn, authMiddleware };

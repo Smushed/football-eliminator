@@ -4,9 +4,12 @@ const CurrentUserContext = createContext();
 
 const CurrentUserWrapper = ({ children }) => {
   const [currentUser, setCurrentUser] = useState({});
+  const [userHasGroup, setUserHasGroup] = useState(false);
 
   return (
-    <CurrentUserContext.Provider value={{ currentUser, setCurrentUser }}>
+    <CurrentUserContext.Provider
+      value={{ currentUser, setCurrentUser, userHasGroup, setUserHasGroup }}
+    >
       {children}
     </CurrentUserContext.Provider>
   );
