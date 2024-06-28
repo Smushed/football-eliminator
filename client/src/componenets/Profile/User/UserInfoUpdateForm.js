@@ -180,7 +180,7 @@ const UserInfoUpdateForm = ({
   const createProfileFields = async (user) => {
     try {
       const grouplist = await axios.get(
-        `/api/group/details/byUser/${user._id}`,
+        `/api/group/details/all/user/${user._id}`,
         { cancelToken: axiosCancel.token }
       );
       const builtUser = {

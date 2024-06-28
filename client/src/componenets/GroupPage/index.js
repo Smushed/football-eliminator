@@ -9,14 +9,15 @@ import withReactContent from 'sweetalert2-react-content';
 import './groupStyle.css';
 import * as Routes from '../../constants/routes';
 import Session from '../Session';
-import { CurrentUserContext } from '../../contexts/CurrentUser';
+import { CurrentUserContext, NFLScheduleContext } from '../../App.js';
 
 const Alert = withReactContent(Swal);
 
-const GroupPage = ({ history, pullUserData, season }) => {
+const GroupPage = ({ history, pullUserData }) => {
   const [groupList, updateGroupList] = useState([]);
 
-  const { currentUser, userHasGroup } = useContext(CurrentUserContext);
+  const { currentUser } = useContext(CurrentUserContext);
+  const { currentNFLTime } = useContext(NFLScheduleContext);
 
   const axiosCancel = axios.CancelToken.source();
 
@@ -29,11 +30,14 @@ const GroupPage = ({ history, pullUserData, season }) => {
   }, []);
 
   useEffect(() => {
-    if (!userHasGroup) {
+    if (!currentUser.grouplist) {
+      return;
+    }
+    if (currentUser.grouplist.length === 0) {
       welcomeModal();
     }
     getGroupList();
-  }, [userHasGroup]);
+  }, [currentUser.grouplist]);
 
   const welcomeModal = () => {
     Alert.fire({
@@ -98,7 +102,7 @@ const GroupPage = ({ history, pullUserData, season }) => {
         <div className='col-12 col-xl-8'>
           {groupList.map((group) => (
             <GroupRow
-              season={season}
+              season={currentNFLTime.season}
               key={group.id}
               group={group}
               joinGroup={joinGroup}

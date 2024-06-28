@@ -6,15 +6,15 @@ import userHandler from '../handlers/userHandler.js';
 
 export default (app) => {
   app.get('/api/roster/players/available', async (req, res) => {
-    const { userId, searchedPosition, season, groupname } = req.query;
-    const groupId = await groupHandler.getGroupData(groupname);
-    const availablePlayers = await rosterHandler.availablePlayers(
-      userId,
-      searchedPosition,
-      season,
-      groupId
-    );
-    res.status(200).send(availablePlayers);
+    const { username, searchedPosition, season, groupname } = req.query;
+    Promise.all([
+      groupHandler.getGroupData(groupname),
+      userHandler.getUserByUsername(username),
+    ]).then(([group, user]) => {
+      rosterHandler
+        .availablePlayers(user._id, searchedPosition, season, group._id)
+        .then((availablePlayers) => res.status(200).send(availablePlayers));
+    });
   });
 
   app.get('/api/roster/user/:season/:week/:groupname/:username', (req, res) => {

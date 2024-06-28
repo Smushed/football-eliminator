@@ -12,14 +12,14 @@ import './playerStyle.css';
 
 import { loading, doneLoading } from '../LoadingAlert';
 import { WeekSearch, PositionSearch, TeamSearch } from './SearchDropdowns';
-import * as Routes from '../../constants/routes';
 import { toast } from 'react-hot-toast';
 import { AvatarContext } from '../../contexts/Avatars';
-import { CurrentUserContext } from '../../contexts/CurrentUser';
+import { CurrentUserContext, NFLScheduleContext } from '../../App.js';
+import { useParams } from 'react-router-dom';
 
 const Alert = withReactContent(Swal);
 
-const Roster = ({ appLevelLockWeek, week, season, match, userId, history }) => {
+const Roster = () => {
   const [userRoster, updateUserRoster] = useState([]);
   const [availablePlayers, updateAvaliablePlayers] = useState([]);
   const [positionSelect, updatePositionSelect] = useState('QB');
@@ -27,7 +27,6 @@ const Roster = ({ appLevelLockWeek, week, season, match, userId, history }) => {
   const [lastPosSearch, updateLastPosSearch] = useState('');
   const [weekSelect, updateWeekSelect] = useState(0);
   const [weekOnPage, updateWeekOnPage] = useState(0);
-  const [usernameOfPage, updateUsernameOfPage] = useState('');
   const [groupPositions, updateGroupPositions] = useState([]);
   const [positionArray, updatePositionArray] = useState([]);
   const [usedPlayers, updateUsedPlayers] = useState([]);
@@ -43,7 +42,10 @@ const Roster = ({ appLevelLockWeek, week, season, match, userId, history }) => {
   const [availPlayersToShow, updateAvailPlayersToShow] = useState([]);
 
   const { addPlayerAvatarsToPull } = useContext(AvatarContext);
-  const { currentUser, userHasGroup } = useContext(CurrentUserContext);
+  const { currentUser } = useContext(CurrentUserContext);
+  const { currentNFLTime } = useContext(NFLScheduleContext);
+
+  const params = useParams();
 
   const axiosCancel = axios.CancelToken.source();
 
@@ -56,15 +58,10 @@ const Roster = ({ appLevelLockWeek, week, season, match, userId, history }) => {
   }, []);
 
   useEffect(() => {
-    if (!userHasGroup) {
-      history.push(Routes.groupPage);
-      return;
+    if (currentNFLTime.week !== 0 && currentNFLTime.season !== '') {
+      primaryPull(+currentNFLTime.week, params.username);
     }
-
-    if (week !== 0 && season !== '') {
-      primaryPull(+week, match.params.username);
-    }
-  }, [week, season, match.params.username, userHasGroup]);
+  }, [currentNFLTime, params.username, currentUser.grouplist]);
 
   useEffect(() => {
     if (playerSearch === '') {
@@ -83,18 +80,16 @@ const Roster = ({ appLevelLockWeek, week, season, match, userId, history }) => {
     updateAvailPlayersToShow(availPlayers);
   }, [availablePlayers]);
 
-  const primaryPull = (week, username) => {
+  const primaryPull = (week) => {
     updateWeekSelect(week);
-    updateUsernameOfPage(username);
     getRosterData(week);
-    checkCurrentUser();
     pullPlayers();
   };
 
   const getUsedPlayers = () => {
     axios
       .get(
-        `/api/roster/players/used/${match.params.username}/${season}/${match.params.groupname}/${positionSelect}`,
+        `/api/roster/players/used/${params.username}/${currentNFLTime.season}/${params.groupname}/${positionSelect}`,
         {
           cancelToken: axiosCancel.token,
         }
@@ -111,17 +106,9 @@ const Roster = ({ appLevelLockWeek, week, season, match, userId, history }) => {
       });
   };
 
-  const checkCurrentUser = () => {
-    if (currentUser.username === match.params.username) {
-      updateCurrentUser(true);
-    } else {
-      updateCurrentUser(false);
-    }
-  };
-
   const getWeeklyMatchUps = (weekInput) => {
     axios
-      .get(`/api/nfldata/matchups/${season}/${weekInput}`, {
+      .get(`/api/nfldata/matchups/${currentNFLTime.season}/${weekInput}`, {
         cancelToken: axiosCancel.token,
       })
       .then((res) => {
@@ -138,11 +125,11 @@ const Roster = ({ appLevelLockWeek, week, season, match, userId, history }) => {
   const getRosterData = (weekInput) => {
     getWeeklyMatchUps(weekInput);
     updateWeekOnPage(weekInput);
-    if (week !== 0 && season !== ``) {
+    if (currentNFLTime.week !== 0 && currentNFLTime.season !== ``) {
       loading();
       axios
         .get(
-          `/api/roster/user/${season}/${weekInput}/${match.params.groupname}/${match.params.username}`,
+          `/api/roster/user/${currentNFLTime.season}/${weekInput}/${params.groupname}/${params.username}`,
           { cancelToken: axiosCancel.token }
         )
         .then((res) => {
@@ -245,8 +232,8 @@ const Roster = ({ appLevelLockWeek, week, season, match, userId, history }) => {
           droppedPlayer: droppedPlayer,
           addedPlayer: addedPlayer,
           week: weekSelect,
-          season: season,
-          groupname: match.params.groupname,
+          season: currentNFLTime.season,
+          groupname: params.groupname,
           position: pos,
         })
         .then((response) => {
@@ -271,7 +258,7 @@ const Roster = ({ appLevelLockWeek, week, season, match, userId, history }) => {
 
   const checkLockPeriod = async (team) => {
     await axios
-      .get(`/api/roster/lock/${season}/${weekOnPage}/${team}`, {
+      .get(`/api/roster/lock/${currentNFLTime.season}/${weekOnPage}/${team}`, {
         cancelToken: axiosCancel.token,
       })
       .then((res) => res.data)
@@ -290,7 +277,7 @@ const Roster = ({ appLevelLockWeek, week, season, match, userId, history }) => {
   const searchByTeam = () => {
     axios
       .get(
-        `/api/roster/getPlayersByTeam/${season}/${usernameOfPage}/${match.params.groupname}/${teamSelect}`,
+        `/api/roster/getPlayersByTeam/${currentNFLTime.season}/${params.username}/${params.groupname}/${teamSelect}`,
         { cancelToken: axiosCancel.token }
       )
       .then((res) => {
@@ -312,10 +299,10 @@ const Roster = ({ appLevelLockWeek, week, season, match, userId, history }) => {
     axios
       .get('/api/roster/players/available', {
         params: {
-          userId: userId,
+          username: params.username,
           searchedPosition: positionSelect,
-          season: season,
-          groupname: match.params.groupname,
+          season: currentNFLTime.season,
+          groupname: params.groupname,
         },
         cancelToken: axiosCancel.token,
       })
@@ -338,7 +325,7 @@ const Roster = ({ appLevelLockWeek, week, season, match, userId, history }) => {
   const customSeasonWeekSearch = (e) => {
     e.preventDefault();
     updateUserRoster([]);
-    getRosterData(weekSelect, season);
+    getRosterData(weekSelect, currentNFLTime.season);
   };
 
   const toggleShowUsedPlayers = () => {
@@ -397,7 +384,7 @@ const Roster = ({ appLevelLockWeek, week, season, match, userId, history }) => {
   };
 
   const addDropPlayer = async (mySportsId, team, addOrDrop) => {
-    if (!currentUser) {
+    if (!params.username !== currentUser.username) {
       Alert.fire({
         title: 'Not your roster!',
         type: 'warning',
@@ -481,7 +468,7 @@ const Roster = ({ appLevelLockWeek, week, season, match, userId, history }) => {
     <div className='container'>
       <div className='row'>
         <div className='col-12 fs-3 fw-bold text-center mt-2 mb-2'>
-          {usernameOfPage}&apos;s Roster
+          {params.username}&apos;s Roster
         </div>
       </div>
       <div className='row justify-content-center mb-2'>
@@ -569,7 +556,7 @@ const Roster = ({ appLevelLockWeek, week, season, match, userId, history }) => {
                 ? 'Too Many Players, drop one'
                 : `Week ${weekOnPage} Roster`
             }
-            pastLockWeek={appLevelLockWeek >= weekOnPage}
+            pastLockWeek={currentNFLTime.lockWeek >= weekOnPage}
             groupPositions={groupPositions}
             addDropPlayer={addDropPlayer}
             roster={mustDrop ? possiblePlayers : userRoster}

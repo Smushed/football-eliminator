@@ -3,7 +3,11 @@ import userHandler from '../handlers/userHandler.js';
 import rosterHandler from '../handlers/rosterHandler.js';
 import s3Handler from '../handlers/s3Handler.js';
 import groupHandler from '../handlers/groupHandler.js';
-import { authMiddleware, verifyUserLoggedIn } from '../handlers/authHandler.js';
+import {
+  authMiddleware,
+  verifyUserLoggedIn,
+  verifyUserIsSameEmailUserId,
+} from '../handlers/authHandler.js';
 
 export default (app) => {
   app.put('/api/user/updateProfile', async (req, res) => {
@@ -105,11 +109,21 @@ export default (app) => {
     }
   });
 
-  app.put('/api/user/group/main/:groupId/:userId', async (req, res) => {
-    const { groupId, userId } = req.params;
-    await groupHandler.updateMainGroup(groupId, userId);
-    res.sendStatus(200);
-  });
+  app.put(
+    '/api/user/group/main/:groupId/:userId',
+    authMiddleware,
+    async (req, res) => {
+      try {
+        const { groupId, userId } = req.params;
+        await verifyUserIsSameEmailUserId(req.currentUser, userId);
+        await groupHandler.updateMainGroup(groupId, userId);
+        res.sendStatus(200);
+      } catch (err) {
+        console.log({ err });
+        res.status(err.status).send(err.message);
+      }
+    }
+  );
 
   app.put('/api/user/email/settings/:userId', async (req, res) => {
     const { userId } = req.params;

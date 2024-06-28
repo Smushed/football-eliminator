@@ -1,9 +1,8 @@
-import React, { useEffect, useState, useRef, useContext } from 'react';
+import React, { useEffect, useState, useRef, createContext } from 'react';
 import * as Routes from './constants/routes';
-import { Route, BrowserRouter, Switch } from 'react-router-dom';
+import { Route, BrowserRouter, Switch, useHistory } from 'react-router-dom';
 import { withFirebase } from './componenets/Firebase';
-import axios from 'axios';
-import { Toaster, toast } from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 
 import SignInOut from './componenets/SignInOut';
 import NavBar from './componenets/NavBar/';
@@ -18,20 +17,23 @@ import FourOFour from './componenets/404';
 import SidePanel from './componenets/SidePanel';
 import AvatarWrapper from './contexts/Avatars';
 import Unsubscribe from './componenets/Unsubscribe';
-import { CurrentUserContext } from './contexts/CurrentUser';
 import { axiosHandler, httpErrorHandler } from './utils/axiosHandler';
 
+const CurrentUserContext = createContext();
+const NFLScheduleContext = createContext();
+
 const App = ({ firebase }) => {
-  const [currentWeek, setCurrentWeek] = useState(0);
-  const [currentSeason, setCurrentSeason] = useState(``);
   const [currentGroup, setCurrentGroup] = useState({});
   const [showSideBar, setShowSideBar] = useState(false);
-  const [lockWeek, setLockWeek] = useState(0);
+  const [currentUser, setCurrentUser] = useState({});
+
+  const [currentNFLTime, setCurrentNFLTime] = useState({
+    season: '',
+    week: 1,
+    lockWeek: 0,
+  });
 
   const listener = useRef(null);
-
-  const { currentUser, setCurrentUser, setUserHasGroup } =
-    useContext(CurrentUserContext);
 
   useEffect(() => {
     listener.current = firebase.auth.onAuthStateChanged((authUser) => {
@@ -49,13 +51,10 @@ const App = ({ firebase }) => {
       const { data } = await axiosHandler.get(
         `/api/user/email/${authUser.email}`
       );
-
       updateCurrentUser(data.userInfo, data.emailSettings);
 
       if (data.userInfo.grouplist.length > 0) {
         initGroup(data.userInfo);
-      } else {
-        setUserHasGroup(false);
       }
     } catch (err) {
       httpErrorHandler(err);
@@ -79,34 +78,49 @@ const App = ({ firebase }) => {
   };
 
   const initGroup = async (user) => {
-    setUserHasGroup(true);
-    if (user.mainGroup) {
-      const res = await axiosHandler.get(
-        `/api/group/details/${user.mainGroup}`
-      );
-      setCurrentGroup({ name: res.data.name, _id: user.mainGroup });
-    } else {
-      axiosHandler.put(
-        `/api/user/group/main/${user.grouplist[0]._id}/${user._id}`
-      );
-      setCurrentGroup({
-        name: user.grouplist[0].name,
-        _id: user.grouplist[0]._id,
-      });
+    try {
+      if (user.mainGroup) {
+        const res = await axiosHandler.get(
+          `/api/group/details/${user.mainGroup}`
+        );
+        setCurrentGroup({ name: res.data.name, _id: user.mainGroup });
+      } else {
+        await axiosHandler.put(
+          `/api/user/group/main/${user.grouplist[0]._id}/${user._id}`
+        );
+        setCurrentGroup({
+          name: user.grouplist[0].name,
+          _id: user.grouplist[0]._id,
+        });
+      }
+      getSeasonAndWeek();
+    } catch (err) {
+      httpErrorHandler(err);
     }
-    getSeasonAndWeek();
   };
 
   const changeGroup = async (groupId) => {
-    const res = await axios.get(`/api/group/details/${groupId}`);
-    setCurrentGroup({ name: res.data.name, _id: res.data._id });
+    try {
+      const { data } = await axiosHandler.get(`/api/group/details/${groupId}`);
+      setCurrentGroup({ name: data.name, _id: data._id });
+    } catch (err) {
+      httpErrorHandler(err);
+    }
   };
 
   const getSeasonAndWeek = async () => {
-    const { data } = await axios.get('/api/nfldata/currentSeasonAndWeek');
-    setCurrentSeason(data.season);
-    setCurrentWeek(data.week);
-    setLockWeek(data.lockWeek);
+    try {
+      const { data } = await axiosHandler.get(
+        '/api/nfldata/currentSeasonAndWeek'
+      );
+      setCurrentNFLTime({
+        season: data.season,
+        week: data.week,
+        lockWeek: data.lockWeek,
+      });
+    } catch (err) {
+      httpErrorHandler(err);
+    }
   };
 
   const toggleSideBar = () => setShowSideBar(!showSideBar);
@@ -115,87 +129,62 @@ const App = ({ firebase }) => {
 
   return (
     <BrowserRouter>
-      <AvatarWrapper>
-        <Toaster position='top-right' />
-        <SidePanel
-          showSideBar={showSideBar}
-          currentGroup={currentGroup}
-          toggleSideBar={toggleSideBar}
-          hardSetSideBar={hardSetSideBar}
-          changeGroup={changeGroup}
-        />
-        {currentUser.email && <NavBar toggleSideBar={toggleSideBar} />}
+      <CurrentUserContext.Provider
+        value={{ currentUser, setCurrentUser, currentGroup }}
+      >
+        <NFLScheduleContext.Provider value={{ currentNFLTime }}>
+          <AvatarWrapper>
+            <Toaster position='top-right' />
+            <SidePanel
+              showSideBar={showSideBar}
+              currentGroup={currentGroup}
+              toggleSideBar={toggleSideBar}
+              hardSetSideBar={hardSetSideBar}
+              changeGroup={changeGroup}
+            />
+            {currentUser.email && <NavBar toggleSideBar={toggleSideBar} />}
 
-        <Switch>
-          <Route
-            exact
-            path={Routes.home}
-            render={() => (
-              <Home
-                season={currentSeason}
-                group={currentGroup}
-                week={currentWeek}
+            <Switch>
+              <Route
+                exact
+                path={Routes.home}
+                render={() => <Home group={currentGroup} />}
               />
-            )}
-          />
-          <Route
-            path={Routes.adminPanel}
-            render={() => <AdminPanel season={currentSeason} />}
-          />
-          <Route
-            exact
-            path={Routes.groupPage}
-            render={() => (
-              <GroupPage pullUserData={pullUserData} season={currentSeason} />
-            )}
-          />
-          <Route path={Routes.signin} render={() => <SignInOut />} />
-          <Route path={Routes.signup} render={() => <SignInOut />} />
-          <Route
-            path={Routes.userProfile}
-            render={() => (
-              <UserProfile
-                currentUser={currentUser}
-                pullUserData={pullUserData}
+              <Route path={Routes.adminPanel} render={() => <AdminPanel />} />
+              <Route
+                exact
+                path={Routes.groupPage}
+                render={() => <GroupPage pullUserData={pullUserData} />}
               />
-            )}
-          />
-          <Route
-            path={Routes.roster}
-            render={() => (
-              <Roster
-                week={currentWeek}
-                season={currentSeason}
-                appLevelLockWeek={lockWeek}
+              <Route path={Routes.signin} render={() => <SignInOut />} />
+              <Route path={Routes.signup} render={() => <SignInOut />} />
+              <Route
+                path={Routes.userProfile}
+                render={() => <UserProfile pullUserData={pullUserData} />}
               />
-            )}
-          />
-          <Route
-            path={Routes.usedPlayers}
-            render={(props) => (
-              <UsedPlayers {...props} season={currentSeason} />
-            )}
-          />
-          <Route
-            path={Routes.createGroup}
-            render={() => (
-              <CreateGroup
-                email={currentUser.email}
-                pullUserData={pullUserData}
-                changeGroup={changeGroup}
-                userId={currentUser.userId}
+              <Route path={Routes.roster} render={() => <Roster />} />
+              <Route path={Routes.usedPlayers} render={() => <UsedPlayers />} />
+              <Route
+                path={Routes.createGroup}
+                render={() => (
+                  <CreateGroup
+                    email={currentUser.email}
+                    pullUserData={pullUserData}
+                    changeGroup={changeGroup}
+                    userId={currentUser.userId}
+                  />
+                )}
               />
-            )}
-          />
-          <Route
-            path={Routes.emailPref}
-            render={(props) => <Unsubscribe {...props} />}
-          />
-          <Route render={() => <FourOFour />} />
-        </Switch>
-      </AvatarWrapper>
+              <Route path={Routes.emailPref} render={() => <Unsubscribe />} />
+              <Route render={() => <FourOFour />} />
+            </Switch>
+          </AvatarWrapper>
+        </NFLScheduleContext.Provider>
+      </CurrentUserContext.Provider>
     </BrowserRouter>
   );
 };
+
+export { CurrentUserContext, NFLScheduleContext };
 
 export default withFirebase(App);

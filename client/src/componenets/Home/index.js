@@ -1,18 +1,19 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 
-import { RosterDisplay } from '../Roster/RosterDisplay';
-import './homeStyle.css';
-import RosterCarousel from './RosterCarousel';
-import * as Routes from '../../constants/routes';
-import { WeekSearch } from '../Roster/SearchDropdowns';
 import Session from '../Session';
-import { AvatarContext } from '../../contexts/Avatars';
-import { CurrentUserContext } from '../../contexts/CurrentUser';
 import Leaderboard from '../Leaderboard';
+import { useHistory } from 'react-router-dom';
+import RosterCarousel from './RosterCarousel';
+import * as Routes from '../../constants/routes.js';
+import { WeekSearch } from '../Roster/SearchDropdowns';
+import { AvatarContext } from '../../contexts/Avatars';
+import { RosterDisplay } from '../Roster/RosterDisplay';
+import { CurrentUserContext, NFLScheduleContext } from '../../App.js';
 import { axiosHandler, httpErrorHandler } from '../../utils/axiosHandler';
+import './homeStyle.css';
 
-const Home = ({ season, group, week, history }) => {
+const Home = () => {
   const [idealRoster, updateIdealRoster] = useState([]);
   const [bestRoster, updateBestRoster] = useState({ username: '', roster: [] });
   const [weeklyGroupRosters, updateWeeklyGroupRosters] = useState([]);
@@ -23,11 +24,18 @@ const Home = ({ season, group, week, history }) => {
 
   const { addPlayerAvatarsToPull, addUserAvatarsToPull } =
     useContext(AvatarContext);
-  const { currentUser, userHasGroup } = useContext(CurrentUserContext);
+  const { currentUser, currentGroup } = useContext(CurrentUserContext);
+  const { currentNFLTime } = useContext(NFLScheduleContext);
 
   const axiosCancel = axios.CancelToken.source();
+  const history = useHistory();
 
   useEffect(() => {
+    if (currentUser.grouplist) {
+      if (currentUser.grouplist.length === 0) {
+        history.push(Routes.groupPage);
+      }
+    }
     return function cancelAPICalls() {
       if (axiosCancel) {
         axiosCancel.cancel(`Unmounted`);
@@ -36,15 +44,32 @@ const Home = ({ season, group, week, history }) => {
   }, []);
 
   useEffect(() => {
-    if (week !== 0 && season !== '' && currentUser.username && group) {
-      updateWeekOnPage(week);
-      updateWeekSelect(week);
-      getAllRostersForWeek(season, week, group._id);
-      getGroupPositions(group._id);
+    if (
+      currentNFLTime.week !== 0 &&
+      currentNFLTime.season !== '' &&
+      currentUser.username &&
+      currentGroup
+    ) {
+      updateWeekOnPage(currentNFLTime.week);
+      updateWeekSelect(currentNFLTime.week);
+      getAllRostersForWeek(
+        currentNFLTime.season,
+        currentNFLTime.week,
+        currentGroup._id
+      );
+      getGroupPositions(currentGroup._id);
       if (!initialPull) {
         try {
-          getIdealRoster(season, week, group._id);
-          getBestCurrLeadRoster(season, week, group._id);
+          getIdealRoster(
+            currentNFLTime.season,
+            currentNFLTime.week,
+            currentGroup._id
+          );
+          getBestCurrLeadRoster(
+            currentNFLTime.season,
+            currentNFLTime.week,
+            currentGroup._id
+          );
         } catch (err) {
           console.log(
             'Error doing initial pull of Leaderboard, Ideal and Leader. Error: ',
@@ -54,14 +79,7 @@ const Home = ({ season, group, week, history }) => {
         updateInitialPull(true);
       }
     }
-  }, [week, season, currentUser.username, group]);
-
-  useEffect(() => {
-    if (!userHasGroup) {
-      history.push(Routes.groupPage);
-      return;
-    }
-  }, [userHasGroup]);
+  }, [currentNFLTime, currentUser.username, currentGroup]);
 
   const getGroupPositions = async (groupId) => {
     try {
@@ -136,17 +154,14 @@ const Home = ({ season, group, week, history }) => {
 
   const searchWeek = () => {
     updateWeekOnPage(weekSelect);
-    getAllRostersForWeek(season, weekSelect, group._id);
+    getAllRostersForWeek(currentNFLTime.season, weekSelect, currentGroup._id);
   };
 
-  const weekForLeaderboard = week === 0 ? 1 : week;
+  const weekForLeaderboard =
+    currentNFLTime.week === 0 ? 1 : currentNFLTime.week;
   return (
     <div className='container'>
-      <Leaderboard
-        groupId={group._id}
-        week={weekForLeaderboard}
-        season={season}
-      />
+      <Leaderboard groupId={currentGroup._id} weekToShow={weekForLeaderboard} />
       <div className='row border pt-2'>
         <div className='col-lg-6 d-none d-lg-block'>
           <RosterDisplay
@@ -160,7 +175,7 @@ const Home = ({ season, group, week, history }) => {
           <div className='row'>
             <div className='col-12'>
               <RosterDisplay
-                headerText={`Best from Week ${week - 1} - ${
+                headerText={`Best from Week ${currentNFLTime.week - 1} - ${
                   bestRoster.username
                 }`}
                 groupPositions={groupPositions}
@@ -182,7 +197,7 @@ const Home = ({ season, group, week, history }) => {
       </div>
       <div className='row justify-content-center mt-1'>
         <div className='text-center fs-3 fw-bold pt-3 col-5'>
-          {group.name} Week {weekOnPage} Rosters
+          {currentGroup.name} Week {weekOnPage} Rosters
         </div>
         <div className='col-4'>
           <div className='row'>

@@ -6,7 +6,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { AdminRosterDisplay } from './AdminRoster';
 import { getAuth } from 'firebase/auth';
-import { CurrentUserContext } from '../../contexts/CurrentUser';
+import { CurrentUserContext, NFLScheduleContext } from '../../App.js';
 
 const AdminPanel = ({ season }) => {
   const [groupSelect, setGroupSelect] = useState('');
@@ -19,6 +19,7 @@ const AdminPanel = ({ season }) => {
   const [groupWindow, setGroupWindow] = useState('score');
 
   const { currentUser } = useContext(CurrentUserContext);
+  const { currentNFLTime } = useContext(NFLScheduleContext);
 
   useEffect(() => {
     pullGroupList();
@@ -75,9 +76,8 @@ const AdminPanel = ({ season }) => {
 
   const pullUserDetails = async (userId) => {
     const fullSeason = await axios.get(
-      `/api/roster/fullSeason/${userId}/${groupSelect}/${season}`
+      `/api/roster/fullSeason/${userId}/${groupSelect}/${currentNFLTime.season}`
     );
-    console.log({ fullSeason });
   };
 
   const pullGroupPositions = async (groupId) => {

@@ -6,7 +6,11 @@ import rosterHandler from '../handlers/rosterHandler.js';
 import s3Handler from '../handlers/s3Handler.js';
 import emailHandler from '../handlers/emailHandler.js';
 import mySportsHandler from '../handlers/mySportsHandler.js';
-import { verifyGroupAdminByEmail } from '../handlers/authHandler.js';
+import {
+  authMiddleware,
+  verifyUserLoggedIn,
+  verifyGroupAdminByEmail,
+} from '../handlers/authHandler.js';
 
 export default (app) => {
   app.put('/api/group/join/', async (req, res) => {
@@ -40,19 +44,33 @@ export default (app) => {
     }
   });
 
-  app.get('/api/group/details/byUser/:userId', async (req, res) => {
-    const { userId } = req.params;
-    const groupInfoArray = await groupHandler.getGroupDataByUserId(userId);
-    res.status(200).send(groupInfoArray);
-  });
+  app.get(
+    '/api/group/details/all/user/:userId',
+    authMiddleware,
+    async (req, res) => {
+      try {
+        await verifyUserLoggedIn(req.currentUser);
+        const { userId } = req.params;
+        const groupInfoArray = await groupHandler.getGroupDataByUserId(userId);
+        res.status(200).send(groupInfoArray);
+      } catch (err) {
+        res.status(err.status).send(err.message);
+      }
+    }
+  );
 
-  app.get('/api/group/details/:id', async (req, res) => {
-    const { id } = req.params;
-    const groupInfo = await groupHandler.getGroupDataById(id);
-    groupInfo.userlist = await userHandler.fillUserListFromGroup(
-      groupInfo.userlist
-    );
-    res.status(200).send(groupInfo);
+  app.get('/api/group/details/:id', authMiddleware, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await verifyUserLoggedIn(req.currentUser);
+      const groupInfo = await groupHandler.getGroupDataById(id);
+      groupInfo.userlist = await userHandler.fillUserListFromGroup(
+        groupInfo.userlist
+      );
+      res.status(200).send(groupInfo);
+    } catch (err) {
+      res.status(err.status).send(err.message);
+    }
   });
 
   app.get('/api/group/positions/:groupId', async (req, res) => {
@@ -174,7 +192,7 @@ export default (app) => {
     res.status(200).send(response);
   });
 
-  app.put('/api/group/', async (req, res) => {
+  app.put('/api/group/', authMiddleware, async (req, res) => {
     try {
       const { data } = req.body;
       await verifyGroupAdminByEmail(req.currentUser, data.groupId);
