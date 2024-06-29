@@ -21,21 +21,22 @@ initializeApp({
 });
 
 const notAuthorizedError = { message: 'Unauthorized', status: 401 };
-const notAuthorizedToChangeField = {
-  message: 'Not Authorized to change field',
+const notAuthorizedToUpdate = {
+  message: 'Not Authorized to update',
   status: 401,
 };
 
 const authMiddleware = (req, res, next) => {
   if (!req.headers.authorization) {
-    next();
+    res.status(401).send('Unauthorized');
   } else {
     getAuth()
       .verifyIdToken(req.headers.authorization)
       .then((decodedToken) => {
         req.currentUser = decodedToken.email;
         next();
-      });
+      })
+      .catch(() => res.status(401).send('Unauthorized'));
   }
 };
 
@@ -55,12 +56,11 @@ const verifyGroupAdminByEmail = async (userEmail, groupId) => {
 };
 
 const verifyUserIsSameEmailUserId = async (userEmail, userId) => {
-  await verifyUserLoggedIn(userEmail);
   const foundUser = await db.User.findOne({ email: userEmail }, { _id: 1 })
     .lean()
     .exec();
   if (foundUser._id.toString() !== userId) {
-    throw notAuthorizedToChangeField;
+    throw notAuthorizedToUpdate;
   }
 };
 

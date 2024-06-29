@@ -8,7 +8,6 @@ import emailHandler from '../handlers/emailHandler.js';
 import mySportsHandler from '../handlers/mySportsHandler.js';
 import {
   authMiddleware,
-  verifyUserLoggedIn,
   verifyGroupAdminByEmail,
 } from '../handlers/authHandler.js';
 
@@ -49,12 +48,12 @@ export default (app) => {
     authMiddleware,
     async (req, res) => {
       try {
-        await verifyUserLoggedIn(req.currentUser);
         const { userId } = req.params;
         const groupInfoArray = await groupHandler.getGroupDataByUserId(userId);
         res.status(200).send(groupInfoArray);
       } catch (err) {
-        res.status(err.status).send(err.message);
+        console.log('Error pulling group details from userId ', { err });
+        res.status(500).send('Error getting group details');
       }
     }
   );
@@ -62,20 +61,20 @@ export default (app) => {
   app.get('/api/group/details/:id', authMiddleware, async (req, res) => {
     try {
       const { id } = req.params;
-      await verifyUserLoggedIn(req.currentUser);
       const groupInfo = await groupHandler.getGroupDataById(id);
       groupInfo.userlist = await userHandler.fillUserListFromGroup(
         groupInfo.userlist
       );
       res.status(200).send(groupInfo);
     } catch (err) {
-      res.status(err.status).send(err.message);
+      console.log('Error pulling group details by groupId ', { err });
+      res.status(500).send('Error getting group details');
     }
   });
 
   app.get('/api/group/positions/:groupId', async (req, res) => {
-    const { groupId } = req.params;
     try {
+      const { groupId } = req.params;
       const positions = await groupHandler.getGroupPositions(groupId);
       res.status(200).send(positions);
     } catch (err) {
@@ -126,30 +125,39 @@ export default (app) => {
 
   app.get(
     '/api/group/roster/bestAndLead/:season/:week/:groupId',
+    authMiddleware,
     async (req, res) => {
-      const { season, week, groupId } = req.params;
-      if (+week === 1) {
-        //Setting this blank roster if we are currently in week 1 there is no previous week to compare
-        const blankRoster = await groupHandler.getBlankRoster(groupId);
-        const bestRoster = { roster: blankRoster, username: '' };
-        res.status(200).send({ bestRoster, roster: blankRoster });
-        return;
-      } else {
-        const userScores = await groupHandler.getCurrAndLastWeekScores(
-          groupId,
-          season,
-          +week
-        );
-        Promise.all([
-          groupHandler.getBestRoster(groupId, season, +week, userScores),
-          groupHandler.getLeaderRoster(userScores, groupId, week, season),
-        ]).then(async ([bestRoster, roster]) => {
-          if (!bestRoster) {
-            const blankRoster = await groupHandler.getBlankRoster(groupId);
-            bestRoster = { roster: blankRoster, username: '' };
-          }
-          return res.status(200).send({ bestRoster, roster });
+      try {
+        const { season, week, groupId } = req.params;
+        if (+week === 1) {
+          //Setting this blank roster if we are currently in week 1 there is no previous week to compare
+          const blankRoster = await groupHandler.getBlankRoster(groupId);
+          const bestRoster = { roster: blankRoster, username: '' };
+          res.status(200).send({ bestRoster, roster: blankRoster });
+          return;
+        } else {
+          const userScores = await groupHandler.getCurrAndLastWeekScores(
+            groupId,
+            season,
+            +week
+          );
+          Promise.all([
+            groupHandler.getBestRoster(groupId, season, +week, userScores),
+            groupHandler.getLeaderRoster(userScores, groupId, week, season),
+          ]).then(async ([bestRoster, roster]) => {
+            if (!bestRoster) {
+              const blankRoster = await groupHandler.getBlankRoster(groupId);
+              bestRoster = { roster: blankRoster, username: '' };
+            }
+            return res.status(200).send({ bestRoster, roster });
+          });
+        }
+      } catch (err) {
+        console.log('Error getting best and leader roster for group ', {
+          parmas: req.params,
+          err,
         });
+        res.status(500).send('Error getting best and leader rosters ', { err });
       }
     }
   );

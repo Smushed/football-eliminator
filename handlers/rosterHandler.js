@@ -422,8 +422,8 @@ export default {
       return { status: 500, res: 'DB Searching Error' };
     }
   },
-  searchAvailablePlayerByTeam: async (groupId, team, season) => {
-    const user = await db.User.find({ username }, { _id: 1 });
+  searchAvailablePlayerByTeam: async (groupId, username, team, season) => {
+    const user = await db.User.findOne({ username }, { _id: 1 });
     const usedPlayers = await getUsedPlayersNoPosition(
       user._id,
       season,

@@ -16,6 +16,7 @@ import { toast } from 'react-hot-toast';
 import { AvatarContext } from '../../contexts/Avatars';
 import { CurrentUserContext, NFLScheduleContext } from '../../App.js';
 import { useParams } from 'react-router-dom';
+import { axiosHandler, httpErrorHandler } from '../../utils/axiosHandler.js';
 
 const Alert = withReactContent(Swal);
 
@@ -86,69 +87,54 @@ const Roster = () => {
     pullPlayers();
   };
 
-  const getUsedPlayers = () => {
-    axios
-      .get(
+  const getUsedPlayers = async () => {
+    try {
+      const { data } = await axiosHandler.get(
         `/api/roster/players/used/${params.username}/${currentNFLTime.season}/${params.groupname}/${positionSelect}`,
-        {
-          cancelToken: axiosCancel.token,
-        }
-      )
-      .then((res) => {
-        updateUsedPlayers(res.data);
-        const playerIds = res.data.map((player) => player.mySportsId);
-        addPlayerAvatarsToPull(playerIds);
-      })
-      .catch((err) => {
-        if (err.message !== 'Unmounted') {
-          console.log(err);
-        }
-      });
+        axiosCancel.token
+      );
+      updateUsedPlayers(data);
+      const playerIds = data.map((player) => player.mySportsId);
+      addPlayerAvatarsToPull(playerIds);
+    } catch (err) {
+      httpErrorHandler(err);
+    }
   };
 
-  const getWeeklyMatchUps = (weekInput) => {
-    axios
-      .get(`/api/nfldata/matchups/${currentNFLTime.season}/${weekInput}`, {
-        cancelToken: axiosCancel.token,
-      })
-      .then((res) => {
-        updateWeeklyMatchups(res.data.matchups);
-        updateSortedMatchups(res.data.sortedMatchups);
-      })
-      .catch((err) => {
-        if (err.message !== `Unmounted`) {
-          console.log(err);
-        }
-      });
+  const getWeeklyMatchUps = async (weekInput) => {
+    try {
+      const { data } = await axiosHandler.get(
+        `/api/nfldata/matchups/${currentNFLTime.season}/${weekInput}`,
+        axiosCancel.token
+      );
+      updateWeeklyMatchups(data.matchups);
+      updateSortedMatchups(data.sortedMatchups);
+    } catch (err) {
+      httpErrorHandler(err);
+    }
   };
 
-  const getRosterData = (weekInput) => {
-    getWeeklyMatchUps(weekInput);
-    updateWeekOnPage(weekInput);
-    if (currentNFLTime.week !== 0 && currentNFLTime.season !== ``) {
-      loading();
-      axios
-        .get(
+  const getRosterData = async (weekInput) => {
+    try {
+      getWeeklyMatchUps(weekInput);
+      updateWeekOnPage(weekInput);
+      if (currentNFLTime.week !== 0 && currentNFLTime.season !== ``) {
+        loading();
+        const { data } = await axiosHandler.get(
           `/api/roster/user/${currentNFLTime.season}/${weekInput}/${params.groupname}/${params.username}`,
-          { cancelToken: axiosCancel.token }
-        )
-        .then((res) => {
-          const { userRoster, groupPositions, groupMap, positionArray } =
-            res.data;
-          const playerIds = userRoster.map((player) => player.mySportsId);
-          addPlayerAvatarsToPull(playerIds);
-          updateUserRoster(userRoster);
-          updateGroupPositions(groupPositions);
-          updatePositionMap(groupMap);
-          updatePositionArray(positionArray);
-          doneLoading();
-        })
-        .catch((err) => {
-          if (err.message !== 'Unmounted') {
-            console.log(err);
-          }
-          console.log('roster data error', err);
-        });
+          axiosCancel.token
+        );
+        addPlayerAvatarsToPull(
+          data.userRoster.map((player) => player.mySportsId)
+        );
+        updateUserRoster(data.userRoster);
+        updateGroupPositions(data.groupPositions);
+        updatePositionMap(data.groupMap);
+        updatePositionArray(data.positionArray);
+        doneLoading();
+      }
+    } catch (err) {
+      httpErrorHandler(err);
     }
   };
 
@@ -188,7 +174,7 @@ const Roster = () => {
       if (availDroppedPlayerIndex >= 0) {
         availablePlayersCopy.splice(availDroppedPlayerIndex, 1);
       }
-      if (droppedPlayer.P === positionSelect) {
+      if (droppedPlayer.position === positionSelect) {
         availablePlayersCopy.unshift(droppedPlayer);
       }
       currentRoster[droppedPlayerIndex] = {
@@ -225,7 +211,7 @@ const Roster = () => {
   const saveRosterToDb = (roster, droppedPlayer, addedPlayer, pos) =>
     new Promise((res, rej) => {
       loading();
-      axios
+      axiosHandler
         .put('/api/roster/user/update', {
           userId: currentUser.userId,
           roster: roster,
@@ -236,9 +222,9 @@ const Roster = () => {
           groupname: params.groupname,
           position: pos,
         })
-        .then((response) => {
+        .then(({ data }) => {
           doneLoading();
-          updateUserRoster(response.data);
+          updateUserRoster(data);
           if (mustDrop) {
             updateMustDrop(false);
             updatePossiblePlayer(0);
@@ -247,26 +233,22 @@ const Roster = () => {
           res(true);
         })
         .catch((err) => {
-          if (err.message !== 'Unmounted') {
-            doneLoading();
-            console.log({ err });
-            toast.error(`Roster can not be saved! ${err.response.data}`);
-          }
+          doneLoading();
+          toast.error(`Roster can not be saved! ${err.response.data}`);
           res(false);
         });
     });
 
   const checkLockPeriod = async (team) => {
-    await axios
-      .get(`/api/roster/lock/${currentNFLTime.season}/${weekOnPage}/${team}`, {
-        cancelToken: axiosCancel.token,
-      })
-      .then((res) => res.data)
-      .catch((err) => {
-        if (err.message !== 'Unmounted') {
-          console.log(err);
-        }
-      });
+    try {
+      const { data } = await axiosHandler.get(
+        `/api/roster/lock/${currentNFLTime.season}/${weekOnPage}/${team}`,
+        axiosCancel.token
+      );
+      return data;
+    } catch (err) {
+      httpErrorHandler(err);
+    }
   };
 
   const positionSearch = (e) => {
@@ -274,52 +256,43 @@ const Roster = () => {
     pullPlayers();
   };
 
-  const searchByTeam = () => {
-    axios
-      .get(
+  const searchByTeam = async () => {
+    try {
+      const { data } = await axiosHandler.get(
         `/api/roster/getPlayersByTeam/${currentNFLTime.season}/${params.username}/${params.groupname}/${teamSelect}`,
-        { cancelToken: axiosCancel.token }
-      )
-      .then((res) => {
-        const playerIds = res.data.map((player) => player.mySportsId);
-        addPlayerAvatarsToPull(playerIds);
-        updateAvaliablePlayers(res.data);
-        updateAvailPlayersToShow(res.data);
-      })
-      .catch((err) => {
-        if (err.message !== `Unmounted`) {
-          console.log(err);
-          toast.error(err.message);
-        }
-      });
+        axiosCancel.token
+      );
+      addPlayerAvatarsToPull(data.map((player) => player.mySportsId));
+      updateAvaliablePlayers(data);
+      updateAvailPlayersToShow(data);
+    } catch (err) {
+      httpErrorHandler(err);
+    }
   };
 
-  const pullPlayers = () => {
-    loading();
-    axios
-      .get('/api/roster/players/available', {
-        params: {
+  const pullPlayers = async () => {
+    try {
+      loading();
+      const { data } = await axiosHandler.get(
+        '/api/roster/players/available',
+        axiosCancel.token,
+        {
           username: params.username,
           searchedPosition: positionSelect,
           season: currentNFLTime.season,
           groupname: params.groupname,
-        },
-        cancelToken: axiosCancel.token,
-      })
-      .then((res) => {
-        updateLastPosSearch(positionSelect);
-        const playerIds = res.data.map((player) => player.mySportsId);
-        addPlayerAvatarsToPull(playerIds);
-        updateAvaliablePlayers(res.data);
-        updateAvailPlayersToShow(res.data);
-        getUsedPlayers(positionSelect);
-        doneLoading();
-      })
-      .catch((err) => {
-        if (err.message !== 'Unmounted') {
-          console.log(err);
         }
-      });
+      );
+      updateLastPosSearch(positionSelect);
+      addPlayerAvatarsToPull(data.map((player) => player.mySportsId));
+      updateAvaliablePlayers(data);
+      updateAvailPlayersToShow(data);
+      getUsedPlayers(positionSelect);
+    } catch (err) {
+      httpErrorHandler(err);
+    } finally {
+      doneLoading();
+    }
   };
 
   const customSeasonWeekSearch = (e) => {
@@ -384,18 +357,17 @@ const Roster = () => {
   };
 
   const addDropPlayer = async (mySportsId, team, addOrDrop) => {
-    if (!params.username !== currentUser.username) {
+    if (params.username !== currentUser.username) {
       Alert.fire({
         title: 'Not your roster!',
-        type: 'warning',
+        icon: 'warning',
       });
       return;
     }
-    const isLocked = await checkLockPeriod(team);
-    if (!isLocked) {
+    const isNotLocked = await checkLockPeriod(team);
+    if (!isNotLocked) {
       Alert.fire({
         title: 'Locked!',
-        type: 'warning',
         text: `${team} has started for week ${weekOnPage}. Select a different player or week`,
         confirmButtonText: 'Close',
       });

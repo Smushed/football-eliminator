@@ -9,10 +9,13 @@ const Alert = withReactContent(Swal);
 const getToken = () => getAuth().currentUser.accessToken;
 
 export const axiosHandler = {
-  get: (route, cancelToken) => {
+  get: (route, cancelToken, params) => {
     const options = { headers: { authorization: getToken() } };
     if (cancelToken) {
       options.cancelToken = cancelToken;
+    }
+    if (params) {
+      options.params = params;
     }
     return axios.get(route, options);
   },
