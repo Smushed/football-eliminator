@@ -1,34 +1,51 @@
 import db from '../models/index.js';
 
-const checkDuplicateUser = async (checkedField, checkField1, checkField2) => {
-  let result = false;
-  let searched;
-  switch (checkedField) {
-    case 'username': {
-      searched = await db.User.findOne({ username: checkField1 });
-      if (searched !== null) {
-        result = true;
+const fieldAlreadyExists = async (fieldToCheck, checkField1, checkField2) => {
+  try {
+    switch (fieldToCheck) {
+      case 'username': {
+        const searched = await db.User.findOne({ username: checkField1 })
+          .collation({ locale: 'en_US', strength: 2 })
+          .lean()
+          .exec();
+        if (searched !== null) {
+          return true;
+        } else {
+          return false;
+        }
       }
-      break;
-    }
-    case 'email': {
-      searched = await db.User.findOne({ email: checkField1 });
-      if (searched !== null) {
-        result = true;
+      case 'email': {
+        const searched = await db.User.findOne({ email: checkField1 })
+          .collation({ locale: 'en_US', strength: 2 })
+          .lean()
+          .exec();
+        if (searched !== null) {
+          return true;
+        } else {
+          return false;
+        }
       }
-      break;
-    }
-    case 'group': {
-      const dbUser = await db.User.findById(checkField1);
-      const alreadyInGroup = await dbUser.GL.filter(
-        (groupId) => groupId.toString() === checkField2.toString()
-      );
-      if (alreadyInGroup.length > 0) {
-        result = true;
+      case 'group': {
+        const dbUser = await db.User.findById(checkField1);
+        const alreadyInGroup = await dbUser.GL.filter(
+          (groupId) => groupId.toString() === checkField2.toString()
+        );
+        if (alreadyInGroup.length > 0) {
+          return true;
+        } else {
+          return false;
+        }
       }
     }
+  } catch (err) {
+    console.log('Error checking duplicate in user field: ', {
+      fieldToCheck,
+      checkField1,
+      checkField2,
+      err,
+    });
+    throw { status: 500, message: 'Server Error' };
   }
-  return result;
 };
 
 const fillOutUserForFrontEnd = async (user) => {
@@ -61,46 +78,48 @@ export default {
     return filteredList;
   },
   updateProfile: async (userId, request) => {
-    let toUpdate = {};
-    if (request.username !== undefined) {
-      const dupeUser = await checkDuplicateUser('username', request.username);
-      if (dupeUser) {
-        return { status: 409, message: 'Username is in use' };
+    try {
+      let toUpdate = {};
+      if (request.username !== undefined) {
+        if (await fieldAlreadyExists('username', request.username)) {
+          throw { status: 409, message: 'Username is in use' };
+        }
+        if (request.username.length > 20 || request.username.length < 6) {
+          throw {
+            status: 413,
+            message: 'Username must be at least 6 and under 20 characters',
+          };
+        }
+        toUpdate.username = request.username;
       }
-      if (request.username.length > 20 || request.username.length < 6) {
-        return {
-          status: 413,
-          message: 'Username must be at least 6 and under 20 characters',
-        };
+      if (request.email !== undefined) {
+        if (await fieldAlreadyExists('username', request.username)) {
+          throw { status: 409, message: 'Email is in use' };
+        }
+        toUpdate.email = request.email;
       }
-      toUpdate.username = request.username;
+      if (request.mainGroup !== undefined) {
+        const foundGroup = await db.Group.findById(request.mainGroup);
+        if (foundGroup) {
+          toUpdate.mainGroup = request.mainGroup;
+        } else {
+          throw { status: 400, message: 'Group Id not found' };
+        }
+      }
+      db.User.updateOne({ _id: userId }, { $set: toUpdate }, (err) => {
+        if (err) {
+          throw { status: 500, message: 'Error Updating User Profile' };
+        }
+      });
+      return {
+        status: 200,
+        message: 'Updated',
+        username: request.username,
+        email: request.email,
+      };
+    } catch (err) {
+      console.log('Error inside of update profile: ', { userId, request, err });
     }
-    if (request.email !== undefined) {
-      const dupeUser = await checkDuplicateUser('email', request.email);
-      if (dupeUser) {
-        return { status: 409, message: 'Email is in use' };
-      }
-      toUpdate.email = request.email;
-    }
-    if (request.mainGroup !== undefined) {
-      const foundGroup = await db.Group.findById(request.mainGroup);
-      if (foundGroup) {
-        toUpdate.mainGroup = request.mainGroup;
-      } else {
-        return { status: 400, message: 'Group Id not found' };
-      }
-    }
-    db.User.updateOne({ _id: userId }, { $set: toUpdate }, (err) => {
-      if (err) {
-        return { status: 400, message: 'Error Updating User Profile' };
-      }
-    });
-    return {
-      status: 200,
-      message: 'Updated',
-      UN: request.username,
-      E: request.email,
-    };
   },
   updateToAdmin: async (userId) => {
     const res = await db.User.updateOne(
@@ -113,15 +132,19 @@ export default {
     return `${res.username} is now an admin!`;
   },
   saveNewUser: async (newUser) => {
-    if (
-      !checkDuplicateUser('username', newUser.username) ||
-      !checkDuplicateUser('email', newUser.email)
-    ) {
-      return false;
+    if (await fieldAlreadyExists('username', newUser.username)) {
+      throw {
+        status: 409,
+        message: 'Username is in use, enter a different username.',
+      };
     }
-
-    const newUserInDB = await db.User.create(newUser).lean().exec();
-
+    if (await fieldAlreadyExists('email', newUser.email)) {
+      throw {
+        status: 409,
+        message: 'Email is in use, sign in or enter a different email.',
+      };
+    }
+    const newUserInDB = await db.User.create(newUser);
     return { newUserInDB };
   },
   getUserByEmail: async (email) => {
@@ -218,7 +241,7 @@ export default {
     });
   },
   addGroupToList: async (userId, groupId) => {
-    const isInGroup = await checkDuplicateUser('group', userId, groupId);
+    const isInGroup = await fieldAlreadyExists('group', userId, groupId);
     if (isInGroup) {
       return { status: 409, message: 'Group already added to user!' };
     } else {

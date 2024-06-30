@@ -6,7 +6,18 @@ import toast from 'react-hot-toast';
 
 const Alert = withReactContent(Swal);
 
-const getToken = () => getAuth().currentUser.accessToken;
+const getToken = () => {
+  try {
+    return getAuth().currentUser.accessToken;
+  } catch (err) {
+    throw {
+      response: {
+        status: 499,
+        message: 'Error getting authentication token, please refresh',
+      },
+    };
+  }
+};
 
 export const axiosHandler = {
   get: (route, cancelToken, params) => {
@@ -50,6 +61,13 @@ export const axiosHandlerNoValidation = {
     }
     return axios.get(route, options);
   },
+  post: (route, body, cancelToken) => {
+    const options = {};
+    if (cancelToken) {
+      options.cancelToken = cancelToken;
+    }
+    return axios.post(route, body, options);
+  },
 };
 
 export const httpErrorHandler = (error) => {
@@ -61,11 +79,43 @@ export const httpErrorHandler = (error) => {
     console.log('Error inside of component: ', error);
     return;
   }
-  if (error.response.status === 401) {
-    return Alert.fire({
-      title: 'Unauthorized',
-      icon: 'error',
-    });
+  if (error.response.status === 499) {
+    console.log('inside if hit');
   }
-  return toast.error('Connection error with the server');
+  switch (error.response.status) {
+    case 401: {
+      return Alert.fire({
+        title: 'Unauthorized',
+        icon: 'error',
+      });
+    }
+    case 409: {
+      return Alert.fire({
+        title: 'Duplicate Field Detected',
+        text: error.response.data,
+      });
+    }
+    case 499: {
+      return Alert.fire({
+        title: 'Client Error',
+        text: error.response.data,
+      });
+    }
+    case 413: {
+      return Alert.fire({
+        title: 'Error in data submitted',
+        text: error.response.data,
+      });
+    }
+    case 500: {
+      return Alert.fire({
+        title: 'Server Error',
+        text: error.response.data,
+      });
+    }
+    default: {
+      console.log({ status: error.response.status });
+      return toast.error('Connection error with the server');
+    }
+  }
 };

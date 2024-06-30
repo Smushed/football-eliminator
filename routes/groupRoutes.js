@@ -78,7 +78,7 @@ export default (app) => {
       const positions = await groupHandler.getGroupPositions(groupId);
       res.status(200).send(positions);
     } catch (err) {
-      res.status(406).send('Positions Not Found');
+      res.status(503).send('Positions Not Found');
     }
   });
 
@@ -108,20 +108,36 @@ export default (app) => {
     res.status(200).send(addUserResponse);
   });
 
-  app.get('/api/group/list', async (req, res) => {
-    const dbResponse = await groupHandler.getGroupList();
-    res.status(200).send(dbResponse);
+  app.get('/api/group/list', authMiddleware, async (req, res) => {
+    try {
+      const dbResponse = await groupHandler.getGroupList();
+      res.status(200).send(dbResponse);
+    } catch (err) {
+      res.status(500).send('Error getting group list');
+    }
   });
 
-  app.get('/api/group/leaderboard/:season/:week/:groupId', async (req, res) => {
-    const { season, week, groupId } = req.params;
-    const leaderboard = await groupHandler.getLeaderBoard(
-      groupId,
-      season,
-      +week
-    );
-    res.status(200).send({ leaderboard });
-  });
+  app.get(
+    '/api/group/leaderboard/:season/:week/:groupId',
+    authMiddleware,
+    async (req, res) => {
+      try {
+        const { season, week, groupId } = req.params;
+        const leaderboard = await groupHandler.getLeaderBoard(
+          groupId,
+          season,
+          +week
+        );
+        res.status(200).send({ leaderboard });
+      } catch (err) {
+        console.log('Error getting leaderboard for group :', {
+          params: req.params,
+          err,
+        });
+        res.status(500).send('Error getting leaderboard for group');
+      }
+    }
+  );
 
   app.get(
     '/api/group/roster/bestAndLead/:season/:week/:groupId',

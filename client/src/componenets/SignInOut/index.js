@@ -17,6 +17,10 @@ import {
 
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import {
+  axiosHandlerNoValidation,
+  httpErrorHandler,
+} from '../../utils/axiosHandler';
 
 const Alert = withReactContent(Swal);
 
@@ -95,18 +99,18 @@ const SignUpFormBase = ({
   showPassword,
   toggleShowPassword,
 }) => {
-  const [email, updateEmail] = useState('');
-  const [username, updateUsername] = useState('');
-  const [password, updatePassword] = useState('');
-  const [confirmPassword, updateConfirmPassword] = useState('');
-  const [error, updateError] = useState('');
+  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
 
-  const [validMessage, updateValidMessage] = useState([]);
-  const [emailValid, updateEmailValid] = useState(false);
-  const [usernameValid, updateUsernameValid] = useState(false);
-  const [passwordValid, updatePasswordValid] = useState(false);
+  const [validMessage, setValidMessage] = useState([]);
+  const [emailValid, setEmailValid] = useState(false);
+  const [usernameValid, setUsernameValid] = useState(false);
+  const [passwordValid, setPasswordValid] = useState(false);
 
-  const [showConfirmPass, updateShowConfirmPass] = useState(`password`);
+  const [showConfirmPass, setShowConfirmPass] = useState('password');
 
   useEffect(() => {
     validateForm();
@@ -115,25 +119,29 @@ const SignUpFormBase = ({
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    //Checks if all the input fields are valid
-    //If not the validation messages are shown and no user is sent to sign up
     if (checkValidInput()) {
-      const dbResponse = await axios.post(`/api/user/newUser`, {
-        username,
-        email,
-      });
+      try {
+        const { status } = await axiosHandlerNoValidation.post(
+          '/api/user/newUser',
+          {
+            username,
+            email,
+          }
+        );
 
-      if (dbResponse.status === 200) {
-        return firebase
-          .doCreateUserWithEmailAndPassword(email, password)
-          .then(() => {
-            //The User has been successfully authenticated, clear this component state and redirect them to the home page
-            history.push(Routes.home);
-          })
-          .catch((err) => {
-            console.log(err);
-            updateError(err.message);
-          });
+        if (status === 200) {
+          firebase
+            .doCreateUserWithEmailAndPassword(email, password)
+            .then(() => {
+              history.push(Routes.home);
+            })
+            .catch((err) => {
+              setError(err.message);
+            });
+        }
+        return;
+      } catch (err) {
+        httpErrorHandler(err);
       }
     }
   };
@@ -141,20 +149,20 @@ const SignUpFormBase = ({
   const handleChange = (e) => {
     const { name, value } = e.target;
     switch (name) {
-      case `username`: {
-        updateUsername(value);
+      case 'username': {
+        setUsername(value);
         break;
       }
-      case `email`: {
-        updateEmail(value);
+      case 'email': {
+        setEmail(value);
         break;
       }
-      case `password`: {
-        updatePassword(value);
+      case 'password': {
+        setPassword(value);
         break;
       }
-      case `confirmPassword`: {
-        updateConfirmPassword(value);
+      case 'confirmPassword': {
+        setConfirmPassword(value);
         break;
       }
       default: {
@@ -168,22 +176,22 @@ const SignUpFormBase = ({
     let invalidMessages = [];
     if (!emailValid) {
       invalidInputs++;
-      invalidMessages.push(`Email entered is invalid`);
+      invalidMessages.push('Email entered is invalid');
     }
     if (!usernameValid) {
       invalidInputs++;
       invalidMessages.push(
-        `Username must be at least 3 characters, no more than 16 and only contains letters, numbers, underscores and dashes`
+        'Username must be at least 3 characters, no more than 16 and only contains letters, numbers, underscores and dashes'
       );
     }
     if (!passwordValid) {
       invalidInputs++;
       invalidMessages.push(
-        `Password must match, be at least 6 characters in length and contain no spaces`
+        'Password must match, be at least 6 characters in length and contain no spaces'
       );
     }
     if (invalidInputs > 0) {
-      updateValidMessage(invalidMessages);
+      setValidMessage(invalidMessages);
       return false;
     } else {
       return true;
@@ -195,7 +203,7 @@ const SignUpFormBase = ({
     const checkEmail = email.match(
       /^(([^<>()\]\\.,;:\s@']+(\.[^<>()\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     );
-    updateEmailValid(checkEmail ? true : false);
+    setEmailValid(checkEmail ? true : false);
 
     //Password
     const checkPassword = password.length >= 6;
@@ -203,19 +211,19 @@ const SignUpFormBase = ({
     const passwordsMatch = password === confirmPassword;
     const passwordCheck =
       checkPassword && noSpacesInPassword && passwordsMatch ? true : false;
-    updatePasswordValid(passwordCheck);
+    setPasswordValid(passwordCheck);
 
     //Username
     const checkUsername = username.match(/^([a-z0-9-_])+$/i);
     const usernameLength = username.length >= 3 && username.length <= 16;
     const usernameCheck = checkUsername && usernameLength ? true : false;
-    updateUsernameValid(usernameCheck);
+    setUsernameValid(usernameCheck);
   };
 
   const toggleShowConfirmPassword = () => {
-    showConfirmPass === `password`
-      ? updateShowConfirmPass(`text`)
-      : updateShowConfirmPass(`password`);
+    showConfirmPass === 'password'
+      ? setShowConfirmPass('text')
+      : setShowConfirmPass('password');
   };
 
   return (
@@ -262,19 +270,20 @@ const SignInFormBase = ({
   showPassword,
   toggleShowPassword,
 }) => {
-  const [email, updateEmail] = useState('');
-  const [password, updatePassword] = useState('');
-  const [error, updateError] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [disableInputs, setDisableInputs] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     switch (name) {
-      case `email`: {
-        updateEmail(value);
+      case 'email': {
+        setEmail(value);
         break;
       }
-      case `password`: {
-        updatePassword(value);
+      case 'password': {
+        setPassword(value);
         break;
       }
       default: {
@@ -291,66 +300,90 @@ const SignInFormBase = ({
         history.push(Routes.home);
       })
       .catch((error) => {
+        console.log({ error });
         switch (error.code) {
           case `auth/invalid-email`:
-            updateError(`Invalid Email Format`);
+            setError(`Invalid Email Format`);
             break;
           case `auth/user-not-found`:
-            updateError(`Email Not Found`);
+            setError(`Email Not Found`);
             break;
-          case `auth/wrong-password`:
-            updateError(`Wrong Email / Password`);
+          case `auth/invalid-login-credentials`:
+            setError(`Wrong Email / Password`);
             break;
           default:
-            updateError(`Error - Please Reload!`);
+            setError(`Error - Please Reload!`);
             break;
         }
       });
   };
 
   const forgotPassword = async () => {
+    setDisableInputs(true);
     const { value: modalEmail } = await Alert.fire({
       title: 'Input Email Address',
       input: 'email',
       inputValue: email,
       inputPlaceholder: 'email@email.com',
     });
+    setDisableInputs(false);
     if (!modalEmail) {
       return;
     } else {
       firebase
         .doPasswordReset(modalEmail)
-        .then(() => Alert.fire(`Password reset email sent to ${modalEmail}`));
+        .then(() => {
+          Alert.fire({
+            title: 'Email Sent',
+            text: `Password reset email sent to ${modalEmail}`,
+          });
+        })
+        .catch(() =>
+          Alert.fire({
+            title: 'Error',
+            text: 'Error sending password',
+            icon: 'error',
+          })
+        );
     }
   };
 
   return (
     <div className='d-flex justify-content-center'>
-      <form onSubmit={handleSubmit}>
-        <div className='text-center fw-bold'>{error}</div>
-        <EmailInput handleChange={handleChange} email={email} />
-        <PasswordInput
-          handleChange={handleChange}
-          toggleShowPassword={toggleShowPassword}
-          password={password}
-          showPassword={showPassword}
-        />
-        <div className='mt-4 mb-1 row'>
-          <div className='col-12 col-lg-6 text-center'>
-            <button className='btn btn-success signInUpBtnWidth'>
-              Sign In
-            </button>
+      <div className='col-9'>
+        <form onSubmit={handleSubmit}>
+          <div className='text-center fw-bold'>{error}</div>
+          <EmailInput
+            handleChange={handleChange}
+            email={email}
+            disabled={disableInputs}
+          />
+          <PasswordInput
+            handleChange={handleChange}
+            toggleShowPassword={toggleShowPassword}
+            password={password}
+            showPassword={showPassword}
+            disabled={disableInputs}
+          />
+          <div className='row'>
+            <div className='mt-4 mb-1 row'>
+              <div className='col-12 col-lg-6 text-center'>
+                <button className='btn btn-success signInUpBtnWidth'>
+                  Sign In
+                </button>
+              </div>
+              <div className='col-12 col-lg-6 text-center'>
+                <input
+                  type='button'
+                  className='btn btn-secondary'
+                  onClick={forgotPassword}
+                  value='Forgot Password?'
+                />
+              </div>
+            </div>
           </div>
-          <div className='d-flex col-12 col-lg-6 justify-content-start'>
-            <input
-              type='button'
-              className='btn btn-secondary'
-              onClick={forgotPassword}
-              value='Forgot Password?'
-            />
-          </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };

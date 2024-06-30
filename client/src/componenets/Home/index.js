@@ -36,6 +36,9 @@ const Home = () => {
         history.push(Routes.groupPage);
       }
     }
+  }, [currentUser.grouplist]);
+
+  useEffect(() => {
     return function cancelAPICalls() {
       if (axiosCancel) {
         axiosCancel.cancel(`Unmounted`);

@@ -79,12 +79,13 @@ const App = ({ firebase }) => {
 
   const initGroup = async (user) => {
     try {
+      getSeasonAndWeek();
       if (user.mainGroup) {
         const res = await axiosHandler.get(
           `/api/group/details/${user.mainGroup}`
         );
         setCurrentGroup({ name: res.data.name, _id: user.mainGroup });
-      } else {
+      } else if (user.grouplist.length > 0) {
         await axiosHandler.put(
           `/api/user/group/main/${user.grouplist[0]._id}/${user._id}`
         );
@@ -93,7 +94,6 @@ const App = ({ firebase }) => {
           _id: user.grouplist[0]._id,
         });
       }
-      getSeasonAndWeek();
     } catch (err) {
       httpErrorHandler(err);
     }

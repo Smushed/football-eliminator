@@ -4,6 +4,7 @@ import ChartLeaderboard from './ChartLeaderboard';
 
 import './leaderBoardStyle.css';
 import { NFLScheduleContext } from '../../App.js';
+import { axiosHandler, httpErrorHandler } from '../../utils/axiosHandler.js';
 
 const Leaderboard = ({ weekToShow, groupId }) => {
   const [leaderboard, updateLeaderboard] = useState([]);
@@ -32,20 +33,17 @@ const Leaderboard = ({ weekToShow, groupId }) => {
     };
   }, []);
 
-  const getLeaderBoard = (season, week, groupId) =>
-    axios
-      .get(`/api/group/leaderboard/${season}/${week}/${groupId}`, {
-        cancelToken: axiosCancel.token,
-      })
-      .then((res) => {
-        updateLeaderboard(res.data.leaderboard);
-        return;
-      })
-      .catch((err) => {
-        if (err.message !== `Unmounted`) {
-          console.log({ err });
-        }
-      });
+  const getLeaderBoard = async (season, week, groupId) => {
+    try {
+      const { data } = await axiosHandler.get(
+        `/api/group/leaderboard/${season}/${week}/${groupId}`,
+        axiosCancel.token
+      );
+      updateLeaderboard(data.leaderboard);
+    } catch (err) {
+      httpErrorHandler(err);
+    }
+  };
 
   return (
     <div className='row border pb-2 mb-2 mt-2 justify-content-center leaderboardContainter'>

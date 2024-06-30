@@ -17,6 +17,8 @@ import { AvatarContext } from '../../contexts/Avatars';
 import { CurrentUserContext, NFLScheduleContext } from '../../App.js';
 import { useParams } from 'react-router-dom';
 import { axiosHandler, httpErrorHandler } from '../../utils/axiosHandler.js';
+import { useHistory } from 'react-router-dom';
+import * as Routes from '../../constants/routes.js';
 
 const Alert = withReactContent(Swal);
 
@@ -47,6 +49,7 @@ const Roster = () => {
   const { currentNFLTime } = useContext(NFLScheduleContext);
 
   const params = useParams();
+  const history = useHistory();
 
   const axiosCancel = axios.CancelToken.source();
 
@@ -57,6 +60,14 @@ const Roster = () => {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (currentUser.grouplist) {
+      if (currentUser.grouplist.length === 0) {
+        history.push(Routes.groupPage);
+      }
+    }
+  }, [currentUser.grouplist]);
 
   useEffect(() => {
     if (currentNFLTime.week !== 0 && currentNFLTime.season !== '') {

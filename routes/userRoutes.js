@@ -10,9 +10,13 @@ import {
 
 export default (app) => {
   app.put('/api/user/updateProfile', async (req, res) => {
-    const { userId, request } = req.body;
-    const updateRes = await userHandler.updateProfile(userId, request);
-    res.status(updateRes.status).send(updateRes.message);
+    try {
+      const { userId, request } = req.body;
+      const updateRes = await userHandler.updateProfile(userId, request);
+      res.status(updateRes.status).send(updateRes.message);
+    } catch (err) {
+      res.status(err.status).send(err.message);
+    }
   });
 
   app.put('/api/updateUserToAdmin/:userId/:pass', async (req, res) => {
@@ -27,10 +31,14 @@ export default (app) => {
   });
 
   app.post('/api/user/newUser', async (req, res) => {
-    const { username, email } = req.body;
-    const { newUserInDB } = await userHandler.saveNewUser({ username, email });
-
-    res.json(newUserInDB);
+    try {
+      const { username, email } = req.body;
+      await userHandler.saveNewUser({ username, email });
+      res.status(200).send('User Created');
+    } catch (err) {
+      console.log({ err });
+      res.status(err.status).send(err.message);
+    }
   });
 
   app.get('/api/user/email/:email', authMiddleware, async (req, res) => {
