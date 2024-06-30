@@ -217,12 +217,14 @@ export default (app) => {
           groupId
         );
         res.status(200).send(allRosters);
-      } catch {
+      } catch (err) {
         console.log('Error getting all rosters for group: ', {
           params: req.params,
           err,
         });
-        res.status(500).send('Error getting all rosters for group');
+        res
+          .status(err.status || 500)
+          .send(err.message || 'Error finding roster data for group');
       }
     }
   );

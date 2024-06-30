@@ -90,10 +90,10 @@ export default {
             message: 'Username must be at least 6 and under 20 characters',
           };
         }
-        toUpdate.username = request.username;
+        toUpdate.username = request.username.trim();
       }
       if (request.email !== undefined) {
-        if (await fieldAlreadyExists('username', request.username)) {
+        if (await fieldAlreadyExists('email', request.email)) {
           throw { status: 409, message: 'Email is in use' };
         }
         toUpdate.email = request.email;
@@ -119,17 +119,8 @@ export default {
       };
     } catch (err) {
       console.log('Error inside of update profile: ', { userId, request, err });
+      throw err;
     }
-  },
-  updateToAdmin: async (userId) => {
-    const res = await db.User.updateOne(
-      { _id: userId },
-      { $set: { admin: true } }
-    )
-      .lean()
-      .exec();
-
-    return `${res.username} is now an admin!`;
   },
   saveNewUser: async (newUser) => {
     if (await fieldAlreadyExists('username', newUser.username)) {

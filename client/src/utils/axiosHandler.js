@@ -10,6 +10,7 @@ const getToken = () => {
   try {
     return getAuth().currentUser.accessToken;
   } catch (err) {
+    console.log('Error getting token: ', { err });
     throw {
       response: {
         status: 499,
@@ -78,9 +79,6 @@ export const httpErrorHandler = (error) => {
     //Not HTTP error, from component
     console.log('Error inside of component: ', error);
     return;
-  }
-  if (error.response.status === 499) {
-    console.log('inside if hit');
   }
   switch (error.response.status) {
     case 401: {

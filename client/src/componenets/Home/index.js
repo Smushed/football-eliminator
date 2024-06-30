@@ -51,7 +51,7 @@ const Home = () => {
       currentNFLTime.week !== 0 &&
       currentNFLTime.season !== '' &&
       currentUser.username &&
-      currentGroup
+      currentGroup._id !== undefined
     ) {
       updateWeekOnPage(currentNFLTime.week);
       updateWeekSelect(currentNFLTime.week);

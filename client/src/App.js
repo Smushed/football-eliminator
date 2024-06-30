@@ -18,6 +18,7 @@ import SidePanel from './componenets/SidePanel';
 import AvatarWrapper from './contexts/Avatars';
 import Unsubscribe from './componenets/Unsubscribe';
 import { axiosHandler, httpErrorHandler } from './utils/axiosHandler';
+import { getAuth } from 'firebase/auth';
 
 const CurrentUserContext = createContext();
 const NFLScheduleContext = createContext();

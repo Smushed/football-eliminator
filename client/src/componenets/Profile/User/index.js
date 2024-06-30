@@ -31,7 +31,6 @@ const UserProfile = ({ pullUserData }) => {
               disableAllFields={disableAllFields}
               setDisableAllFields={setDisableAllFields}
               isCurrentUser={isCurrentUser}
-              currentUser={currentUser}
               pullUserData={pullUserData}
             />
           </div>

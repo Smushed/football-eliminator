@@ -9,25 +9,15 @@ import {
 } from '../handlers/authHandler.js';
 
 export default (app) => {
-  app.put('/api/user/updateProfile', async (req, res) => {
+  app.put('/api/user/update', authMiddleware, async (req, res) => {
     try {
       const { userId, request } = req.body;
+      await verifyUserIsSameEmailUserId(req.currentUser, userId);
       const updateRes = await userHandler.updateProfile(userId, request);
       res.status(updateRes.status).send(updateRes.message);
     } catch (err) {
-      res.status(err.status).send(err.message);
+      res.status(err.status || 500).send(err.message || 'Error updating user');
     }
-  });
-
-  app.put('/api/updateUserToAdmin/:userId/:pass', async (req, res) => {
-    const { userId, pass } = req.params;
-    if (pass !== process.env.DB_ADMIN_PASS) {
-      res.status(401).send('Get Outta Here!');
-      return;
-    }
-    const response = await userHandler.updateToAdmin(userId);
-
-    res.status(200).send(response);
   });
 
   app.post('/api/user/newUser', async (req, res) => {
@@ -58,18 +48,18 @@ export default (app) => {
     res.status(200).send(emailPres);
   });
 
-  app.get('/api/user/getAllUsers', async (req, res) => {
+  app.get('/api/user/getAllUsers', authMiddleware, async (req, res) => {
     const dbResponse = await userHandler.getUserList();
     res.status(200).send(dbResponse);
   });
 
-  app.get('/api/user/id/:userId', async (req, res) => {
+  app.get('/api/user/id/:userId', authMiddleware, async (req, res) => {
     const { userId } = req.params;
     const foundUser = await userHandler.getUserByID(userId);
     res.status(foundUser.status).send(foundUser.response);
   });
 
-  app.get('/api/user/name/:username', async (req, res) => {
+  app.get('/api/user/name/:username', authMiddleware, async (req, res) => {
     const { username } = req.params;
     const user = await userHandler.getUserByUsername(username);
     if (!user) {
@@ -89,7 +79,7 @@ export default (app) => {
   //   res.status(200).send(`success`);
   // });
 
-  app.get('/api/user/profile/box/:userId', async (req, res) => {
+  app.get('/api/user/profile/box/:userId', authMiddleware, async (req, res) => {
     const { userId } = req.params;
     Promise.all([
       s3Handler.getUserAvatar(userId),
@@ -98,7 +88,7 @@ export default (app) => {
     ]).then(([avatar, totalScore, user]) =>
       res
         .status(200)
-        .send({ name: user.response.UN, avatar, score: totalScore })
+        .send({ username: user.response.username, avatar, score: totalScore })
     );
   });
 
@@ -126,7 +116,9 @@ export default (app) => {
         res.sendStatus(200);
       } catch (err) {
         console.log({ err });
-        res.status(err.status).send(err.message);
+        res
+          .status(err.status || 500)
+          .send(err.message || 'Error updating user');
       }
     }
   );
