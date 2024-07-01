@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
@@ -8,12 +9,13 @@ const Alert = withReactContent(Swal);
 const Unsubscribe = ({ match }) => {
   const [successfulUnsubscribe, updateSuccessfulUnsubscribe] = useState(false);
 
+  const params = useParams();
+
   useEffect(() => {
-    if (match.params.userId) {
-      unsubscribe(match.params.userId);
+    if (params.userId) {
+      unsubscribe(params.userId);
     }
-    console.log({ match });
-  }, [match.params.userId]);
+  }, [params.userId]);
 
   const unsubscribe = async (id) => {
     axios

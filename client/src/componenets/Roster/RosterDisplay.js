@@ -89,6 +89,7 @@ const RosterDisplay = memo(function RosterDisplay({
                 player={player}
                 addDropPlayer={addDropPlayer}
                 pastLockWeek={pastLockWeek}
+                key={player.mySportsId.toString() + userId}
               />
             ))
           : groupPositions.map((position, i) => (
@@ -97,6 +98,7 @@ const RosterDisplay = memo(function RosterDisplay({
                 position={position.name}
                 player={roster[i]}
                 addDropPlayer={addDropPlayer}
+                key={position.name + i + userId}
               />
             ))}
       </tbody>

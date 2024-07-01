@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Session from '../../Session';
 import 'jimp';
 import { useParams } from 'react-router-dom';
@@ -8,11 +8,13 @@ import '../profileStyle.css';
 
 import UserInfoUpdateForm from './UserInfoUpdateForm';
 import ReminderUpdateForm from './ReminderUpdateForm';
+import { CurrentUserContext } from '../../../App.js';
 
-const UserProfile = ({ currentUser, pullUserData }) => {
+const UserProfile = ({ pullUserData }) => {
   const [isCurrentUser, setIsCurrentUser] = useState(false);
   const [disableAllFields, setDisableAllFields] = useState(false);
 
+  const { currentUser } = useContext(CurrentUserContext);
   const params = useParams();
 
   useEffect(() => {
@@ -29,7 +31,6 @@ const UserProfile = ({ currentUser, pullUserData }) => {
               disableAllFields={disableAllFields}
               setDisableAllFields={setDisableAllFields}
               isCurrentUser={isCurrentUser}
-              currentUser={currentUser}
               pullUserData={pullUserData}
             />
           </div>

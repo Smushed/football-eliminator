@@ -21,17 +21,22 @@ initializeApp({
 });
 
 const notAuthorizedError = { message: 'Unauthorized', status: 401 };
+const notAuthorizedToUpdate = {
+  message: 'Not Authorized to update',
+  status: 401,
+};
 
-const verifyTokenMiddleware = (req, res, next) => {
-  if (!req.headers.token) {
-    next();
+const authMiddleware = (req, res, next) => {
+  if (!req.headers.authorization) {
+    res.status(401).send('Unauthorized');
   } else {
     getAuth()
-      .verifyIdToken(req.headers.token)
+      .verifyIdToken(req.headers.authorization)
       .then((decodedToken) => {
         req.currentUser = decodedToken.email;
         next();
-      });
+      })
+      .catch(() => res.status(401).send('Unauthorized'));
   }
 };
 
@@ -50,11 +55,24 @@ const verifyGroupAdminByEmail = async (userEmail, groupId) => {
   }
 };
 
+const verifyUserIsSameEmailUserId = async (userEmail, userId) => {
+  const foundUser = await db.User.findOne({ email: userEmail }, { _id: 1 })
+    .lean()
+    .exec();
+  if (foundUser._id.toString() !== userId) {
+    throw notAuthorizedToUpdate;
+  }
+};
+
 const verifyUserLoggedIn = async (userEmail) => {
-  console.log({ userEmail });
   if (userEmail === null || userEmail === undefined || userEmail === '') {
     throw notAuthorizedError;
   }
 };
 
-export { verifyGroupAdminByEmail, verifyUserLoggedIn, verifyTokenMiddleware };
+export {
+  verifyGroupAdminByEmail,
+  verifyUserLoggedIn,
+  verifyUserIsSameEmailUserId,
+  authMiddleware,
+};

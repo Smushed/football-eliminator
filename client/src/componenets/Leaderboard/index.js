@@ -1,24 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import ChartLeaderboard from './ChartLeaderboard';
 
 import './leaderBoardStyle.css';
+import { NFLScheduleContext } from '../../App.js';
+import { axiosHandler, httpErrorHandler } from '../../utils/axiosHandler.js';
 
-const Leaderboard = ({ season, week, groupId }) => {
+const Leaderboard = ({ weekToShow, groupId }) => {
   const [leaderboard, updateLeaderboard] = useState([]);
+  const { currentNFLTime } = useContext(NFLScheduleContext);
 
   useEffect(() => {
     if (
-      season &&
-      season !== '' &&
-      week &&
-      week !== 0 &&
+      currentNFLTime.season &&
+      currentNFLTime.season !== '' &&
+      weekToShow &&
+      weekToShow !== 0 &&
       groupId &&
       groupId !== ''
     ) {
-      getLeaderBoard(season, week, groupId);
+      getLeaderBoard(currentNFLTime.season, weekToShow, groupId);
     }
-  }, [season, week, groupId]);
+  }, [currentNFLTime.season, weekToShow, groupId]);
 
   const axiosCancel = axios.CancelToken.source();
 
@@ -30,20 +33,17 @@ const Leaderboard = ({ season, week, groupId }) => {
     };
   }, []);
 
-  const getLeaderBoard = (season, week, groupId) =>
-    axios
-      .get(`/api/group/leaderboard/${season}/${week}/${groupId}`, {
-        cancelToken: axiosCancel.token,
-      })
-      .then((res) => {
-        updateLeaderboard(res.data.leaderboard);
-        return;
-      })
-      .catch((err) => {
-        if (err.message !== `Unmounted`) {
-          console.log({ err });
-        }
-      });
+  const getLeaderBoard = async (season, week, groupId) => {
+    try {
+      const { data } = await axiosHandler.get(
+        `/api/group/leaderboard/${season}/${week}/${groupId}`,
+        axiosCancel.token
+      );
+      updateLeaderboard(data.leaderboard);
+    } catch (err) {
+      httpErrorHandler(err);
+    }
+  };
 
   return (
     <div className='row border pb-2 mb-2 mt-2 justify-content-center leaderboardContainter'>

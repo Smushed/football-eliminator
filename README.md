@@ -34,14 +34,22 @@ Some key features are listed below:
 - Avatars are displayed for both users and players throughout the app
 - Weekly text and email reminders sent out to users if their roster for the week is empty
 
-## Current Release: 1.2
+## Current Release: 1.3
+<strong>Implemented</strong>
+- User authentication verification on the backend
+- Text & email reminder capability every Thursday (before the weekly games start)
+- Rework of backend and database naming to help readability of code
 
+<strong>Goals for 1.3</strong>
+- Email invites for other users or non-users
+- Reconfigure the Group Page to make it easier to change group settings.
+
+## Previous Releases
+
+### Major Features added in 1.2
 - Updating the UI to make it more mobile friendly. Most users use it on their phone
 - Adding more color to the website to make it "pop" and make more enjoyable to use
 - Dramatically increasing the amount of images that are shown on the app including adding an avatar for every NFL player and showing user avatars on home page load
-- Adding text & email reminder capability to the application
-
-## Previous Releases
 
 ### Major Features added in 1.0
 

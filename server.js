@@ -11,7 +11,6 @@ import groupRoutes from './routes/groupRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import cronHandler from './handlers/cronHandler.js';
 import cacheHandler from './handlers/cacheHandler.js';
-import { verifyTokenMiddleware } from './handlers/authHandler.js';
 import avatarRoutes from './routes/avatarRoutes.js';
 
 const PORT = process.env.PORT || 8081;
@@ -20,7 +19,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 app.use(bodyParser.urlencoded({ extended: true, limit: '5mb' }));
 app.use(bodyParser.json({ limit: '50mb' }));
-app.use(verifyTokenMiddleware);
 
 let MONGODB_URI = '';
 

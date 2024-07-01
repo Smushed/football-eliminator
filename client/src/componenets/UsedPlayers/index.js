@@ -1,17 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { PlayerDisplayRow } from '../Roster/RosterDisplay';
 
 import { loading, doneLoading } from '../LoadingAlert';
-import * as Routes from '../../constants/routes';
 import './usedPlayerStyle.css';
 import Session from '../Session';
+import { CurrentUserContext, NFLScheduleContext } from '../../App.js';
+import { useParams } from 'react-router-dom';
 
-const UsedPlayers = ({ match, season, history, noGroup }) => {
+const UsedPlayers = () => {
   const [usedPlayers, updateUsedPlayers] = useState({});
   const [usernameOfPage, updateUsernameOfPage] = useState(``);
 
   const axiosCancel = axios.CancelToken.source();
+
+  const params = useParams();
+
+  const { currentUser } = useContext(CurrentUserContext);
+  const { currentNFLTime } = useContext(NFLScheduleContext);
 
   useEffect(() => {
     return function cancelAPICalls() {
@@ -22,21 +28,17 @@ const UsedPlayers = ({ match, season, history, noGroup }) => {
   }, []);
 
   useEffect(() => {
-    if (noGroup) {
-      history.push(Routes.groupPage);
-      return;
-    }
-    if (season !== '') {
+    if (currentNFLTime.season !== '') {
       getUsedPlayers();
-      updateUsernameOfPage(match.params.username);
+      updateUsernameOfPage(params.username);
     }
-  }, [season, match.params.username]);
+  }, [currentNFLTime.season, params.username, currentUser.grouplist]);
 
   const getUsedPlayers = () => {
     loading(true);
     axios
       .get(
-        `/api/players/used/${match.params.username}/${season}/${match.params.groupname}`,
+        `/api/players/used/${params.username}/${currentNFLTime.season}/${params.groupname}`,
         { cancelToken: axiosCancel }
       )
       .then((res) => {

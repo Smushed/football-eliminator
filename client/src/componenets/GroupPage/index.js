@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Tooltip } from 'react-tooltip';
@@ -9,18 +9,15 @@ import withReactContent from 'sweetalert2-react-content';
 import './groupStyle.css';
 import * as Routes from '../../constants/routes';
 import Session from '../Session';
+import { CurrentUserContext, NFLScheduleContext } from '../../App.js';
 
 const Alert = withReactContent(Swal);
 
-const GroupPage = ({
-  history,
-  email,
-  pullUserData,
-  userId,
-  noGroup,
-  season,
-}) => {
+const GroupPage = ({ history, pullUserData }) => {
   const [groupList, updateGroupList] = useState([]);
+
+  const { currentUser } = useContext(CurrentUserContext);
+  const { currentNFLTime } = useContext(NFLScheduleContext);
 
   const axiosCancel = axios.CancelToken.source();
 
@@ -33,17 +30,14 @@ const GroupPage = ({
   }, []);
 
   useEffect(() => {
-    if (noGroup) {
+    if (!currentUser.grouplist) {
+      return;
+    }
+    if (currentUser.grouplist.length === 0) {
       welcomeModal();
     }
     getGroupList();
-
-    return function cancelAPICalls() {
-      if (axiosCancel) {
-        axiosCancel.cancel(`Unmounted`);
-      }
-    };
-  }, [noGroup]);
+  }, [currentUser.grouplist]);
 
   const welcomeModal = () => {
     Alert.fire({
@@ -75,11 +69,11 @@ const GroupPage = ({
   const joinGroup = (groupId) => {
     axios
       .put(`/api/group/join/`, {
-        userId,
-        groupId,
+        userId: currentUser.userId,
+        groupId: groupId,
       })
       .then(() => {
-        pullUserData(email).then(() => {
+        pullUserData(currentUser.email).then(() => {
           history.push(Routes.home);
         });
       });
@@ -108,11 +102,10 @@ const GroupPage = ({
         <div className='col-12 col-xl-8'>
           {groupList.map((group) => (
             <GroupRow
-              season={season}
+              season={currentNFLTime.season}
               key={group.id}
               group={group}
               joinGroup={joinGroup}
-              userId={userId}
             />
           ))}
         </div>
@@ -121,11 +114,13 @@ const GroupPage = ({
   );
 };
 
-const GroupRow = ({ group, joinGroup, season, userId }) => {
+const GroupRow = ({ group, joinGroup, season }) => {
   const [groupAvatar, updateGroupAvatar] = useState([]);
   const [topScore, updateTopScore] = useState(0);
   const [ulTooltip, updateULTooltip] = useState(``);
   const [isInGroup, updateIsInGroup] = useState(false);
+
+  const { currentUser } = useContext(CurrentUserContext);
 
   const axiosCancel = axios.CancelToken.source();
 
@@ -140,11 +135,11 @@ const GroupRow = ({ group, joinGroup, season, userId }) => {
   useEffect(() => {
     getAvatar(group.id);
     getTopScore(group.id, season);
-    BuildULTooltip(group.UL);
-    if (group.UL.length >= 1 && userId) {
-      checkInGroup(userId);
+    BuildULTooltip(group.userlist);
+    if (group.userlist.length >= 1 && currentUser.userId) {
+      checkInGroup(currentUser.userId);
     }
-  }, [group.id, group.UL, season, userId]);
+  }, [group.id, group.UL, season, currentUser.userId]);
 
   const getAvatar = (groupId) => {
     axios
@@ -240,7 +235,7 @@ const GroupRow = ({ group, joinGroup, season, userId }) => {
                     data-tooltip-html={ulTooltip}
                     data-tooltip-id='userListTooltip'
                   >
-                    {group.UL.length}
+                    {group.userlist.length}
                   </div>
                 </div>
               </div>

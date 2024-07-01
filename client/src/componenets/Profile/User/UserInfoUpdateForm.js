@@ -15,6 +15,8 @@ import {
 } from '../ProfileInputs';
 import { AvatarContext } from '../../../contexts/Avatars';
 import { differencesInObj } from '../../../utils/genericTools';
+import { axiosHandler, httpErrorHandler } from '../../../utils/axiosHandler';
+import { CurrentUserContext } from '../../../App';
 
 const Alert = withReactContent(Swal);
 
@@ -22,7 +24,6 @@ const UserInfoUpdateForm = ({
   disableAllFields,
   setDisableAllFields,
   isCurrentUser,
-  currentUser,
   pullUserData,
 }) => {
   const [showHidePassword, setShowHidePassword] = useState('password');
@@ -43,6 +44,7 @@ const UserInfoUpdateForm = ({
 
   const { addUserAvatarsToPull, repullUserAvatars, userAvatars } =
     useContext(AvatarContext);
+  const { currentUser } = useContext(CurrentUserContext);
   const history = useHistory();
   const params = useParams();
   const fileInputRef = useRef(null);
@@ -57,10 +59,11 @@ const UserInfoUpdateForm = ({
   }, []);
 
   useEffect(() => {
-    if (userFieldsOnPage.id === '') {
+    const authUser = getAuth().currentUser;
+    if (userFieldsOnPage.id === '' && currentUser && authUser) {
       userProfilePull(params.name);
     }
-  }, [params.name]);
+  }, [params.name, currentUser]);
 
   useEffect(() => {
     if (reAuthSuccess) {
@@ -116,19 +119,11 @@ const UserInfoUpdateForm = ({
       body: JSON.stringify({ image: updatedAvatar }),
     })
       .then(() => {
-        toast.success('Avatar Saved', {
-          position: 'top-right',
-          duration: 4000,
-        });
+        toast.success('Avatar Saved');
         repullUserAvatars([userFieldsOnPage.id]);
         return;
       })
-      .catch(() =>
-        toast.error('Error Saving the Avatar', {
-          position: 'top-right',
-          duration: 4000,
-        })
-      );
+      .catch(() => toast.error('Error Saving the Avatar'));
   };
 
   const saveCroppedAvatar = (mime) => {
@@ -138,24 +133,19 @@ const UserInfoUpdateForm = ({
     saveAvatarToAWS(mime);
   };
 
-  const userProfilePull = (username) => {
-    axios
-      .get(`/api/user/name/${username}`, { cancelToken: axiosCancel.token })
-      .then((res) => {
-        createProfileFields(res.data.user);
-        if (!userAvatars[res.data.user._id]) {
-          addUserAvatarsToPull([res.data.user._id]);
-        }
-      })
-      .catch((err) => {
-        toast.error(err.response.data, {
-          position: 'top-right',
-          duration: 4000,
-        });
-        if (err.message !== `Unmounted`) {
-          console.log(err);
-        }
-      });
+  const userProfilePull = async (username) => {
+    try {
+      const { data } = await axiosHandler.get(
+        `/api/user/name/${username}`,
+        axiosCancel.token
+      );
+      createProfileFields(data.user);
+      if (!userAvatars[data.user._id]) {
+        addUserAvatarsToPull([data.user._id]);
+      }
+    } catch (err) {
+      httpErrorHandler(err);
+    }
   };
 
   const validateUpdates = ({ username, password, email }) => {
@@ -187,9 +177,9 @@ const UserInfoUpdateForm = ({
 
   const createProfileFields = async (user) => {
     try {
-      const grouplist = await axios.get(
-        `/api/group/details/byUser/${user._id}`,
-        { cancelToken: axiosCancel.token }
+      const grouplist = await axiosHandler.get(
+        `/api/group/details/all/user/${user._id}`,
+        axiosCancel.token
       );
       const builtUser = {
         password: '',
@@ -202,11 +192,7 @@ const UserInfoUpdateForm = ({
       setOriginalState(builtUser);
       setUserFieldsOnPage(builtUser);
     } catch (err) {
-      toast.error('Error pulling data, try again later', {
-        position: 'top-right',
-        duration: 4000,
-      });
-      console.log({ err });
+      httpErrorHandler(err);
     }
   };
 
@@ -229,7 +215,7 @@ const UserInfoUpdateForm = ({
     }
   };
 
-  const updateUserInfo = () => {
+  const updateUserInfo = async () => {
     const updatedFields = differencesInObj(originalState, userFieldsOnPage);
     const validationErrors = validateUpdates(updatedFields);
     if (validationErrors.length > 0) {
@@ -259,23 +245,24 @@ const UserInfoUpdateForm = ({
       needToUpdateDb = true;
     }
     if (needToUpdateDb) {
-      axios
-        .put(`/api/user/updateProfile`, { request, userId: currentUser.userId })
-        .then(() => {
-          pullUserData(currentUser.email);
-          if (request.username !== undefined) {
-            history.push(`/profile/user/${request.username}`);
-            return;
-          }
-          userProfilePull(params.name);
-          toast.success('Profile Updated', {
-            position: 'top-right',
-            duration: 4000,
-          });
-        })
-        .catch((err) =>
-          toast.error(err.message, { position: 'top-right', duration: 4000 })
-        );
+      try {
+        await axiosHandler.put(`/api/user/update`, {
+          request,
+          userId: currentUser.userId,
+        });
+        pullUserData(currentUser);
+        if (request.username !== undefined) {
+          history.push(`/profile/user/${request.username}`);
+          return;
+        }
+        userProfilePull(params.name);
+        toast.success('Profile Updated', {
+          position: 'top-right',
+          duration: 4000,
+        });
+      } catch (err) {
+        httpErrorHandler(err);
+      }
     }
   };
 

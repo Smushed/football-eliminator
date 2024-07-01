@@ -299,12 +299,6 @@ export default {
     this.createGroupScore(clapperFromDB._id);
     return 'working';
   },
-  findGroupIdByName: async (groupname) => {
-    const foundGroup = await db.Group.findOne({ name: groupname })
-      .collation({ locale: 'en_US', strength: 2 })
-      .exec();
-    return foundGroup._id;
-  },
   createGeneralGroupRoster: async (groupId) =>
     new Promise(async (res, rej) => {
       const dbResponse = await db.GroupRoster.create({ groupId }).exec();

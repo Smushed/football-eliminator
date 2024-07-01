@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { GenericSwitch, PhoneNumberInput } from '../ProfileInputs';
 import { differencesInObj } from '../../../utils/genericTools';
+import { axiosHandler, httpErrorHandler } from '../../../utils/axiosHandler';
+import { CurrentUserContext } from '../../../App';
 
 const reminderBase = {
   leaderboardEmail: false,
@@ -11,10 +13,12 @@ const reminderBase = {
   phoneNumber: '',
 };
 
-const ReminderUpdateForm = ({ disableAllFields, currentUser }) => {
+const ReminderUpdateForm = ({ disableAllFields }) => {
   const [updatedFields, setUpdatedFields] = useState(reminderBase);
   const [baseFields, setBaseFields] = useState(reminderBase);
   const [errors, setErrors] = useState([]);
+
+  const { currentUser } = useContext(CurrentUserContext);
 
   const axiosCancel = axios.CancelToken.source();
 
@@ -34,15 +38,14 @@ const ReminderUpdateForm = ({ disableAllFields, currentUser }) => {
 
   const pullReminderFields = async (userId) => {
     try {
-      const { data } = await axios.get(`/api/user/reminderPref/${userId}`, {
-        cancelToken: axiosCancel.token,
-      });
+      const { data } = await axiosHandler.get(
+        `/api/user/reminderPref/${userId}`,
+        axiosCancel.token
+      );
       setUpdatedFields(data);
       setBaseFields(data);
     } catch (err) {
-      if (err.message !== `Unmounted`) {
-        console.log(err);
-      }
+      httpErrorHandler(err);
     }
   };
 
@@ -55,7 +58,7 @@ const ReminderUpdateForm = ({ disableAllFields, currentUser }) => {
   };
   let phoneNumberValid = false;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const diff = differencesInObj(baseFields, updatedFields);
     if (Object.keys(diff).length === 0) {
       return;
@@ -77,21 +80,20 @@ const ReminderUpdateForm = ({ disableAllFields, currentUser }) => {
       setErrors(['Must have phone number if reminder texts are on']);
       return;
     }
-    axios
-      .put(`/api/user/email/settings/${currentUser.userId}`, {
+
+    try {
+      await axiosHandler.put(`/api/user/email/settings/${currentUser.userId}`, {
         updatedFields: diff,
-      })
-      .then(() => {
-        setErrors([]);
-        pullReminderFields(currentUser.userId);
-        toast.success('Notification settings updated', {
-          position: 'top-right',
-          duration: 4000,
-        });
-      })
-      .catch((err) => {
-        setErrors([err.message]);
       });
+      setErrors([]);
+      pullReminderFields(currentUser.userId);
+      toast.success('Notification settings updated', {
+        position: 'top-right',
+        duration: 4000,
+      });
+    } catch (err) {
+      setErrors([err.message]);
+    }
   };
 
   return (
