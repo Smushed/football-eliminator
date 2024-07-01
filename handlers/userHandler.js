@@ -68,14 +68,19 @@ const fillOutUserForFrontEnd = async (user) => {
 
 export default {
   getUserList: async () => {
-    const userlist = await db.User.find({}).exec();
-    const filteredList = userlist.map((user) => ({
-      username: user.username,
-      email: user.email,
-      _id: user._id,
-      groupList: user.grouplist,
-    }));
-    return filteredList;
+    try {
+      const userlist = await db.User.find({}).exec();
+      const filteredList = userlist.map((user) => ({
+        username: user.username,
+        email: user.email,
+        _id: user._id,
+        groupList: user.grouplist,
+      }));
+      return filteredList;
+    } catch (err) {
+      console.log('Error getting whole userlist:', { err });
+      throw { status: 500, message: 'Error pulling userlist' };
+    }
   },
   updateProfile: async (userId, request) => {
     try {
@@ -250,15 +255,20 @@ export default {
       );
     }),
   getEmailSettings: async (userId) => {
-    let emailSettings = await db.UserReminderSettings.findOne({
-      userId,
-    })
-      .lean()
-      .exec();
-    if (emailSettings === null) {
-      emailSettings = await db.UserReminderSettings.create({ userId });
+    try {
+      let emailSettings = await db.UserReminderSettings.findOne({
+        userId,
+      })
+        .lean()
+        .exec();
+      if (emailSettings === null) {
+        emailSettings = await db.UserReminderSettings.create({ userId });
+      }
+      return emailSettings;
+    } catch (err) {
+      console.log('Error getting / creating email settings:', { userId });
+      throw { status: 400, message: 'Error getting / creating email settings' };
     }
-    return emailSettings;
   },
   updateEmailSettings: async (userId, updatedFields) => {
     if (updatedFields.phoneNumber !== undefined) {

@@ -521,7 +521,7 @@ export default {
         .exec();
       return { lockWeek };
     } catch (err) {
-      return false;
+      throw { status: 404, message: 'Error finding general lock week data' };
     }
   },
   checkTeamLock: async (season, week, team) => {

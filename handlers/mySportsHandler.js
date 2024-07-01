@@ -452,12 +452,6 @@ export default {
     };
     return testReturn;
   },
-  //TODO combine this with above
-  getEveryWeekData: async function (season, maxWeek) {
-    for (let i = 1; i <= maxWeek; i++) {
-      await this.getWeeklyData(season, i);
-    }
-  },
   getWeeklyData: (season, week) =>
     new Promise(async (res, rej) => {
       console.log(`requesting week ${week} data`);

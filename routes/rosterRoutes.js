@@ -14,11 +14,24 @@ export default (app) => {
     Promise.all([
       groupHandler.getGroupData(groupname),
       userHandler.getUserByUsername(username),
-    ]).then(([group, user]) => {
-      rosterHandler
-        .availablePlayers(user._id, searchedPosition, season, group._id)
-        .then((availablePlayers) => res.status(200).send(availablePlayers));
-    });
+    ])
+      .then(([group, user]) => {
+        rosterHandler
+          .availablePlayers(user._id, searchedPosition, season, group._id)
+          .then((availablePlayers) => res.status(200).send(availablePlayers));
+      })
+      .catch((err) => {
+        console.log('Error finding available players: ', {
+          username,
+          searchedPosition,
+          season,
+          groupname,
+          err,
+        });
+        res
+          .status(err.status || 500)
+          .send(err.message || 'Error finding available players');
+      });
   });
 
   app.get(
@@ -35,7 +48,12 @@ export default (app) => {
         season === '' ||
         groupname === 'undefined'
       ) {
-        console.log({ groupname, username, week, season });
+        console.log('Trying to pull roster before data is populated: ', {
+          groupname,
+          username,
+          week,
+          season,
+        });
         res
           .status(400)
           .send(
@@ -69,13 +87,43 @@ export default (app) => {
                   });
                 })
                 .catch((err) => {
-                  console.log('User Roster Layer 3', err);
-                  res.status(500).send('Error getting group and user data');
+                  console.log('User Roster Layer 3', {
+                    groupname,
+                    username,
+                    week,
+                    season,
+                    err,
+                  });
+                  res
+                    .status(err.status || 500)
+                    .send(err.message || 'Error getting group and user data');
                 });
             })
-            .catch((err) => console.log('User Roster Layer 2', err));
+            .catch((err) => {
+              console.log('User Roster Layer 2', {
+                groupname,
+                username,
+                week,
+                season,
+                err,
+              });
+              res
+                .status(err.status || 500)
+                .send(err.message || 'Error getting group and user data');
+            });
         })
-        .catch((err) => console.log('User Roster Layer 1', err));
+        .catch((err) => {
+          console.log('User Roster Layer 1', {
+            groupname,
+            username,
+            week,
+            season,
+            err,
+          });
+          res
+            .status(err.status || 500)
+            .send(err.message || 'Error getting group and user data');
+        });
     }
   );
 
@@ -123,19 +171,40 @@ export default (app) => {
       const response = await mySportsHandler.fillUserRoster(updatedRoster);
       res.status(200).send(response);
     } catch (err) {
-      res.status(err.status).send(err.message);
+      res
+        .status(err.status || 500)
+        .send(err.message || 'Error updating roster, please refresh');
     }
   });
 
   app.get('/api/roster/lock/general', async (req, res) => {
-    const lockWeek = await rosterHandler.lockPeroid();
-    res.status(200).send(lockWeek);
+    try {
+      const lockWeek = await rosterHandler.lockPeroid();
+      res.status(200).send(lockWeek);
+    } catch (err) {
+      console.log('Error pulling general lock week data: ', { err });
+      res
+        .status(err.status || 500)
+        .send(err.message || 'Error getting lock week data');
+    }
   });
 
   app.get('/api/roster/lock/:season/:week/:team', async (req, res) => {
     const { season, week, team } = req.params;
-    const lockPeriod = await rosterHandler.checkTeamLock(season, +week, team);
-    res.status(200).send(lockPeriod);
+    try {
+      const lockPeriod = await rosterHandler.checkTeamLock(season, +week, team);
+      res.status(200).send(lockPeriod);
+    } catch (err) {
+      console.log('Error checking if team has started: ', {
+        season,
+        week,
+        team,
+        err,
+      });
+      res
+        .status(err.status || 500)
+        .send(err.message || 'Error checking if team has started');
+    }
   });
 
   app.get(
@@ -156,7 +225,18 @@ export default (app) => {
           );
           res.status(200).send(usedPlayers);
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          console.log('Error getting roster for player: ', {
+            username,
+            season,
+            groupname,
+            position,
+            err,
+          });
+          res
+            .status(err.status || 500)
+            .send(err.message || 'Error pulling roster');
+        });
     }
   );
 
@@ -181,7 +261,9 @@ export default (app) => {
           params: req.params,
           err,
         });
-        res.status(500).send('Error searching for available players by team');
+        res
+          .status(err.status || 500)
+          .send(err.message || 'Error searching for available players by team');
       }
     }
   );
@@ -190,13 +272,22 @@ export default (app) => {
     '/api/roster/fullSeason/:userId/:groupId/:season',
     async (req, res) => {
       const { userId, groupId, season } = req.params;
-      const allPlayers = await rosterHandler.userAllRostersForSeason(
-        userId,
-        groupId,
-        season
-      );
-
-      res.status(200).send(allPlayers);
+      try {
+        const allPlayers = await rosterHandler.userAllRostersForSeason(
+          userId,
+          groupId,
+          season
+        );
+        res.status(200).send(allPlayers);
+      } catch (err) {
+        console.log('Error getting full seasons worth of rosters: ', {
+          userId,
+          groupId,
+          season,
+          err,
+        });
+        res.status(err.status || 500).send(err.message || 500);
+      }
     }
   );
 

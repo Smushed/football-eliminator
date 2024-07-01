@@ -87,6 +87,9 @@ export const httpErrorHandler = (error) => {
         icon: 'error',
       });
     }
+    case 404: {
+      return toast.error(error.response.data);
+    }
     case 409: {
       return Alert.fire({
         title: 'Duplicate Field Detected',
