@@ -337,20 +337,14 @@ export default {
       groupId,
       searchedPosition
     );
-
-    //TODO This should be a non inclusive search, finding players that are available rather than getting ALL players and filtering them down
-    const searchedPlayers = await db.PlayerData.find(
-      { active: true, position: searchedPosition },
-      { mySportsId: 1, name: 1, position: 1, rank: 1, team: 1, injury: 1 }
-    )
+    const availablePlayers = await db.PlayerData.find({
+      active: true,
+      position: searchedPosition,
+      mySportsId: { $nin: usedPlayers },
+    })
+      .sort({ rank: 1 })
       .lean()
       .exec();
-
-    //TODO Rather than iterate through the list here. Should speed up the original
-    const availablePlayers = checkForAvailablePlayers(
-      usedPlayers,
-      searchedPlayers
-    );
 
     return availablePlayers;
   },
@@ -363,8 +357,8 @@ export default {
     week,
     season,
     position
-  ) =>
-    new Promise(async (res, rej) => {
+  ) => {
+    try {
       let usedPlayers = await db.UsedPlayers.findOne({
         userId,
         season,
@@ -383,8 +377,7 @@ export default {
       let newUsedPlayers = [];
       for (const playerId of usedPlayers.usedPlayers) {
         if (playerId === addedPlayer) {
-          rej("You've already used this player");
-          return;
+          throw { status: 400, message: "You've already used this player" };
         } else if (playerId !== +droppedPlayer) {
           newUsedPlayers.push(playerId);
         }
@@ -392,8 +385,7 @@ export default {
       newUsedPlayers.push(addedPlayer);
       const validCheck = await checkRoster(groupId, roster);
       if (validCheck.valid === false) {
-        rej(validCheck.message);
-        return;
+        throw { status: 400, message: validCheck.message };
       }
       usedPlayers.usedPlayers = newUsedPlayers;
       await usedPlayers.save();
@@ -410,8 +402,22 @@ export default {
       }
       currentRoster.roster = newRoster;
       await currentRoster.save();
-      res(currentRoster.roster);
-    }),
+      return currentRoster.roster;
+    } catch (err) {
+      console.log('Error in updateUserRoster. Trying to update user roster: ', {
+        userId,
+        groupId,
+        roster,
+        droppedPlayer,
+        addedPlayer,
+        week,
+        season,
+        position,
+        err,
+      });
+      throw { status: 500, message: 'Error updating roster, please refresh' };
+    }
+  },
   getAllRostersForGroup: async (season, week, groupId) =>
     new Promise(async (res, rej) => {
       try {
@@ -465,29 +471,56 @@ export default {
       );
       return dbSearch;
     } catch (err) {
-      console.log(err);
-      return { status: 500, res: 'DB Searching Error' };
+      console.log('Error in usedPlayersByPosition: ', {
+        userId,
+        season,
+        groupId,
+        position,
+        err,
+      });
+      throw { status: 500, message: 'DB Searching Error' };
     }
   },
   searchAvailablePlayerByTeam: async (groupId, username, team, season) => {
-    const user = await db.User.findOne({ username }, { _id: 1 });
-    const usedPlayers = await getUsedPlayersNoPosition(
-      user._id,
-      season,
-      groupId
-    );
+    try {
+      const user = await db.User.findOne({ username }, { _id: 1 });
+      const usedPlayersAllPosition = await getUsedPlayersNoPosition(
+        user._id,
+        season,
+        groupId
+      );
+      const usedPlayers = [];
 
-    const playersByTeam = await db.PlayerData.find(
-      { active: true, team: team, P: { $ne: 'K' } },
-      { mySportsId: 1, name: 1, position: 1, rank: 1, team: 1, injury: 1 }
-    );
+      for (const position of usedPlayersAllPosition) {
+        for (const usedPlayerId of position.usedPlayers) {
+          usedPlayers.push(usedPlayerId);
+        }
+      }
 
-    const availablePlayers = checkForAvailablePlayers(
-      usedPlayers,
-      playersByTeam
-    );
+      const availablePlayers = await db.PlayerData.find(
+        {
+          active: true,
+          team: team,
+          position: { $ne: 'K' },
+          mySportsId: { $nin: usedPlayers },
+        },
+        { mySportsId: 1, name: 1, position: 1, rank: 1, team: 1, injury: 1 }
+      )
+        .sort({ rank: 1 })
+        .lean()
+        .exec();
 
-    return availablePlayers;
+      return availablePlayers;
+    } catch (err) {
+      console.log('Error in searchAvailablePlayerByTeam: ', {
+        groupId,
+        username,
+        team,
+        season,
+        err,
+      });
+      throw { status: 500, message: 'Error getting available players' };
+    }
   },
   userAllRostersForSeason: async function (userId, groupId, season) {
     const scoredAllSeason = [];

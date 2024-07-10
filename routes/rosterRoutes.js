@@ -7,6 +7,7 @@ import {
   authMiddleware,
   verifyUserIsSameEmailUserId,
 } from '../handlers/authHandler.js';
+import { returnError } from '../utils/ExpressUtils.js';
 
 export default (app) => {
   app.get('/api/roster/players/available', authMiddleware, async (req, res) => {
@@ -28,9 +29,7 @@ export default (app) => {
           groupname,
           err,
         });
-        res
-          .status(err.status || 500)
-          .send(err.message || 'Error finding available players');
+        returnError(res, err, 'Error finding available players');
       });
   });
 
@@ -54,11 +53,6 @@ export default (app) => {
           week,
           season,
         });
-        res
-          .status(400)
-          .send(
-            'Bad URL. Try refreshing or going home and coming back if this persists'
-          );
         return;
       }
       Promise.all([
@@ -94,9 +88,8 @@ export default (app) => {
                     season,
                     err,
                   });
-                  res
-                    .status(err.status || 500)
-                    .send(err.message || 'Error getting group and user data');
+                  returnError(res, err, 'Error getting group and user data');
+                  return;
                 });
             })
             .catch((err) => {
@@ -107,9 +100,8 @@ export default (app) => {
                 season,
                 err,
               });
-              res
-                .status(err.status || 500)
-                .send(err.message || 'Error getting group and user data');
+              returnError(res, err, 'Error getting group and user data');
+              return;
             });
         })
         .catch((err) => {
@@ -120,9 +112,8 @@ export default (app) => {
             season,
             err,
           });
-          res
-            .status(err.status || 500)
-            .send(err.message || 'Error getting group and user data');
+          returnError(res, err, 'Error getting group and user data');
+          return;
         });
     }
   );
@@ -133,15 +124,20 @@ export default (app) => {
       res.status(500).send('Select Someone!');
       return;
     }
-    const dbResponse = await rosterHandler.dummyRoster(
-      userId,
-      groupId,
-      week,
-      season,
-      dummyRoster
-    );
 
-    res.status(200).send(dbResponse);
+    try {
+      const dbResponse = await rosterHandler.dummyRoster(
+        userId,
+        groupId,
+        week,
+        season,
+        dummyRoster
+      );
+
+      res.status(200).send(dbResponse);
+    } catch (err) {
+      returnError(res, err);
+    }
   });
 
   app.put('/api/roster/user/update', authMiddleware, async (req, res) => {
@@ -171,9 +167,7 @@ export default (app) => {
       const response = await mySportsHandler.fillUserRoster(updatedRoster);
       res.status(200).send(response);
     } catch (err) {
-      res
-        .status(err.status || 500)
-        .send(err.message || 'Error updating roster, please refresh');
+      returnError(res, err, 'Error updating roster, please refresh');
     }
   });
 
@@ -183,9 +177,7 @@ export default (app) => {
       res.status(200).send(lockWeek);
     } catch (err) {
       console.log('Error pulling general lock week data: ', { err });
-      res
-        .status(err.status || 500)
-        .send(err.message || 'Error getting lock week data');
+      returnError(res, err, 'Error getting lock week data');
     }
   });
 
@@ -201,29 +193,28 @@ export default (app) => {
         team,
         err,
       });
-      res
-        .status(err.status || 500)
-        .send(err.message || 'Error checking if team has started');
+      returnError(res, err, 'Error checking if team has started');
     }
   });
 
   app.get(
     '/api/roster/players/used/:username/:season/:groupname/:position',
     authMiddleware,
-    async (req, res) => {
+    (req, res) => {
       const { username, season, groupname, position } = req.params;
       Promise.all([
         groupHandler.getGroupDataByName(groupname),
         userHandler.getUserByUsername(username),
       ])
-        .then(async ([group, user]) => {
-          const usedPlayers = await rosterHandler.usedPlayersByPosition(
-            user._id,
-            season,
-            group._id,
-            position
-          );
-          res.status(200).send(usedPlayers);
+        .then(([group, user]) => {
+          rosterHandler
+            .usedPlayersByPosition(user._id, season, group._id, position)
+            .then((usedPlayers) => {
+              res.status(200).send(usedPlayers);
+            })
+            .catch((err) => {
+              returnError(res, err);
+            });
         })
         .catch((err) => {
           console.log('Error getting roster for player: ', {
@@ -233,9 +224,7 @@ export default (app) => {
             position,
             err,
           });
-          res
-            .status(err.status || 500)
-            .send(err.message || 'Error pulling roster');
+          returnError(res, err, 'Error pulling roster');
         });
     }
   );
@@ -260,9 +249,7 @@ export default (app) => {
           params: req.params,
           err,
         });
-        res
-          .status(err.status || 500)
-          .send(err.message || 'Error searching for available players by team');
+        returnError(res, err, 'Error searching for available players by team');
       }
     }
   );
@@ -285,7 +272,7 @@ export default (app) => {
           season,
           err,
         });
-        res.status(err.status || 500).send(err.message || 500);
+        returnError(res, err);
       }
     }
   );
@@ -312,9 +299,7 @@ export default (app) => {
           params: req.params,
           err,
         });
-        res
-          .status(err.status || 500)
-          .send(err.message || 'Error finding roster data for group');
+        returnError(res, err, 'Error finding roster data for group');
       }
     }
   );
@@ -342,7 +327,7 @@ export default (app) => {
         res.status(200).send(response);
       } catch (err) {
         console.log('Error getting ideal roster ', { params: req.params, err });
-        res.status(500).send('Error getting ideal roster');
+        returnError(res, err, 'Error getting ideal roster');
       }
     }
   );

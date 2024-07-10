@@ -21,7 +21,7 @@ const PlayerDataSchema = new Schema({
     default: 'UNK',
   },
   active: Boolean,
-  rank: { type: Number, default: 7 },
+  rank: { type: Number, required: true, default: 8 },
   injury: {
     type: {
       description: String,

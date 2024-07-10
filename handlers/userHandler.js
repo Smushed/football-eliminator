@@ -1,3 +1,4 @@
+import 'dotenv/config.js';
 import db from '../models/index.js';
 
 const fieldAlreadyExists = async (fieldToCheck, checkField1, checkField2) => {
@@ -307,6 +308,10 @@ export default {
       ).exec();
     } catch (err) {
       console.log(err);
+      throw {
+        status: 500,
+        message: `Error unsubscribing, please contact ${process.env.DEV_EMAIL}`,
+      };
     }
   },
 };
