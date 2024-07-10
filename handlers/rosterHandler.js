@@ -13,88 +13,109 @@ const checkDuplicateRoster = async (
   week,
   position
 ) => {
-  let result = false;
-  let searched;
   switch (checkedField) {
     case 'userRoster':
       try {
-        searched = await db.UserRoster.findOne({
+        const search = await db.UserRoster.findOne({
           userId,
           week,
           groupId,
           season,
         }).exec();
-        if (searched !== null) {
+        if (search !== null) {
           return true;
         }
       } catch (err) {
-        console.log(err);
+        console.log('Error in checking duplicate userRoster: ', {
+          checkedField,
+          userId,
+          groupId,
+          season,
+          week,
+          position,
+          err,
+        });
+        throw {
+          status: 500,
+          message: 'Internal Server Error, please refresh',
+        };
       }
       break;
     case 'usedPlayers':
       try {
-        searched = await db.UsedPlayers.findOne({
+        const search = await db.UsedPlayers.findOne({
           userId,
           season,
           groupId,
           position,
         }).exec();
-        if (searched !== null) {
+        if (search !== null) {
           return true;
         }
       } catch (err) {
-        console.log(err);
+        console.log('Error in checking duplicate usedPlayers: ', {
+          checkedField,
+          userId,
+          groupId,
+          season,
+          week,
+          position,
+          err,
+        });
+        throw {
+          status: 500,
+          message: 'Internal Server Error, please refresh',
+        };
       }
       break;
   }
-  return result;
-};
-
-const checkForAvailablePlayers = (usedPlayers, searchedPlayers) => {
-  const usedPlayerSet = new Set(usedPlayers);
-
-  const availablePlayerArray = searchedPlayers.filter(
-    (player) => !usedPlayerSet.has(player.mySportsId)
-  );
-
-  const sortedPlayerArray = sortPlayersByRank(availablePlayerArray);
-
-  return sortedPlayerArray;
-};
-
-const sortPlayersByRank = (playerArray) => {
-  playerArray.sort((a, b) => {
-    return a.rank - b.rank;
-  });
-  return playerArray;
+  return false;
 };
 
 const getUsedPlayers = async (userId, season, groupId, position) => {
-  const currentUser = await db.UsedPlayers.findOne({
-    userId,
-    season,
-    groupId,
-    position,
-  }).exec();
-  if (currentUser === null) {
-    const createdUsedPlayers = await createUsedPlayers(
+  try {
+    const currentUser = await db.UsedPlayers.findOne({
       userId,
       season,
       groupId,
-      position
-    );
-    return createdUsedPlayers.usedPlayers;
-  } else {
-    return currentUser.usedPlayers;
+      position,
+    }).exec();
+    if (currentUser === null) {
+      const createdUsedPlayers = await createUsedPlayers(
+        userId,
+        season,
+        groupId,
+        position
+      );
+      return createdUsedPlayers.usedPlayers;
+    } else {
+      return currentUser.usedPlayers;
+    }
+  } catch (err) {
+    if (err.status) {
+      throw err;
+    } else {
+      throw { status: 500, message: 'Error getting used players for season' };
+    }
   }
 };
 
 const getUsedPlayersNoPosition = async (userId, season, groupId) => {
-  const usedPlayers = await db.UsedPlayers.find({
-    userId,
-    season,
-    groupId,
-  }).exec();
+  let usedPlayers = null;
+  try {
+    usedPlayers = await db.UsedPlayers.find({
+      userId,
+      season,
+      groupId,
+    }).exec();
+  } catch (err) {
+    console.log('Error finding usedPlayers in getUsedPlayersNoPosition: ', {
+      userId,
+      season,
+      groupId,
+      err,
+    });
+  }
   //If less than the max amount of used players, we need to make them here
   if (usedPlayers.length < 4) {
     const hasUsedPlayers = {
@@ -108,16 +129,21 @@ const getUsedPlayersNoPosition = async (userId, season, groupId) => {
     });
     for (const key in hasUsedPlayers) {
       if (!hasUsedPlayers[key]) {
-        createUsedPlayers(userId, season, groupId, key);
+        try {
+          createUsedPlayers(userId, season, groupId, key);
+        } catch (err) {
+          throw err;
+        }
       }
     }
   }
   return usedPlayers;
 };
 
-const createUsedPlayers = (userId, season, groupId, position) =>
-  new Promise(async (res, rej) => {
-    const isDupe = await checkDuplicateRoster(
+const createUsedPlayers = async (userId, season, groupId, position) => {
+  let isDupe = false;
+  try {
+    isDupe = await checkDuplicateRoster(
       'usedPlayers',
       userId,
       groupId,
@@ -125,17 +151,38 @@ const createUsedPlayers = (userId, season, groupId, position) =>
       null,
       position
     );
-    if (!isDupe) {
-      res(
-        await db.UsedPlayers.create({
-          userId,
-          season,
-          groupId,
-          position,
-        }).exec()
-      );
+  } catch (err) {
+    throw err;
+  }
+  if (!isDupe) {
+    try {
+      return await db.UsedPlayers.create({
+        userId,
+        season,
+        groupId,
+        position,
+      }).exec();
+    } catch (err) {
+      console.log('Error in createUsedPlayers: ', {
+        userId,
+        season,
+        groupId,
+        position,
+        err,
+      });
+      throw { status: 500, message: 'Error creating Used Players for season' };
     }
-  });
+  } else {
+    console.log('Error, dupe used players is trying to be created: ', {
+      userId,
+      season,
+      groupId,
+      position,
+      err,
+    });
+    throw { status: 400, message: 'Used Players already exists for season' };
+  }
+};
 
 const createWeeklyRoster = async function (userId, week, season, groupId) {
   try {
@@ -164,64 +211,64 @@ const createWeeklyRoster = async function (userId, week, season, groupId) {
   }
 };
 
-const getWeeklyGroupRostersCreateIfNotExist = async (season, week, group) =>
-  new Promise(async (res) => {
-    try {
-      const userRosters = await db.UserRoster.find({
-        season: season,
-        week: week,
-        groupId: group._id,
-      })
-        .lean()
-        .exec();
-      const completeRosters = userRosters.slice(0);
-      const userIdArray = userRosters.map((roster) => roster.userId);
-      if (group.userlist.length !== userRosters.length) {
-        for (const user of group.userlist) {
-          if (!userIdArray.includes(user.userId)) {
-            completeRosters.push(
-              await createWeeklyRoster(user.userId, week, season, group._id)
-            );
-          }
+const getWeeklyGroupRostersCreateIfNotExist = async (season, week, group) => {
+  try {
+    const userRosters = await db.UserRoster.find({
+      season: season,
+      week: week,
+      groupId: group._id,
+    })
+      .lean()
+      .exec();
+    const completeRosters = userRosters.slice(0);
+    const userIdArray = userRosters.map((roster) => roster.userId);
+    if (group.userlist.length !== userRosters.length) {
+      for (const user of group.userlist) {
+        if (!userIdArray.includes(user.userId)) {
+          completeRosters.push(
+            await createWeeklyRoster(user.userId, week, season, group._id)
+          );
         }
       }
-      res(completeRosters);
-    } catch (err) {
-      console.log('Error get / creating weekly user roster:', {
-        season,
-        week,
-        group,
-      });
-      if (err.status === 500) {
-        throw err;
-      } else {
-        throw { status: 500, message: 'Error pulling weekly rosters' };
-      }
     }
-  });
+    return completeRosters;
+  } catch (err) {
+    console.log('Error get / creating weekly user roster:', {
+      season,
+      week,
+      group,
+    });
+    if (err.status === 500) {
+      throw err;
+    } else {
+      throw { status: 500, message: 'Error pulling weekly rosters' };
+    }
+  }
+};
 
-const sortUsersByScore = async (userRosterArray, groupId, season) =>
-  new Promise(async (res) => {
-    const sortedScores = [];
-    for (let user of userRosterArray) {
-      //TODO One pull from DB
-      const userScore = await db.UserScores.findOne(
-        { userId: user.userId, groupId: groupId, season: season },
-        { totalScore: 1 }
-      ).exec();
-      if (!userScore) {
-        continue;
-      }
-      sortedScores.push({
-        userId: user.userId,
-        username: user.username,
-        roster: user.roster,
-        totalScore: userScore.totalScore,
-      });
-    }
-    sortedScores.sort((a, b) => b.totalScore - a.totalScore);
-    res(sortedScores);
-  });
+const sortUsersByScore = async (userRosterArray, groupId, season) => {
+  const userIdArray = userRosterArray.map((user) => user.userId);
+  const userScores = await db.UserScores.find(
+    { userId: { $in: userIdArray }, groupId: groupId, season: season },
+    { totalScore: 1, userId: 1 }
+  )
+    .sort({ totalScore: -1 })
+    .lean()
+    .exec();
+
+  console.log({ userScores });
+
+  for (let i = 0; i < userScores.length; i++) {
+    const foundUser = userRosterArray.find(
+      (userRoster) =>
+        userRoster.userId.toString() === userScores[i].userId.toString()
+    );
+    userScores[i].username = foundUser.username;
+    userScores[i].roster = foundUser.roster;
+  }
+
+  return userScores;
+};
 
 const checkRoster = async (groupId, newRoster) => {
   const { position } = await db.GroupRoster.findOne(
@@ -418,49 +465,44 @@ export default {
       throw { status: 500, message: 'Error updating roster, please refresh' };
     }
   },
-  getAllRostersForGroup: async (season, week, groupId) =>
-    new Promise(async (res, rej) => {
-      try {
-        const userRosters = [];
-        const group = await db.Group.findById(groupId);
-        const allRosters = await getWeeklyGroupRostersCreateIfNotExist(
+  getAllRostersForGroup: async (season, week, groupId) => {
+    try {
+      const userRosters = [];
+      const group = await db.Group.findById(groupId);
+      const allRosters = await getWeeklyGroupRostersCreateIfNotExist(
+        season,
+        week,
+        group
+      );
+      for (const roster of allRosters) {
+        const filledRoster = await mySportsHandler.fillUserRoster(
+          roster.roster
+        );
+        const user = await db.User.findById(roster.userId).exec();
+        userRosters.push({
+          userId: user._id,
+          username: user.username,
+          roster: filledRoster,
+        });
+      }
+      const sortedUsers = await sortUsersByScore(userRosters, groupId, season);
+      return sortedUsers;
+    } catch (err) {
+      if (err.status === 500) {
+        console.log('Error pulling all rosters for group:', {
           season,
           week,
-          group
-        );
-        for (const roster of allRosters) {
-          const filledRoster = await mySportsHandler.fillUserRoster(
-            roster.roster
-          );
-          const user = await db.User.findById(roster.userId).exec();
-          userRosters.push({
-            userId: user._id,
-            username: user.username,
-            roster: filledRoster,
-          });
-        }
-        const sortedUsers = await sortUsersByScore(
-          userRosters,
           groupId,
-          season
-        );
-        res(sortedUsers);
-      } catch (err) {
-        if (err.status === 500) {
-          console.log('Error pulling all rosters for group:', {
-            season,
-            week,
-            groupId,
-          });
-          throw err;
-        } else {
-          throw {
-            status: 500,
-            message: 'Error getting all rosters for the group',
-          };
-        }
+        });
+        throw err;
+      } else {
+        throw {
+          status: 500,
+          message: 'Error getting all rosters for the group',
+        };
       }
-    }),
+    }
+  },
   usedPlayersByPosition: async (userId, season, groupId, position) => {
     const usedPlayers = await getUsedPlayers(userId, season, groupId, position);
 
