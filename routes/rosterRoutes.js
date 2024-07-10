@@ -12,7 +12,7 @@ export default (app) => {
   app.get('/api/roster/players/available', authMiddleware, async (req, res) => {
     const { username, searchedPosition, season, groupname } = req.query;
     Promise.all([
-      groupHandler.getGroupData(groupname),
+      groupHandler.getGroupDataByName(groupname),
       userHandler.getUserByUsername(username),
     ])
       .then(([group, user]) => {
@@ -62,7 +62,7 @@ export default (app) => {
         return;
       }
       Promise.all([
-        groupHandler.getGroupData(groupname),
+        groupHandler.getGroupDataByName(groupname),
         userHandler.getUserByUsername(username),
       ])
         .then(([group, user]) => {
@@ -157,7 +157,7 @@ export default (app) => {
         position,
       } = req.body;
       await verifyUserIsSameEmailUserId(req.currentUser, userId);
-      const group = await groupHandler.getGroupData(groupname);
+      const group = await groupHandler.getGroupDataByName(groupname);
       const updatedRoster = await rosterHandler.updateUserRoster(
         userId,
         group._id,
@@ -213,7 +213,7 @@ export default (app) => {
     async (req, res) => {
       const { username, season, groupname, position } = req.params;
       Promise.all([
-        groupHandler.getGroupData(groupname),
+        groupHandler.getGroupDataByName(groupname),
         userHandler.getUserByUsername(username),
       ])
         .then(async ([group, user]) => {
@@ -246,8 +246,7 @@ export default (app) => {
     async (req, res) => {
       try {
         const { groupname, username, team, season } = req.params;
-
-        const group = await groupHandler.getGroupData(groupname);
+        const group = await groupHandler.getGroupDataByName(groupname);
         const playersByTeam = await rosterHandler.searchAvailablePlayerByTeam(
           group._id,
           username,

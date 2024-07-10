@@ -245,15 +245,21 @@ export default {
     }
     return { status: 200, message: 'All Good' };
   },
-  fillUserListFromGroup: (userList) =>
-    new Promise(async (res) => {
-      const userIdList = userList.map((user) => user.userId);
-      res(
-        await db.User.find({ _id: { $in: userIdList } })
-          .lean()
-          .exec()
-      );
-    }),
+  fillUserListFromGroup: async (userList) => {
+    const userIdList = userList.map((user) => user.userId);
+    try {
+      const pulledUserList = await db.User.find({ _id: { $in: userIdList } })
+        .lean()
+        .exec();
+      return pulledUserList;
+    } catch (err) {
+      console.log('Error getting userlist from group fillUserListFromGroup: ', {
+        userList,
+        err,
+      });
+      throw { status: 500, message: 'Error filling userlist' };
+    }
+  },
   getEmailSettings: async (userId) => {
     try {
       let emailSettings = await db.UserReminderSettings.findOne({

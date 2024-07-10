@@ -1,5 +1,4 @@
 import 'dotenv/config.js';
-import { join } from 'path';
 import {
   S3Client,
   PutObjectCommand,

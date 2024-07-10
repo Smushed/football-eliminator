@@ -790,12 +790,10 @@ export default {
   initSeasonAndWeekInDB: () => {
     db.SeasonAndWeek.create({});
   },
-  pullSeasonAndWeekFromDB: async () =>
-    new Promise(async (res, rej) => {
-      const dbResponse = await db.SeasonAndWeek.find({}).lean().exec();
-
-      res(dbResponse[0]);
-    }),
+  pullSeasonAndWeekFromDB: async () => {
+    const dbResponse = await db.SeasonAndWeek.find({}).lean().exec();
+    return dbResponse[0];
+  },
   updateCurrWeek: (currentWeek) =>
     new Promise(async (res, rej) => {
       try {

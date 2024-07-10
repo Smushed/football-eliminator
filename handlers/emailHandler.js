@@ -266,7 +266,12 @@ export default {
 
     const subject = `Eliminator - Week ${week}`;
 
-    const groupPos = await groupHandler.getGroupPositions(group._id.toString());
+    const { position } = await db.GroupRoster.findOne(
+      { groupId: group._id.toString() },
+      { position: 1 }
+    )
+      .lean()
+      .exec();
     const idealRoster = await groupHandler.getIdealRoster(
       group._id,
       season,
@@ -283,7 +288,7 @@ export default {
     );
 
     const { idealRosterText, idealRosterHTML } = await createIdealRoster(
-      groupPos,
+      position,
       filledIdealRoster,
       week
     );
@@ -320,7 +325,13 @@ export default {
     bestScorePlayerByUser
   ) => {
     const subject = 'Yearly Recap for the Eliminator!';
-    const groupPos = await groupHandler.getGroupPositions(group._id.toString());
+
+    const { position } = await db.GroupRoster.findOne(
+      { groupId: group._id.toString() },
+      { position: 1 }
+    )
+      .lean()
+      .exec();
     const { leaderBoardHTML, leaderBoardText } = await createLeaderBoard(
       group,
       season,
@@ -328,13 +339,13 @@ export default {
     );
 
     const highestUserWeekFullRoster = await createRoster(
-      groupPos,
+      position,
       highestScoreUserWeek.roster,
       highestScoreUserWeek.week,
       highestScoreUserWeek.username
     );
     const bestIdealRosterFull = await createIdealRoster(
-      groupPos,
+      position,
       bestIdealRoster.roster,
       bestIdealRoster.week
     );

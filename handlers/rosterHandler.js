@@ -223,48 +223,52 @@ const sortUsersByScore = async (userRosterArray, groupId, season) =>
     res(sortedScores);
   });
 
-const checkRoster = async (groupId, newRoster) =>
-  new Promise(async (res, rej) => {
-    const groupPositions = await groupHandler.getGroupPositions(groupId);
-    const mappedPositions = await groupHandler.mapGroupPositions(
-      groupPositions,
-      positions.positionMap
-    );
-    const maxPositionCount = { QB: 0, RB: 0, WR: 0, TE: 0, K: 0 };
-    const currentPositionsOnRoster = { QB: 0, RB: 0, WR: 0, TE: 0, K: 0 };
-    for (const singlePositionMap of mappedPositions) {
-      for (const position of singlePositionMap) {
-        maxPositionCount[positions.positionArray[position]]++;
-      }
-    }
-    if (newRoster.length > mappedPositions.length) {
-      res({ valid: false, message: 'Too many players on roster' });
-      return;
-    }
-    for (const player of newRoster) {
-      if (player.mySportsId === 0) {
-        continue;
-      }
-      //TODO One DB pull
-      const { position } = await db.PlayerData.findOne(
-        {
-          mySportsId: player.mySportsId,
-        },
-        { position: 1 }
-      )
-        .lean()
-        .exec();
-      currentPositionsOnRoster[position]++;
-    }
+const checkRoster = async (groupId, newRoster) => {
+  const { position } = await db.GroupRoster.findOne(
+    { groupId },
+    { position: 1 }
+  )
+    .lean()
+    .exec();
 
-    for (const position of positions.positionArray) {
-      if (maxPositionCount[position] < currentPositionsOnRoster[position]) {
-        res({ valid: false, message: `Too many ${position} for your roster` });
-        return;
-      }
+  const mappedPositions = await groupHandler.mapGroupPositions(
+    position,
+    positions.positionMap
+  );
+  const maxPositionCount = { QB: 0, RB: 0, WR: 0, TE: 0, K: 0 };
+  const currentPositionsOnRoster = { QB: 0, RB: 0, WR: 0, TE: 0, K: 0 };
+  for (const singlePositionMap of mappedPositions) {
+    for (const position of singlePositionMap) {
+      maxPositionCount[positions.positionArray[position]]++;
     }
-    res({ valid: true, message: 'Valid Roster' });
-  });
+  }
+  if (newRoster.length > mappedPositions.length) {
+    res({ valid: false, message: 'Too many players on roster' });
+    return;
+  }
+  for (const player of newRoster) {
+    if (player.mySportsId === 0) {
+      continue;
+    }
+    //TODO One DB pull
+    const { position } = await db.PlayerData.findOne(
+      {
+        mySportsId: player.mySportsId,
+      },
+      { position: 1 }
+    )
+      .lean()
+      .exec();
+    currentPositionsOnRoster[position]++;
+  }
+
+  for (const position of positions.positionArray) {
+    if (maxPositionCount[position] < currentPositionsOnRoster[position]) {
+      return { valid: false, message: `Too many ${position} for your roster` };
+    }
+  }
+  return { valid: true, message: 'Valid Roster' };
+};
 
 export default {
   dummyRoster: async (userId, groupId, week, season, dummyRoster) => {
