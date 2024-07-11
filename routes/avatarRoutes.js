@@ -1,5 +1,6 @@
 import cacheHandler from '../handlers/cacheHandler.js';
 import s3Handler from '../handlers/s3Handler.js';
+import { returnError } from '../utils/ExpressUtils.js';
 
 export default (app) => {
   app.put('/api/avatar/:id', (req, res) => {
@@ -10,7 +11,7 @@ export default (app) => {
       res.status(200).send('success');
     } catch (err) {
       console.log('Error saving avatar: ', { id, err });
-      res.status(err.status || 500).send(err.message || 'Error saving avatar');
+      returnError(res, err, 'Error saving avatar');
     }
   });
 
@@ -21,6 +22,7 @@ export default (app) => {
       res.status(200).send(avatar);
     } catch (err) {
       console.log('Error getting avatar: ', { id, err });
+      returnError(res, err, 'Error getting avatar');
     }
   });
 
@@ -31,7 +33,7 @@ export default (app) => {
       res.status(200).send(response);
     } catch (err) {
       console.log('Error getting many avatars: ', { idArray, isUser, err });
-      res.status(err.status || 500).send(err.message || 'Error pulling users');
+      returnError(res, err, 'Error getting avatars');
     }
   });
 };

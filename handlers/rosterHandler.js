@@ -256,8 +256,6 @@ const sortUsersByScore = async (userRosterArray, groupId, season) => {
     .lean()
     .exec();
 
-  console.log({ userScores });
-
   for (let i = 0; i < userScores.length; i++) {
     const foundUser = userRosterArray.find(
       (userRoster) =>
