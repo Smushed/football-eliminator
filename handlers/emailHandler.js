@@ -6,6 +6,7 @@ import rosterBuilder from '../constants/rosterBuilder.js';
 import unsubscribe from '../constants/unsubscribe.js';
 import mySportsHandler from './mySportsHandler.js';
 import db from '../models/index.js';
+import { EncryptionFilterSensitiveLog } from '@aws-sdk/client-s3';
 
 const client = new SESClient({
   region: 'us-east-2',
@@ -46,6 +47,7 @@ const sendEmail = async (user, subject, html, text) => {
     console.log(`Email sent to ${user}`);
   } catch (err) {
     console.log('Error Sending Email: ', { err });
+    throw { status: 500, mmessage: 'Error sending email' };
   }
 };
 
@@ -189,130 +191,178 @@ const composeReminderTextEmail = (week, groupName, username) => {
 };
 
 const createLeaderBoard = async (group, season, week) => {
-  const leaderBoard = await groupHandler.getLeaderBoard(
-    group._id,
-    season,
-    week
-  );
-  const rows = await leaderBoardBuilder.leaderBoardRowBuilder(leaderBoard);
-  const leaderBoardHTML = leaderBoardBuilder.leaderBoardTemplate(
-    rows,
-    group.name,
-    week
-  );
-  const textRows = await leaderBoardBuilder.leaderBoardTextRows(leaderBoard);
+  try {
+    const leaderBoard = await groupHandler.getLeaderBoard(
+      group._id,
+      season,
+      week
+    );
+    const rows = await leaderBoardBuilder.leaderBoardRowBuilder(leaderBoard);
+    const leaderBoardHTML = leaderBoardBuilder.leaderBoardTemplate(
+      rows,
+      group.name,
+      week
+    );
+    const textRows = await leaderBoardBuilder.leaderBoardTextRows(leaderBoard);
 
-  const leaderBoardText = leaderBoardBuilder.leaderBoardTextTemplate(
-    textRows,
-    group.name,
-    week
-  );
+    const leaderBoardText = leaderBoardBuilder.leaderBoardTextTemplate(
+      textRows,
+      group.name,
+      week
+    );
 
-  return { leaderBoardHTML, leaderBoardText };
+    return { leaderBoardHTML, leaderBoardText };
+  } catch (err) {
+    console.log('Error creating leaderboard for emails: ', {
+      group,
+      season,
+      week,
+      err,
+    });
+    throw { status: 500, message: 'Error creating leaderboard for email' };
+  }
 };
 
 const createRoster = async (groupPos, roster, week, username) => {
-  const rosterRows = await rosterBuilder.rosterRow(roster, groupPos);
-  const rosterHTML = await rosterBuilder.rosterBuilder(
-    rosterRows,
-    week,
-    username
-  );
+  try {
+    const rosterRows = await rosterBuilder.rosterRow(roster, groupPos);
+    const rosterHTML = await rosterBuilder.rosterBuilder(
+      rosterRows,
+      week,
+      username
+    );
 
-  const textRows = await rosterBuilder.rosterTextRows(
-    roster,
-    groupPos,
-    username
-  );
+    const textRows = await rosterBuilder.rosterTextRows(
+      roster,
+      groupPos,
+      username
+    );
 
-  const rosterText = await rosterBuilder.rosterTextTemplate(
-    textRows,
-    week,
-    username
-  );
+    const rosterText = await rosterBuilder.rosterTextTemplate(
+      textRows,
+      week,
+      username
+    );
 
-  return { rosterHTML, rosterText };
+    return { rosterHTML, rosterText };
+  } catch (err) {
+    console.log('Error creating roster for emails: ', {
+      groupPos,
+      roster,
+      week,
+      username,
+      err,
+    });
+    throw { status: 500, message: 'Error creating roster for email' };
+  }
 };
 
 const createIdealRoster = async (groupPos, roster, week) => {
-  const rosterRows = await rosterBuilder.rosterRow(roster, groupPos);
-  const rosterHTML = await rosterBuilder.idealRosterBuilder(rosterRows, week);
+  try {
+    const rosterRows = await rosterBuilder.rosterRow(roster, groupPos);
+    const rosterHTML = await rosterBuilder.idealRosterBuilder(rosterRows, week);
 
-  const textRows = await rosterBuilder.rosterTextRows(roster, groupPos);
-  const rosterText = await rosterBuilder.idealRosterTextTemplate(
-    textRows,
-    week
-  );
+    const textRows = await rosterBuilder.rosterTextRows(roster, groupPos);
+    const rosterText = await rosterBuilder.idealRosterTextTemplate(
+      textRows,
+      week
+    );
 
-  return { idealRosterHTML: rosterHTML, idealRosterText: rosterText };
+    return { idealRosterHTML: rosterHTML, idealRosterText: rosterText };
+  } catch (err) {
+    console.log('Error creating ideal roster for email: ', {
+      groupPos,
+      roster,
+      week,
+      err,
+    });
+    throw { status: 500, message: 'Error creating ideal roster for email' };
+  }
 };
 
 export default {
   sendLeaderBoardEmail: async (group, season, week) => {
-    let userIdArray = group.userlist.map((user) => user.userId.toString());
-    let emailList = await db.UserReminderSettings.find(
-      {
-        userId: { $in: userIdArray },
-        leaderboardEmail: true,
-      },
-      { userId: 1 }
-    )
-      .lean()
-      .exec();
-    userIdArray = emailList.map((user) => user.userId.toString());
-    emailList = await db.User.find({ _id: { $in: userIdArray } }, { email: 1 })
-      .lean()
-      .exec();
+    try {
+      let userIdArray = group.userlist.map((user) => user.userId.toString());
+      let emailList = await db.UserReminderSettings.find(
+        {
+          userId: { $in: userIdArray },
+          leaderboardEmail: true,
+        },
+        { userId: 1 }
+      )
+        .lean()
+        .exec();
+      userIdArray = emailList.map((user) => user.userId.toString());
+      emailList = await db.User.find(
+        { _id: { $in: userIdArray } },
+        { email: 1 }
+      )
+        .lean()
+        .exec();
 
-    const subject = `Eliminator - Week ${week}`;
+      const subject = `Eliminator - Week ${week}`;
 
-    const { position } = await db.GroupRoster.findOne(
-      { groupId: group._id.toString() },
-      { position: 1 }
-    )
-      .lean()
-      .exec();
-    const idealRoster = await groupHandler.getIdealRoster(
-      group._id,
-      season,
-      week + 1
-    );
-    const filledIdealRoster = await mySportsHandler.fillUserRoster(
-      idealRoster.roster
-    );
-
-    const { leaderBoardHTML, leaderBoardText } = await createLeaderBoard(
-      group,
-      season,
-      +week + 1
-    );
-
-    const { idealRosterText, idealRosterHTML } = await createIdealRoster(
-      position,
-      filledIdealRoster,
-      week
-    );
-    const HTMLTemplate = composeWeeklyHTMLEmail(
-      leaderBoardHTML,
-      idealRosterHTML,
-      +week
-    );
-    const textTemplate = composeWeeklyTextEmail(
-      leaderBoardText,
-      idealRosterText,
-      +week
-    );
-
-    for (const user of emailList) {
-      const HTMLemail = unsubscribe.appendHTML(
-        HTMLTemplate,
-        user._id.toString()
+      const { position } = await db.GroupRoster.findOne(
+        { groupId: group._id.toString() },
+        { position: 1 }
+      )
+        .lean()
+        .exec();
+      const idealRoster = await groupHandler.getIdealRoster(
+        group._id,
+        season,
+        week + 1
       );
-      const textEmail = unsubscribe.appendText(
-        textTemplate,
-        user._id.toString()
+      const filledIdealRoster = await mySportsHandler.fillUserRoster(
+        idealRoster.roster
       );
-      sendEmail(user.email, subject, HTMLemail, textEmail);
+
+      const { leaderBoardHTML, leaderBoardText } = await createLeaderBoard(
+        group,
+        season,
+        +week + 1
+      );
+
+      const { idealRosterText, idealRosterHTML } = await createIdealRoster(
+        position,
+        filledIdealRoster,
+        week
+      );
+      const HTMLTemplate = composeWeeklyHTMLEmail(
+        leaderBoardHTML,
+        idealRosterHTML,
+        +week
+      );
+      const textTemplate = composeWeeklyTextEmail(
+        leaderBoardText,
+        idealRosterText,
+        +week
+      );
+
+      for (const user of emailList) {
+        const HTMLemail = unsubscribe.appendHTML(
+          HTMLTemplate,
+          user._id.toString()
+        );
+        const textEmail = unsubscribe.appendText(
+          textTemplate,
+          user._id.toString()
+        );
+        sendEmail(user.email, subject, HTMLemail, textEmail);
+      }
+    } catch (err) {
+      if (err.status) {
+        throw err;
+      } else {
+        console.log('Error in sending leaderboard email: ', {
+          group,
+          season,
+          week,
+          err,
+        });
+        throw { status: 500, message: 'Error sending leaderboard email' };
+      }
     }
   },
   sendYearlyRecapEmail: async (
@@ -324,130 +374,157 @@ export default {
     bestIdealRoster,
     bestScorePlayerByUser
   ) => {
-    const subject = 'Yearly Recap for the Eliminator!';
+    try {
+      const subject = 'Yearly Recap for the Eliminator!';
 
-    const { position } = await db.GroupRoster.findOne(
-      { groupId: group._id.toString() },
-      { position: 1 }
-    )
-      .lean()
-      .exec();
-    const { leaderBoardHTML, leaderBoardText } = await createLeaderBoard(
-      group,
-      season,
-      maxWeek
-    );
-
-    const highestUserWeekFullRoster = await createRoster(
-      position,
-      highestScoreUserWeek.roster,
-      highestScoreUserWeek.week,
-      highestScoreUserWeek.username
-    );
-    const bestIdealRosterFull = await createIdealRoster(
-      position,
-      bestIdealRoster.roster,
-      bestIdealRoster.week
-    );
-
-    const textTemplate = composeYearlyTextEmail(
-      yearlyWinner,
-      leaderBoardText,
-      bestScorePlayerByUser,
-      highestScoreUserWeek,
-      highestUserWeekFullRoster.rosterText,
-      bestIdealRoster,
-      bestIdealRosterFull.idealRosterText
-    );
-
-    const HTMLTemplate = await composeYearlyHTMLEmail(
-      yearlyWinner,
-      leaderBoardHTML,
-      bestScorePlayerByUser,
-      highestScoreUserWeek,
-      highestUserWeekFullRoster.rosterHTML,
-      bestIdealRoster,
-      bestIdealRosterFull.idealRosterHTML
-    );
-
-    const emailList = [];
-    for (const user of group.userlist) {
-      const emailPermission = await userHandler.getEmailSettings(user.userId);
-      if (emailPermission.leaderboardEmail) {
-        const { response } = await userHandler.getUserByID(user.userId);
-        emailList.push({ email: response.email, id: response._id });
-      }
-    }
-    for (const user of emailList) {
-      const HTMLemail = await unsubscribe.appendHTML(HTMLTemplate, user.id);
-      const textEmail = await unsubscribe.appendText(textTemplate, user.id);
-      sendEmail(user.email, subject, HTMLemail, textEmail);
-    }
-  },
-  sendRecapEmails: async (season, week) => {
-    const allGroups = await db.Group.find().lean().exec();
-    for (const group of allGroups) {
-      if (group.name === 'Demo Group') {
-        continue;
-      }
-      let userIdArray = group.userlist.map((user) => user.userId.toString());
-      const reminderSettings = await db.UserReminderSettings.find(
-        {
-          userId: { $in: userIdArray },
-          reminderEmail: true,
-        },
-        { userId: 1 }
+      const { position } = await db.GroupRoster.findOne(
+        { groupId: group._id.toString() },
+        { position: 1 }
       )
         .lean()
         .exec();
+      const { leaderBoardHTML, leaderBoardText } = await createLeaderBoard(
+        group,
+        season,
+        maxWeek
+      );
 
-      userIdArray = reminderSettings.map((user) => user.userId);
-      const userRosters = await db.UserRoster.find(
-        {
-          userId: { $in: userIdArray },
-          season: season,
-          week: week,
-        },
-        { roster: 1, userId: 1 }
-      )
-        .lean()
-        .exec();
-      userIdArray = [];
-      for (const weeklyRoster of userRosters) {
-        const nonZeroMySportsId = weeklyRoster.roster.filter(
-          (rosterSpot) => rosterSpot.mySportsId === 0
-        );
-        if (nonZeroMySportsId.length > 0) {
-          userIdArray.push(weeklyRoster.userId);
+      const highestUserWeekFullRoster = await createRoster(
+        position,
+        highestScoreUserWeek.roster,
+        highestScoreUserWeek.week,
+        highestScoreUserWeek.username
+      );
+      const bestIdealRosterFull = await createIdealRoster(
+        position,
+        bestIdealRoster.roster,
+        bestIdealRoster.week
+      );
+
+      const textTemplate = composeYearlyTextEmail(
+        yearlyWinner,
+        leaderBoardText,
+        bestScorePlayerByUser,
+        highestScoreUserWeek,
+        highestUserWeekFullRoster.rosterText,
+        bestIdealRoster,
+        bestIdealRosterFull.idealRosterText
+      );
+
+      const HTMLTemplate = await composeYearlyHTMLEmail(
+        yearlyWinner,
+        leaderBoardHTML,
+        bestScorePlayerByUser,
+        highestScoreUserWeek,
+        highestUserWeekFullRoster.rosterHTML,
+        bestIdealRoster,
+        bestIdealRosterFull.idealRosterHTML
+      );
+
+      const emailList = [];
+      for (const user of group.userlist) {
+        const emailPermission = await userHandler.getEmailSettings(user.userId);
+        if (emailPermission.leaderboardEmail) {
+          const { response } = await userHandler.getUserByID(user.userId);
+          emailList.push({ email: response.email, id: response._id });
         }
       }
-      const userEmails = await db.User.find(
-        { _id: { $in: userIdArray } },
-        { email: 1, username: 1 }
-      )
-        .lean()
-        .exec();
-      const subject = `Empty Roster Spots in the Eliminator for Week ${week}`;
-      for (const user of userEmails) {
-        //Send out the reminder emails here
-        const HTMLTemplate = composeWeeklyHTMLEmail(
-          composeReminderHTMLEmail(week, group.name, user.username),
-          ''
-        );
-        const textTemplate = composeReminderTextEmail(
-          week,
-          group.name,
-          user.username
-        );
-        const HTMLemail = unsubscribe.appendHTML(
-          HTMLTemplate,
-          user._id.toString()
-        );
-        const textEmail = unsubscribe.appendText(
-          textTemplate,
-          user._id.toString()
-        );
+      for (const user of emailList) {
+        const HTMLemail = await unsubscribe.appendHTML(HTMLTemplate, user.id);
+        const textEmail = await unsubscribe.appendText(textTemplate, user.id);
         sendEmail(user.email, subject, HTMLemail, textEmail);
+      }
+    } catch (err) {
+      if (err.status) {
+        throw err;
+      } else {
+        console.log('Error sending yearly recap email: ', {
+          maxWeek,
+          season,
+          group,
+          yearlyWinner,
+          highestScoreUserWeek,
+          bestIdealRoster,
+          bestScorePlayerByUser,
+          err,
+        });
+        throw { status: 500, message: 'Error sending yearly recap' };
+      }
+    }
+  },
+  sendReminderEmails: async (season, week) => {
+    try {
+      const allGroups = await db.Group.find().lean().exec();
+      for (const group of allGroups) {
+        if (group.name === 'Demo Group') {
+          continue;
+        }
+        let userIdArray = group.userlist.map((user) => user.userId.toString());
+        const reminderSettings = await db.UserReminderSettings.find(
+          {
+            userId: { $in: userIdArray },
+            reminderEmail: true,
+          },
+          { userId: 1 }
+        )
+          .lean()
+          .exec();
+
+        userIdArray = reminderSettings.map((user) => user.userId);
+        const userRosters = await db.UserRoster.find(
+          {
+            userId: { $in: userIdArray },
+            season: season,
+            week: week,
+          },
+          { roster: 1, userId: 1 }
+        )
+          .lean()
+          .exec();
+        userIdArray = [];
+        for (const weeklyRoster of userRosters) {
+          const nonZeroMySportsId = weeklyRoster.roster.filter(
+            (rosterSpot) => rosterSpot.mySportsId === 0
+          );
+          if (nonZeroMySportsId.length > 0) {
+            userIdArray.push(weeklyRoster.userId);
+          }
+        }
+        const userEmails = await db.User.find(
+          { _id: { $in: userIdArray } },
+          { email: 1, username: 1 }
+        )
+          .lean()
+          .exec();
+        const subject = `Empty Roster Spots in the Eliminator for Week ${week}`;
+        for (const user of userEmails) {
+          //Send out the reminder emails here
+          const HTMLTemplate = composeWeeklyHTMLEmail(
+            composeReminderHTMLEmail(week, group.name, user.username),
+            ''
+          );
+          const textTemplate = composeReminderTextEmail(
+            week,
+            group.name,
+            user.username
+          );
+          const HTMLemail = unsubscribe.appendHTML(
+            HTMLTemplate,
+            user._id.toString()
+          );
+          const textEmail = unsubscribe.appendText(
+            textTemplate,
+            user._id.toString()
+          );
+          sendEmail(user.email, subject, HTMLemail, textEmail);
+        }
+      }
+    } catch (err) {
+      console.log('Error sending reminder email: ', { err });
+      if (err.status) {
+        throw err;
+      } else {
+        throw { status: 500, message: 'Error sending remminder email' };
       }
     }
   },

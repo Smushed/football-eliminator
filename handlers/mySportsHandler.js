@@ -7,33 +7,46 @@ import scoringSystem from '../constants/scoringSystem.js';
 
 const mySportsFeedsAPI = process.env.MY_SPORTS_FEEDS_API;
 
-const calculateWeeklyPlayerScore = async (playerId, season, week, groupScore) =>
-  new Promise(async (res, rej) => {
-    if (playerId === 0) {
-      res(0);
-    }
-    const playerStats = await db.PlayerStats.findOne({
+const calculateWeeklyPlayerScore = async (
+  playerId,
+  season,
+  week,
+  groupScore
+) => {
+  if (playerId === 0) {
+    return 0;
+  }
+  let playerStats;
+  try {
+    playerStats = await db.PlayerStats.findOne({
       mySportsId: playerId,
       week: week,
       season: season,
     })
       .lean()
       .exec();
-    let weeklyScore = 0;
+  } catch (err) {
+    console.log(
+      'Error pulling player stats from DB in calculateWeeklyPlayerScore: ',
+      { playerId, season, week, groupScore, err }
+    );
+    throw { status: 500, message: 'Error getting player data' };
+  }
+  let weeklyScore = 0;
 
-    if (playerStats) {
-      for (const bucket of scoringSystem.buckets) {
-        for (const field of scoringSystem[bucket]) {
-          weeklyScore += calculateScore(
-            playerStats[bucket][field],
-            groupScore[bucket][field]
-          );
-        }
+  if (playerStats) {
+    for (const bucket of scoringSystem.buckets) {
+      for (const field of scoringSystem[bucket]) {
+        weeklyScore += calculateScore(
+          playerStats[bucket][field],
+          groupScore[bucket][field]
+        );
       }
     }
-    weeklyScore = +weeklyScore.toFixed(2);
-    res(weeklyScore);
-  });
+  }
+  weeklyScore = +weeklyScore.toFixed(2);
+  return weeklyScore;
+};
 
 const calculateScore = (playerStat, groupScore) => {
   if (typeof playerStat === 'undefined') {
@@ -50,19 +63,20 @@ const capitalizeFirstLetter = (str) => {
   return strArr.join(' ');
 };
 
-const addPlayerData = (player, team) => {
-  return new Promise(async (res, rej) => {
-    let injury = null;
-    if (player.currentInjury) {
-      injury = {
-        playingProbability: player.currentInjury.playingProbability,
-        description: capitalizeFirstLetter(player.currentInjury.description),
-      };
-    }
-    let espnMapping = null;
-    if (player.externalMappings) {
-      espnMapping = await parsePlayerExternalMappings(player.externalMappings);
-    }
+const addPlayerData = async (player, team) => {
+  let injury = null;
+  if (player.currentInjury) {
+    injury = {
+      playingProbability: player.currentInjury.playingProbability,
+      description: capitalizeFirstLetter(player.currentInjury.description),
+    };
+  }
+  let espnMapping = null;
+  if (player.externalMappings) {
+    espnMapping = parsePlayerExternalMappings(player.externalMappings);
+  }
+
+  try {
     const newPlayer = await db.PlayerData.create({
       name: `${player.firstName} ${player.lastName}`,
       mySportsId: parseInt(player.id),
@@ -73,25 +87,15 @@ const addPlayerData = (player, team) => {
       injury: injury,
       espnId: espnMapping,
     });
-    res(newPlayer.mySportsId);
-  });
-};
-
-const findPlayerInDB = async (playerID) => {
-  return new Promise(async (res, rej) => {
-    try {
-      const playerInDB = await db.PlayerData.findOne({
-        mySportsId: playerID,
-      }).exec();
-      if (playerInDB === null) {
-        res(false);
-      } else {
-        res(playerInDB);
-      }
-    } catch (err) {
-      console.log('Error getting player from DB: ', { err });
-    }
-  });
+    return newPlayer.mySportsId;
+  } catch (err) {
+    console.log('Error saving player data in addPlayerData: ', {
+      player,
+      team,
+      err,
+    });
+    throw { status: 500, message: 'Error saving player data' };
+  }
 };
 
 const playerStatBuilder = (mySportsPlayer, season, week) => {
@@ -234,68 +238,80 @@ const parseRoster = async (playerArray, team) => {
       position === 'RB' ||
       position === 'K'
     ) {
-      let dbPlayer = await db.PlayerData.findOne({
-        mySportsId: playerArray[i].player.id,
-      }).exec();
-      if (dbPlayer === false || dbPlayer === undefined || dbPlayer === null) {
-        dbPlayer = await addPlayerData(playerArray[i].player, team);
-      } else {
-        let injury = null;
-        if (playerArray[i].player.currentInjury !== null) {
-          injury = {
-            description: playerArray[i].player.currentInjury.description,
-            playingProbability:
-              playerArray[i].player.currentInjury.playingProbability,
-          };
-        }
-        let espnMapping;
-        if (dbPlayer.espnId) {
-          espnMapping = dbPlayer.espnId;
+      try {
+        let dbPlayer = await db.PlayerData.findOne({
+          mySportsId: playerArray[i].player.id,
+        }).exec();
+        if (dbPlayer === false || dbPlayer === undefined || dbPlayer === null) {
+          dbPlayer = await addPlayerData(playerArray[i].player, team);
         } else {
-          espnMapping = parsePlayerExternalMappings(
-            playerArray[i].player.externalMappings
+          let injury = null;
+          if (playerArray[i].player.currentInjury !== null) {
+            injury = {
+              description: playerArray[i].player.currentInjury.description,
+              playingProbability:
+                playerArray[i].player.currentInjury.playingProbability,
+            };
+          }
+          let espnMapping;
+          if (dbPlayer.espnId) {
+            espnMapping = dbPlayer.espnId;
+          } else {
+            espnMapping = parsePlayerExternalMappings(
+              playerArray[i].player.externalMappings
+            );
+          }
+          const currTeam = playerArray[i].player.currentTeam
+            ? playerArray[i].player.currentTeam.abbreviation
+            : null;
+          await updatePlayer(
+            playerArray[i].player.id,
+            currTeam,
+            injury,
+            position,
+            espnMapping
           );
         }
-        const currTeam = playerArray[i].player.currentTeam
-          ? playerArray[i].player.currentTeam.abbreviation
-          : null;
-        await updatePlayer(
-          playerArray[i].player.id,
-          currTeam,
-          injury,
-          position,
-          espnMapping
-        );
+        totalPlayerArray.push(dbPlayer.mySportsId);
+      } catch (err) {
+        console.log('Error in parseRoster, parsing individual player', {
+          player: playerArray[i],
+          team,
+          err,
+        });
       }
-      totalPlayerArray.push(dbPlayer.mySportsId);
     }
   }
-  const dbNFLRoster = await db.PlayerData.find({ team }).exec();
-  const totalPlayerArrayIds = new Set(totalPlayerArray);
-  const inactivePlayerArray = dbNFLRoster.filter(
-    (player) => !totalPlayerArrayIds.has(player.mySportsId)
-  );
 
-  inactivatePlayers(inactivePlayerArray);
+  try {
+    const dbNFLRoster = await db.PlayerData.find({ team }).exec();
+    const totalPlayerArrayIds = new Set(totalPlayerArray);
+    const inactivePlayerArray = dbNFLRoster.filter(
+      (player) => !totalPlayerArrayIds.has(player.mySportsId)
+    );
 
-  return inactivePlayerArray;
+    inactivatePlayers(inactivePlayerArray);
+
+    return inactivePlayerArray;
+  } catch (err) {
+    console.log('Error getting inactive player array: ', { team, err });
+    throw { status: 500, message: 'Error getting inactive players' };
+  }
 };
 
 const inactivatePlayers = async (inactivePlayerArray) => {
   for (const player of inactivePlayerArray) {
-    //TODO update this to run in one single request to DB
-    const dbPlayer = await db.PlayerData.findOne({
-      mySportsId: player.mySportsId,
-    });
-    dbPlayer.active = false;
-
-    dbPlayer.save((err, result) => {
-      if (err) {
-        console.log(`Error setting ${dbPlayer.name} to inactive`, { err });
-      } else {
-        return result;
-      }
-    });
+    try {
+      await db.PlayerData.findOneAndUpdate(
+        { mySportsId: player.mySportsId },
+        { active: false }
+      );
+    } catch (err) {
+      console.log('Error setting player to inactive : ', {
+        mySportsId: player.mySportsId,
+        err,
+      });
+    }
   }
 };
 
@@ -313,20 +329,30 @@ const updatePlayer = async (
       description: capitalizeFirstLetter(injury.description),
     };
   }
-  await db.PlayerData.findOneAndUpdate(
-    { mySportsId },
-    {
-      team: team,
-      active: true,
-      injury: confInjury,
-      position: position,
-      espnMapping: espnMapping,
-    }
-  );
+  try {
+    await db.PlayerData.findOneAndUpdate(
+      { mySportsId },
+      {
+        team: team,
+        active: true,
+        injury: confInjury,
+        position: position,
+        espnMapping: espnMapping,
+      }
+    );
+  } catch (err) {
+    console.log('Error in UpdatePlayer: ', {
+      mySportsId,
+      team,
+      injury,
+      position,
+      espnMapping,
+      err,
+    });
+  }
 };
 
 const saveUserScore = async (userId, groupId, season, week, weekScore) => {
-  console.log({ userId, groupId, season, week, weekScore });
   try {
     const userScore = await db.UserScores.findOne({
       userId,
@@ -344,7 +370,7 @@ const saveUserScore = async (userId, groupId, season, week, weekScore) => {
       newUserScore[week] = +weekScore.toFixed(2);
       newUserScore.save((err) => {
         if (err) {
-          console.log(err);
+          console.log('Error saving newUserScore in saveUserScore: ', { err });
         }
       });
       return;
@@ -357,31 +383,51 @@ const saveUserScore = async (userId, groupId, season, week, weekScore) => {
     userScore.totalScore = totalScore;
     userScore.save((err) => {
       if (err) {
-        console.log(err);
+        console.log(userId, groupId, season, week, weekScore, err);
+        throw { status: 500, message: 'Error saving user score' };
       }
     });
   } catch (err) {
-    console.log(
-      `ERROR in saveUserScore userID: ${userId}, groupId: ${groupId}, ${err}`
-    );
+    if (err.status) {
+      throw err;
+    } else {
+      console.log('ERROR in saveUserScore', {
+        userId,
+        groupId,
+        season,
+        week,
+        weekScore,
+        err,
+      });
+      throw { status: 500, message: 'Error saving user score' };
+    }
   }
 
   return;
 };
 
 const saveOrUpdateMatchups = async (matchUpArray, season, week) => {
-  const pulledWeek = await db.MatchUps.findOne({ week, season });
-  if (pulledWeek === null || pulledWeek === undefined) {
-    await db.MatchUps.create({
-      season: season,
-      week: week,
-      matchups: matchUpArray,
-    }).exec();
-  } else {
-    pulledWeek.matchups = matchUpArray;
-    await pulledWeek.save();
+  try {
+    const pulledWeek = await db.MatchUps.findOne({ week, season });
+    if (pulledWeek === null || pulledWeek === undefined) {
+      await db.MatchUps.create({
+        season: season,
+        week: week,
+        matchups: matchUpArray,
+      }).exec();
+    } else {
+      pulledWeek.matchups = matchUpArray;
+      await pulledWeek.save();
+    }
+  } catch (err) {
+    console.log('Error in saveOrUpdateMatchups: ', {
+      matchUpArray,
+      season,
+      week,
+      err,
+    });
+    throw { status: 500, message: 'Error saving matchups' };
   }
-  return true;
 };
 
 const pullTeamData = (season, team) => {
@@ -413,6 +459,7 @@ const pullTeamData = (season, team) => {
         }
       }
     });
+  console.log(`Done parsing ${team}`);
 };
 
 export default {
@@ -429,16 +476,14 @@ export default {
       }
     }, 40000);
 
-    return { text: 'Update Roster Process Kicked off' };
+    return;
   },
   getMassData: async function (currentSeason) {
-    //This loops through the the seasons and weeks and pulls through all of the data for the players
     const weeks = [
       1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
     ];
 
     for (let i = 0; i < weeks.length; i++) {
-      //We send what week we're currently on to the weeklydata where that's used to update pull the API and parse the data
       console.log(`hitting season ${currentSeason} - week ${weeks[i]}`);
       await this.getWeeklyData(currentSeason, weeks[i]);
       console.log(`week ${weeks[i]} has been updated`);
@@ -452,48 +497,48 @@ export default {
     };
     return testReturn;
   },
-  getWeeklyData: (season, week) =>
-    new Promise(async (res, rej) => {
-      console.log(`requesting week ${week} data`);
-      let search;
-      try {
-        search = await axios.get(
-          `https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${week}/player_gamelogs.json`,
-          {
-            auth: {
-              username: mySportsFeedsAPI,
-              password: `MYSPORTSFEEDS`,
-            },
-          }
-        );
-      } catch (err) {
-        console.log(`ERR getting week ${week}`, err);
-      }
-
-      console.log('weekly data received, parsing');
-      if (!search.data.gamelogs) return;
-      const playersByPosition = {
-        QB: [],
-        RB: [],
-        WR: [],
-        TE: [],
-        K: [],
-      };
-      for (let i = 0; i < search.data.gamelogs.length; i++) {
-        const position =
-          search.data.gamelogs[i].player.position ||
-          search.data.gamelogs[i].player.primaryPosition;
-        if (playersByPosition[position]) {
-          playersByPosition[position].push({
-            player: search.data.gamelogs[i].player,
-            team: search.data.gamelogs[i].team,
-            stats: search.data.gamelogs[i].stats,
-          });
+  getWeeklyData: async (season, week) => {
+    console.log(`requesting week ${week} data`);
+    let search;
+    try {
+      search = await axios.get(
+        `https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${week}/player_gamelogs.json`,
+        {
+          auth: {
+            username: mySportsFeedsAPI,
+            password: `MYSPORTSFEEDS`,
+          },
         }
+      );
+    } catch (err) {
+      console.log(`ERR getting week ${week}`, err);
+      return;
+    }
+
+    console.log('weekly data received, parsing');
+    if (!search.data.gamelogs) return;
+    const playersByPosition = {
+      QB: [],
+      RB: [],
+      WR: [],
+      TE: [],
+      K: [],
+    };
+    for (let i = 0; i < search.data.gamelogs.length; i++) {
+      const position =
+        search.data.gamelogs[i].player.position ||
+        search.data.gamelogs[i].player.primaryPosition;
+      if (playersByPosition[position]) {
+        playersByPosition[position].push({
+          player: search.data.gamelogs[i].player,
+          team: search.data.gamelogs[i].team,
+          stats: search.data.gamelogs[i].stats,
+        });
       }
-      console.log(`Weekly data parsed`);
-      res(playersByPosition);
-    }),
+    }
+    console.log(`Weekly data parsed`);
+    return playersByPosition;
+  },
   updatePlayerDataFromWeeklyPull: async (playersByPosition) => {
     console.log('Updating Player Data Schema');
     for (const position in playersByPosition) {
@@ -563,12 +608,17 @@ export default {
     let weeklyRosterScore = [];
     let weekScore = 0;
     for (let i = 0; i < userRoster.length; i++) {
-      const currentScore = await calculateWeeklyPlayerScore(
-        userRoster[i].mySportsId,
-        season,
-        week,
-        groupScore
-      );
+      let currentScore;
+      try {
+        currentScore = await calculateWeeklyPlayerScore(
+          userRoster[i].mySportsId,
+          season,
+          week,
+          groupScore
+        );
+      } catch (err) {
+        throw err;
+      }
 
       const currentScoreNum = +currentScore.toFixed(2);
       weekScore += currentScoreNum;
@@ -587,7 +637,16 @@ export default {
 
       await saveUserScore(userId, groupId, season, week, weekScore);
     } catch (err) {
-      console.log('ERROR in updateUserWeeklyAndTotalScore', { err });
+      console.log('ERROR in updateUserWeeklyAndTotalScore', {
+        userRoster,
+        season,
+        week,
+        userId,
+        groupScore,
+        groupId,
+        err,
+      });
+      throw { status: 500, message: 'Error saving user score' };
     }
     return;
   },
@@ -597,23 +656,42 @@ export default {
     for (const position of positions.positionArray) {
       rankedPlayersByPosition[position] = [];
       console.log(`Pulling ${position} for scoring`);
-      const playersByPosition = await db.PlayerData.find(
-        { position: position, active: true },
-        { mySportsId: 1, name: 1, position: 1 }
-      )
-        .lean()
-        .exec();
+
+      let playersByPosition;
+      try {
+        playersByPosition = await db.PlayerData.find(
+          { position: position, active: true },
+          { mySportsId: 1, name: 1, position: 1 }
+        )
+          .lean()
+          .exec();
+      } catch (err) {
+        console.log('Error pulling player data in rankPlayers: ', { err });
+      }
       const rankingArray = [];
 
       for (let player of playersByPosition) {
         player.score = 0;
         for (let i = 1; i <= week; i++) {
-          player.score += await calculateWeeklyPlayerScore(
-            player.mySportsId,
-            season,
-            i,
-            groupScore
-          );
+          try {
+            player.score += await calculateWeeklyPlayerScore(
+              player.mySportsId,
+              season,
+              i,
+              groupScore
+            );
+          } catch (err) {
+            console.log(
+              'Error calculating weekly player score in rankPlayers: ',
+              {
+                mySportsId: player.mySportsId,
+                season: season,
+                i: i,
+                groupScore: groupScore,
+                err,
+              }
+            );
+          }
         }
 
         player.score = player.score.toFixed(2);
@@ -643,10 +721,15 @@ export default {
         } else {
           currentRank = rankingArray.map((player) => player.mySportsId);
         }
-        await db.PlayerData.updateMany(
-          { mySportsId: { $in: currentRank } },
-          { rank: i }
-        );
+        try {
+          await db.PlayerData.updateMany(
+            { mySportsId: { $in: currentRank } },
+            { rank: i }
+          );
+        } catch (err) {
+          console.log('Error savePlayerRank: ', { i, currentRank, err });
+          throw { status: 500, message: 'Error updating player ranks' };
+        }
       }
     }
     console.log('Done Ranking');
@@ -663,7 +746,8 @@ export default {
         .lean()
         .exec();
     } catch (err) {
-      console.log(err);
+      console.log('Error in fillUserRoster: ', { playerIdRoster, err });
+      throw { status: 500, message: 'Error filling user roster out' };
     }
 
     const filledRoster = playerIdRoster.map((id) => {
@@ -675,12 +759,13 @@ export default {
     });
     return filledRoster;
   },
-  pullMatchUpsForDB: async (season, week) =>
-    new Promise(async (res, rej) => {
-      let i = 1;
-      const matchUpTimer = setInterval(async () => {
-        console.log(`requesting matchups for ${season}, week ${i}`);
-        const search = await axios.get(
+  pullMatchUpsForDB: async (season, week) => {
+    let i = 1;
+    const matchUpTimer = setInterval(async () => {
+      console.log(`Requesting matchups for ${season}, week ${i}`);
+      let search;
+      try {
+        search = await axios.get(
           `https://api.mysportsfeeds.com/v2.1/pull/nfl/${season}/week/${i}/games.json`,
           {
             auth: {
@@ -689,29 +774,39 @@ export default {
             },
           }
         );
-        const parsedGames = search.data.games.map((game) => {
-          const home = game.schedule.homeTeam.abbreviation;
-          const away = game.schedule.awayTeam.abbreviation;
-          return { home, away };
-        });
+      } catch (err) {
+        console.log('Error requesting data from mySportsFeeds: ', { err });
+      }
+      const parsedGames = search.data.games.map((game) => {
+        const home = game.schedule.homeTeam.abbreviation;
+        const away = game.schedule.awayTeam.abbreviation;
+        return { home, away };
+      });
 
+      try {
         await saveOrUpdateMatchups(parsedGames, season, i);
-        i++;
-        if (i > week) {
-          clearInterval(matchUpTimer);
-        }
-      }, 6000);
-      res(`Completed`);
-    }),
+      } catch (err) {
+        console.log('Error saving matchups in DB: ', { err });
+      }
+      i++;
+      if (i > week) {
+        clearInterval(matchUpTimer);
+      }
+    }, 6000);
+    return 'Completed';
+  },
   getMatchups: async function (season, week) {
-    return new Promise(async (res, rej) => {
+    try {
       const pulledWeek = await db.MatchUps.findOne({ week, season });
       if (pulledWeek === null || pulledWeek === undefined) {
-        res(await this.pullMatchUpsForDB(season, week));
+        return await this.pullMatchUpsForDB(season, week);
       } else {
-        res(pulledWeek);
+        return pulledWeek;
       }
-    });
+    } catch (err) {
+      console.log('Error in getMatchups: ', { err });
+      throw { status: 500, message: 'Error pulling Matchups' };
+    }
   },
   sortMatchups: async (matchups) => {
     const matchupsDisplay = {};
@@ -722,7 +817,23 @@ export default {
     return matchupsDisplay;
   },
   singleWeekPlayerScore: async (playerId, season, week, groupScore) => {
-    return await calculateWeeklyPlayerScore(playerId, season, week, groupScore);
+    try {
+      return await calculateWeeklyPlayerScore(
+        playerId,
+        season,
+        week,
+        groupScore
+      );
+    } catch (err) {
+      console.log('Error singleWeekPlayerScore: ', {
+        playerId,
+        season,
+        week,
+        groupScore,
+        err,
+      });
+      throw { status: 500, message: 'Error figuring weekly score' };
+    }
   },
   checkGameStarted: async (season, week) => {
     let search;
@@ -738,51 +849,60 @@ export default {
         }
       );
     } catch (err) {
-      console.log(`Error pulling weekly game schedule! ${err}`);
+      console.log('Error pulling weekly game schedule!', { season, week, err });
     }
-    for (const game of search.data.games) {
-      const homeTeamLockSearch = await db.TeamLocked.findOne({
-        team: game.schedule.homeTeam.abbreviation,
-        week: week,
-        season: season,
-      });
-      if (!homeTeamLockSearch) {
-        const newRecord = new db.TeamLocked({
+    try {
+      for (const game of search.data.games) {
+        const homeTeamLockSearch = await db.TeamLocked.findOne({
           team: game.schedule.homeTeam.abbreviation,
-          startTime: game.schedule.startTime,
           week: week,
           season: season,
         });
-        newRecord.save();
-      } else {
-        homeTeamLockSearch.startTime = game.schedule.startTime;
-        homeTeamLockSearch.save();
-      }
+        if (!homeTeamLockSearch) {
+          const newRecord = new db.TeamLocked({
+            team: game.schedule.homeTeam.abbreviation,
+            startTime: game.schedule.startTime,
+            week: week,
+            season: season,
+          });
+          newRecord.save();
+        } else {
+          homeTeamLockSearch.startTime = game.schedule.startTime;
+          homeTeamLockSearch.save();
+        }
 
-      const awayTeamLockSearch = await db.TeamLocked.findOne({
-        team: game.schedule.awayTeam.abbreviation,
-        week: week,
-        season: season,
-      });
-      if (!awayTeamLockSearch) {
-        const newRecord = new db.TeamLocked({
+        const awayTeamLockSearch = await db.TeamLocked.findOne({
           team: game.schedule.awayTeam.abbreviation,
-          startTime: game.schedule.startTime,
           week: week,
           season: season,
         });
-        newRecord.save();
-      } else {
-        awayTeamLockSearch.startTime = game.schedule.startTime;
-        awayTeamLockSearch.save();
+        if (!awayTeamLockSearch) {
+          const newRecord = new db.TeamLocked({
+            team: game.schedule.awayTeam.abbreviation,
+            startTime: game.schedule.startTime,
+            week: week,
+            season: season,
+          });
+          newRecord.save();
+        } else {
+          awayTeamLockSearch.startTime = game.schedule.startTime;
+          awayTeamLockSearch.save();
+        }
       }
+    } catch (err) {
+      console.log('Error saving game data in checkGameStarted: ', {
+        season,
+        week,
+        err,
+      });
+      throw { status: 500, message: 'Error checking for locked games' };
     }
     return;
   },
-  getAllPlayersByTeam: async (teams) =>
-    await db.PlayerData.find({ team: { $in: teams } }).exec(),
-  getAllPlayersMySportsIdByTeamNonZeroESPNID: async (teams) =>
-    await db.PlayerData.find(
+  getAllPlayersByTeam: (teams) =>
+    db.PlayerData.find({ team: { $in: teams } }).exec(),
+  getAllPlayersMySportsIdByTeamNonZeroESPNID: (teams) =>
+    db.PlayerData.find(
       { team: { $in: teams }, espnId: { $ne: 0 }, active: true },
       { espnId: 1, mySportsId: 1, _id: 0 }
     ).exec(),
@@ -791,27 +911,33 @@ export default {
     db.SeasonAndWeek.create({});
   },
   pullSeasonAndWeekFromDB: async () => {
-    const dbResponse = await db.SeasonAndWeek.find({}).lean().exec();
-    return dbResponse[0];
+    try {
+      const dbResponse = await db.SeasonAndWeek.find({}).lean().exec();
+      return dbResponse[0];
+    } catch (err) {
+      console.log('Error pullSeasonAndWeekFromDB: ', { err });
+      throw {
+        status: 500,
+        message: 'Error getting season / week. Please refresh',
+      };
+    }
   },
-  updateCurrWeek: (currentWeek) =>
-    new Promise(async (res, rej) => {
-      try {
-        await db.SeasonAndWeek.updateMany({}, { $set: { week: currentWeek } });
-        res(`success!`);
-      } catch (e) {
-        console.log(e);
-        res(`failure, check logs!`);
-      }
-    }),
-  updateLockWeek: (lockWeek) =>
-    new Promise(async (res, rej) => {
-      try {
-        await db.SeasonAndWeek.updateMany({}, { $set: { lockWeek: lockWeek } });
-        res(`success!`);
-      } catch (e) {
-        console.log(e);
-        res(`failure, check logs!`);
-      }
-    }),
+  updateCurrWeek: async (currentWeek) => {
+    try {
+      await db.SeasonAndWeek.updateMany({}, { $set: { week: currentWeek } });
+      return 'success!';
+    } catch (err) {
+      console.log('Error updating current week: ', { currentWeek, err });
+      throw { status: 500, message: 'Error updating week for eliminator' };
+    }
+  },
+  updateLockWeek: async (lockWeek) => {
+    try {
+      await db.SeasonAndWeek.updateMany({}, { $set: { lockWeek: lockWeek } });
+      return 'success!';
+    } catch (err) {
+      console.log('Error updating lock week: ', { lockWeek, err });
+      throw { status: 500, message: 'Error updating lock week for eliminator' };
+    }
+  },
 };
