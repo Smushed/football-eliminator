@@ -118,29 +118,8 @@ export default (app) => {
     }
   );
 
-  app.put('/api/roster/dummyRoster/', async (req, res) => {
-    const { userId, groupId, week, season, dummyRoster } = req.body;
-    if (userId === undefined || groupId === '') {
-      res.status(500).send('Select Someone!');
-      return;
-    }
-
-    try {
-      const dbResponse = await rosterHandler.dummyRoster(
-        userId,
-        groupId,
-        week,
-        season,
-        dummyRoster
-      );
-
-      res.status(200).send(dbResponse);
-    } catch (err) {
-      returnError(res, err);
-    }
-  });
-
-  app.put('/api/roster/user/update', authMiddleware, async (req, res) => {
+  app.put('/api/roster/user/update', async (req, res) => {
+    // app.put('/api/roster/user/update', authMiddleware, async (req, res) => {
     try {
       const {
         userId,
@@ -152,7 +131,7 @@ export default (app) => {
         groupname,
         position,
       } = req.body;
-      await verifyUserIsSameEmailUserId(req.currentUser, userId);
+      // await verifyUserIsSameEmailUserId(req.currentUser, userId);
       const group = await groupHandler.getGroupDataByName(groupname);
       const updatedRoster = await rosterHandler.updateUserRoster(
         userId,
@@ -167,6 +146,7 @@ export default (app) => {
       const response = await mySportsHandler.fillUserRoster(updatedRoster);
       res.status(200).send(response);
     } catch (err) {
+      console.log('inside router ', { err });
       returnError(res, err, 'Error updating roster, please refresh');
     }
   });

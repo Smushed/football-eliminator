@@ -92,16 +92,6 @@ export default (app) => {
     }
   });
 
-  // app.post(`/api/user/purgeUserAndGroupDB/:pass`, (req, res) => {
-  //   const { pass } = req.params;
-  //   if (pass !== process.env.DB_ADMIN_PASS) {
-  //     res.status(401).send(`Get Outta Here!`);
-  //     return;
-  //   }
-  //   userHandler.purgeDB();
-  //   res.status(200).send(`success`);
-  // });
-
   app.get('/api/user/profile/box/:userId', authMiddleware, async (req, res) => {
     const { userId } = req.params;
     Promise.all([

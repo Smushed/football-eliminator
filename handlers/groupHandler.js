@@ -423,11 +423,21 @@ export default {
     return filledData;
   },
   getIdealRoster: async function (groupId, season, week) {
-    const idealRosterResponse = await db.IdealRoster.findOne({
-      groupId,
-      season,
-      week,
-    }).exec();
+    let idealRosterResponse;
+    try {
+      idealRosterResponse = await db.IdealRoster.findOne({
+        groupId,
+        season,
+        week,
+      }).exec();
+    } catch (err) {
+      console.log('Database connection error with getIdealRoster: ', {
+        groupId,
+        season,
+        week,
+      });
+      throw { status: 500, message: 'Database connection error' };
+    }
     if (idealRosterResponse === null) {
       let newIdealRoster = new db.IdealRoster({
         groupId,
