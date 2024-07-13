@@ -3,6 +3,7 @@ import groupHandler from '../handlers/groupHandler.js';
 import nflTeams from '../constants/nflTeams.js';
 import s3Handler from '../handlers/s3Handler.js';
 import { authMiddleware } from '../handlers/authHandler.js';
+import { returnError } from '../utils/ExpressUtils.js';
 
 export default (app) => {
   app.put(
@@ -15,9 +16,7 @@ export default (app) => {
         res.sendStatus(200);
       } catch (err) {
         console.log('Error updating players by week: ', { season, week, err });
-        res
-          .status(err.status || 500)
-          .send(err.message || 'Error updating players by week');
+        returnError(res, err, 'Error updating players by week');
       }
     }
   );
@@ -32,9 +31,7 @@ export default (app) => {
         res.status(200).send(dbResponse.text);
       } catch (err) {
         console.log('Error updating players for season: ', { season, err });
-        res
-          .status(err.status || 500)
-          .send(err.message || 'Error updating players for whole season');
+        returnError(res, err, 'Error updating players for whole season');
       }
     }
   );
@@ -53,9 +50,7 @@ export default (app) => {
         res.status(200).send(dbResponse);
       } catch (err) {
         console.log('Error updating current roster: ', { season, teams, err });
-        res
-          .status(err.status || 500)
-          .send(err.message || 'Error updating roster');
+        returnError(res, err, 'Error updating roster');
       }
     }
   );
@@ -81,9 +76,7 @@ export default (app) => {
         res.status(200).send(dbResponse);
       } catch (err) {
         console.log('Error ranking players: ', { season, week, groupId, err });
-        res
-          .status(err.status || 500)
-          .send(err.message || 'Error ranking players');
+        returnError(res, err, 'Error ranking players');
       }
     }
   );
@@ -105,9 +98,7 @@ export default (app) => {
           week,
           err,
         });
-        res
-          .status(err.status || 500)
-          .send(err.message || 'Error getting NFL matchups');
+        returnError(res, err, 'Error getting NFL matchups');
       }
     }
   );
@@ -126,9 +117,7 @@ export default (app) => {
           week,
           err,
         });
-        res
-          .status(err.status || 500)
-          .send(err.message || 'Error updating NFL matchups');
+        returnError(res, err, 'Error updating NFL matchups');
       }
     }
   );
@@ -151,9 +140,7 @@ export default (app) => {
         res.sendStatus(200);
       } catch (err) {
         console.log('Error updating player avatars: ', { teams, err });
-        res
-          .status(err.status || 500)
-          .send(err.message || 'Error updating player avatars');
+        returnError(res, err, 'Error updating player avatars');
       }
     }
   );
@@ -164,9 +151,7 @@ export default (app) => {
       res.status(200).send(seasonAndWeek);
     } catch (err) {
       console.log('Error getting current NFL time: ', { err });
-      res
-        .status(err.status || 500)
-        .send(err.message || 'Error getting current week');
+      returnError(res, err, 'Error getting current week');
     }
   });
 };

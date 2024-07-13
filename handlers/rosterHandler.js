@@ -13,88 +13,110 @@ const checkDuplicateRoster = async (
   week,
   position
 ) => {
-  let result = false;
-  let searched;
   switch (checkedField) {
     case 'userRoster':
       try {
-        searched = await db.UserRoster.findOne({
+        const search = await db.UserRoster.findOne({
           userId,
           week,
           groupId,
           season,
         }).exec();
-        if (searched !== null) {
+        if (search !== null) {
           return true;
         }
       } catch (err) {
-        console.log(err);
+        console.log('Error in checking duplicate userRoster: ', {
+          checkedField,
+          userId,
+          groupId,
+          season,
+          week,
+          position,
+          err,
+        });
+        throw {
+          status: 500,
+          message: 'Internal Server Error, please refresh',
+        };
       }
       break;
     case 'usedPlayers':
       try {
-        searched = await db.UsedPlayers.findOne({
+        const search = await db.UsedPlayers.findOne({
           userId,
           season,
           groupId,
           position,
         }).exec();
-        if (searched !== null) {
+        if (search !== null) {
           return true;
         }
       } catch (err) {
-        console.log(err);
+        console.log('Error in checking duplicate usedPlayers: ', {
+          checkedField,
+          userId,
+          groupId,
+          season,
+          week,
+          position,
+          err,
+        });
+        throw {
+          status: 500,
+          message: 'Internal Server Error, please refresh',
+        };
       }
       break;
   }
-  return result;
-};
-
-const checkForAvailablePlayers = (usedPlayers, searchedPlayers) => {
-  const usedPlayerSet = new Set(usedPlayers);
-
-  const availablePlayerArray = searchedPlayers.filter(
-    (player) => !usedPlayerSet.has(player.mySportsId)
-  );
-
-  const sortedPlayerArray = sortPlayersByRank(availablePlayerArray);
-
-  return sortedPlayerArray;
-};
-
-const sortPlayersByRank = (playerArray) => {
-  playerArray.sort((a, b) => {
-    return a.rank - b.rank;
-  });
-  return playerArray;
+  return false;
 };
 
 const getUsedPlayers = async (userId, season, groupId, position) => {
-  const currentUser = await db.UsedPlayers.findOne({
-    userId,
-    season,
-    groupId,
-    position,
-  }).exec();
-  if (currentUser === null) {
-    const createdUsedPlayers = await createUsedPlayers(
+  try {
+    const currentUser = await db.UsedPlayers.findOne({
       userId,
       season,
       groupId,
-      position
-    );
-    return createdUsedPlayers.usedPlayers;
-  } else {
-    return currentUser.usedPlayers;
+      position,
+    }).exec();
+    if (currentUser === null) {
+      const createdUsedPlayers = await createUsedPlayers(
+        userId,
+        season,
+        groupId,
+        position
+      );
+      return createdUsedPlayers.usedPlayers;
+    } else {
+      return currentUser.usedPlayers;
+    }
+  } catch (err) {
+    if (err.status) {
+      throw err;
+    } else {
+      throw { status: 500, message: 'Error getting used players for season' };
+    }
   }
 };
 
 const getUsedPlayersNoPosition = async (userId, season, groupId) => {
-  const usedPlayers = await db.UsedPlayers.find({
-    userId,
-    season,
-    groupId,
-  }).exec();
+  let usedPlayers = null;
+  try {
+    usedPlayers = await db.UsedPlayers.find({
+      userId,
+      season,
+      groupId,
+    }).exec();
+  } catch (err) {
+    console.log('Error finding usedPlayers in getUsedPlayersNoPosition: ', {
+      userId,
+      season,
+      groupId,
+      err,
+    });
+    throw { status: 500, message: 'Database error' };
+  }
   //If less than the max amount of used players, we need to make them here
   if (usedPlayers.length < 4) {
     const hasUsedPlayers = {
@@ -108,16 +130,21 @@ const getUsedPlayersNoPosition = async (userId, season, groupId) => {
     });
     for (const key in hasUsedPlayers) {
       if (!hasUsedPlayers[key]) {
-        createUsedPlayers(userId, season, groupId, key);
+        try {
+          createUsedPlayers(userId, season, groupId, key);
+        } catch (err) {
+          throw err;
+        }
       }
     }
   }
   return usedPlayers;
 };
 
-const createUsedPlayers = (userId, season, groupId, position) =>
-  new Promise(async (res, rej) => {
-    const isDupe = await checkDuplicateRoster(
+const createUsedPlayers = async (userId, season, groupId, position) => {
+  let isDupe = false;
+  try {
+    isDupe = await checkDuplicateRoster(
       'usedPlayers',
       userId,
       groupId,
@@ -125,17 +152,38 @@ const createUsedPlayers = (userId, season, groupId, position) =>
       null,
       position
     );
-    if (!isDupe) {
-      res(
-        await db.UsedPlayers.create({
-          userId,
-          season,
-          groupId,
-          position,
-        }).exec()
-      );
+  } catch (err) {
+    throw err;
+  }
+  if (!isDupe) {
+    try {
+      return await db.UsedPlayers.create({
+        userId,
+        season,
+        groupId,
+        position,
+      }).exec();
+    } catch (err) {
+      console.log('Error in createUsedPlayers: ', {
+        userId,
+        season,
+        groupId,
+        position,
+        err,
+      });
+      throw { status: 500, message: 'Error creating Used Players for season' };
     }
-  });
+  } else {
+    console.log('Error, dupe used players is trying to be created: ', {
+      userId,
+      season,
+      groupId,
+      position,
+      err,
+    });
+    throw { status: 400, message: 'Used Players already exists for season' };
+  }
+};
 
 const createWeeklyRoster = async function (userId, week, season, groupId) {
   try {
@@ -160,195 +208,157 @@ const createWeeklyRoster = async function (userId, week, season, groupId) {
       season,
       groupId,
     });
-    throw { status: 500, message: 'Error saving weekly roster' };
+    throw { status: 500, message: 'Error creating weekly roster' };
   }
 };
 
-const getWeeklyGroupRostersCreateIfNotExist = async (season, week, group) =>
-  new Promise(async (res) => {
-    try {
-      const userRosters = await db.UserRoster.find({
-        season: season,
-        week: week,
-        groupId: group._id,
-      })
-        .lean()
-        .exec();
-      const completeRosters = userRosters.slice(0);
-      const userIdArray = userRosters.map((roster) => roster.userId);
-      if (group.userlist.length !== userRosters.length) {
-        for (const user of group.userlist) {
-          if (!userIdArray.includes(user.userId)) {
-            completeRosters.push(
-              await createWeeklyRoster(user.userId, week, season, group._id)
-            );
-          }
-        }
-      }
-      res(completeRosters);
-    } catch (err) {
-      console.log('Error get / creating weekly user roster:', {
-        season,
-        week,
-        group,
-      });
-      if (err.status === 500) {
-        throw err;
-      } else {
-        throw { status: 500, message: 'Error pulling weekly rosters' };
-      }
-    }
-  });
-
-const sortUsersByScore = async (userRosterArray, groupId, season) =>
-  new Promise(async (res) => {
-    const sortedScores = [];
-    for (let user of userRosterArray) {
-      //TODO One pull from DB
-      const userScore = await db.UserScores.findOne(
-        { userId: user.userId, groupId: groupId, season: season },
-        { totalScore: 1 }
-      ).exec();
-      if (!userScore) {
-        continue;
-      }
-      sortedScores.push({
-        userId: user.userId,
-        username: user.username,
-        roster: user.roster,
-        totalScore: userScore.totalScore,
-      });
-    }
-    sortedScores.sort((a, b) => b.totalScore - a.totalScore);
-    res(sortedScores);
-  });
-
-const checkRoster = async (groupId, newRoster) =>
-  new Promise(async (res, rej) => {
-    const groupPositions = await groupHandler.getGroupPositions(groupId);
-    const mappedPositions = await groupHandler.mapGroupPositions(
-      groupPositions,
-      positions.positionMap
-    );
-    const maxPositionCount = { QB: 0, RB: 0, WR: 0, TE: 0, K: 0 };
-    const currentPositionsOnRoster = { QB: 0, RB: 0, WR: 0, TE: 0, K: 0 };
-    for (const singlePositionMap of mappedPositions) {
-      for (const position of singlePositionMap) {
-        maxPositionCount[positions.positionArray[position]]++;
-      }
-    }
-    if (newRoster.length > mappedPositions.length) {
-      res({ valid: false, message: 'Too many players on roster' });
-      return;
-    }
-    for (const player of newRoster) {
-      if (player.mySportsId === 0) {
-        continue;
-      }
-      //TODO One DB pull
-      const { position } = await db.PlayerData.findOne(
-        {
-          mySportsId: player.mySportsId,
-        },
-        { position: 1 }
-      )
-        .lean()
-        .exec();
-      currentPositionsOnRoster[position]++;
-    }
-
-    for (const position of positions.positionArray) {
-      if (maxPositionCount[position] < currentPositionsOnRoster[position]) {
-        res({ valid: false, message: `Too many ${position} for your roster` });
-        return;
-      }
-    }
-    res({ valid: true, message: 'Valid Roster' });
-  });
-
-export default {
-  dummyRoster: async (userId, groupId, week, season, dummyRoster) => {
-    return new Promise((res, rej) => {
-      db.UserRoster.findOne(
-        { userId, groupId, week, season },
-        async (err, userRoster) => {
-          if (userRoster === null) {
-            userRoster = await db.UserRoster.create({
-              userId,
-              groupId,
-              week,
-              season,
-            }).exec();
-          }
-          const usedPlayers = await db.UsedPlayers.findOne({
-            userId,
-            season,
-            groupId,
-          }).exec();
-          if (usedPlayers === null) {
-            usedPlayers = createUsedPlayers(userId, season, groupId);
-          }
-          //Create a set of players currently in the week. We want to pull them out of the UsedPlayer Array when we update them
-          const rosterArray = Object.values(userRoster.roster);
-          const currentRoster = new Set(
-            rosterArray.filter((playerId) => playerId !== 0)
+const getWeeklyGroupRostersCreateIfNotExist = async (season, week, group) => {
+  try {
+    const userRosters = await db.UserRoster.find({
+      season: season,
+      week: week,
+      groupId: group._id,
+    })
+      .lean()
+      .exec();
+    const completeRosters = userRosters.slice(0);
+    const userIdArray = userRosters.map((roster) => roster.userId);
+    if (group.userlist.length !== userRosters.length) {
+      for (const user of group.userlist) {
+        if (!userIdArray.includes(user.userId)) {
+          completeRosters.push(
+            await createWeeklyRoster(user.userId, week, season, group._id)
           );
-          const currentUsedPlayerArray = usedPlayers.usedPlayers;
-          //filter out all the players who are being pulled from the current week
-          const updatedUsedPlayers = currentUsedPlayerArray.filter(
-            (playerId) => !currentRoster.has(+playerId)
-          );
-
-          //Add in all the players from the new players to the used player array
-          const dummyRosterArray = Object.values(dummyRoster);
-
-          for (const player of dummyRosterArray) {
-            if (parseInt(player) !== 0) {
-              updatedUsedPlayers.push(player);
-            }
-          }
-
-          usedPlayers.usedPlayers = updatedUsedPlayers;
-          usedPlayers.save((err, result) => {
-            if (err) {
-              console.log(err);
-            }
-          });
         }
-      );
-      userRoster.roster = dummyRoster;
-      userRoster.save((err, result) => {
-        if (err) {
-          console.log(err);
-        } else {
-          res(result);
-        }
-      });
-    });
-  },
-  availablePlayers: async (userId, searchedPosition, season, groupId) => {
-    const usedPlayers = await getUsedPlayers(
-      userId,
+      }
+    }
+    return completeRosters;
+  } catch (err) {
+    console.log('Error get / creating weekly user roster:', {
       season,
-      groupId,
-      searchedPosition
-    );
+      week,
+      group,
+    });
+    if (err.status === 500) {
+      throw err;
+    } else {
+      throw { status: 500, message: 'Error pulling weekly rosters' };
+    }
+  }
+};
 
-    //TODO This should be a non inclusive search, finding players that are available rather than getting ALL players and filtering them down
-    const searchedPlayers = await db.PlayerData.find(
-      { active: true, position: searchedPosition },
-      { mySportsId: 1, name: 1, position: 1, rank: 1, team: 1, injury: 1 }
+const sortUsersByScore = async (userRosterArray, groupId, season) => {
+  const userIdArray = userRosterArray.map((user) => user.userId);
+  let userScores;
+  try {
+    userScores = await db.UserScores.find(
+      { userId: { $in: userIdArray }, groupId: groupId, season: season },
+      { totalScore: 1, userId: 1 }
+    )
+      .sort({ totalScore: -1 })
+      .lean()
+      .exec();
+  } catch (err) {
+    console.log('Error in sortUsersByScore: ', { groupId, season, err });
+    throw { status: 500, message: 'Error sorting users' };
+  }
+
+  for (let i = 0; i < userScores.length; i++) {
+    const foundUser = userRosterArray.find(
+      (userRoster) =>
+        userRoster.userId.toString() === userScores[i].userId.toString()
+    );
+    userScores[i].username = foundUser.username;
+    userScores[i].roster = foundUser.roster;
+  }
+
+  return userScores;
+};
+
+const checkRoster = async (groupId, newRoster) => {
+  let groupRoster;
+  try {
+    groupRoster = await db.GroupRoster.findOne({ groupId }, { position: 1 })
+      .lean()
+      .exec();
+  } catch (err) {
+    console.log('Error pulling groupRoster in checkRoster: ', {
+      groupId,
+      newRoster,
+      err,
+    });
+    throw { status: 500, message: 'Database error, please refresh' };
+  }
+
+  const mappedPositions = await groupHandler.mapGroupPositions(
+    groupRoster.position,
+    positions.positionMap
+  );
+  const maxPositionCount = { QB: 0, RB: 0, WR: 0, TE: 0, K: 0 };
+  const currentPositionsOnRoster = { QB: 0, RB: 0, WR: 0, TE: 0, K: 0 };
+  for (const singlePositionMap of mappedPositions) {
+    for (const position of singlePositionMap) {
+      maxPositionCount[positions.positionArray[position]]++;
+    }
+  }
+  if (newRoster.length > mappedPositions.length) {
+    throw { status: 400, message: 'Too many players on roster' };
+  }
+  const mySportsArray = newRoster.map((player) => player.mySportsId);
+
+  let newPlayers;
+  try {
+    newPlayers = await db.PlayerData.find(
+      { mySportsId: { $in: mySportsArray } },
+      { position: 1 }
     )
       .lean()
       .exec();
+  } catch (err) {
+    console.log('Error pulling PlayerData in checkRoster: ', {
+      groupId,
+      newRoster,
+      err,
+    });
+    throw { status: 500, message: 'Database error, please refresh' };
+  }
 
-    //TODO Rather than iterate through the list here. Should speed up the original
-    const availablePlayers = checkForAvailablePlayers(
-      usedPlayers,
-      searchedPlayers
-    );
+  for (const player of newPlayers) {
+    currentPositionsOnRoster[player.position]++;
+  }
 
-    return availablePlayers;
+  for (const position of positions.positionArray) {
+    if (maxPositionCount[position] < currentPositionsOnRoster[position]) {
+      throw { status: 400, message: `Too many ${position} on your roster` };
+    }
+  }
+};
+
+export default {
+  availablePlayers: async (userId, searchedPosition, season, groupId) => {
+    try {
+      const usedPlayers = await getUsedPlayers(
+        userId,
+        season,
+        groupId,
+        searchedPosition
+      );
+      const availablePlayers = await db.PlayerData.find({
+        active: true,
+        position: searchedPosition,
+        mySportsId: { $nin: usedPlayers },
+      })
+        .sort({ rank: 1 })
+        .lean()
+        .exec();
+      return availablePlayers;
+    } catch (err) {
+      if (err.status) {
+        throw err;
+      } else {
+        throw { status: 500, message: 'Database error, please refresh' };
+      }
+    }
   },
   updateUserRoster: async (
     userId,
@@ -359,8 +369,8 @@ export default {
     week,
     season,
     position
-  ) =>
-    new Promise(async (res, rej) => {
+  ) => {
+    try {
       let usedPlayers = await db.UsedPlayers.findOne({
         userId,
         season,
@@ -379,18 +389,15 @@ export default {
       let newUsedPlayers = [];
       for (const playerId of usedPlayers.usedPlayers) {
         if (playerId === addedPlayer) {
-          rej("You've already used this player");
-          return;
+          throw { status: 400, message: "You've already used this player" };
         } else if (playerId !== +droppedPlayer) {
           newUsedPlayers.push(playerId);
         }
       }
       newUsedPlayers.push(addedPlayer);
-      const validCheck = await checkRoster(groupId, roster);
-      if (validCheck.valid === false) {
-        rej(validCheck.message);
-        return;
-      }
+
+      await checkRoster(groupId, roster);
+
       usedPlayers.usedPlayers = newUsedPlayers;
       await usedPlayers.save();
 
@@ -406,51 +413,67 @@ export default {
       }
       currentRoster.roster = newRoster;
       await currentRoster.save();
-      res(currentRoster.roster);
-    }),
-  getAllRostersForGroup: async (season, week, groupId) =>
-    new Promise(async (res, rej) => {
-      try {
-        const userRosters = [];
-        const group = await db.Group.findById(groupId);
-        const allRosters = await getWeeklyGroupRostersCreateIfNotExist(
+      return currentRoster.roster;
+    } catch (err) {
+      if (err.status) {
+        throw err;
+      } else {
+        console.log(
+          'Error in updateUserRoster. Trying to update user roster: ',
+          {
+            userId,
+            groupId,
+            roster,
+            droppedPlayer,
+            addedPlayer,
+            week,
+            season,
+            position,
+            err,
+          }
+        );
+        throw { status: 500, message: 'Error updating roster, please refresh' };
+      }
+    }
+  },
+  getAllRostersForGroup: async (season, week, groupId) => {
+    try {
+      const userRosters = [];
+      const group = await db.Group.findById(groupId);
+      const allRosters = await getWeeklyGroupRostersCreateIfNotExist(
+        season,
+        week,
+        group
+      );
+      for (const roster of allRosters) {
+        const filledRoster = await mySportsHandler.fillUserRoster(
+          roster.roster
+        );
+        const user = await db.User.findById(roster.userId).exec();
+        userRosters.push({
+          userId: user._id,
+          username: user.username,
+          roster: filledRoster,
+        });
+      }
+      const sortedUsers = await sortUsersByScore(userRosters, groupId, season);
+      return sortedUsers;
+    } catch (err) {
+      if (err.status) {
+        console.log('Error pulling all rosters for group:', {
           season,
           week,
-          group
-        );
-        for (const roster of allRosters) {
-          const filledRoster = await mySportsHandler.fillUserRoster(
-            roster.roster
-          );
-          const user = await db.User.findById(roster.userId).exec();
-          userRosters.push({
-            userId: user._id,
-            username: user.username,
-            roster: filledRoster,
-          });
-        }
-        const sortedUsers = await sortUsersByScore(
-          userRosters,
           groupId,
-          season
-        );
-        res(sortedUsers);
-      } catch (err) {
-        if (err.status === 500) {
-          console.log('Error pulling all rosters for group:', {
-            season,
-            week,
-            groupId,
-          });
-          throw err;
-        } else {
-          throw {
-            status: 500,
-            message: 'Error getting all rosters for the group',
-          };
-        }
+        });
+        throw err;
+      } else {
+        throw {
+          status: 500,
+          message: 'Error getting all rosters for the group',
+        };
       }
-    }),
+    }
+  },
   usedPlayersByPosition: async (userId, season, groupId, position) => {
     const usedPlayers = await getUsedPlayers(userId, season, groupId, position);
 
@@ -461,58 +484,114 @@ export default {
       );
       return dbSearch;
     } catch (err) {
-      console.log(err);
-      return { status: 500, res: 'DB Searching Error' };
+      console.log('Error in usedPlayersByPosition: ', {
+        userId,
+        season,
+        groupId,
+        position,
+        err,
+      });
+      throw { status: 500, message: 'Database error, please refresh' };
     }
   },
   searchAvailablePlayerByTeam: async (groupId, username, team, season) => {
-    const user = await db.User.findOne({ username }, { _id: 1 });
-    const usedPlayers = await getUsedPlayersNoPosition(
-      user._id,
-      season,
-      groupId
-    );
-
-    const playersByTeam = await db.PlayerData.find(
-      { active: true, team: team, P: { $ne: 'K' } },
-      { mySportsId: 1, name: 1, position: 1, rank: 1, team: 1, injury: 1 }
-    );
-
-    const availablePlayers = checkForAvailablePlayers(
-      usedPlayers,
-      playersByTeam
-    );
-
-    return availablePlayers;
-  },
-  userAllRostersForSeason: async function (userId, groupId, season) {
-    const scoredAllSeason = [];
-
-    for (let i = 17; i >= 0; i--) {
-      const weeklyUserRoster = await this.getUserRoster(
-        userId,
-        i + 1,
+    try {
+      const user = await db.User.findOne({ username }, { _id: 1 });
+      const usedPlayersAllPosition = await getUsedPlayersNoPosition(
+        user._id,
         season,
         groupId
       );
-      scoredAllSeason.push(
-        await mySportsHandler.fillUserRoster(weeklyUserRoster)
-      );
-    }
+      const usedPlayers = [];
 
-    return scoredAllSeason;
+      for (const position of usedPlayersAllPosition) {
+        for (const usedPlayerId of position.usedPlayers) {
+          usedPlayers.push(usedPlayerId);
+        }
+      }
+
+      const availablePlayers = await db.PlayerData.find(
+        {
+          active: true,
+          team: team,
+          position: { $ne: 'K' },
+          mySportsId: { $nin: usedPlayers },
+        },
+        { mySportsId: 1, name: 1, position: 1, rank: 1, team: 1, injury: 1 }
+      )
+        .sort({ rank: 1 })
+        .lean()
+        .exec();
+
+      return availablePlayers;
+    } catch (err) {
+      console.log('Error in searchAvailablePlayerByTeam: ', {
+        groupId,
+        username,
+        team,
+        season,
+        err,
+      });
+      throw { status: 500, message: 'Error getting available players' };
+    }
+  },
+  userAllRostersForSeason: async function (userId, groupId, season) {
+    try {
+      const scoredAllSeason = [];
+
+      for (let i = 17; i >= 0; i--) {
+        const weeklyUserRoster = await this.getUserRoster(
+          userId,
+          i + 1,
+          season,
+          groupId
+        );
+        scoredAllSeason.push(
+          await mySportsHandler.fillUserRoster(weeklyUserRoster)
+        );
+      }
+
+      return scoredAllSeason;
+    } catch (err) {
+      if (err.status) {
+        throw err;
+      } else {
+        console.log('Error in userAllRostersForSeason: ', {
+          userId,
+          groupId,
+          season,
+          err,
+        });
+        throw { status: 500, message: 'Error filling out roster' };
+      }
+    }
   },
   getUserRoster: async (userId, week, season, groupId) => {
-    let roster = await db.UserRoster.findOne(
-      { userId, week, season, groupId },
-      { roster: 1 }
-    )
-      .lean()
-      .exec();
-    if (roster === null) {
-      roster = await createWeeklyRoster(userId, week, season, groupId);
+    try {
+      let roster = await db.UserRoster.findOne(
+        { userId, week, season, groupId },
+        { roster: 1 }
+      )
+        .lean()
+        .exec();
+      if (roster === null) {
+        roster = await createWeeklyRoster(userId, week, season, groupId);
+      }
+      return roster.roster;
+    } catch (err) {
+      if (err.status) {
+        throw err;
+      } else {
+        console.log('Error in getUserRoster: ', {
+          userId,
+          week,
+          season,
+          groupId,
+          err,
+        });
+        throw { status: 500, message: 'Error finding roster' };
+      }
     }
-    return roster.roster;
   },
   lockPeroid: async () => {
     try {
@@ -521,6 +600,7 @@ export default {
         .exec();
       return { lockWeek };
     } catch (err) {
+      console.log('Error in lockPeroid: ', { err });
       throw { status: 404, message: 'Error finding general lock week data' };
     }
   },
@@ -542,8 +622,8 @@ export default {
       const currDate = new Date();
       return currDate < teamStart.startTime;
     } catch (err) {
-      console.log(err);
-      return false;
+      console.log('Error in checkTeamLock: ', { season, week, team, err });
+      throw { status: 500, message: 'Error checking if team has started' };
     }
   },
   getTotalScore: async (userId) => {
@@ -559,55 +639,97 @@ export default {
     }
   },
   scoreAllGroups: async (season, week) => {
-    const allGroups = await db.Group.find().lean().exec();
+    let allGroups;
+    try {
+      allGroups = await db.Group.find().lean().exec();
+    } catch (err) {
+      console.log('Error finding all groups: ', {});
+      throw { status: 500, message: 'Database connection error' };
+    }
     for (const group of allGroups) {
       console.log(`Scoring ${group.name}`);
-      const groupScore = await db.GroupScore.findOne({ groupId: group._id })
-        .lean()
-        .exec();
+      let groupScore;
+      try {
+        groupScore = await db.GroupScore.findOne({ groupId: group._id })
+          .lean()
+          .exec();
+      } catch (err) {
+        throw { status: 500, message: 'Database connection error' };
+      }
       for (let i = 1; i <= week; i++) {
-        const groupRosters = await getWeeklyGroupRostersCreateIfNotExist(
-          season,
-          i,
-          group
-        );
-
-        for (const user of groupRosters) {
-          await mySportsHandler.updateUserWeeklyAndTotalScore(
-            user.roster,
+        try {
+          const groupRosters = await getWeeklyGroupRostersCreateIfNotExist(
             season,
             i,
-            user.userId,
-            groupScore,
-            group._id
+            group
           );
+
+          for (const user of groupRosters) {
+            await mySportsHandler.updateUserWeeklyAndTotalScore(
+              user.roster,
+              season,
+              i,
+              user.userId,
+              groupScore,
+              group._id
+            );
+          }
+        } catch (err) {
+          throw err;
         }
         console.log(`Done scoring week ${i}`);
       }
     }
   },
   rankPlayersBasedOnGroup: async (season, week, groupName) => {
-    const { _id } = await db.Group.findOne({ name: groupName }, { _id: 1 })
-      .lean()
-      .exec();
-    const groupScore = await db.GroupScore.findOne({ groupId: _id });
+    let groupScore;
+    try {
+      const { _id } = await db.Group.findOne({ name: groupName }, { _id: 1 })
+        .lean()
+        .exec();
+      groupScore = await db.GroupScore.findOne({ groupId: _id });
+    } catch (err) {
+      console.log('DB Connection Error in rankPlayersBasedOnGroup: ', {
+        season,
+        week,
+        groupName,
+        err,
+      });
+      throw { status: 500, message: 'Database connection error' };
+    }
+
     console.log('Starting to Rank players');
-    const rankedPlayersByPosition = await mySportsHandler.rankPlayers(
-      season,
-      week,
-      groupScore,
-      true
-    );
-    console.log('Saving player Ranks');
-    await mySportsHandler.savePlayerRank(rankedPlayersByPosition);
+    try {
+      const rankedPlayersByPosition = await mySportsHandler.rankPlayers(
+        season,
+        week,
+        groupScore,
+        true
+      );
+      console.log('Saving player Ranks');
+      await mySportsHandler.savePlayerRank(rankedPlayersByPosition);
+    } catch (err) {
+      throw err;
+    }
   },
   getBestUserWeek: async function (groupId, season, maxWeek) {
-    const fullSeasonGroupScore = await db.UserScores.find({
-      groupId,
-      season,
-    })
-      .lean()
-      .exec();
+    let fullSeasonGroupScore;
+    try {
+      fullSeasonGroupScore = await db.UserScores.find({
+        groupId,
+        season,
+      })
+        .lean()
+        .exec();
+    } catch (err) {
+      console.log('Database error in getBestUserWeek: ', {
+        groupId,
+        season,
+        maxWeek,
+        err,
+      });
+      throw { status: 500, message: 'Database connection error' };
+    }
     let highestScoringWeek = { score: 0, userId: '', week: 0 };
     for (const userScore of fullSeasonGroupScore) {
       for (let i = 1; i <= maxWeek; i++) {
@@ -620,51 +742,73 @@ export default {
         }
       }
     }
-    const highestScoringRoster = await this.getUserRoster(
-      highestScoringWeek.userId,
-      highestScoringWeek.week,
-      season,
-      groupId
-    );
-    const fullRoster = await mySportsHandler.fillUserRoster(
-      highestScoringRoster
-    );
-    const userDetails = await userHandler.getUserByID(highestScoringWeek.U);
-    return {
-      roster: fullRoster,
-      username: userDetails.response.username,
-      week: highestScoringWeek.week,
-      score: highestScoringWeek.score,
-    };
+    try {
+      const highestScoringRoster = await this.getUserRoster(
+        highestScoringWeek.userId,
+        highestScoringWeek.week,
+        season,
+        groupId
+      );
+      const fullRoster = await mySportsHandler.fillUserRoster(
+        highestScoringRoster
+      );
+      const userDetails = await userHandler.getUserByID(highestScoringWeek.U);
+      return {
+        roster: fullRoster,
+        username: userDetails.response.username,
+        week: highestScoringWeek.week,
+        score: highestScoringWeek.score,
+      };
+    } catch (err) {
+      throw err;
+    }
   },
   getBestIdealRoster: async function (groupId, season, maxWeek) {
-    const bestIdealRoster = { roster: [], week: 0, season: '' };
-    for (let i = 1; i <= maxWeek; i++) {
-      const idealRoster = await groupHandler.getIdealRoster(groupId, season, i);
-      let idealRosterScore = 0;
-      for (let player of idealRoster.roster) {
-        idealRosterScore += +player.score;
+    try {
+      const bestIdealRoster = { roster: [], week: 0, season: '' };
+      for (let i = 1; i <= maxWeek; i++) {
+        const idealRoster = await groupHandler.getIdealRoster(
+          groupId,
+          season,
+          i
+        );
+        let idealRosterScore = 0;
+        for (let player of idealRoster.roster) {
+          idealRosterScore += +player.score;
+        }
+        if (idealRosterScore > bestIdealRoster.score) {
+          bestIdealRoster.roster = idealRoster.roster;
+          bestIdealRoster.week = i;
+          bestIdealRoster.score = idealRosterScore.toFixed(2);
+        }
       }
-      if (idealRosterScore > bestIdealRoster.score) {
-        bestIdealRoster.roster = idealRoster.roster;
-        bestIdealRoster.week = i;
-        bestIdealRoster.score = idealRosterScore.toFixed(2);
-      }
+      const fullRoster = await mySportsHandler.fillUserRoster(
+        bestIdealRoster.roster
+      );
+      return {
+        roster: fullRoster,
+        week: bestIdealRoster.week,
+        score: bestIdealRoster.score,
+      };
+    } catch (err) {
+      throw err;
     }
-    const fullRoster = await mySportsHandler.fillUserRoster(
-      bestIdealRoster.roster
-    );
-    return {
-      roster: fullRoster,
-      week: bestIdealRoster.week,
-      score: bestIdealRoster.score,
-    };
   },
   getBestScorePlayerByUser: async function (groupId, season) {
-    const fullSeasonGroupScore = await db.UserRoster.find({
-      groupId,
-      season,
-    }).exec();
+    let fullSeasonGroupScore;
+    try {
+      fullSeasonGroupScore = await db.UserRoster.find({
+        groupId,
+        season,
+      }).exec();
+    } catch (err) {
+      console.log('Database connection error in getBestScorePlayerByUser: ', {
+        groupId,
+        season,
+        err,
+      });
+      throw { status: 500, message: 'Database connection error' };
+    }
     const bestScore = { userId: '', week: 0, score: 0, mySportsId: 0 };
     for (const userRoster of fullSeasonGroupScore) {
       for (const player of userRoster.roster) {
@@ -676,13 +820,28 @@ export default {
         }
       }
     }
-    const player = await db.PlayerData.findOne(
-      { mySportsId: bestScore.mySportsId },
-      { name: 1, team: 1, position: 1 }
-    )
-      .lean()
-      .exec();
-    const userDetails = await userHandler.getUserByID(bestScore.userId);
+    let player;
+    try {
+      player = await db.PlayerData.findOne(
+        { mySportsId: bestScore.mySportsId },
+        { name: 1, team: 1, position: 1 }
+      )
+        .lean()
+        .exec();
+    } catch (err) {
+      console.log('Database connection error in getBestScorePlayerByUser: ', {
+        groupId,
+        season,
+        err,
+      });
+      throw { status: 500, message: 'Database connection error' };
+    }
+    let userDetails;
+    try {
+      userDetails = await userHandler.getUserByID(bestScore.userId);
+    } catch (err) {
+      throw err;
+    }
     return {
       player: player,
       username: userDetails.response.username,

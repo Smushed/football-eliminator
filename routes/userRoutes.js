@@ -7,6 +7,7 @@ import {
   authMiddleware,
   verifyUserIsSameEmailUserId,
 } from '../handlers/authHandler.js';
+import { returnError } from '../utils/ExpressUtils.js';
 
 export default (app) => {
   app.put('/api/user/update', authMiddleware, async (req, res) => {
@@ -17,7 +18,7 @@ export default (app) => {
       res.status(updateRes.status).send(updateRes.message);
     } catch (err) {
       console.log('Error updating user:', { userId, request, err });
-      res.status(err.status || 500).send(err.message || 'Error updating user');
+      returnError(res, err, 'Error updating user');
     }
   });
 
@@ -28,7 +29,7 @@ export default (app) => {
       res.status(200).send('User Created');
     } catch (err) {
       console.log('Error creating new user: ', { username, email, err });
-      res.status(err.status).send(err.message);
+      returnError(res, err);
     }
   });
 
@@ -40,7 +41,7 @@ export default (app) => {
       res.status(200).send({ userInfo, emailSettings });
     } catch (err) {
       console.log('Error pulling user by email:', { email, err });
-      res.status(500).send('Error retrieving user settings');
+      returnError(res, err, 'Error retrieving user settings');
     }
   });
 
@@ -51,9 +52,7 @@ export default (app) => {
       res.status(200).send(emailPres);
     } catch (err) {
       console.log('Error getting reminder data: ', { id, err });
-      res
-        .status(err.status || 500)
-        .send(err.message || 'Error pulling reminder settings');
+      returnError(res, err, 'Error pulling reminder settings');
     }
   });
 
@@ -63,9 +62,7 @@ export default (app) => {
       res.status(200).send(dbResponse);
     } catch (err) {
       console.log('Error pulling entire userlist: ', { err });
-      res
-        .status(err.status || 500)
-        .send(err.message || 'Error pulling userlist');
+      returnError(res, err, 'Error pulling userlist');
     }
   });
 
@@ -76,9 +73,7 @@ export default (app) => {
       res.status(foundUser.status).send(foundUser.response);
     } catch (err) {
       console.log('Error getting user by id:', { userId });
-      res
-        .status(err.status || 500)
-        .send(err.message || 'Error getting user data');
+      returnError(res, err, 'Error getting user data');
     }
   });
 
@@ -93,21 +88,9 @@ export default (app) => {
       res.status(200).send({ user, avatar });
     } catch (err) {
       console.log('Error getting user by username: ', { username, err });
-      res
-        .status(err.status || 500)
-        .send(err.message || 'Error getting user data');
+      returnError(res, err, 'Error getting user data');
     }
   });
-
-  // app.post(`/api/user/purgeUserAndGroupDB/:pass`, (req, res) => {
-  //   const { pass } = req.params;
-  //   if (pass !== process.env.DB_ADMIN_PASS) {
-  //     res.status(401).send(`Get Outta Here!`);
-  //     return;
-  //   }
-  //   userHandler.purgeDB();
-  //   res.status(200).send(`success`);
-  // });
 
   app.get('/api/user/profile/box/:userId', authMiddleware, async (req, res) => {
     const { userId } = req.params;
@@ -123,9 +106,7 @@ export default (app) => {
       )
       .catch((err) => {
         console.log('Error getting user profile for box:', { userId, err });
-        res
-          .status(err.status || 500)
-          .send(err.message || 'Error getting user data');
+        returnError(res, err, 'Error getting user data');
       });
   });
 
@@ -153,9 +134,7 @@ export default (app) => {
         res.sendStatus(200);
       } catch (err) {
         console.log('Error updating user: ', { groupId, userId, err });
-        res
-          .status(err.status || 500)
-          .send(err.message || 'Error updating user');
+        returnError(res, err, 'Error updating user');
       }
     }
   );
@@ -173,9 +152,7 @@ export default (app) => {
         );
         res.status(response.status).send(response.message);
       } catch (err) {
-        res
-          .status(res.status || 500)
-          .send(res.message || 'Error updating email settings');
+        returnError(res, err, 'Error updating email settings');
       }
     }
   );
@@ -186,12 +163,7 @@ export default (app) => {
       await userHandler.unsubscribeEmails(userId);
       res.sendStatus(200);
     } catch (err) {
-      res
-        .status(500)
-        .send(
-          err.message ||
-            'Error unsubscribing, contact kevin@eliminator.football'
-        );
+      returnError(res, err);
     }
   });
 };

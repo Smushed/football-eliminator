@@ -1,3 +1,4 @@
+import 'dotenv/config.js';
 import db from '../models/index.js';
 
 const fieldAlreadyExists = async (fieldToCheck, checkField1, checkField2) => {
@@ -49,9 +50,18 @@ const fieldAlreadyExists = async (fieldToCheck, checkField1, checkField2) => {
 };
 
 const fillOutUserForFrontEnd = async (user) => {
-  const groupData = await db.Group.find({
-    _id: { $in: user.grouplist },
-  }).exec();
+  let groupData;
+  try {
+    groupData = await db.Group.find({
+      _id: { $in: user.grouplist },
+    }).exec();
+  } catch (err) {
+    console.log('Database connection error in fillOutUserForFrontEnd: ', {
+      user,
+      err,
+    });
+    throw { status: 500, message: 'Database connection error' };
+  }
   const groupList = groupData.map((group) => {
     return { name: group.name, description: group.description, _id: group._id };
   });
@@ -78,7 +88,7 @@ export default {
       }));
       return filteredList;
     } catch (err) {
-      console.log('Error getting whole userlist:', { err });
+      console.log('Error getting whole userlist in getUserList:', { err });
       throw { status: 500, message: 'Error pulling userlist' };
     }
   },
@@ -144,21 +154,28 @@ export default {
     return { newUserInDB };
   },
   getUserByEmail: async (email) => {
-    const foundUser = await db.User.findOne({ email }).lean().exec();
-    const response = await fillOutUserForFrontEnd(foundUser);
+    try {
+      const foundUser = await db.User.findOne({ email }).lean().exec();
+      const response = await fillOutUserForFrontEnd(foundUser);
 
-    return response;
+      return response;
+    } catch (err) {
+      if (err.status) {
+        throw err;
+      } else {
+        console.log('Error in getUserByEmail: ', { email, err });
+        throw { status: 500, message: 'Error getting user data' };
+      }
+    }
   },
   getUserByID: async (userId) => {
     let response;
-    let status = 200;
     try {
       response = await db.User.findById(userId);
     } catch (err) {
-      response = 'No User Found!';
-      status = 400;
+      throw { status: 400, mmessage: 'No User Found' };
     }
-    return { response, status };
+    return { response, status: 200 };
   },
   getUserByUsername: async (username) => {
     try {
@@ -168,92 +185,42 @@ export default {
         .exec();
       return user;
     } catch (err) {
-      return { status: 400, message: `User ${username} not found` };
+      throw { status: 400, message: `User ${username} not found` };
     }
-  },
-  purgeDB: () => {
-    db.User.deleteMany({}, (err, res) => {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log('User Deleted');
-      }
-    });
-    db.UserRoster.deleteMany({}, (err, res) => {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log('User Roster Deleted');
-      }
-    });
-    db.UserScores.deleteMany({}, (err, res) => {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log('User Score Deleted');
-      }
-    });
-    db.Group.deleteMany({}, (err, res) => {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log('Group Deleted');
-      }
-    });
-    db.GroupRoster.deleteMany({}, (err, res) => {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log('Group Roster Deleted');
-      }
-    });
-    db.GroupScore.deleteMany({}, (err, res) => {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log('Group Score Deleted');
-      }
-    });
-    db.SeasonAndWeek.deleteMany({}, (err, res) => {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log('Season & Week Deleted');
-      }
-    });
-    db.UsedPlayers.deleteMany({}, (err, res) => {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log('UsedPlayers Deleted');
-      }
-    });
-    db.UserReminderSettings.deleteMany({}, (err, res) => {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log('UserEmailSetting Deleted');
-      }
-    });
   },
   addGroupToList: async (userId, groupId) => {
-    const isInGroup = await fieldAlreadyExists('group', userId, groupId);
-    if (isInGroup) {
-      return { status: 409, message: 'Group already added to user!' };
-    } else {
-      await db.User.findByIdAndUpdate(userId, { $push: { GL: groupId } });
+    try {
+      const isInGroup = await fieldAlreadyExists('group', userId, groupId);
+      if (isInGroup) {
+        throw { status: 409, message: 'Group already added to user!' };
+      } else {
+        await db.User.findByIdAndUpdate(userId, { $push: { GL: groupId } });
+      }
+      return { status: 200, message: 'All Good' };
+    } catch (err) {
+      if (err.status) {
+        throw err;
+      } else {
+        console.log('Error in addGroupToList: ', { userId, groupId });
+        throw { status: 500, message: 'Error joining group' };
+      }
     }
-    return { status: 200, message: 'All Good' };
   },
-  fillUserListFromGroup: (userList) =>
-    new Promise(async (res) => {
-      const userIdList = userList.map((user) => user.userId);
-      res(
-        await db.User.find({ _id: { $in: userIdList } })
-          .lean()
-          .exec()
-      );
-    }),
+  fillUserListFromGroup: async (userList) => {
+    const userIdList = userList.map((user) => user.userId);
+    try {
+      const pulledUserList = await db.User.find({ _id: { $in: userIdList } })
+        .lean()
+        .exec();
+      return pulledUserList;
+    } catch (err) {
+      console.log('Error getting userlist from group fillUserListFromGroup: ', {
+        userList,
+        err,
+      });
+      throw { status: 500, message: 'Error filling userlist' };
+    }
+  },
   getEmailSettings: async (userId) => {
     try {
       let emailSettings = await db.UserReminderSettings.findOne({
@@ -301,6 +268,10 @@ export default {
       ).exec();
     } catch (err) {
       console.log(err);
+      throw {
+        status: 500,
+        message: `Error unsubscribing, please contact ${process.env.DEV_EMAIL}`,
+      };
     }
   },
 };

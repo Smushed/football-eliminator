@@ -10,36 +10,44 @@ import {
   authMiddleware,
   verifyGroupAdminByEmail,
 } from '../handlers/authHandler.js';
+import { returnError } from '../utils/ExpressUtils.js';
 
 export default (app) => {
   app.put('/api/group/join/', async (req, res) => {
     const { userId, groupId } = req.body;
-    await groupHandler.addUser(userId, groupId);
-    await userHandler.addGroupToList(userId, groupId);
-    res.status(200).send('Added');
+    try {
+      await groupHandler.addUser(userId, groupId);
+      await userHandler.addGroupToList(userId, groupId);
+      res.status(200).send('Added');
+    } catch (err) {
+      returnError(res, err, 'Error joining group, please try again');
+    }
   });
 
   app.get('/api/group/profile', async (req, res) => {
     const { name, avatar, positions } = req.query;
     const group = { group: null, gAvatar: null, pos: null };
-    group.group = await groupHandler.getGroupData(name);
+    try {
+      group.group = await groupHandler.getGroupDataByName(name);
 
-    if (avatar === 'true') {
-      group.gAvatar = await s3Handler.getUserAvatar(groupData._id.toString());
-    }
-    if (positions === 'true') {
-      group.pos = await groupHandler.getGroupPositions(
-        groupData._id.toString()
+      if (avatar === 'true') {
+        group.gAvatar = await s3Handler.getUserAvatar(groupData._id.toString());
+      }
+      if (positions === 'true') {
+        group.pos = await groupHandler.getGroupPositions(
+          groupData._id.toString()
+        );
+      }
+      groupData.userlist = await userHandler.fillUserListFromGroup(
+        groupData.userlist
       );
-    }
-    groupData.userlist = await userHandler.fillUserListFromGroup(
-      groupData.userlist
-    );
 
-    if (groupData) {
+      if (!groupData) {
+        throw { status: 500, message: 'No Group Found' };
+      }
       res.status(200).send(group);
-    } else {
-      res.status(500).send({ error: 'No Group Found' });
+    } catch (err) {
+      returnError(res, err);
     }
   });
 
@@ -52,8 +60,7 @@ export default (app) => {
         const groupInfoArray = await groupHandler.getGroupDataByUserId(userId);
         res.status(200).send(groupInfoArray);
       } catch (err) {
-        console.log('Error pulling group details from userId ', { err });
-        res.status(500).send('Error getting group details');
+        returnError(res, err, 'Error getting group details');
       }
     }
   );
@@ -68,7 +75,7 @@ export default (app) => {
       res.status(200).send(groupInfo);
     } catch (err) {
       console.log('Error pulling group details by groupId ', { err });
-      res.status(500).send('Error getting group details');
+      returnError(res, err, 'Error getting group details');
     }
   });
 
@@ -78,7 +85,7 @@ export default (app) => {
       const positions = await groupHandler.getGroupPositions(groupId);
       res.status(200).send(positions);
     } catch (err) {
-      res.status(503).send('Positions Not Found');
+      returnError(res, err);
     }
   });
 
@@ -89,23 +96,27 @@ export default (app) => {
   app.post('/api/group/create', async (req, res) => {
     const { userId, newGroupScore, groupName, groupDesc, groupPositions } =
       req.body;
-    const groupResponse = await groupHandler.createGroup(
-      userId,
-      newGroupScore,
-      groupName,
-      groupDesc,
-      groupPositions
-    );
-    if (groupResponse === false) {
-      res.sendStatus(400);
-      return;
+    try {
+      const groupResponse = await groupHandler.createGroup(
+        userId,
+        newGroupScore,
+        groupName,
+        groupDesc,
+        groupPositions
+      );
+      if (groupResponse === false) {
+        res.sendStatus(400);
+        return;
+      }
+      const addUserResponse = await groupHandler.addUser(
+        userId,
+        groupResponse._id,
+        true
+      );
+      res.status(200).send(addUserResponse);
+    } catch (err) {
+      returnError(res, err);
     }
-    const addUserResponse = await groupHandler.addUser(
-      userId,
-      groupResponse._id,
-      true
-    );
-    res.status(200).send(addUserResponse);
   });
 
   app.get('/api/group/list', authMiddleware, async (req, res) => {
@@ -113,7 +124,7 @@ export default (app) => {
       const dbResponse = await groupHandler.getGroupList();
       res.status(200).send(dbResponse);
     } catch (err) {
-      res.status(500).send('Error getting group list');
+      returnError(res, err, 'Error getting group list');
     }
   });
 
@@ -134,7 +145,7 @@ export default (app) => {
           params: req.params,
           err,
         });
-        res.status(500).send('Error getting leaderboard for group');
+        returnError(res, err);
       }
     }
   );
@@ -160,20 +171,25 @@ export default (app) => {
           Promise.all([
             groupHandler.getBestRoster(groupId, season, +week, userScores),
             groupHandler.getLeaderRoster(userScores, groupId, week, season),
-          ]).then(async ([bestRoster, roster]) => {
-            if (!bestRoster) {
-              const blankRoster = await groupHandler.getBlankRoster(groupId);
-              bestRoster = { roster: blankRoster, username: '' };
-            }
-            return res.status(200).send({ bestRoster, roster });
-          });
+          ])
+            .then(async ([bestRoster, roster]) => {
+              if (!bestRoster) {
+                const blankRoster = await groupHandler.getBlankRoster(groupId);
+                bestRoster = { roster: blankRoster, username: '' };
+              }
+              return res.status(200).send({ bestRoster, roster });
+            })
+            .catch((err) => {
+              returnError(res, err);
+              return;
+            });
         }
       } catch (err) {
         console.log('Error getting best and leader roster for group ', {
           parmas: req.params,
           err,
         });
-        res.status(500).send('Error getting best and leader rosters ', { err });
+        returnError(res, err, 'Error pulling best roster for the group');
       }
     }
   );
@@ -183,23 +199,36 @@ export default (app) => {
     Promise.all([
       mySportsHandler.pullSeasonAndWeekFromDB(),
       groupHandler.getGroupDataById(groupId),
-    ]).then(async ([{ season, week }, groupData]) => {
-      const userScores = await groupHandler.getCurrAndLastWeekScores(
-        groupData._id,
-        season,
-        +week
-      );
-      Promise.all([
-        groupHandler.getBestUserForBox(userScores),
-        s3Handler.getUserAvatar(groupData._id.toString()),
-      ]).then(([topUser, groupAvatar]) => {
-        res.status(200).send({
-          name: groupData.name,
-          score: topUser.totalScore,
-          avatar: groupAvatar,
-        });
+    ])
+      .then(([{ season, week }, groupData]) => {
+        groupHandler
+          .getCurrAndLastWeekScores(groupData._id, season, +week)
+          .then((userScores) => {
+            Promise.all([
+              groupHandler.getBestUserForBox(userScores),
+              s3Handler.getUserAvatar(groupData._id.toString()),
+            ])
+              .then(([topUser, groupAvatar]) => {
+                res.status(200).send({
+                  name: groupData.name,
+                  score: topUser.totalScore,
+                  avatar: groupAvatar,
+                });
+              })
+              .catch((err) => {
+                returnError(res, err, 'Error pulling group data');
+                return;
+              });
+          })
+          .catch((err) => {
+            returnError(res, err, 'Error pulling group data');
+            return;
+          });
+      })
+      .catch((err) => {
+        returnError(res, err, 'Error pulling group data');
+        return;
       });
-    });
   });
 
   app.get('/api/group/scoring/:groupId', async (req, res) => {
@@ -207,7 +236,12 @@ export default (app) => {
     const { groupId } = req.params;
     const response = {};
 
-    response.groupScore = await groupHandler.getGroupScore(groupId);
+    try {
+      response.groupScore = await groupHandler.getGroupScore(groupId);
+    } catch (err) {
+      returnError(res, err);
+      return;
+    }
 
     if (withDesc === 'true') {
       response.map = scoringSystem.groupScoreMap;
@@ -223,103 +257,114 @@ export default (app) => {
       const response = await groupHandler.updateGroup(data);
       res.status(response.status).send(response.message);
     } catch (err) {
-      res.status(err.status).send(err.message);
+      returnError(res, err);
     }
-  });
-
-  app.put('/api/group/scoring', async (req, res) => {
-    const { data, groupId } = req.body;
-    console.log({ data });
-  });
-
-  app.put('/api/group/positions', async (req, res) => {
-    const { data, groupId } = req.body;
-    console.log({ data });
   });
 
   app.get('/api/group/topScore/:groupId/:season', async (req, res) => {
     const { groupId, season } = req.params;
-    const topScore = await groupHandler.topScoreForGroup(groupId, season);
-    res.status(200).send(topScore);
+    try {
+      const topScore = await groupHandler.topScoreForGroup(groupId, season);
+      res.status(200).send(topScore);
+    } catch (err) {
+      returnError(res, err);
+    }
   });
 
   app.delete(
     '/api/group/user/:groupId/:delUserId/:adminId',
     async (req, res) => {
       const { groupId, delUserId, adminId } = req.params;
-      if (delUserId === adminId) {
-        res.status(400).send('Cannot remove self from group!');
-        return;
-      }
-      const { season } = await mySportsHandler.pullSeasonAndWeekFromDB();
-      const group = await groupHandler.getGroupDataById(groupId);
-      const adminCheck = await groupHandler.checkAdmin(group, adminId);
-      if (!adminCheck) {
-        res.status(400).send('Not authorized to remove people!');
-        return;
-      }
-      const dbRes = await groupHandler.removeUser(group, delUserId, season);
+      try {
+        if (delUserId === adminId) {
+          throw { status: 400, message: 'Cannot remove self from group!' };
+        }
+        const { season } = await mySportsHandler.pullSeasonAndWeekFromDB();
+        const group = await groupHandler.getGroupDataById(groupId);
+        const adminCheck = await groupHandler.checkAdmin(group, adminId);
+        if (!adminCheck) {
+          throw { status: 400, message: 'Not authorized to remove people!' };
+        }
+        await groupHandler.removeUser(group, delUserId, season);
 
-      if (dbRes.status) {
-        res.sendStatus(200);
-      } else {
-        res.status(400).send(dbRes.message);
+        res.status(200).send('User removed');
+      } catch (err) {
+        returnError(res, err);
       }
     }
   );
 
   app.get('/api/group/admin/verify/:userId/:groupId', async (req, res) => {
     const { userId, groupId } = req.params;
-    const group = await groupHandler.getGroupDataById(groupId);
-    const onlyAdmin = await groupHandler.singleAdminCheck(group, userId);
-    if (onlyAdmin.status) {
-      res.status(210).send(onlyAdmin.nonAdmins);
-    } else {
-      res.sendStatus(200);
+    try {
+      const group = await groupHandler.getGroupDataById(groupId);
+      const onlyAdmin = await groupHandler.singleAdminCheck(group, userId);
+      if (onlyAdmin.status) {
+        res.status(210).send(onlyAdmin.nonAdmins);
+      } else {
+        res.sendStatus(200);
+      }
+    } catch (err) {
+      returnError(res, err);
     }
   });
 
   app.put('/api/group/admin/upgrade/:userId/:groupId', async (req, res) => {
     const { userId, groupId } = req.params;
-    const group = await groupHandler.getGroupDataById(groupId);
-    await groupHandler.upgradeToAdmin(group, userId);
-    res.sendStatus(200);
+    try {
+      const group = await groupHandler.getGroupDataById(groupId);
+      await groupHandler.upgradeToAdmin(group, userId);
+      res.sendStatus(200);
+    } catch (err) {
+      returnError(res, err);
+    }
   });
 
   app.put('/api/group/score/calculate/all', async (req, res) => {
-    const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
-    rosterHandler.scoreAllGroups(season, week);
-    res.sendStatus(200);
+    try {
+      const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
+      rosterHandler.scoreAllGroups(season, week);
+      res.sendStatus(200);
+    } catch (err) {
+      returnError(res, err, 'Error calculating score for group');
+    }
   });
 
   app.get(
     '/api/group/bestOfSeason/:groupId/:season/:maxWeek',
     async (req, res) => {
       const { groupId, season, maxWeek } = req.params;
-      const groupDetails = await groupHandler.getGroupDataById(groupId);
-      const yearlyWinner = await groupHandler.getYearlyWinner(groupId, season);
-      const highestScoreUserWeek = await rosterHandler.getBestUserWeek(
-        groupId,
-        season,
-        maxWeek
-      );
-      const bestIdealRoster = await rosterHandler.getBestIdealRoster(
-        groupId,
-        season,
-        maxWeek
-      );
-      const bestScorePlayerByUser =
-        await rosterHandler.getBestScorePlayerByUser(groupId, season);
-      emailHandler.sendYearlyRecapEmail(
-        maxWeek,
-        season,
-        groupDetails,
-        yearlyWinner,
-        highestScoreUserWeek,
-        bestIdealRoster,
-        bestScorePlayerByUser
-      );
-      res.sendStatus(200);
+      try {
+        const groupDetails = await groupHandler.getGroupDataById(groupId);
+        const yearlyWinner = await groupHandler.getYearlyWinner(
+          groupId,
+          season
+        );
+        const highestScoreUserWeek = await rosterHandler.getBestUserWeek(
+          groupId,
+          season,
+          maxWeek
+        );
+        const bestIdealRoster = await rosterHandler.getBestIdealRoster(
+          groupId,
+          season,
+          maxWeek
+        );
+        const bestScorePlayerByUser =
+          await rosterHandler.getBestScorePlayerByUser(groupId, season);
+        emailHandler.sendYearlyRecapEmail(
+          maxWeek,
+          season,
+          groupDetails,
+          yearlyWinner,
+          highestScoreUserWeek,
+          bestIdealRoster,
+          bestScorePlayerByUser
+        );
+        res.sendStatus(200);
+      } catch (err) {
+        returnError(res, err);
+      }
     }
   );
 };
