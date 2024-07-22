@@ -2,12 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Leaderboard from '../../Leaderboard/TableLeaderboard';
 
-import './profileStyle.css';
-
 import DisplayBox from '../../DisplayBox';
 import GroupScoreRow from './GroupScoreRow';
 
-import PencilSVG from '../../constants/SVG/pencil.svg';
+import PencilSVG from '../../../constants/SVG/pencil.svg';
 
 const GroupProfile = ({
   groupName,

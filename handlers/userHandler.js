@@ -27,8 +27,8 @@ const fieldAlreadyExists = async (fieldToCheck, checkField1, checkField2) => {
         }
       }
       case 'group': {
-        const dbUser = await db.User.findById(checkField1);
-        const alreadyInGroup = await dbUser.GL.filter(
+        const dbUser = await db.User.findById(checkField1).lean().exec();
+        const alreadyInGroup = dbUser.grouplist.filter(
           (groupId) => groupId.toString() === checkField2.toString()
         );
         if (alreadyInGroup.length > 0) {
@@ -194,7 +194,9 @@ export default {
       if (isInGroup) {
         throw { status: 409, message: 'Group already added to user!' };
       } else {
-        await db.User.findByIdAndUpdate(userId, { $push: { GL: groupId } });
+        await db.User.findByIdAndUpdate(userId, {
+          $push: { grouplist: groupId },
+        });
       }
       return { status: 200, message: 'All Good' };
     } catch (err) {

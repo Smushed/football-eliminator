@@ -43,14 +43,15 @@ export const axiosHandler = {
     if (cancelToken) {
       options.cancelToken = cancelToken;
     }
-    return axios.post(route, body, { headers: { authorization: getToken() } });
+    return axios.post(route, body, options);
   },
-  delete: async (route, body = {}, cancelToken) => {
+  delete: async (route, cancelToken) => {
     const options = { headers: { authorization: getToken() } };
     if (cancelToken) {
       options.cancelToken = cancelToken;
     }
-    return axios.delete(route, body, options);
+
+    return axios.delete(route, options);
   },
 };
 

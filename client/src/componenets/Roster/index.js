@@ -64,7 +64,7 @@ const Roster = () => {
   useEffect(() => {
     if (currentUser.grouplist) {
       if (currentUser.grouplist.length === 0) {
-        history.push(Routes.groupPage);
+        history.push(Routes.groupList);
       }
     }
   }, [currentUser.grouplist]);
@@ -441,7 +441,7 @@ const Roster = () => {
     for (let i = 0; i < weeklyMatchups.length; i++) {
       displayMatchups += `<br/>${weeklyMatchups[i].home}  -  ${weeklyMatchups[i].away}`;
     }
-    await Alert.fire({
+    Alert.fire({
       title: `Week ${weekOnPage} Matchups`,
       html: displayMatchups,
     });

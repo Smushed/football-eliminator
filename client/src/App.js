@@ -11,14 +11,14 @@ import UserProfile from './componenets/Profile/User';
 import Roster from './componenets/Roster';
 import AdminPanel from './componenets/AdminPanel';
 import UsedPlayers from './componenets/UsedPlayers';
-import GroupPage from './componenets/GroupPage/';
-import CreateGroup from './componenets/GroupPage/CreateGroup';
+import GroupList from './componenets/GroupList';
+import CreateGroup from './componenets/Profile/Group/CreateGroup';
 import FourOFour from './componenets/404';
 import SidePanel from './componenets/SidePanel';
 import AvatarWrapper from './contexts/Avatars';
 import Unsubscribe from './componenets/Unsubscribe';
+import GroupProfile from './componenets/Profile/Group/GroupProfile';
 import { axiosHandler, httpErrorHandler } from './utils/axiosHandler';
-import { getAuth } from 'firebase/auth';
 
 const CurrentUserContext = createContext();
 const NFLScheduleContext = createContext();
@@ -131,9 +131,11 @@ const App = ({ firebase }) => {
   return (
     <BrowserRouter>
       <CurrentUserContext.Provider
-        value={{ currentUser, setCurrentUser, currentGroup }}
+        value={{ currentUser, setCurrentUser, currentGroup, pullUserData }}
       >
-        <NFLScheduleContext.Provider value={{ currentNFLTime }}>
+        <NFLScheduleContext.Provider
+          value={{ currentNFLTime, getSeasonAndWeek }}
+        >
           <AvatarWrapper>
             <Toaster position='top-right' />
             <SidePanel
@@ -154,14 +156,15 @@ const App = ({ firebase }) => {
               <Route path={Routes.adminPanel} render={() => <AdminPanel />} />
               <Route
                 exact
-                path={Routes.groupPage}
-                render={() => <GroupPage pullUserData={pullUserData} />}
+                path={Routes.groupList}
+                render={() => <GroupList />}
               />
               <Route path={Routes.signin} render={() => <SignInOut />} />
               <Route path={Routes.signup} render={() => <SignInOut />} />
+              <Route path={Routes.userProfile} render={() => <UserProfile />} />
               <Route
-                path={Routes.userProfile}
-                render={() => <UserProfile pullUserData={pullUserData} />}
+                path={Routes.groupProfile}
+                render={() => <GroupProfile />}
               />
               <Route path={Routes.roster} render={() => <Roster />} />
               <Route path={Routes.usedPlayers} render={() => <UsedPlayers />} />
@@ -170,7 +173,6 @@ const App = ({ firebase }) => {
                 render={() => (
                   <CreateGroup
                     email={currentUser.email}
-                    pullUserData={pullUserData}
                     changeGroup={changeGroup}
                     userId={currentUser.userId}
                   />

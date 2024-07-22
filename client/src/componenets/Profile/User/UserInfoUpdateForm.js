@@ -25,6 +25,7 @@ const UserInfoUpdateForm = ({
   setDisableAllFields,
   isCurrentUser,
   pullUserData,
+  setCurrentUserGrouplist,
 }) => {
   const [showHidePassword, setShowHidePassword] = useState('password');
   const [modalOpen, setModalOpen] = useState(false);
@@ -60,7 +61,7 @@ const UserInfoUpdateForm = ({
 
   useEffect(() => {
     const authUser = getAuth().currentUser;
-    if (userFieldsOnPage.id === '' && currentUser && authUser) {
+    if (currentUser && authUser) {
       userProfilePull(params.name);
     }
   }, [params.name, currentUser]);
@@ -181,6 +182,7 @@ const UserInfoUpdateForm = ({
         `/api/group/details/all/user/${user._id}`,
         axiosCancel.token
       );
+      setCurrentUserGrouplist(grouplist.data);
       const builtUser = {
         password: '',
         id: user._id,

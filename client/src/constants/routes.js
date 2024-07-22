@@ -9,7 +9,7 @@ export const adminPanel = '/adminPanel/';
 export const usedPlayers = '/usedPlayers/:groupname/:username';
 export const seasonLongScore = '/seasonLongScore/:userId';
 export const updateWeek = '/updateWeek';
-export const groupPage = '/group';
+export const groupList = '/profile/group';
 export const fourOFour = '/*';
 export const createGroup = '/group/create';
 
