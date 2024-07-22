@@ -9,6 +9,7 @@ import mySportsHandler from '../handlers/mySportsHandler.js';
 import {
   authMiddleware,
   verifyGroupAdminByEmail,
+  verifyUserIsSameEmailUserId,
 } from '../handlers/authHandler.js';
 import { returnError } from '../utils/ExpressUtils.js';
 
@@ -194,38 +195,59 @@ export default (app) => {
     }
   );
 
-  app.get('/api/group/profile/box/:groupId', async (req, res) => {
-    const { groupId } = req.params;
+  app.get('/api/group/profile/box/:username/:groupname', async (req, res) => {
+    const { username, groupname } = req.params;
     Promise.all([
       mySportsHandler.pullSeasonAndWeekFromDB(),
-      groupHandler.getGroupDataById(groupId),
+      groupHandler.getGroupDataByName(groupname),
+      userHandler.getUserByUsername(username),
     ])
-      .then(([{ season, week }, groupData]) => {
+      .then(([{ season, week }, groupData, userData]) => {
         groupHandler
           .getCurrAndLastWeekScores(groupData._id, season, +week)
           .then((userScores) => {
-            Promise.all([
-              groupHandler.getBestUserForBox(userScores),
-              s3Handler.getUserAvatar(groupData._id.toString()),
-            ])
-              .then(([topUser, groupAvatar]) => {
+            groupHandler
+              .getBestUserForBox(userScores)
+              .then((topUser) => {
+                const currUserScore = userScores.find(
+                  (score) => score.userId.toString() === userData._id.toString()
+                );
+
                 res.status(200).send({
-                  name: groupData.name,
-                  score: topUser.totalScore,
-                  avatar: groupAvatar,
+                  groupData: groupData,
+                  userScore: {
+                    username: username,
+                    totalScore: currUserScore.totalScore,
+                  },
+                  topScore: topUser,
                 });
               })
               .catch((err) => {
+                console.log('Error level 1 in group profile pull: ', {
+                  username,
+                  groupname,
+                  err,
+                });
                 returnError(res, err, 'Error pulling group data');
                 return;
               });
           })
           .catch((err) => {
+            console.log('Error level 2 in group profile pull: ', {
+              username,
+              groupname,
+              err,
+            });
             returnError(res, err, 'Error pulling group data');
             return;
           });
       })
       .catch((err) => {
+        console.log('Error level 3 in group profile pull: ', {
+          username,
+          groupname,
+          err,
+        });
         returnError(res, err, 'Error pulling group data');
         return;
       });
@@ -294,44 +316,75 @@ export default (app) => {
     }
   );
 
-  app.get('/api/group/admin/verify/:userId/:groupId', async (req, res) => {
-    const { userId, groupId } = req.params;
-    try {
-      const group = await groupHandler.getGroupDataById(groupId);
-      const onlyAdmin = await groupHandler.singleAdminCheck(group, userId);
-      if (onlyAdmin.status) {
-        res.status(210).send(onlyAdmin.nonAdmins);
-      } else {
-        res.sendStatus(200);
+  app.delete(
+    '/api/group/user/:groupId/:userId',
+    authMiddleware,
+    async (req, res) => {
+      const { groupId, userId } = req.params;
+      try {
+        await verifyUserIsSameEmailUserId(req.currentUser, userId);
+        const { season } = await mySportsHandler.pullSeasonAndWeekFromDB();
+        const group = await groupHandler.getGroupDataByIdNoLean(groupId);
+        await groupHandler.removeUser(group, userId, season);
+        res.status(200).send('winnder');
+      } catch (err) {
+        returnError(res, err);
       }
-    } catch (err) {
-      returnError(res, err);
     }
-  });
+  );
 
-  app.put('/api/group/admin/upgrade/:userId/:groupId', async (req, res) => {
-    const { userId, groupId } = req.params;
-    try {
-      const group = await groupHandler.getGroupDataById(groupId);
-      await groupHandler.upgradeToAdmin(group, userId);
-      res.sendStatus(200);
-    } catch (err) {
-      returnError(res, err);
+  app.get(
+    '/api/group/admin/verify/:userId/:groupId',
+    authMiddleware,
+    async (req, res) => {
+      const { userId, groupId } = req.params;
+      try {
+        const group = await groupHandler.getGroupDataById(groupId);
+        const onlyAdmin = await groupHandler.singleAdminCheck(group, userId);
+        if (onlyAdmin.status) {
+          res.status(210).send(onlyAdmin.nonAdmins);
+        } else {
+          res.sendStatus(200);
+        }
+      } catch (err) {
+        returnError(res, err);
+      }
     }
-  });
+  );
 
-  app.put('/api/group/score/calculate/all', async (req, res) => {
-    try {
-      const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
-      rosterHandler.scoreAllGroups(season, week);
-      res.sendStatus(200);
-    } catch (err) {
-      returnError(res, err, 'Error calculating score for group');
+  app.put(
+    '/api/group/admin/upgrade/:userId/:groupId',
+    authMiddleware,
+    async (req, res) => {
+      const { userId, groupId } = req.params;
+      try {
+        const group = await groupHandler.getGroupDataById(groupId);
+        await groupHandler.upgradeToAdmin(group, userId);
+        res.sendStatus(200);
+      } catch (err) {
+        returnError(res, err);
+      }
     }
-  });
+  );
+
+  app.put(
+    '/api/group/score/calculate/all',
+    authMiddleware,
+    async (req, res) => {
+      try {
+        const { season, week } =
+          await mySportsHandler.pullSeasonAndWeekFromDB();
+        rosterHandler.scoreAllGroups(season, week);
+        res.sendStatus(200);
+      } catch (err) {
+        returnError(res, err, 'Error calculating score for group');
+      }
+    }
+  );
 
   app.get(
     '/api/group/bestOfSeason/:groupId/:season/:maxWeek',
+    authMiddleware,
     async (req, res) => {
       const { groupId, season, maxWeek } = req.params;
       try {

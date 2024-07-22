@@ -3,10 +3,7 @@ import groupHandler from '../handlers/groupHandler.js';
 import mySportsHandler from '../handlers/mySportsHandler.js';
 import positions from '../constants/positions.js';
 import userHandler from '../handlers/userHandler.js';
-import {
-  authMiddleware,
-  verifyUserIsSameEmailUserId,
-} from '../handlers/authHandler.js';
+import { authMiddleware } from '../handlers/authHandler.js';
 import { returnError } from '../utils/ExpressUtils.js';
 
 export default (app) => {
@@ -119,7 +116,6 @@ export default (app) => {
   );
 
   app.put('/api/roster/user/update', async (req, res) => {
-    // app.put('/api/roster/user/update', authMiddleware, async (req, res) => {
     try {
       const {
         userId,
@@ -131,7 +127,7 @@ export default (app) => {
         groupname,
         position,
       } = req.body;
-      // await verifyUserIsSameEmailUserId(req.currentUser, userId);
+      await verifyUserIsSameEmailUserId(req.currentUser, userId);
       const group = await groupHandler.getGroupDataByName(groupname);
       const updatedRoster = await rosterHandler.updateUserRoster(
         userId,

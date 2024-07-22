@@ -122,9 +122,14 @@ const createUserScore = async (userId, season, groupId) => {
     throw { status: 409, message: 'User score already created for group' };
   }
   try {
-    await db.UserScores.create({ userId, groupId, season }).exec();
+    await db.UserScores.create({ userId, groupId, season });
   } catch (err) {
-    console.log('DB Error creating UserScores: ', { userId, groupId, season });
+    console.log('DB Error creating UserScores: ', {
+      userId,
+      groupId,
+      season,
+      err,
+    });
     throw { status: 500, message: 'Error creating user score' };
   }
 };
@@ -268,8 +273,10 @@ export default {
       )
         .lean()
         .exec();
-      const dbResponse = await db.SeasonAndWeek.find({}).lean().exec();
-      await createUserScore(addedUserID, dbResponse[0].season, groupId);
+      const [currentTime] = await db.SeasonAndWeek.find({}).lean().exec();
+      if (!(await checkDuplicate('userScore', groupId, addedUserID))) {
+        await createUserScore(addedUserID, currentTime.season, groupId);
+      }
 
       return groupDetail;
     } catch (err) {
@@ -291,6 +298,7 @@ export default {
       .lean()
       .exec(),
   getGroupDataById: (groupId) => db.Group.findById(groupId).lean().exec(),
+  getGroupDataByIdNoLean: (groupId) => db.Group.findById(groupId).exec(),
   getLeaderBoard: async (groupId, season, week) => {
     const arrayForLeaderBoard = [];
     const weekAccessor = (week === 1 ? 1 : week - 1).toString();
@@ -672,13 +680,29 @@ export default {
   },
   getBestUserForBox: async function (userScores) {
     const scoresCopy = [...userScores];
-    const topWeekScore = await getTopScoreForWeek(scoresCopy);
-    return topWeekScore;
+    try {
+      const topWeekScore = await getTopScoreForWeek(scoresCopy);
+      const userDetails = await db.User.findById(topWeekScore.userId, {
+        username: 1,
+      })
+        .lean()
+        .exec();
+      return {
+        username: userDetails.username,
+        totalScore: topWeekScore.totalScore,
+      };
+    } catch (err) {
+      console.log('Error in getBestUserForBox, likely DB connection error: ', {
+        userScores,
+        err,
+      });
+      throw { status: 500, message: 'Database connection error' };
+    }
   },
   updateGroup: async (updatedGroup) => {
     try {
       if (updatedGroup.name.length < 6 || updatedGroup.description.length < 6) {
-        return {
+        throw {
           status: 400,
           message: 'Name & description must be at least 6 characters',
         };
@@ -712,9 +736,12 @@ export default {
       const scores = await db.UserScores.find(
         { groupId, season },
         `userId totalScore`
-      ).exec();
+      )
+        .lean()
+        .exec();
       const topScore = await getTopScoreForWeek(scores);
-      return topScore;
+      const { username } = await db.User.findById(topScore.userId);
+      return { ...topScore, username };
     } catch (err) {
       console.log('Error getting topScoreForGroup: ', { groupId, season, err });
       throw { status: 500, mmessage: 'Error pulling top score' };
@@ -734,7 +761,7 @@ export default {
       (user) => user.userId.toString() === delUserId.toString()
     );
     if (!userInGroup) {
-      res({ status: false, message: 'User not found in group.' });
+      throw { status: 400, message: 'User not found in group.' };
     }
 
     const userPos = group.userlist
@@ -752,7 +779,7 @@ export default {
       .map((groupId) => groupId.toString())
       .indexOf(group._id.toString());
     user.grouplist.splice(groupPos, 1);
-    if (user.mainGroup.toString() === group._id.toString()) {
+    if (user.mainGroup && user.mainGroup.toString() === group._id.toString()) {
       user.mainGroup = null;
     }
     try {
@@ -772,7 +799,7 @@ export default {
         userId: delUserId,
       });
       await user.save();
-      if (group.userlist.length <= 1) {
+      if (group.userlist.length === 0) {
         await db.Group.deleteOne({ _id: group._id });
       } else {
         await group.save();

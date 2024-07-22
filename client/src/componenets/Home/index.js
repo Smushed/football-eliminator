@@ -33,7 +33,7 @@ const Home = () => {
   useEffect(() => {
     if (currentUser.grouplist) {
       if (currentUser.grouplist.length === 0) {
-        history.push(Routes.groupPage);
+        history.push(Routes.groupList);
       }
     }
   }, [currentUser.grouplist]);

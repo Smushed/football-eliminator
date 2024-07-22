@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { withFirebase } from '../Firebase';
 import { Link } from 'react-router-dom';
 import { slide as Menu } from 'react-burger-menu';
@@ -10,6 +10,7 @@ import ListSVG from '../../constants/SVG/list.svg';
 import PlayerSVG from '../../constants/SVG/player.svg';
 import GroupSVG from '../../constants/SVG/group.svg';
 import UserSVG from '../../constants/SVG/user.svg';
+import ClipboardSVG from '../../constants/SVG/clipboard.svg';
 import * as Routes from '../../constants/routes';
 
 import SignOutIcon from './SignOut.png';
@@ -24,9 +25,17 @@ const SidePanel = ({
   hardSetSideBar,
   changeGroup,
 }) => {
-  useEffect(() => {}, [showSideBar]);
+  const [mainGroupName, setMainGroupName] = useState('');
 
   const { currentUser } = useContext(CurrentUserContext);
+
+  useEffect(() => {}, [showSideBar]);
+
+  useEffect(() => {
+    if (currentUser.grouplist && currentUser.grouplist.length > 0) {
+      getMainGroup(currentUser);
+    }
+  }, [currentUser]);
 
   const signUserOut = () => {
     firebase.doSignOut();
@@ -35,6 +44,16 @@ const SidePanel = ({
 
   const groupSelect = (e) => {
     changeGroup(e.target.value);
+  };
+
+  const getMainGroup = (currUser) => {
+    if (!currUser.mainGroup) {
+      return;
+    }
+    const mainGroup = currUser.grouplist.find(
+      (group) => group._id === currUser.mainGroup
+    );
+    setMainGroupName(mainGroup.name);
   };
 
   return (
@@ -75,12 +94,6 @@ const SidePanel = ({
           <div className='sideBarItem'>Used Players</div>
         </div>
       </Link>
-      <Link to={Routes.groupPage} onClick={() => toggleSideBar()}>
-        <div className='sidebarItemWrapper'>
-          <img className='sidebarSVG' src={GroupSVG} alt='Group Logo' />
-          <div className='sideBarItem'>Group Page</div>
-        </div>
-      </Link>
       <Link
         to={`/profile/user/${currentUser.username}`}
         onClick={() => toggleSideBar()}
@@ -90,7 +103,23 @@ const SidePanel = ({
           <div className='sideBarItem'>Profile Page</div>
         </div>
       </Link>
-      {currentUser.grouplist && (
+      <Link
+        to={`/profile/group/${mainGroupName}`}
+        onClick={() => toggleSideBar()}
+      >
+        <div className='sidebarItemWrapper'>
+          <img className='sidebarSVG' src={ClipboardSVG} alt='Clipboard Logo' />
+          <div className='sideBarItem'>{mainGroupName} Group Page</div>
+        </div>
+      </Link>
+      <Link to={Routes.groupList} onClick={() => toggleSideBar()}>
+        <div className='sidebarItemWrapper'>
+          <img className='sidebarSVG' src={GroupSVG} alt='Group Logo' />
+          <div className='sideBarItem'>Group List</div>
+        </div>
+      </Link>
+
+      {currentUser.grouplist && currentUser.grouplist.length > 0 && (
         <select
           className='form-select groupDropdown'
           value={currentGroup._id}

@@ -207,6 +207,7 @@ const createWeeklyRoster = async function (userId, week, season, groupId) {
       week,
       season,
       groupId,
+      err,
     });
     throw { status: 500, message: 'Error creating weekly roster' };
   }
@@ -222,10 +223,10 @@ const getWeeklyGroupRostersCreateIfNotExist = async (season, week, group) => {
       .lean()
       .exec();
     const completeRosters = userRosters.slice(0);
-    const userIdArray = userRosters.map((roster) => roster.userId);
+    const userIdArray = userRosters.map((roster) => roster.userId.toString());
     if (group.userlist.length !== userRosters.length) {
       for (const user of group.userlist) {
-        if (!userIdArray.includes(user.userId)) {
+        if (!userIdArray.includes(user.userId.toString())) {
           completeRosters.push(
             await createWeeklyRoster(user.userId, week, season, group._id)
           );
@@ -234,14 +235,15 @@ const getWeeklyGroupRostersCreateIfNotExist = async (season, week, group) => {
     }
     return completeRosters;
   } catch (err) {
-    console.log('Error get / creating weekly user roster:', {
-      season,
-      week,
-      group,
-    });
     if (err.status === 500) {
       throw err;
     } else {
+      console.log('Error get / creating weekly user roster:', {
+        season,
+        week,
+        group,
+        err,
+      });
       throw { status: 500, message: 'Error pulling weekly rosters' };
     }
   }

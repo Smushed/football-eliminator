@@ -27,8 +27,8 @@ const fieldAlreadyExists = async (fieldToCheck, checkField1, checkField2) => {
         }
       }
       case 'group': {
-        const dbUser = await db.User.findById(checkField1);
-        const alreadyInGroup = await dbUser.GL.filter(
+        const dbUser = await db.User.findById(checkField1).lean().exec();
+        const alreadyInGroup = dbUser.grouplist.filter(
           (groupId) => groupId.toString() === checkField2.toString()
         );
         if (alreadyInGroup.length > 0) {
@@ -179,11 +179,10 @@ export default {
   },
   getUserByUsername: async (username) => {
     try {
-      const user = await db.User.findOne({ username: username })
+      return await db.User.findOne({ username: username })
         .collation({ locale: 'en_US', strength: 2 })
         .lean()
         .exec();
-      return user;
     } catch (err) {
       throw { status: 400, message: `User ${username} not found` };
     }
@@ -191,17 +190,22 @@ export default {
   addGroupToList: async (userId, groupId) => {
     try {
       const isInGroup = await fieldAlreadyExists('group', userId, groupId);
+      const user = await db.User.findById(userId).exec();
+      if (!user.grouplist) {
+        user.mainGroup = groupId;
+      }
+      user.grouplist.push(groupId);
       if (isInGroup) {
         throw { status: 409, message: 'Group already added to user!' };
       } else {
-        await db.User.findByIdAndUpdate(userId, { $push: { GL: groupId } });
+        await user.save();
       }
       return { status: 200, message: 'All Good' };
     } catch (err) {
       if (err.status) {
         throw err;
       } else {
-        console.log('Error in addGroupToList: ', { userId, groupId });
+        console.log('Error in addGroupToList: ', { userId, groupId, err });
         throw { status: 500, message: 'Error joining group' };
       }
     }
