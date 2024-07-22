@@ -47,6 +47,9 @@ const SidePanel = ({
   };
 
   const getMainGroup = (currUser) => {
+    if (!currUser.mainGroup) {
+      return;
+    }
     const mainGroup = currUser.grouplist.find(
       (group) => group._id === currUser.mainGroup
     );
@@ -116,7 +119,7 @@ const SidePanel = ({
         </div>
       </Link>
 
-      {currentUser.grouplist && (
+      {currentUser.grouplist && currentUser.grouplist.length > 0 && (
         <select
           className='form-select groupDropdown'
           value={currentGroup._id}

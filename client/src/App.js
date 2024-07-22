@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef, createContext } from 'react';
 import * as Routes from './constants/routes';
-import { Route, BrowserRouter, Switch, useHistory } from 'react-router-dom';
+import { Route, BrowserRouter, Switch } from 'react-router-dom';
 import { withFirebase } from './componenets/Firebase';
 import { Toaster } from 'react-hot-toast';
+import { getAuth } from 'firebase/auth';
 
 import SignInOut from './componenets/SignInOut';
 import NavBar from './componenets/NavBar/';
@@ -39,7 +40,7 @@ const App = ({ firebase }) => {
   useEffect(() => {
     listener.current = firebase.auth.onAuthStateChanged((authUser) => {
       if (authUser) {
-        pullUserData(authUser);
+        pullUserData();
       }
       return function cleanup() {
         listener();
@@ -47,8 +48,9 @@ const App = ({ firebase }) => {
     });
   }, [firebase]);
 
-  const pullUserData = async (authUser) => {
+  const pullUserData = async () => {
     try {
+      const authUser = getAuth().currentUser;
       const { data } = await axiosHandler.get(
         `/api/user/email/${authUser.email}`
       );

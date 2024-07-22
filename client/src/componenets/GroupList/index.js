@@ -188,8 +188,9 @@ const GroupRow = ({ group }) => {
   return (
     <div className='row border rounded mt-3'>
       <Tooltip id='scoreTooltip' />
-      <div className='row justify-content-center'>
-        <div className='col-10'>
+      <div className='row'>
+        <div className='col-1' />
+        <div className='col-11'>
           <div className='row mt-1'>
             <div className='col-12 text-center'>
               <Link

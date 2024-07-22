@@ -24,7 +24,6 @@ const UserInfoUpdateForm = ({
   disableAllFields,
   setDisableAllFields,
   isCurrentUser,
-  pullUserData,
   setCurrentUserGrouplist,
 }) => {
   const [showHidePassword, setShowHidePassword] = useState('password');
@@ -45,7 +44,7 @@ const UserInfoUpdateForm = ({
 
   const { addUserAvatarsToPull, repullUserAvatars, userAvatars } =
     useContext(AvatarContext);
-  const { currentUser } = useContext(CurrentUserContext);
+  const { currentUser, pullUserData } = useContext(CurrentUserContext);
   const history = useHistory();
   const params = useParams();
   const fileInputRef = useRef(null);
@@ -252,7 +251,7 @@ const UserInfoUpdateForm = ({
           request,
           userId: currentUser.userId,
         });
-        pullUserData(currentUser);
+        pullUserData();
         if (request.username !== undefined) {
           history.push(`/profile/user/${request.username}`);
           return;
@@ -351,12 +350,14 @@ const UserInfoUpdateForm = ({
           )}
           <div className='row justify-content-center'>
             <div className='col-12'>
-              <MainGroupInput
-                grouplist={userFieldsOnPage.grouplist}
-                mainGroup={userFieldsOnPage.mainGroup}
-                handleChange={handleChange}
-                disabled={disableAllFields}
-              />
+              {userFieldsOnPage.grouplist.length > 0 && (
+                <MainGroupInput
+                  grouplist={userFieldsOnPage.grouplist}
+                  mainGroup={userFieldsOnPage.mainGroup}
+                  handleChange={handleChange}
+                  disabled={disableAllFields}
+                />
+              )}
             </div>
           </div>
         </div>

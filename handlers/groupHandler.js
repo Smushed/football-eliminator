@@ -274,7 +274,9 @@ export default {
         .lean()
         .exec();
       const [currentTime] = await db.SeasonAndWeek.find({}).lean().exec();
-      await createUserScore(addedUserID, currentTime.season, groupId);
+      if (!(await checkDuplicate('userScore', groupId, addedUserID))) {
+        await createUserScore(addedUserID, currentTime.season, groupId);
+      }
 
       return groupDetail;
     } catch (err) {
@@ -296,6 +298,7 @@ export default {
       .lean()
       .exec(),
   getGroupDataById: (groupId) => db.Group.findById(groupId).lean().exec(),
+  getGroupDataByIdNoLean: (groupId) => db.Group.findById(groupId).exec(),
   getLeaderBoard: async (groupId, season, week) => {
     const arrayForLeaderBoard = [];
     const weekAccessor = (week === 1 ? 1 : week - 1).toString();
@@ -776,7 +779,7 @@ export default {
       .map((groupId) => groupId.toString())
       .indexOf(group._id.toString());
     user.grouplist.splice(groupPos, 1);
-    if (user.mainGroup.toString() === group._id.toString()) {
+    if (user.mainGroup && user.mainGroup.toString() === group._id.toString()) {
       user.mainGroup = null;
     }
     try {

@@ -16,7 +16,7 @@ const UserProfile = () => {
   const [disableAllFields, setDisableAllFields] = useState(false);
   const [currentUserGrouplist, setCurrentUserGrouplist] = useState([]);
 
-  const { currentUser, pullUserData } = useContext(CurrentUserContext);
+  const { currentUser } = useContext(CurrentUserContext);
   const params = useParams();
 
   useEffect(() => {
@@ -33,7 +33,6 @@ const UserProfile = () => {
               disableAllFields={disableAllFields}
               setDisableAllFields={setDisableAllFields}
               isCurrentUser={isCurrentUser}
-              pullUserData={pullUserData}
               setCurrentUserGrouplist={setCurrentUserGrouplist}
             />
           </div>

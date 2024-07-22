@@ -106,7 +106,7 @@ const CreateGroup = ({ email, pullUserData, userId, changeGroup, history }) => {
       })
       .then((res) => {
         changeGroup(res.data._id);
-        pullUserData(email).then(() => {
+        pullUserData().then(() => {
           history.push(Routes.home);
         });
       });

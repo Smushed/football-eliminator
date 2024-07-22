@@ -324,7 +324,7 @@ export default (app) => {
       try {
         await verifyUserIsSameEmailUserId(req.currentUser, userId);
         const { season } = await mySportsHandler.pullSeasonAndWeekFromDB();
-        const group = await groupHandler.getGroupDataById(groupId);
+        const group = await groupHandler.getGroupDataByIdNoLean(groupId);
         await groupHandler.removeUser(group, userId, season);
         res.status(200).send('winnder');
       } catch (err) {

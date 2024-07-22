@@ -62,7 +62,6 @@ const GroupBox = ({ group }) => {
     }
     try {
       if (res.isConfirmed) {
-        console.log({ uid: currentUser.userId });
         await axiosHandler.delete(
           `/api/group/user/${group._id}/${currentUser.userId}`
         );
