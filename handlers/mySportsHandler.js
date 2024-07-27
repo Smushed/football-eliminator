@@ -912,7 +912,12 @@ export default {
   },
   pullSeasonAndWeekFromDB: async () => {
     try {
-      const dbResponse = await db.SeasonAndWeek.find({}).lean().exec();
+      const dbResponse = await db.SeasonAndWeek.find(
+        {},
+        { lockWeek: 1, season: 1, week: 1, seasonOver: 1, _id: 0 }
+      )
+        .lean()
+        .exec();
       return dbResponse[0];
     } catch (err) {
       console.log('Error pullSeasonAndWeekFromDB: ', { err });
@@ -922,22 +927,12 @@ export default {
       };
     }
   },
-  updateCurrWeek: async (currentWeek) => {
+  updateSeasonAndWeek: async (toUpdate) => {
     try {
-      await db.SeasonAndWeek.updateMany({}, { $set: { week: currentWeek } });
-      return 'success!';
+      await db.SeasonAndWeek.updateMany({}, { $set: toUpdate });
     } catch (err) {
-      console.log('Error updating current week: ', { currentWeek, err });
+      console.log('Error updating SeasonAndWeek: ', { toUpdate, err });
       throw { status: 500, message: 'Error updating week for eliminator' };
-    }
-  },
-  updateLockWeek: async (lockWeek) => {
-    try {
-      await db.SeasonAndWeek.updateMany({}, { $set: { lockWeek: lockWeek } });
-      return 'success!';
-    } catch (err) {
-      console.log('Error updating lock week: ', { lockWeek, err });
-      throw { status: 500, message: 'Error updating lock week for eliminator' };
     }
   },
 };

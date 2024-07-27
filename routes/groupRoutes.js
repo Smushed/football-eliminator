@@ -152,7 +152,7 @@ export default (app) => {
   );
 
   app.get(
-    '/api/group/roster/bestAndLead/:season/:week/:groupId',
+    '/api/group/roster/best/:season/:week/:groupId',
     authMiddleware,
     async (req, res) => {
       try {
@@ -169,21 +169,17 @@ export default (app) => {
             season,
             +week
           );
-          Promise.all([
-            groupHandler.getBestRoster(groupId, season, +week, userScores),
-            groupHandler.getLeaderRoster(userScores, groupId, week, season),
-          ])
-            .then(async ([bestRoster, roster]) => {
-              if (!bestRoster) {
-                const blankRoster = await groupHandler.getBlankRoster(groupId);
-                bestRoster = { roster: blankRoster, username: '' };
-              }
-              return res.status(200).send({ bestRoster, roster });
-            })
-            .catch((err) => {
-              returnError(res, err);
-              return;
-            });
+          const bestRoster = await groupHandler.getBestRoster(
+            groupId,
+            season,
+            +week,
+            userScores
+          );
+          if (!bestRoster) {
+            const blankRoster = await groupHandler.getBlankRoster(groupId);
+            bestRoster = { roster: blankRoster, username: '' };
+          }
+          return res.status(200).send({ bestRoster });
         }
       } catch (err) {
         console.log('Error getting best and leader roster for group ', {

@@ -179,16 +179,25 @@ const allScheduledGames = (season) => {
   }, 6000);
 };
 
-const startWeek = (currDate, currDBWeeks, currWeek) => {
-  for (let i = 17; i >= 0; i--) {
+const startWeek = async (currDate, currDBWeeks, currWeek) => {
+  for (let i = 18; i >= 0; i--) {
     if (currDate > dates.startWeek2023[i]) {
       currWeek = i + 1;
       break;
     }
   }
   if (currDBWeeks.week !== currWeek) {
-    mySportsHandler.updateCurrWeek(currWeek);
-    mySportsHandler.updateLockWeek(currWeek - 1);
+    const valToUpdate = {
+      week: currWeek === 19 ? 18 : currWeek,
+      lockWeek: currWeek - 1,
+      seasonOver: currWeek === 19,
+    };
+    try {
+      await mySportsHandler.updateSeasonAndWeek(valToUpdate);
+    } catch (err) {
+      throw err;
+    }
+    // mySportsHandler.updateLockWeek(currWeek - 1);
   }
 };
 

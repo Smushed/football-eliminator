@@ -264,12 +264,17 @@ export default (app) => {
     async (req, res) => {
       try {
         const { season, week, groupId } = req.params;
-        const allRosters = await rosterHandler.getAllRostersForGroup(
-          season,
-          week,
-          groupId
-        );
-        res.status(200).send(allRosters);
+        let [rosters, hideRosters] = await Promise.all([
+          rosterHandler.getAllRostersForGroup(season, week, groupId),
+          groupHandler.shouldRostersBeHidden(season, week, groupId),
+        ]);
+        if (hideRosters) {
+          rosters = await rosterHandler.getBlankRostersForGroup(
+            rosters,
+            groupId
+          );
+        }
+        res.status(200).send(rosters);
       } catch (err) {
         console.log('Error getting all rosters for group: ', {
           params: req.params,

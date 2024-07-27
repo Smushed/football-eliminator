@@ -2,7 +2,7 @@ import React, { useContext, memo } from 'react';
 import { Tooltip } from 'react-tooltip';
 
 import { AvatarContext } from '../../contexts/Avatars';
-import BlankAvatar from '../../constants/logoImages/avatar/blankAvatar.png';
+import PlayerOutline from '../../constants/logoImages/avatar/playerOutline.png';
 
 const CurrentRosterRow = memo(function CurrentRosterRow({
   player,
@@ -11,7 +11,8 @@ const CurrentRosterRow = memo(function CurrentRosterRow({
   pastLockWeek,
 }) {
   const { playerAvatars } = useContext(AvatarContext);
-
+  {
+  }
   return (
     <tr className='align-middle'>
       <th scope='row' className='rosterPosition'>
@@ -27,14 +28,18 @@ const CurrentRosterRow = memo(function CurrentRosterRow({
         {player && (
           <img
             className='playerAvatar'
-            src={playerAvatars[player.mySportsId] || BlankAvatar}
+            src={playerAvatars[player.mySportsId] || PlayerOutline}
           />
         )}
       </td>
-      <td>{player && player.name && player.name}</td>
+      <td>{player && player.name}</td>
       <td>{player && player.team}</td>
       {pastLockWeek === true ? (
-        <td>{player && player.score.toFixed(2)}</td>
+        player && player.score && typeof player.score === 'string' ? (
+          <td className='pe-4 text-end'>{player.score}</td>
+        ) : (
+          <td className='pe-4 text-end'>{player.score.toFixed(2)}</td>
+        )
       ) : (
         <td className='pb-0'>
           {player && player.mySportsId && addDropPlayer ? (

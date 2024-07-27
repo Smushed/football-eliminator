@@ -477,21 +477,29 @@ export default {
     }
   },
   updateAllIdealRosters: async function (season, week) {
-    const allGroups = await this.getAllGroups();
-    for (const group of allGroups) {
-      let idealRoster = await db.IdealRoster.findOne({
-        groupId: group._id,
-        season: season,
-        week: week,
-      }).exec();
-      if (!idealRoster) {
-        idealRoster = new db.IdealRoster({
-          group: group._id,
+    try {
+      const allGroups = await this.getAllGroups();
+      for (const group of allGroups) {
+        let idealRoster = await db.IdealRoster.findOne({
+          groupId: group._id,
           season: season,
           week: week,
-        });
+        }).exec();
+        if (!idealRoster) {
+          idealRoster = new db.IdealRoster({
+            group: group._id,
+            season: season,
+            week: week,
+          });
+        }
+        this.updateIdealRoster(group._id, season, week, idealRoster);
       }
-      this.updateIdealRoster(group._id, season, week, idealRoster);
+    } catch (err) {
+      if (err.status) {
+        throw err;
+      } else {
+        throw { status: 500, message: 'Error updating Ideal Roster' };
+      }
     }
   },
   updateIdealRoster: function (groupId, season, week, idealRoster) {
@@ -904,6 +912,33 @@ export default {
     } catch (err) {
       console.log('Error getGroupDataByUserId: ', { userId, err });
       throw { status: 500, message: 'Error pulling group data for user' };
+    }
+  },
+  shouldRostersBeHidden: async (season, week, groupId) => {
+    try {
+      const [[dbTime], group] = await Promise.all([
+        db.SeasonAndWeek.find({}).lean().exec(),
+        db.Group.findById(groupId, { hidePlayersUntilLocked: true })
+          .lean()
+          .exec(),
+      ]);
+      if (!group.hidePlayersUntilLocked) {
+        return false;
+      } else if (dbTime.season !== season) {
+        return false;
+      } else if (dbTime.seasonOver) {
+        return false;
+      } else if (dbTime.lockWeek >= week) {
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.log('Error in shouldRostersBeHidden: ', {
+        season,
+        week,
+        groupId,
+      });
+      throw { status: 500, message: 'Error getting rosters' };
     }
   },
 };
