@@ -2,7 +2,6 @@ import { Schema, model } from 'mongoose';
 
 const SeasonAndWeekSchema = new Schema({
   season: {
-    //Current Season
     type: String,
     required: true,
     default: '2024-2025-regular',
@@ -10,16 +9,19 @@ const SeasonAndWeekSchema = new Schema({
     unique: true,
   },
   week: {
-    //Current Week
     type: Number,
     required: true,
     default: 1,
   },
   lockWeek: {
-    //Current Lock Week
     type: Number,
     required: true,
     default: 0,
+  },
+  seasonOver: {
+    type: Boolean,
+    required: true,
+    default: false,
   },
 });
 

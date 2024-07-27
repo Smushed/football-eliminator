@@ -39,6 +39,7 @@ Some key features are listed below:
 - User authentication verification on the backend
 - Text & email reminder capability every Thursday (before the weekly games start)
 - Rework of backend and database naming to help readability of code
+- Option for group admins to hide the players chosen before the week is over
 
 <strong>Goals for 1.3</strong>
 - Email invites for other users or non-users

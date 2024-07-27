@@ -1,5 +1,5 @@
 .rosterPosition {
-  max-width: 67px;
+  width: 67px !important;
 }
 
 .rosterRow {

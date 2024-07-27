@@ -84,18 +84,12 @@ const App = ({ firebase }) => {
     try {
       getSeasonAndWeek();
       if (user.mainGroup) {
-        const res = await axiosHandler.get(
-          `/api/group/details/${user.mainGroup}`
-        );
-        setCurrentGroup({ name: res.data.name, _id: user.mainGroup });
+        changeGroup(user.mainGroup);
       } else if (user.grouplist.length > 0) {
         await axiosHandler.put(
           `/api/user/group/main/${user.grouplist[0]._id}/${user._id}`
         );
-        setCurrentGroup({
-          name: user.grouplist[0].name,
-          _id: user.grouplist[0]._id,
-        });
+        changeGroup(user.grouplist[0]._id);
       }
     } catch (err) {
       httpErrorHandler(err);
@@ -105,7 +99,11 @@ const App = ({ firebase }) => {
   const changeGroup = async (groupId) => {
     try {
       const { data } = await axiosHandler.get(`/api/group/details/${groupId}`);
-      setCurrentGroup({ name: data.name, _id: data._id });
+      setCurrentGroup({
+        name: data.name,
+        _id: data._id,
+        hidePlayersUntilLocked: data.hidePlayersUntilLocked,
+      });
     } catch (err) {
       httpErrorHandler(err);
     }
@@ -120,6 +118,7 @@ const App = ({ firebase }) => {
         season: data.season,
         week: data.week,
         lockWeek: data.lockWeek,
+        seasonOver: data.seasonOver,
       });
     } catch (err) {
       httpErrorHandler(err);

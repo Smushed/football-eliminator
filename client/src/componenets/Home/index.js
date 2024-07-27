@@ -14,13 +14,13 @@ import { axiosHandler, httpErrorHandler } from '../../utils/axiosHandler';
 import './homeStyle.css';
 
 const Home = () => {
-  const [idealRoster, updateIdealRoster] = useState([]);
-  const [bestRoster, updateBestRoster] = useState({ username: '', roster: [] });
-  const [weeklyGroupRosters, updateWeeklyGroupRosters] = useState([]);
-  const [groupPositions, updateGroupPositions] = useState([]);
-  const [weekSelect, updateWeekSelect] = useState(1);
-  const [weekOnPage, updateWeekOnPage] = useState(1);
-  const [initialPull, updateInitialPull] = useState(false);
+  const [idealRoster, setIdealRoster] = useState([]);
+  const [bestRoster, setBestRoster] = useState({ username: '', roster: [] });
+  const [weeklyGroupRosters, setWeeklyGroupRosters] = useState([]);
+  const [groupPositions, setGroupPositions] = useState([]);
+  const [weekSelect, setWeekSelect] = useState(1);
+  const [weekOnPage, setWeekOnPage] = useState(1);
+  const [initialPull, setInitialPull] = useState(false);
 
   const { addPlayerAvatarsToPull, addUserAvatarsToPull } =
     useContext(AvatarContext);
@@ -53,8 +53,8 @@ const Home = () => {
       currentUser.username &&
       currentGroup._id !== undefined
     ) {
-      updateWeekOnPage(currentNFLTime.week);
-      updateWeekSelect(currentNFLTime.week);
+      setWeekOnPage(currentNFLTime.week);
+      setWeekSelect(currentNFLTime.week);
       getAllRostersForWeek(
         currentNFLTime.season,
         currentNFLTime.week,
@@ -68,7 +68,7 @@ const Home = () => {
             currentNFLTime.week,
             currentGroup._id
           );
-          getBestCurrLeadRoster(
+          getBestRoster(
             currentNFLTime.season,
             currentNFLTime.week,
             currentGroup._id
@@ -79,7 +79,7 @@ const Home = () => {
             err
           );
         }
-        updateInitialPull(true);
+        setInitialPull(true);
       }
     }
   }, [currentNFLTime, currentUser.username, currentGroup]);
@@ -90,7 +90,7 @@ const Home = () => {
         `/api/group/positions/${groupId}`,
         axiosCancel.token
       );
-      updateGroupPositions(data);
+      setGroupPositions(data);
     } catch (err) {
       httpErrorHandler(err);
     }
@@ -102,7 +102,7 @@ const Home = () => {
         `/api/roster/ideal/${season}/${week}/${groupId}`,
         axiosCancel.token
       );
-      updateIdealRoster(data);
+      setIdealRoster(data);
       const playerIds = data.map((player) => player.mySportsId);
       addPlayerAvatarsToPull(playerIds);
     } catch (err) {
@@ -110,16 +110,16 @@ const Home = () => {
     }
   };
 
-  const getBestCurrLeadRoster = async (season, week, groupId) => {
+  const getBestRoster = async (season, week, groupId) => {
     try {
       const { data } = await axiosHandler.get(
-        `/api/group/roster/bestAndLead/${season}/${week}/${groupId}`,
+        `/api/group/roster/best/${season}/${week}/${groupId}`,
         axiosCancel.token
       );
       if (!data.bestRoster) {
         return;
       }
-      updateBestRoster(data.bestRoster);
+      setBestRoster(data.bestRoster);
       const playerIds = data.bestRoster.roster.map(
         (player) => player.mySportsId
       );
@@ -135,7 +135,8 @@ const Home = () => {
         `/api/roster/group/all/${season}/${week}/${groupId}`,
         axiosCancel.token
       );
-      updateWeeklyGroupRosters(data);
+      console.log({ data });
+      setWeeklyGroupRosters(data);
       addUserAvatarsToPull(data.map((roster) => roster.userId));
       const playerIds = new Set();
       for (const roster of data) {
@@ -152,11 +153,11 @@ const Home = () => {
   };
 
   const handleChange = (e) => {
-    e.target.name === 'weekSelect' && updateWeekSelect(e.target.value);
+    e.target.name === 'weekSelect' && setWeekSelect(e.target.value);
   };
 
   const searchWeek = () => {
-    updateWeekOnPage(weekSelect);
+    setWeekOnPage(weekSelect);
     getAllRostersForWeek(currentNFLTime.season, weekSelect, currentGroup._id);
   };
 

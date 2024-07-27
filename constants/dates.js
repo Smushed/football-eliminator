@@ -81,4 +81,25 @@ export default {
     new Date('02 Jan 2024 00:00:00 GMT-0600'),
     new Date('09 Jan 2024 00:00:00 GMT-0600'),
   ],
+  startWeek2024: [
+    new Date('01 Jul 2024 00:00:00 GMT-0500'), //1
+    new Date('11 Sep 2024 00:00:00 GMT-0500'), //2
+    new Date('18 Sep 2024 00:00:00 GMT-0500'), //3
+    new Date('25 Sep 2024 00:00:00 GMT-0500'), //4
+    new Date('02 Oct 2024 00:00:00 GMT-0500'), //5
+    new Date('09 Oct 2024 00:00:00 GMT-0500'), //6
+    new Date('16 Oct 2024 00:00:00 GMT-0500'), //7
+    new Date('23 Oct 2024 00:00:00 GMT-0500'), //8
+    new Date('30 Oct 2024 00:00:00 GMT-0500'), //9
+    new Date('06 Nov 2024 00:00:00 GMT-0500'), //10
+    new Date('13 Nov 2024 00:00:00 GMT-0600'), //11
+    new Date('20 Nov 2024 00:00:00 GMT-0600'), //12
+    new Date('27 Nov 2024 00:00:00 GMT-0600'), //13
+    new Date('04 Dec 2024 00:00:00 GMT-0600'), //14
+    new Date('11 Dec 2024 00:00:00 GMT-0600'), //15
+    new Date('18 Dec 2024 00:00:00 GMT-0600'), //16
+    new Date('25 Dec 2024 00:00:00 GMT-0600'), //17
+    new Date('01 Jan 2025 00:00:00 GMT-0600'), //18
+    new Date('08 Jan 2025 00:00:00 GMT-0600'), //19 / Season over
+  ],
 };

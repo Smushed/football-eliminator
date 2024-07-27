@@ -7,7 +7,8 @@ const GroupSchema = new Schema({
     required: true,
     trim: true,
   },
-  description: String,
+  description: { type: String, trim: true },
+  hidePlayersUntilLocked: { type: Boolean, default: false },
   userlist: [
     {
       userId: Types.ObjectId,

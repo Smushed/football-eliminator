@@ -222,6 +222,7 @@ const getWeeklyGroupRostersCreateIfNotExist = async (season, week, group) => {
     })
       .lean()
       .exec();
+
     const completeRosters = userRosters.slice(0);
     const userIdArray = userRosters.map((roster) => roster.userId.toString());
     if (group.userlist.length !== userRosters.length) {
@@ -241,7 +242,7 @@ const getWeeklyGroupRostersCreateIfNotExist = async (season, week, group) => {
       console.log('Error get / creating weekly user roster:', {
         season,
         week,
-        group,
+        groupId,
         err,
       });
       throw { status: 500, message: 'Error pulling weekly rosters' };
@@ -441,7 +442,7 @@ export default {
   getAllRostersForGroup: async (season, week, groupId) => {
     try {
       const userRosters = [];
-      const group = await db.Group.findById(groupId);
+      const group = await db.Group.findById(groupId).lean().exec();
       const allRosters = await getWeeklyGroupRostersCreateIfNotExist(
         season,
         week,
@@ -462,11 +463,6 @@ export default {
       return sortedUsers;
     } catch (err) {
       if (err.status) {
-        console.log('Error pulling all rosters for group:', {
-          season,
-          week,
-          groupId,
-        });
         throw err;
       } else {
         throw {
@@ -474,6 +470,24 @@ export default {
           message: 'Error getting all rosters for the group',
         };
       }
+    }
+  },
+  getBlankRostersForGroup: async (rosters, groupId) => {
+    try {
+      const hiddenRoster = rosters[0].roster.map((player) => ({
+        mySportsId: 0,
+        name: '--------- ------------',
+        team: '---',
+        score: '---',
+      }));
+      const hiddenRosters = rosters.map((userRoster) => ({
+        ...userRoster,
+        roster: hiddenRoster,
+      }));
+      return hiddenRosters;
+    } catch (err) {
+      console.log('Error getting blank rosters: ', { rosters, groupId, err });
+      throw { status: 500, message: 'Error pulling user rosters' };
     }
   },
   usedPlayersByPosition: async (userId, season, groupId, position) => {
@@ -663,7 +677,7 @@ export default {
           const groupRosters = await getWeeklyGroupRostersCreateIfNotExist(
             season,
             i,
-            group
+            group._id
           );
 
           for (const user of groupRosters) {
