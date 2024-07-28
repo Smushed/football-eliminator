@@ -135,7 +135,6 @@ const Home = () => {
         `/api/roster/group/all/${season}/${week}/${groupId}`,
         axiosCancel.token
       );
-      console.log({ data });
       setWeeklyGroupRosters(data);
       addUserAvatarsToPull(data.map((roster) => roster.userId));
       const playerIds = new Set();
@@ -226,6 +225,7 @@ const Home = () => {
                   (inGroupRoster.username.slice(-1) === 's' ? "'" : "'s")
                 } Roster`}
                 userId={inGroupRoster.userId}
+                link={`roster/Eliminator/${inGroupRoster.username}`}
               />
             </div>
           ))}
