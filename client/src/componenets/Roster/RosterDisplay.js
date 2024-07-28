@@ -3,26 +3,34 @@ import { Tooltip } from 'react-tooltip';
 
 import { AvatarContext } from '../../contexts/Avatars';
 import PlayerOutline from '../../constants/logoImages/avatar/playerOutline.png';
+import { Link } from 'react-router-dom/cjs/react-router-dom.min';
 
 const CurrentRosterRow = memo(function CurrentRosterRow({
   player,
   position,
   addDropPlayer,
-  pastLockWeek,
+  showScore,
 }) {
   const { playerAvatars } = useContext(AvatarContext);
   {
   }
   return (
-    <tr className='align-middle'>
+    <tr
+      className='align-middle'
+      data-tooltip-id={player && player.lockTooltip && 'lockTooltip'}
+      data-tooltip-html={
+        player &&
+        player.lockTooltip &&
+        'Hidden until week is locked - group rules'
+      }
+    >
       <th scope='row' className='rosterPosition'>
         {position}
       </th>
       <td>
-        {player &&
-          player.mySportsId !== 0 &&
-          !pastLockWeek &&
-          player.injury && <InjuryCol injury={player.injury} />}
+        {player && player.mySportsId !== 0 && !showScore && player.injury && (
+          <InjuryCol injury={player.injury} />
+        )}
       </td>
       <td>
         {player && (
@@ -34,11 +42,15 @@ const CurrentRosterRow = memo(function CurrentRosterRow({
       </td>
       <td>{player && player.name}</td>
       <td>{player && player.team}</td>
-      {pastLockWeek === true ? (
-        player && player.score && typeof player.score === 'string' ? (
-          <td className='pe-4 text-end'>{player.score}</td>
+      {showScore ? (
+        player ? (
+          player.score && typeof player.score === 'string' ? (
+            <td className='pe-4 text-end'>{player.score}</td>
+          ) : (
+            <td className='pe-4 text-end'>{player.score.toFixed(2)}</td>
+          )
         ) : (
-          <td className='pe-4 text-end'>{player.score.toFixed(2)}</td>
+          <></>
         )
       ) : (
         <td className='pb-0'>
@@ -68,6 +80,7 @@ const RosterDisplay = memo(function RosterDisplay({
   pastLockWeek,
   headerText,
   userId,
+  link,
 }) {
   const { userAvatars } = useContext(AvatarContext);
 
@@ -82,7 +95,7 @@ const RosterDisplay = memo(function RosterDisplay({
                 className='userRosterAvatar me-4'
               />
             )}
-            <>{headerText}</>
+            {link ? <Link to={link}>{headerText}</Link> : <>{headerText}</>}
           </th>
         </tr>
       </thead>
@@ -93,13 +106,13 @@ const RosterDisplay = memo(function RosterDisplay({
                 position={player.position}
                 player={player}
                 addDropPlayer={addDropPlayer}
-                pastLockWeek={pastLockWeek}
+                showScore={pastLockWeek}
                 key={player.mySportsId.toString() + userId}
               />
             ))
           : groupPositions.map((position, i) => (
               <CurrentRosterRow
-                pastLockWeek={pastLockWeek}
+                showScore={pastLockWeek}
                 position={position.name}
                 player={roster[i]}
                 addDropPlayer={addDropPlayer}
@@ -118,7 +131,6 @@ const InjuryCol = ({ injury }) => {
       data-tooltip-id='injuryTooltip'
       data-tooltip-html={injury.description}
     >
-      <Tooltip id='injuryTooltip' data-tooltip />
       {injury.playingProbability[0]}
     </span>
   );

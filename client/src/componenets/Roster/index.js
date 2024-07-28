@@ -73,7 +73,7 @@ const Roster = () => {
     if (currentNFLTime.week !== 0 && currentNFLTime.season !== '') {
       primaryPull(+currentNFLTime.week, params.username);
     }
-  }, [currentNFLTime, params.username, currentUser.grouplist]);
+  }, [currentNFLTime, params.username]);
 
   useEffect(() => {
     if (playerSearch === '') {
@@ -541,7 +541,9 @@ const Roster = () => {
             }
             pastLockWeek={currentNFLTime.lockWeek >= weekOnPage}
             groupPositions={groupPositions}
-            addDropPlayer={addDropPlayer}
+            addDropPlayer={
+              params.username === currentUser.username ? addDropPlayer : null
+            }
             roster={mustDrop ? possiblePlayers : userRoster}
             mustDrop={mustDrop}
           />
@@ -565,7 +567,13 @@ const Roster = () => {
             headerText='Available Players'
             playerList={availPlayersToShow}
             sortedMatchups={sortedMatchups}
-            addDropPlayer={mustDrop ? false : addDropPlayer}
+            addDropPlayer={
+              mustDrop
+                ? false
+                : params.username === currentUser.username
+                ? addDropPlayer
+                : null
+            }
             showInput={activePlayerSearch}
             inputValue={playerSearch}
             handleChange={handleChange}

@@ -3,7 +3,10 @@ import groupHandler from '../handlers/groupHandler.js';
 import mySportsHandler from '../handlers/mySportsHandler.js';
 import positions from '../constants/positions.js';
 import userHandler from '../handlers/userHandler.js';
-import { authMiddleware } from '../handlers/authHandler.js';
+import {
+  authMiddleware,
+  verifyUserIsSameEmailUserId,
+} from '../handlers/authHandler.js';
 import { returnError } from '../utils/ExpressUtils.js';
 
 export default (app) => {
@@ -33,89 +36,53 @@ export default (app) => {
   app.get(
     '/api/roster/user/:season/:week/:groupname/:username',
     authMiddleware,
-    (req, res) => {
-      const { groupname, username, week, season } = req.params;
+    async (req, res) => {
+      try {
+        const { groupname, username, week, season } = req.params;
+        const [group, user] = await Promise.all([
+          groupHandler.getGroupDataByName(groupname),
+          userHandler.getUserByUsername(username),
+        ]);
+        const [playerIdRoster, groupPositions] = await Promise.all([
+          rosterHandler.getUserRoster(user._id, week, season, group._id),
+          groupHandler.getGroupPositions(group._id),
+        ]);
+        let userRoster = [];
+        if (
+          user.email !== req.currentUser &&
+          (await groupHandler.shouldRostersBeHidden(season, week, group._id))
+        ) {
+          userRoster = await mySportsHandler.fillBlankUserRoster(
+            playerIdRoster
+          );
+        } else {
+          userRoster = await mySportsHandler.fillUserRoster(playerIdRoster);
+        }
+        const groupMap = await groupHandler.mapGroupPositions(
+          groupPositions,
+          positions.positionMap
+        );
 
-      //Checks if this route received the userId before it was ready in react
-      //The check already comes in as the string undefined, rather than undefined itself. It comes in as truthly
-      if (
-        username === 'undefined' ||
-        week === 0 ||
-        season === '' ||
-        groupname === 'undefined'
-      ) {
-        console.log('Trying to pull roster before data is populated: ', {
+        res.status(200).send({
+          userRoster: userRoster,
+          groupPositions: groupPositions,
+          groupMap: groupMap,
+          positionArray: positions.positionArray,
+        });
+      } catch (err) {
+        console.log('Error getting user roster data', {
           groupname,
           username,
           week,
           season,
+          err,
         });
-        return;
+        returnError(res, err, 'Error getting group and user data');
       }
-      Promise.all([
-        groupHandler.getGroupDataByName(groupname),
-        userHandler.getUserByUsername(username),
-      ])
-        .then(([group, user]) => {
-          Promise.all([
-            rosterHandler.getUserRoster(user._id, week, season, group._id),
-            groupHandler.getGroupPositions(group._id),
-          ])
-            .then(([playerIdRoster, groupPositions]) => {
-              Promise.all([
-                groupHandler.mapGroupPositions(
-                  groupPositions,
-                  positions.positionMap
-                ),
-                mySportsHandler.fillUserRoster(playerIdRoster),
-              ])
-                .then(([groupMap, userRoster]) => {
-                  res.status(200).send({
-                    userRoster: userRoster,
-                    groupPositions: groupPositions,
-                    groupMap: groupMap,
-                    positionArray: positions.positionArray,
-                  });
-                })
-                .catch((err) => {
-                  console.log('User Roster Layer 3', {
-                    groupname,
-                    username,
-                    week,
-                    season,
-                    err,
-                  });
-                  returnError(res, err, 'Error getting group and user data');
-                  return;
-                });
-            })
-            .catch((err) => {
-              console.log('User Roster Layer 2', {
-                groupname,
-                username,
-                week,
-                season,
-                err,
-              });
-              returnError(res, err, 'Error getting group and user data');
-              return;
-            });
-        })
-        .catch((err) => {
-          console.log('User Roster Layer 1', {
-            groupname,
-            username,
-            week,
-            season,
-            err,
-          });
-          returnError(res, err, 'Error getting group and user data');
-          return;
-        });
     }
   );
 
-  app.put('/api/roster/user/update', async (req, res) => {
+  app.put('/api/roster/user/update', authMiddleware, async (req, res) => {
     try {
       const {
         userId,

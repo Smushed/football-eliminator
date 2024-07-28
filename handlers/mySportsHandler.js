@@ -735,8 +735,8 @@ export default {
     console.log('Done Ranking');
     return 'Ranked Players Saved';
   },
-  fillUserRoster: async (playerIdRoster) => {
-    const mySportsIdArray = playerIdRoster.map((id) => id.mySportsId);
+  fillUserRoster: async (playerRoster) => {
+    const mySportsIdArray = playerRoster.map((id) => id.mySportsId);
     let dbSearch;
     try {
       dbSearch = await db.PlayerData.find(
@@ -746,11 +746,11 @@ export default {
         .lean()
         .exec();
     } catch (err) {
-      console.log('Error in fillUserRoster: ', { playerIdRoster, err });
+      console.log('Error in fillUserRoster: ', { playerRoster, err });
       throw { status: 500, message: 'Error filling user roster out' };
     }
 
-    const filledRoster = playerIdRoster.map((id) => {
+    const filledRoster = playerRoster.map((id) => {
       const player = dbSearch.find(
         (player) => player.mySportsId === id.mySportsId
       );
@@ -758,6 +758,15 @@ export default {
       return { ...player, score: id.score };
     });
     return filledRoster;
+  },
+  fillBlankUserRoster: async (playerRoster) => {
+    return playerRoster.map(() => ({
+      mySportsId: 0,
+      name: '--------- ------------',
+      team: '---',
+      score: '---',
+      lockTooltip: true,
+    }));
   },
   pullMatchUpsForDB: async (season, week) => {
     let i = 1;

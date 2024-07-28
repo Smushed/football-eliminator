@@ -4,6 +4,7 @@ import { Route, BrowserRouter, Switch } from 'react-router-dom';
 import { withFirebase } from './componenets/Firebase';
 import { Toaster } from 'react-hot-toast';
 import { getAuth } from 'firebase/auth';
+import { Tooltip } from 'react-tooltip';
 
 import SignInOut from './componenets/SignInOut';
 import NavBar from './componenets/NavBar/';
@@ -138,6 +139,8 @@ const App = ({ firebase }) => {
           value={{ currentNFLTime, getSeasonAndWeek }}
         >
           <AvatarWrapper>
+            <Tooltip id='injuryTooltip' data-tooltip />
+            <Tooltip id='lockTooltip' data-tooltip />
             <Toaster position='top-right' />
             <SidePanel
               showSideBar={showSideBar}

@@ -162,7 +162,7 @@ const createUsedPlayers = async (userId, season, groupId, position) => {
         season,
         groupId,
         position,
-      }).exec();
+      });
     } catch (err) {
       console.log('Error in createUsedPlayers: ', {
         userId,
@@ -472,13 +472,14 @@ export default {
       }
     }
   },
-  getBlankRostersForGroup: async (rosters, groupId) => {
+  getBlankRostersForGroup: async (rosters) => {
     try {
-      const hiddenRoster = rosters[0].roster.map((player) => ({
+      const hiddenRoster = rosters[0].roster.map(() => ({
         mySportsId: 0,
         name: '--------- ------------',
         team: '---',
         score: '---',
+        lockTooltip: true,
       }));
       const hiddenRosters = rosters.map((userRoster) => ({
         ...userRoster,
@@ -486,7 +487,7 @@ export default {
       }));
       return hiddenRosters;
     } catch (err) {
-      console.log('Error getting blank rosters: ', { rosters, groupId, err });
+      console.log('Error getting blank rosters: ', { rosters, err });
       throw { status: 500, message: 'Error pulling user rosters' };
     }
   },
