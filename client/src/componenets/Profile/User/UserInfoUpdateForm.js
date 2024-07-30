@@ -16,7 +16,7 @@ import {
 import { AvatarContext } from '../../../contexts/Avatars';
 import { differencesInObj } from '../../../utils/genericTools';
 import { axiosHandler, httpErrorHandler } from '../../../utils/axiosHandler';
-import { CurrentUserContext } from '../../../App';
+import { CurrentUserContext } from '../../../contexts/CurrentUser';
 
 const Alert = withReactContent(Swal);
 

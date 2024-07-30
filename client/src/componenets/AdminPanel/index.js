@@ -4,9 +4,9 @@ import Session from '../Session';
 import { useParams, useHistory } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { AdminRosterDisplay } from './AdminRoster';
 import { getAuth } from 'firebase/auth';
-import { CurrentUserContext, NFLScheduleContext } from '../../App.js';
+import { CurrentUserContext } from '../../contexts/CurrentUser';
+import { NFLScheduleContext } from '../../contexts/NFLSchedule';
 
 const AdminPanel = ({ season }) => {
   const [groupSelect, setGroupSelect] = useState('');

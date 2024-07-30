@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { withFirebase } from '../Firebase';
 import { Link } from 'react-router-dom';
 import { slide as Menu } from 'react-burger-menu';
-import { CurrentUserContext } from '../../App.js';
+import { CurrentUserContext } from '../../contexts/CurrentUser';
 
 // SVGs are from Flatiron
 import RankingSVG from '../../constants/SVG/ranking.svg';

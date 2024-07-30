@@ -14,10 +14,10 @@ import { loading, doneLoading } from '../LoadingAlert';
 import { WeekSearch, PositionSearch, TeamSearch } from './SearchDropdowns';
 import { toast } from 'react-hot-toast';
 import { AvatarContext } from '../../contexts/Avatars';
-import { CurrentUserContext, NFLScheduleContext } from '../../App.js';
-import { useParams } from 'react-router-dom';
+import { CurrentUserContext } from '../../contexts/CurrentUser';
+import { NFLScheduleContext } from '../../contexts/NFLSchedule';
+import { useParams, useHistory } from 'react-router-dom';
 import { axiosHandler, httpErrorHandler } from '../../utils/axiosHandler.js';
-import { useHistory } from 'react-router-dom';
 import * as Routes from '../../constants/routes.js';
 
 const Alert = withReactContent(Swal);

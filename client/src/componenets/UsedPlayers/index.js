@@ -5,7 +5,8 @@ import { PlayerDisplayRow } from '../Roster/RosterDisplay';
 import { loading, doneLoading } from '../LoadingAlert';
 import './usedPlayerStyle.css';
 import Session from '../Session';
-import { CurrentUserContext, NFLScheduleContext } from '../../App.js';
+import { CurrentUserContext } from '../../contexts/CurrentUser';
+import { NFLScheduleContext } from '../../contexts/NFLSchedule';
 import { useParams } from 'react-router-dom';
 
 const UsedPlayers = () => {

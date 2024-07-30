@@ -8,7 +8,7 @@ import '../profileStyle.css';
 
 import UserInfoUpdateForm from './UserInfoUpdateForm';
 import ReminderUpdateForm from './ReminderUpdateForm';
-import { CurrentUserContext } from '../../../App.js';
+import { CurrentUserContext } from '../../../contexts/CurrentUser';
 import GroupBox from '../Group/GroupBox.js';
 
 const UserProfile = () => {

@@ -8,7 +8,8 @@ import withReactContent from 'sweetalert2-react-content';
 
 import * as Routes from '../../constants/routes.js';
 import Session from '../Session/index.js';
-import { CurrentUserContext, NFLScheduleContext } from '../../App.js';
+import { CurrentUserContext } from '../../contexts/CurrentUser';
+import { NFLScheduleContext } from '../../contexts/NFLSchedule';
 import { axiosHandler, httpErrorHandler } from '../../utils/axiosHandler.js';
 import './grouplistStyle.css';
 

@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { GenericSwitch, PhoneNumberInput } from '../ProfileInputs';
 import { differencesInObj } from '../../../utils/genericTools';
 import { axiosHandler, httpErrorHandler } from '../../../utils/axiosHandler';
-import { CurrentUserContext } from '../../../App';
+import { CurrentUserContext } from '../../../contexts/CurrentUser';
 
 const reminderBase = {
   leaderboardEmail: false,

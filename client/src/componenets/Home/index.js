@@ -9,7 +9,8 @@ import * as Routes from '../../constants/routes.js';
 import { WeekSearch } from '../Roster/SearchDropdowns';
 import { AvatarContext } from '../../contexts/Avatars';
 import { RosterDisplay } from '../Roster/RosterDisplay';
-import { CurrentUserContext, NFLScheduleContext } from '../../App.js';
+import { CurrentUserContext } from '../../contexts/CurrentUser';
+import { NFLScheduleContext } from '../../contexts/NFLSchedule';
 import { axiosHandler, httpErrorHandler } from '../../utils/axiosHandler';
 import './homeStyle.css';
 
