@@ -1,5 +1,5 @@
 import { useState, createContext, useEffect } from 'react';
-import { createLinkedList } from '../../componenets/Tools/ListNode';
+import { createLinkedList } from '../../utils/listNode';
 import axios from 'axios';
 
 const AvatarContext = createContext();
