@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import * as Routes from '../../constants/routes';
-import Session from '../Session';
+import Session from '../../contexts/Firebase/Session';
 import { useParams, useHistory } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';

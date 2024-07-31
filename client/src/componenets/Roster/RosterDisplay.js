@@ -1,5 +1,4 @@
 import React, { useContext, memo } from 'react';
-import { Tooltip } from 'react-tooltip';
 
 import { AvatarContext } from '../../contexts/Avatars';
 import PlayerOutline from '../../constants/logoImages/avatar/playerOutline.png';
@@ -127,7 +126,7 @@ const RosterDisplay = memo(function RosterDisplay({
 const InjuryCol = ({ injury }) => {
   return (
     <span
-      className='injuryCol redText'
+      className='injuryCol text-danger'
       data-tooltip-id='injuryTooltip'
       data-tooltip-html={injury.description}
     >

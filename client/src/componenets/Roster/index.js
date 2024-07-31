@@ -3,15 +3,17 @@ import axios from 'axios';
 import fuzzysort from 'fuzzysort';
 
 import { RosterDisplay, PlayerDisplayTable } from './RosterDisplay';
-import Session from '../Session';
+import Session from '../../contexts/Firebase/Session/index.js';
 
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import './rosterStyle.css';
-import './playerStyle.css';
 
-import { loading, doneLoading } from '../LoadingAlert';
-import { WeekSearch, PositionSearch, TeamSearch } from './SearchDropdowns';
+import { loading, doneLoading } from '../Tools/LoadingAlert.js';
+import {
+  WeekSearch,
+  PositionSearch,
+  TeamSearch,
+} from '../Tools/SearchDropdowns.js';
 import { toast } from 'react-hot-toast';
 import { AvatarContext } from '../../contexts/Avatars';
 import { CurrentUserContext } from '../../contexts/CurrentUser';

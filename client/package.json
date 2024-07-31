@@ -53,5 +53,8 @@
   "main": "index.js",
   "keywords": [],
   "author": "Kevin Flerlage",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@types/react-router-dom": "^5.3.3"
+  }
 }

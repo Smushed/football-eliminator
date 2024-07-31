@@ -1,0 +1,102 @@
+.modalWindow {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-height: 350px;
+  width: 700px;
+  background-color: #fff;
+  border-radius: 5px;
+  border: 1px lightgray solid;
+  padding: 10px 50px;
+}
+
+.ReactModal__Content {
+  overflow-y: auto;
+}
+
+.ReactModal__Overlay {
+  opacity: 0;
+  animation: pop-in 0.1s;
+  -webkit-animation: pop-in 0.1s;
+  -moz-animation: pop-in 0.1s;
+  -ms-animation: pop-in 0.1s;
+}
+
+.ReactModal__Overlay--after-open {
+  opacity: 1;
+}
+
+.ReactModal__Overlay--before-close {
+  opacity: 0;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0px;
+  background-color: rgba(99, 99, 99, 0.5);
+}
+
+.cropperWrapper {
+  height: 350px;
+  width: 100%;
+  position: relative;
+  margin-top: 25px;
+}
+
+.sliderWrapper {
+  margin-top: 25px;
+  margin-bottom: 20px;
+}
+
+.profileModalButton {
+  width: 100px;
+}
+
+.customFileUploadButton {
+  border: 1px solid #ccc;
+  padding: 6px 12px;
+  cursor: pointer;
+  margin-left: 0px;
+}
+
+.customFileUploadButton:hover {
+  background-color: whitesmoke;
+}
+
+@media only screen and (max-width: 900px) {
+  .modalWindow {
+    width: 100%;
+  }
+}
+
+@-webkit-keyframes pop-in {
+  0% {
+    opacity: 0;
+    -webkit-transform: scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: scale(1);
+  }
+}
+@-moz-keyframes pop-in {
+  0% {
+    opacity: 0;
+    -moz-transform: scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    -moz-transform: scale(1);
+  }
+}
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

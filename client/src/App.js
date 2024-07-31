@@ -1,32 +1,32 @@
-import React, {
-  useEffect,
-  useState,
-  useRef,
-  createContext,
-  useContext,
-} from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import * as Routes from './constants/routes';
 import { Route, BrowserRouter, Switch } from 'react-router-dom';
-import { withFirebase } from './componenets/Firebase';
+import { withFirebase } from './contexts/Firebase';
 import { Toaster } from 'react-hot-toast';
 import { Tooltip } from 'react-tooltip';
 
 import SignInOut from './componenets/SignInOut';
 import NavBar from './componenets/NavBar/';
 import Home from './componenets/Home';
-import UserProfile from './componenets/Profile/User';
+import UserProfile from './componenets/User/Profile';
 import Roster from './componenets/Roster';
 import AdminPanel from './componenets/AdminPanel';
-import UsedPlayers from './componenets/UsedPlayers';
-import GroupList from './componenets/GroupList';
-import CreateGroup from './componenets/Profile/Group/CreateGroup';
+import UsedPlayers from './componenets/Roster/UsedPlayers';
+import GroupList from './componenets/Group/GroupList';
+import CreateGroup from './componenets/Group/Profile/Create';
 import FourOFour from './componenets/404';
 import SidePanel from './componenets/SidePanel';
 import AvatarWrapper from './contexts/Avatars';
 import Unsubscribe from './componenets/Unsubscribe';
-import GroupProfile from './componenets/Profile/Group/GroupProfile';
+import GroupProfile from './componenets/Group/Profile/GroupProfile';
 import { CurrentUserContext } from './contexts/CurrentUser';
 import { NFLScheduleContext } from './contexts/NFLSchedule';
+import './styles/profileStyle.css';
+import './styles/rosterStyle.css';
+import './styles/modalStyle.css';
+import './styles/signInOutStyle.css';
+import './styles/leaderBoardStyle.css';
+import './styles/sidePanelStyle.css';
 
 const App = ({ firebase }) => {
   const [showSideBar, setShowSideBar] = useState(false);

@@ -1,19 +1,21 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { home } from '../../constants/routes';
-import PoorBaby from './Champs.jpg';
-import './404style.css';
 
 const FourOFour = () => {
   return (
-    <div className='fourOFour'>
-      <div className='fourOFourText'>404 - Not Found</div>
-      <div className='gloat'>
-        <Link to={home}>
-          <img className='ripGod' src={PoorBaby} alt='Sore Losers' />
-        </Link>
+    <>
+      <div className='row'>
+        <h1 className='col-12 text-center mt-5'>404 - Page Not Found</h1>
       </div>
-    </div>
+      <div className='row'>
+        <div className='col-12 text-center mt-4'>
+          <Link to={home}>
+            <h2>Return Home</h2>
+          </Link>
+        </div>
+      </div>
+    </>
   );
 };
 

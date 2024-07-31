@@ -6,7 +6,7 @@ import withReactContent from 'sweetalert2-react-content';
 
 const Alert = withReactContent(Swal);
 
-const Unsubscribe = ({ match }) => {
+const Unsubscribe = () => {
   const [successfulUnsubscribe, updateSuccessfulUnsubscribe] = useState(false);
 
   const params = useParams();

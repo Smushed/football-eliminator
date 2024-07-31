@@ -1,18 +1,17 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 
-import Session from '../Session';
+import Session from '../../contexts/Firebase/Session/index.js';
 import Leaderboard from '../Leaderboard';
 import { useHistory } from 'react-router-dom';
 import RosterCarousel from './RosterCarousel';
 import * as Routes from '../../constants/routes.js';
-import { WeekSearch } from '../Roster/SearchDropdowns';
+import { WeekSearch } from '../Tools/SearchDropdowns.js';
 import { AvatarContext } from '../../contexts/Avatars';
 import { RosterDisplay } from '../Roster/RosterDisplay';
 import { CurrentUserContext } from '../../contexts/CurrentUser';
 import { NFLScheduleContext } from '../../contexts/NFLSchedule';
 import { axiosHandler, httpErrorHandler } from '../../utils/axiosHandler';
-import './homeStyle.css';
 
 const Home = () => {
   const [idealRoster, setIdealRoster] = useState([]);
