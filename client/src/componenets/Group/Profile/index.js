@@ -1,60 +1,74 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import Modal from 'react-modal';
 import toast from 'react-hot-toast';
-import Session from '../Session';
+import Session from '../../../contexts/Firebase/Session';
+import { Carousel } from 'react-responsive-carousel';
 
 import 'jimp';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-
+import { useParams } from 'react-router-dom/cjs/react-router-dom.min';
 import 'rc-slider/assets/index.css';
-import './profileStyle.css';
+import axios from 'axios';
 
-import { ReAuth, ImageEditor, UserEditor } from '../../Modal';
-import GroupEditor from './GroupEditor';
-import GroupProfile from './GroupProfile';
+import { ImageEditor } from '../../Modal';
+import { axiosHandler, httpErrorHandler } from '../../../utils/axiosHandler';
+import { CurrentUserContext } from '../../../App';
 
 const Alert = withReactContent(Swal);
 
-const userFields = {
-  username: '',
-  email: '',
-  password: '',
-  mainGroup: '',
-  leaderboardEmail: true,
-  reminderEmail: true,
-};
-const groupFields = { groupName: '', groupDesc: '' };
-
-const Profile = ({
-  authUser,
-  currentUser,
-  firebase,
-  match,
-  history,
-  pullUserData,
-}) => {
+const GroupProfile = () => {
   const [modalOpen, updateModal] = useState(false);
-  const [modalState, updateModalState] = useState('reAuth');
-  const [updatedFields, changeUpdatedFields] = useState({
-    ...userFields,
-    ...groupFields,
-  });
+  const [updatedFields, changeUpdatedFields] = useState({});
   const [avatar, updateAvatar] = useState('');
   const [tempAvatar, updateTempAvatar] = useState('');
   const [groupInfo, updateGroupInfo] = useState({});
+  const [groupPositions, updateGroupPositions] = useState({});
+  const [scoringDetails, updateScoringDetails] = useState({});
+  const [detailedUserlist, updateDetailedUserlist] = useState([]);
+
   const fileInputRef = useRef(null);
 
-  useEffect(() => {
-    if (match.params.type === 'user') {
-      changeUpdatedFields({ ...userFields, mainGroup: currentUser.MG });
-    }
-  }, [match.params.type, currentUser]);
+  const { currentUser } = useContext(CurrentUserContext);
 
-  // const sendAuthEmail = (authUser) => {
-  //     authUser.sendEmailVerification();
-  //     this.setState({ emailSent: true });
-  // };
+  const params = useParams();
+
+  const axiosCancel = axios.CancelToken.source();
+
+  useEffect(() => {
+    if (params.name && currentUser.username) {
+      pullGroupInfo(params.name);
+    }
+  }, [params.name, currentUser.username]);
+
+  useEffect(() => {
+    return function cancelAPICalls() {
+      if (axiosCancel) {
+        axiosCancel.cancel('Unmounted');
+      }
+    };
+  }, []);
+
+  const pullGroupInfo = async (groupName) => {
+    try {
+      const { data } = await axiosHandler.get(
+        `/api/group/profile/${groupName}`,
+        axiosCancel.token
+      );
+      updateGroupInfo(data.group);
+      updateGroupPositions(data.positions);
+      updateAvatar(data.avatar);
+      updateDetailedUserlist(data.userlist);
+      updateScoringDetails({
+        scoringPoints: data.scoring,
+        scoringBucketDescription: data.scoringBucketDescription,
+        scoringDetailDescription: data.scoringDetailDescription,
+      });
+      console.log({ data });
+    } catch (err) {
+      httpErrorHandler(err);
+    }
+  };
 
   const openCloseModal = () => {
     updateModal(!modalOpen);
@@ -73,7 +87,6 @@ const Profile = ({
           const mime = await img.getBase64Async(Jimp.MIME_JPEG);
           updateTempAvatar(mime);
         });
-        updateModalState('avatar');
         openCloseModal();
       } else {
         notAnImage();
@@ -88,7 +101,6 @@ const Profile = ({
     updateTempAvatar('');
     updateAvatar(mime);
     openCloseModal();
-    updateModalState('reAuth');
     saveAvatarToAWS(mime);
   };
 
@@ -99,10 +111,8 @@ const Profile = ({
   };
 
   const saveAvatarToAWS = (updatedAvatar) => {
-    const idToUpdate =
-      match.params.type === 'user' ? currentUser.userId : groupInfo._id;
     //Using Fetch here to send along the base64 encoded image
-    fetch(`/api/avatar/${idToUpdate}`, {
+    fetch(`/api/avatar/${groupInfo._id}`, {
       method: 'PUT',
       headers: {
         Accept: 'application/json',
@@ -125,24 +135,59 @@ const Profile = ({
     });
   };
 
-  const changeGroup = (newGroup) => {
-    history.push(`/profile/group/${newGroup}`);
-  };
-
   return (
     <>
-      <GroupProfile
-        groupName={match.params.name}
-        currentUser={currentUser}
-        handleChange={handleChange}
-        updateAvatar={updateAvatar}
-        fileInputRef={fileInputRef}
-        avatar={avatar}
-        groupInfo={groupInfo}
-        updateGroupInfo={updateGroupInfo}
-        updateModalState={updateModalState}
-        openCloseModal={openCloseModal}
-      />
+      <div className='d-flex justify-content-center container'>
+        <div className='block'>
+          <div>{groupInfo.name && groupInfo.name}</div>
+          <div>{groupInfo.description && groupInfo.description}</div>
+          {/* {adminStatus && (
+            <button
+              className='btn btn-sm btn-info'
+              onClick={() => {
+                openCloseModal();
+              }}
+            >
+              Edit Group
+            </button>
+          )} */}
+        </div>
+        <div>
+          <img name='avatar' src={avatar} />
+        </div>
+      </div>
+      <div>
+        <div>Users:</div>
+        <div className='d-flex justify-content-center row'>
+          {detailedUserlist &&
+            detailedUserlist.map((user) => (
+              <div key={user._id}>{user.username}</div>
+            ))}
+        </div>
+      </div>
+      <div>
+        <div>Scoring System:</div>
+        {scoringDetails.scoringBucketDescription && (
+          <Carousel autoPlay infiniteLoop interval={10000}>
+            {Object.keys(scoringDetails.scoringBucketDescription).map(
+              (bucket) => (
+                <>
+                  <div>
+                    {scoringDetails.scoringBucketDescription[bucket]} -----
+                  </div>
+                  {Object.keys(
+                    scoringDetails.scoringDetailDescription[bucket]
+                  ).map((detail) => (
+                    <div>
+                      {scoringDetails.scoringDetailDescription[bucket][detail]}
+                    </div>
+                  ))}
+                </>
+              )
+            )}
+          </Carousel>
+        )}
+      </div>
       <Modal
         onRequestClose={requestCloseModal}
         isOpen={modalOpen}
@@ -151,26 +196,15 @@ const Profile = ({
         overlayClassName='modalOverlay'
         ariaHideApp={false}
       >
-        {modalState === 'avatar' ? (
-          <ImageEditor
-            tempAvatar={tempAvatar}
-            saveCroppedAvatar={saveCroppedAvatar}
-            openCloseModal={openCloseModal}
-            fileInputRef={fileInputRef}
-          />
-        ) : (
-          <GroupEditor
-            updateGroupInfo={updateGroupInfo}
-            groupInfo={groupInfo}
-            updatedFields={updatedFields}
-            changeUpdatedFields={changeUpdatedFields}
-            openCloseModal={openCloseModal}
-            changeGroup={changeGroup}
-          />
-        )}
+        <ImageEditor
+          tempAvatar={tempAvatar}
+          saveCroppedAvatar={saveCroppedAvatar}
+          openCloseModal={openCloseModal}
+          fileInputRef={fileInputRef}
+        />
       </Modal>
     </>
   );
 };
 
-export default Session(Profile);
+export default Session(GroupProfile);

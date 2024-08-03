@@ -12,6 +12,7 @@ import {
   verifyUserIsSameEmailUserId,
 } from '../handlers/authHandler.js';
 import { returnError } from '../utils/ExpressUtils.js';
+import positions from '../constants/positions.js';
 
 export default (app) => {
   app.put('/api/group/join/', async (req, res) => {
@@ -25,28 +26,41 @@ export default (app) => {
     }
   });
 
-  app.get('/api/group/profile', async (req, res) => {
-    const { name, avatar, positions } = req.query;
-    const group = { group: null, gAvatar: null, pos: null };
+  app.get('/api/group/profile/:name', async (req, res) => {
+    const { name } = req.params;
     try {
-      group.group = await groupHandler.getGroupDataByName(name);
-
-      if (avatar === 'true') {
-        group.gAvatar = await s3Handler.getUserAvatar(groupData._id.toString());
-      }
-      if (positions === 'true') {
-        group.pos = await groupHandler.getGroupPositions(
-          groupData._id.toString()
-        );
-      }
-      groupData.userlist = await userHandler.fillUserListFromGroup(
-        groupData.userlist
-      );
-
+      const groupData = await groupHandler.getGroupDataByName(name);
       if (!groupData) {
         throw { status: 500, message: 'No Group Found' };
       }
-      res.status(200).send(group);
+
+      const avatar = await s3Handler.getSingleAvatar(groupData._id.toString());
+      const positions = await groupHandler.getGroupPositions(
+        groupData._id.toString()
+      );
+      const userlist = await userHandler.fillUserListFromGroup(
+        groupData.userlist
+      );
+      let scoring = await groupHandler.getGroupScore(groupData._id);
+      scoring = {
+        fieldGoal: scoring.fieldGoal,
+        fumble: scoring.fumble,
+        passing: scoring.passing,
+        receiving: scoring.receiving,
+        rushing: scoring.rushing,
+      };
+      const scoringBucketDescription = scoringSystem.groupScoreBucketMap;
+      const scoringDetailDescription = scoringSystem.groupScoreMap;
+
+      res.status(200).send({
+        group: groupData,
+        avatar: avatar,
+        positions: positions,
+        userlist: userlist,
+        scoring: scoring,
+        scoringBucketDescription: scoringBucketDescription,
+        scoringDetailDescription: scoringDetailDescription,
+      });
     } catch (err) {
       returnError(res, err);
     }
@@ -193,79 +207,39 @@ export default (app) => {
 
   app.get('/api/group/profile/box/:username/:groupname', async (req, res) => {
     const { username, groupname } = req.params;
-    Promise.all([
-      mySportsHandler.pullSeasonAndWeekFromDB(),
-      groupHandler.getGroupDataByName(groupname),
-      userHandler.getUserByUsername(username),
-    ])
-      .then(([{ season, week }, groupData, userData]) => {
-        groupHandler
-          .getCurrAndLastWeekScores(groupData._id, season, +week)
-          .then((userScores) => {
-            groupHandler
-              .getBestUserForBox(userScores)
-              .then((topUser) => {
-                const currUserScore = userScores.find(
-                  (score) => score.userId.toString() === userData._id.toString()
-                );
-
-                res.status(200).send({
-                  groupData: groupData,
-                  userScore: {
-                    username: username,
-                    totalScore: currUserScore.totalScore,
-                  },
-                  topScore: topUser,
-                });
-              })
-              .catch((err) => {
-                console.log('Error level 1 in group profile pull: ', {
-                  username,
-                  groupname,
-                  err,
-                });
-                returnError(res, err, 'Error pulling group data');
-                return;
-              });
-          })
-          .catch((err) => {
-            console.log('Error level 2 in group profile pull: ', {
-              username,
-              groupname,
-              err,
-            });
-            returnError(res, err, 'Error pulling group data');
-            return;
-          });
-      })
-      .catch((err) => {
-        console.log('Error level 3 in group profile pull: ', {
-          username,
-          groupname,
-          err,
-        });
-        returnError(res, err, 'Error pulling group data');
-        return;
-      });
-  });
-
-  app.get('/api/group/scoring/:groupId', async (req, res) => {
-    const { withDesc } = req.query;
-    const { groupId } = req.params;
-    const response = {};
-
     try {
-      response.groupScore = await groupHandler.getGroupScore(groupId);
+      const [{ season, week }, groupData, userData] = await Promise.all([
+        mySportsHandler.pullSeasonAndWeekFromDB(),
+        groupHandler.getGroupDataByName(groupname),
+        userHandler.getUserByUsername(username),
+      ]);
+      const userScores = await groupHandler.getCurrAndLastWeekScores(
+        groupData._id,
+        season,
+        +week
+      );
+      const topUser = await groupHandler.getBestUserForBox(userScores);
+      const currUserScore = userScores.find(
+        (score) => score.userId.toString() === userData._id.toString()
+      );
+
+      res.status(200).send({
+        groupData: groupData,
+        userScore: {
+          username: username,
+          totalScore: currUserScore.totalScore,
+        },
+        topScore: topUser,
+      });
     } catch (err) {
-      returnError(res, err);
+      console.log('Error in group box pull: ', {
+        username,
+        groupname,
+        err,
+      });
+      returnError(res, err, 'Error pulling group data');
       return;
     }
-
-    if (withDesc === 'true') {
-      response.map = scoringSystem.groupScoreMap;
-      response.bucketMap = scoringSystem.groupScoreBucketMap;
-    }
-    res.status(200).send(response);
   });
 
   app.put('/api/group/', authMiddleware, async (req, res) => {

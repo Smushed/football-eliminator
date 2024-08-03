@@ -84,7 +84,7 @@ export default (app) => {
       if (!user) {
         return res.status(400).send(`User ${username} not found!`);
       }
-      const avatar = await s3Handler.getUserAvatar(user._id);
+      const avatar = await s3Handler.getSingleAvatar(user._id);
       res.status(200).send({ user, avatar });
     } catch (err) {
       console.log('Error getting user by username: ', { username, err });
@@ -95,7 +95,7 @@ export default (app) => {
   app.get('/api/user/profile/box/:userId', authMiddleware, async (req, res) => {
     const { userId } = req.params;
     Promise.all([
-      s3Handler.getUserAvatar(userId),
+      s3Handler.getSingleAvatar(userId),
       rosterHandler.getTotalScore(userId),
       userHandler.getUserByID(userId),
     ])

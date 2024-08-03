@@ -18,7 +18,7 @@ import FourOFour from './componenets/404';
 import SidePanel from './componenets/SidePanel';
 import AvatarWrapper from './contexts/Avatars';
 import Unsubscribe from './componenets/Unsubscribe';
-import GroupProfile from './componenets/Group/Profile/GroupProfile';
+import GroupProfile from './componenets/Group/Profile';
 import { CurrentUserContext } from './contexts/CurrentUser';
 import { NFLScheduleContext } from './contexts/NFLSchedule';
 import './styles/profileStyle.css';

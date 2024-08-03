@@ -18,7 +18,7 @@ export default (app) => {
   app.get('/api/avatar/:id', async (req, res) => {
     const { id } = req.params;
     try {
-      const avatar = await s3Handler.getUserAvatar(id);
+      const avatar = await s3Handler.getSingleAvatar(id);
       res.status(200).send(avatar);
     } catch (err) {
       console.log('Error getting avatar: ', { id, err });

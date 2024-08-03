@@ -173,7 +173,6 @@ const GroupEditor = ({
     } else if (value.length > maxLength) {
       return;
     }
-    // eslint-disable-next-line no-unused-vars
     const [x, bucket, bucketKey] = name.split(`-`);
     const updatedScore = { ...groupScore };
     updatedScore[bucket][bucketKey] = value;

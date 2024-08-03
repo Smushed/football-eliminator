@@ -81,7 +81,7 @@ const AdminPanel = ({ season }) => {
   };
 
   const pullGroupPositions = async (groupId) => {
-    const { data } = await axios.get(`/api/group/positions/${groupId}`);
+    // const { data } = await axios.get(`/api/group/profile/${groupName}`);
     console.log({ groupPositions: data });
     setGroupPositions(data);
   };
