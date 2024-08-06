@@ -8,6 +8,7 @@ import emailHandler from '../handlers/emailHandler.js';
 import mySportsHandler from '../handlers/mySportsHandler.js';
 import {
   authMiddleware,
+  notAuthorizedToUpdate,
   verifyGroupAdminByEmail,
   verifyUserIsSameEmailUserId,
 } from '../handlers/authHandler.js';
@@ -26,23 +27,25 @@ export default (app) => {
     }
   });
 
-  app.get('/api/group/profile/:name', async (req, res) => {
+  app.get('/api/group/profile/:name', authMiddleware, async (req, res) => {
     const { name } = req.params;
     try {
       const groupData = await groupHandler.getGroupDataByName(name);
       if (!groupData) {
         throw { status: 500, message: 'No Group Found' };
       }
+      const { season, week } = await mySportsHandler.pullSeasonAndWeekFromDB();
 
-      const avatar = await s3Handler.getSingleAvatar(groupData._id.toString());
-      const positions = await groupHandler.getGroupPositions(
-        groupData._id.toString()
-      );
-      const userlist = await userHandler.fillUserListFromGroup(
-        groupData.userlist
-      );
-      let scoring = await groupHandler.getGroupScore(groupData._id);
-      scoring = {
+      const [userIsAdmin, avatar, positions, leaderboard, scoring] =
+        await Promise.all([
+          await verifyGroupAdminByEmail(req.currentUser, groupData._id),
+          await s3Handler.getSingleAvatar(groupData._id.toString()),
+          await groupHandler.getGroupPositions(groupData._id.toString()),
+          await groupHandler.getLeaderBoard(groupData._id, season, week),
+          await groupHandler.getGroupScore(groupData._id),
+        ]);
+
+      const trimScore = {
         fieldGoal: scoring.fieldGoal,
         fumble: scoring.fumble,
         passing: scoring.passing,
@@ -56,10 +59,11 @@ export default (app) => {
         group: groupData,
         avatar: avatar,
         positions: positions,
-        userlist: userlist,
-        scoring: scoring,
+        leaderboard: leaderboard,
+        scoring: trimScore,
         scoringBucketDescription: scoringBucketDescription,
         scoringDetailDescription: scoringDetailDescription,
+        adminStatus: userIsAdmin,
       });
     } catch (err) {
       returnError(res, err);
@@ -84,9 +88,6 @@ export default (app) => {
     try {
       const { id } = req.params;
       const groupInfo = await groupHandler.getGroupDataById(id);
-      groupInfo.userlist = await userHandler.fillUserListFromGroup(
-        groupInfo.userlist
-      );
       res.status(200).send(groupInfo);
     } catch (err) {
       console.log('Error pulling group details by groupId ', { err });
@@ -245,7 +246,13 @@ export default (app) => {
   app.put('/api/group/', authMiddleware, async (req, res) => {
     try {
       const { data } = req.body;
-      await verifyGroupAdminByEmail(req.currentUser, data.groupId);
+      const userIsAdmin = await verifyGroupAdminByEmail(
+        req.currentUser,
+        data.groupId
+      );
+      if (!userIsAdmin) {
+        returnError(res, notAuthorizedToUpdate);
+      }
       const response = await groupHandler.updateGroup(data);
       res.status(response.status).send(response.message);
     } catch (err) {

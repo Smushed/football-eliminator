@@ -42,16 +42,19 @@ const authMiddleware = (req, res, next) => {
 
 const verifyGroupAdminByEmail = async (userEmail, groupId) => {
   const group = await db.Group.findById(groupId, { userlist: 1 }).lean().exec();
-  const userIdList = group.userlist.map((user) => user.userId.toString());
+  let groupAdmins = group.userlist.filter((user) => user.admin);
+  groupAdmins = groupAdmins.map((user) => user.userId.toString());
   const userlist = await db.User.find(
-    { _id: { $in: userIdList } },
+    { _id: { $in: groupAdmins } },
     { email: 1 }
   )
     .lean()
     .exec();
   const foundUser = userlist.find((user) => user.email === userEmail);
   if (!foundUser) {
-    throw notAuthorizedError;
+    return false;
+  } else {
+    return true;
   }
 };
 
@@ -75,4 +78,5 @@ export {
   verifyUserLoggedIn,
   verifyUserIsSameEmailUserId,
   authMiddleware,
+  notAuthorizedToUpdate,
 };

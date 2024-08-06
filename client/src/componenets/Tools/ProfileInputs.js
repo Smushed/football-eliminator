@@ -29,7 +29,7 @@ const UsernameInput = ({
   disabled,
 }) => (
   <div className='row mt-2'>
-    <div className='col'>
+    <div className='col-12'>
       <small htmlFor='username' className='form-label'>
         Username:
       </small>

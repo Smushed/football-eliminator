@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef, useContext } from 'react';
 import Modal from 'react-modal';
 import toast from 'react-hot-toast';
 import Session from '../../../contexts/Firebase/Session';
-import { Carousel } from 'react-responsive-carousel';
 
 import 'jimp';
 import Swal from 'sweetalert2';
@@ -14,6 +13,8 @@ import axios from 'axios';
 import { ImageEditor } from '../../Modal';
 import { axiosHandler, httpErrorHandler } from '../../../utils/axiosHandler';
 import { CurrentUserContext } from '../../../App';
+import NonAdminView from './NonAdminView';
+import EditGroup from './Edit';
 
 const Alert = withReactContent(Swal);
 
@@ -25,7 +26,8 @@ const GroupProfile = () => {
   const [groupInfo, updateGroupInfo] = useState({});
   const [groupPositions, updateGroupPositions] = useState({});
   const [scoringDetails, updateScoringDetails] = useState({});
-  const [detailedUserlist, updateDetailedUserlist] = useState([]);
+  const [leaderboard, updateLeaderboard] = useState([]);
+  const [userIsAdmin, updateUserIsAdmin] = useState(false);
 
   const fileInputRef = useRef(null);
 
@@ -58,13 +60,13 @@ const GroupProfile = () => {
       updateGroupInfo(data.group);
       updateGroupPositions(data.positions);
       updateAvatar(data.avatar);
-      updateDetailedUserlist(data.userlist);
+      updateLeaderboard(data.leaderboard);
       updateScoringDetails({
         scoringPoints: data.scoring,
         scoringBucketDescription: data.scoringBucketDescription,
         scoringDetailDescription: data.scoringDetailDescription,
       });
-      console.log({ data });
+      updateUserIsAdmin(data.adminStatus);
     } catch (err) {
       httpErrorHandler(err);
     }
@@ -137,55 +139,17 @@ const GroupProfile = () => {
 
   return (
     <>
-      <div className='d-flex justify-content-center container'>
-        <div className='block'>
-          <div>{groupInfo.name && groupInfo.name}</div>
-          <div>{groupInfo.description && groupInfo.description}</div>
-          {/* {adminStatus && (
-            <button
-              className='btn btn-sm btn-info'
-              onClick={() => {
-                openCloseModal();
-              }}
-            >
-              Edit Group
-            </button>
-          )} */}
-        </div>
-        <div>
-          <img name='avatar' src={avatar} />
-        </div>
-      </div>
-      <div>
-        <div>Users:</div>
-        <div className='d-flex justify-content-center row'>
-          {detailedUserlist &&
-            detailedUserlist.map((user) => (
-              <div key={user._id}>{user.username}</div>
-            ))}
-        </div>
-      </div>
-      <div>
-        <div>Scoring System:</div>
-        {scoringDetails.scoringBucketDescription && (
-          <Carousel autoPlay infiniteLoop interval={10000}>
-            {Object.keys(scoringDetails.scoringBucketDescription).map(
-              (bucket) => (
-                <>
-                  <div>
-                    {scoringDetails.scoringBucketDescription[bucket]} -----
-                  </div>
-                  {Object.keys(
-                    scoringDetails.scoringDetailDescription[bucket]
-                  ).map((detail) => (
-                    <div>
-                      {scoringDetails.scoringDetailDescription[bucket][detail]}
-                    </div>
-                  ))}
-                </>
-              )
-            )}
-          </Carousel>
+      <div className='container'>
+        {false ? (
+          <EditGroup />
+        ) : (
+          <NonAdminView
+            groupInfo={groupInfo}
+            avatar={avatar}
+            groupPositions={groupPositions}
+            leaderboard={leaderboard}
+            scoringDetails={scoringDetails}
+          />
         )}
       </div>
       <Modal

@@ -921,13 +921,19 @@ export default {
   },
   pullSeasonAndWeekFromDB: async () => {
     try {
-      const dbResponse = await db.SeasonAndWeek.find(
+      const dbResponse = await db.SeasonAndWeek.findOne(
         {},
-        { lockWeek: 1, season: 1, week: 1, seasonOver: 1, _id: 0 }
+        {
+          lockWeek: true,
+          season: true,
+          week: true,
+          seasonOver: true,
+          _id: false,
+        }
       )
         .lean()
         .exec();
-      return dbResponse[0];
+      return dbResponse;
     } catch (err) {
       console.log('Error pullSeasonAndWeekFromDB: ', { err });
       throw {

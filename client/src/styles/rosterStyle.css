@@ -53,7 +53,7 @@
   height: 45px;
 }
 
-.playerSearchBox {
+.popInAnimation {
   animation: pop-in 0.25s;
   -webkit-animation: pop-in 0.25s;
   -moz-animation: pop-in 0.25s;
