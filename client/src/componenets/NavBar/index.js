@@ -9,7 +9,7 @@ const NavBar = ({ toggleSideBar }) => (
   <nav className='navbar navbar-light border-bottom border-2'>
     <div className='row w-100 position-relative'>
       <div
-        className='ms-5 mt-3 position-absolute w-auto'
+        className='ms-3 ms-md-5 mt-3 position-absolute w-auto'
         role='button'
         onClick={() => toggleSideBar()}
       >

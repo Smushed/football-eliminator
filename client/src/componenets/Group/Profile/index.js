@@ -146,7 +146,6 @@ const GroupProfile = () => {
           <NonAdminView
             groupInfo={groupInfo}
             avatar={avatar}
-            groupPositions={groupPositions}
             leaderboard={leaderboard}
             scoringDetails={scoringDetails}
           />

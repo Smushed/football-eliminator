@@ -7,6 +7,8 @@
     "axios": "^1.6.7",
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.2",
+    "embla-carousel-autoplay": "^8.1.8",
+    "embla-carousel-react": "^8.1.8",
     "firebase": "^9.23.0",
     "fuzzysort": "^2.0.4",
     "http-proxy-middleware": "^2.0.6",
