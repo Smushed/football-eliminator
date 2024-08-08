@@ -762,9 +762,9 @@ export default {
   fillBlankUserRoster: async (playerRoster) => {
     return playerRoster.map(() => ({
       mySportsId: 0,
-      name: '--------- ------------',
-      team: '---',
-      score: '---',
+      name: '--------- -----------',
+      team: '--',
+      score: '--',
       lockTooltip: true,
     }));
   },

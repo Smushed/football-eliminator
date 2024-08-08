@@ -11,8 +11,6 @@ const CurrentRosterRow = memo(function CurrentRosterRow({
   showScore,
 }) {
   const { playerAvatars } = useContext(AvatarContext);
-  {
-  }
   return (
     <tr
       className='align-middle'
@@ -26,11 +24,11 @@ const CurrentRosterRow = memo(function CurrentRosterRow({
       <th scope='row' className='rosterPosition'>
         {position}
       </th>
-      <td>
-        {player && player.mySportsId !== 0 && !showScore && player.injury && (
+      {player && player.mySportsId !== 0 && !showScore && player.injury && (
+        <td>
           <InjuryCol injury={player.injury} />
-        )}
-      </td>
+        </td>
+      )}
       <td>
         {player && (
           <img

@@ -1,3 +1,5 @@
+import { useCallback } from 'react';
+
 const PrevCarouselButton = ({ scrollPrev }) => (
   <button
     className='embla__button d-inline-block'
@@ -28,4 +30,28 @@ const NextCarouselButton = ({ scrollNext }) => (
   </button>
 );
 
-export { PrevCarouselButton, NextCarouselButton };
+const CarouselButtonRow = ({ emblaApi }) => {
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) {
+      emblaApi.scrollPrev();
+    }
+  }, [emblaApi]);
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) {
+      emblaApi.scrollNext();
+    }
+  }, [emblaApi]);
+  return (
+    <div className='row justify-content-center'>
+      <div className='col-3 text-center'>
+        <PrevCarouselButton scrollPrev={scrollPrev} />
+      </div>
+      <div className='col-3 text-center'>
+        <NextCarouselButton scrollNext={scrollNext} />
+      </div>
+    </div>
+  );
+};
+
+export { PrevCarouselButton, NextCarouselButton, CarouselButtonRow };

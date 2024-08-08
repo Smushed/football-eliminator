@@ -1,5 +1,6 @@
 .rosterPosition {
-  width: 67px !important;
+  width: 60px;
+  max-width: 67px !important;
 }
 
 .oppWidth {
@@ -45,7 +46,8 @@
 }
 
 .playerAvatar {
-  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
   height: 36px;
 }
 
