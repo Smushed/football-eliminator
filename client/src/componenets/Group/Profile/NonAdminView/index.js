@@ -1,15 +1,28 @@
-import { useState } from 'react';
-import { Carousel } from 'react-responsive-carousel';
+import { useCallback, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 import ChartLeaderboard from '../../../Leaderboard/ChartLeaderboard';
+import {
+  NextCarouselButton,
+  PrevCarouselButton,
+} from '../../../Tools/EmblaCarouselButtons';
 
 const NonAdminView = ({ groupInfo, avatar, leaderboard, scoringDetails }) => {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
 
-  //TODO add this in
-  //https://www.embla-carousel.com/get-started/react/
-  const [emblaRef] = useEmblaCarousel({ loop: true }, [Autoplay()]);
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Autoplay()]);
+
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) {
+      emblaApi.scrollPrev();
+    }
+  }, [emblaApi]);
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) {
+      emblaApi.scrollNext();
+    }
+  }, [emblaApi]);
 
   const toggleLeaderboard = () => {
     setShowLeaderboard(!showLeaderboard);
@@ -86,81 +99,76 @@ const NonAdminView = ({ groupInfo, avatar, leaderboard, scoringDetails }) => {
           </div>
           <div className='row justify-content-center'>
             <div className='col-xs-12 col-md-6'>
-              {console.log({ scoringDetails })}
               {scoringDetails.scoringBucketDescription && (
-                <Carousel infiniteLoop interval={10000} showThumbs={false}>
-                  {Object.keys(scoringDetails.scoringBucketDescription).map(
-                    (bucket) => (
-                      <div className='row justify-content-center pb-3'>
-                        <div className='col-xs-12 col-md-8'>
-                          <table
-                            key={bucket}
-                            className='table table-striped table-hover'
-                          >
-                            <thead>
-                              <th colSpan={2} scope='row'>
-                                {
-                                  scoringDetails.scoringBucketDescription[
-                                    bucket
-                                  ]
-                                }
-                              </th>
-                            </thead>
-                            <tbody>
-                              <tr>
-                                <th scope='row'>Play</th>
-                                <th scope='row'>Points</th>
-                              </tr>
-                              {Object.keys(
-                                scoringDetails.scoringDetailDescription[bucket]
-                              ).map((detail) => (
-                                <tr key={detail}>
-                                  <td>
+                <div className='embla'>
+                  <div className='embla__viewport' ref={emblaRef}>
+                    <div className='embla__container ps-2'>
+                      {Object.keys(scoringDetails.scoringBucketDescription).map(
+                        (bucket) => (
+                          <div className='embla__slide row justify-content-center pb-1'>
+                            <div className='col-12 col-md-10'>
+                              <table
+                                key={bucket}
+                                className='table table-striped table-hover border border-light rounded'
+                              >
+                                <thead>
+                                  <th
+                                    colSpan={2}
+                                    scope='row'
+                                    className='text-center'
+                                  >
                                     {
-                                      scoringDetails.scoringDetailDescription[
+                                      scoringDetails.scoringBucketDescription[
                                         bucket
-                                      ][detail]
-                                    }
-                                  </td>
-                                  <td>
-                                    {
-                                      scoringDetails.scoringPoints[bucket][
-                                        detail
                                       ]
                                     }
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    )
-                  )}
-                </Carousel>
+                                  </th>
+                                </thead>
+                                <tbody>
+                                  {Object.keys(
+                                    scoringDetails.scoringDetailDescription[
+                                      bucket
+                                    ]
+                                  ).map((detail) => (
+                                    <tr key={detail}>
+                                      <td className='ps-5 ps-md-4 w-75'>
+                                        {
+                                          scoringDetails
+                                            .scoringDetailDescription[bucket][
+                                            detail
+                                          ]
+                                        }
+                                      </td>
+                                      <td>
+                                        {
+                                          scoringDetails.scoringPoints[bucket][
+                                            detail
+                                          ]
+                                        }{' '}
+                                        pt
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+                  <div className='row justify-content-center'>
+                    <div className='col-3 text-center'>
+                      <PrevCarouselButton scrollPrev={scrollPrev} />
+                    </div>
+                    <div className='col-3 text-center'>
+                      <NextCarouselButton scrollNext={scrollNext} />
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           </div>
-          {/* {Object.keys(scoringDetails.scoringBucketDescription).map(
-                (bucket) => (
-                  <div key={bucket}>
-                    <div>
-                      {scoringDetails.scoringBucketDescription[bucket]} -----
-                    </div>
-                    {Object.keys(
-                      scoringDetails.scoringDetailDescription[bucket]
-                    ).map((detail) => (
-                      <div key={detail}>
-                        {
-                          scoringDetails.scoringDetailDescription[bucket][
-                            detail
-                          ]
-                        }
-                      </div>
-                    ))}
-                  </div>
-                )
-              )} */}
         </div>
       </div>
     </>
