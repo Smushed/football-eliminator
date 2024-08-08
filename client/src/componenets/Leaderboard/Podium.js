@@ -2,8 +2,6 @@ import { memo, useContext } from 'react';
 import loading from '../../constants/SVG/loading.svg';
 import { AvatarContext } from '../Avatars';
 
-import './leaderBoardStyle.css';
-
 const Podium = memo(function Podium({ leaderboard }) {
   const { userAvatars } = useContext(AvatarContext);
 

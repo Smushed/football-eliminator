@@ -7,6 +7,8 @@
     "axios": "^1.6.7",
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.2",
+    "embla-carousel-autoplay": "^8.1.8",
+    "embla-carousel-react": "^8.1.8",
     "firebase": "^9.23.0",
     "fuzzysort": "^2.0.4",
     "http-proxy-middleware": "^2.0.6",
@@ -19,7 +21,6 @@
     "react-easy-crop": "^5.0.5",
     "react-hot-toast": "^2.4.1",
     "react-modal": "^3.16.1",
-    "react-responsive-carousel": "^3.2.23",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^5.0.1",
     "react-tooltip": "^5.26.3",
@@ -53,5 +54,8 @@
   "main": "index.js",
   "keywords": [],
   "author": "Kevin Flerlage",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@types/react-router-dom": "^5.3.3"
+  }
 }

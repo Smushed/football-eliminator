@@ -1,7 +1,5 @@
 import { Link } from 'react-router-dom';
 
-import './leaderBoardStyle.css';
-
 const Leaderboard = ({ groupName, week, leaderboard }) => (
   <table className='leaderboardContainter table table-striped table-hover'>
     <thead>

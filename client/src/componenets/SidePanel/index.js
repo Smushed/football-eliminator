@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { withFirebase } from '../Firebase';
+import { withFirebase } from '../../contexts/Firebase';
 import { Link } from 'react-router-dom';
 import { slide as Menu } from 'react-burger-menu';
 import { CurrentUserContext } from '../../App.js';
@@ -12,10 +12,8 @@ import GroupSVG from '../../constants/SVG/group.svg';
 import UserSVG from '../../constants/SVG/user.svg';
 import ClipboardSVG from '../../constants/SVG/clipboard.svg';
 import * as Routes from '../../constants/routes';
-
-import SignOutIcon from './SignOut.png';
-import ElimLogo from './ElimLogo.png';
-import './sidePanelStyle.css';
+import SignOutIcon from '../../constants/elimLogos/SignOut.png';
+import ElimLogo from '../../constants/elimLogos/ElimLogo.png';
 
 const SidePanel = ({
   firebase,
@@ -71,7 +69,7 @@ const SidePanel = ({
         />
       </div>
       <Link to={Routes.home} onClick={() => toggleSideBar()}>
-        <div className='sidebarItemWrapper firstSidebarItem'>
+        <div className='sidebarItemWrapper mt-2'>
           <img className='sidebarSVG' src={RankingSVG} alt='Ranking Logo' />
           <div className='sideBarItem'>Leaderboard</div>
         </div>

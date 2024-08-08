@@ -1,5 +1,4 @@
 import React, { useContext, memo } from 'react';
-import { Tooltip } from 'react-tooltip';
 
 import { AvatarContext } from '../../contexts/Avatars';
 import PlayerOutline from '../../constants/logoImages/avatar/playerOutline.png';
@@ -12,8 +11,6 @@ const CurrentRosterRow = memo(function CurrentRosterRow({
   showScore,
 }) {
   const { playerAvatars } = useContext(AvatarContext);
-  {
-  }
   return (
     <tr
       className='align-middle'
@@ -27,11 +24,11 @@ const CurrentRosterRow = memo(function CurrentRosterRow({
       <th scope='row' className='rosterPosition'>
         {position}
       </th>
-      <td>
-        {player && player.mySportsId !== 0 && !showScore && player.injury && (
+      {player && player.mySportsId !== 0 && !showScore && player.injury && (
+        <td>
           <InjuryCol injury={player.injury} />
-        )}
-      </td>
+        </td>
+      )}
       <td>
         {player && (
           <img
@@ -127,7 +124,7 @@ const RosterDisplay = memo(function RosterDisplay({
 const InjuryCol = ({ injury }) => {
   return (
     <span
-      className='injuryCol redText'
+      className='injuryCol text-danger'
       data-tooltip-id='injuryTooltip'
       data-tooltip-html={injury.description}
     >
@@ -194,7 +191,7 @@ const PlayerDisplayTable = ({
           <small htmlFor='playerSearch' className='ps-1 form-label'>
             Player Search:
           </small>
-          <div className='playerSearchBox input-group input-group-lg mb-2'>
+          <div className='popInAnimation input-group input-group-lg mb-2'>
             <input
               className='form-control'
               name='playerSearch'

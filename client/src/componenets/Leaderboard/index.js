@@ -2,7 +2,6 @@ import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import ChartLeaderboard from './ChartLeaderboard';
 
-import './leaderBoardStyle.css';
 import { NFLScheduleContext } from '../../App.js';
 import { axiosHandler, httpErrorHandler } from '../../utils/axiosHandler.js';
 

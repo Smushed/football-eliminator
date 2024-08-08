@@ -210,10 +210,13 @@ export default {
       }
     }
   },
-  fillUserListFromGroup: async (userList) => {
+  fillUserListFromGroupOnlyUsername: async (userList) => {
     const userIdList = userList.map((user) => user.userId);
     try {
-      const pulledUserList = await db.User.find({ _id: { $in: userIdList } })
+      const pulledUserList = await db.User.find(
+        { _id: { $in: userIdList } },
+        { username: true }
+      )
         .lean()
         .exec();
       return pulledUserList;

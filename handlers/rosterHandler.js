@@ -476,9 +476,9 @@ export default {
     try {
       const hiddenRoster = rosters[0].roster.map(() => ({
         mySportsId: 0,
-        name: '--------- ------------',
-        team: '---',
-        score: '---',
+        name: '--------- -----------',
+        team: '--',
+        score: '--',
         lockTooltip: true,
       }));
       const hiddenRosters = rosters.map((userRoster) => ({

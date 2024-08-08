@@ -49,7 +49,9 @@ const checkDuplicate = async (checkedField, groupToSearch, userId) => {
   }
 };
 
-const updateUserScore = async (groupId, season, prevWeek, week) => {
+const updateUserScore = async (groupId, season, week) => {
+  const weekAccessor = (week === 1 ? 1 : week - 1).toString();
+
   try {
     const group = await db.Group.findById(groupId).lean().exec();
     for (const user of group.userlist) {
@@ -57,7 +59,7 @@ const updateUserScore = async (groupId, season, prevWeek, week) => {
     }
     return await db.UserScores.find(
       { groupId: groupId, season: season },
-      `userId ${prevWeek} ${week} totalScore`
+      `userId ${weekAccessor} ${week} totalScore`
     )
       .lean()
       .exec();
@@ -68,7 +70,6 @@ const updateUserScore = async (groupId, season, prevWeek, week) => {
     console.log('Error creating user scores for group: ', {
       groupId,
       season,
-      prevWeek,
       week,
       err,
     });
@@ -76,8 +77,9 @@ const updateUserScore = async (groupId, season, prevWeek, week) => {
   }
 };
 
-const getOrCreateUserScoreList = async (groupId, season, prevWeek, week) => {
+const getOrCreateUserScoreList = async (groupId, season, week) => {
   let userScores = [];
+  const prevWeek = (week === 1 ? 1 : week - 1).toString();
   try {
     userScores = await db.UserScores.find(
       { groupId, season },
@@ -94,7 +96,6 @@ const getOrCreateUserScoreList = async (groupId, season, prevWeek, week) => {
     console.log('Error trying to access user score list: ', {
       groupId,
       season,
-      prevWeek,
       week,
       err,
     });
@@ -103,7 +104,7 @@ const getOrCreateUserScoreList = async (groupId, season, prevWeek, week) => {
 
   try {
     if (userScores.length === 0) {
-      return await updateUserScore(groupId, season, prevWeek, week);
+      return await updateUserScore(groupId, season, week);
     } else {
       return userScores;
     }
@@ -300,26 +301,34 @@ export default {
   getGroupDataById: (groupId) => db.Group.findById(groupId).lean().exec(),
   getGroupDataByIdNoLean: (groupId) => db.Group.findById(groupId).exec(),
   getLeaderBoard: async (groupId, season, week) => {
-    const arrayForLeaderBoard = [];
-    const weekAccessor = (week === 1 ? 1 : week - 1).toString();
     try {
       const userScoreList = await getOrCreateUserScoreList(
         groupId,
         season,
-        weekAccessor,
         week
       );
-      for (const user of userScoreList) {
-        const { username } = await db.User.findById(user.userId).lean().exec();
-        const filledOutUser = {
+      const userArray = userScoreList.map((user) => user.userId);
+      const users = await db.User.find(
+        { _id: { $in: userArray } },
+        { username: true }
+      )
+        .lean()
+        .exec();
+
+      const arrayForLeaderBoard = userScoreList.map((user) => {
+        const { username } = users.find(
+          (u) => u._id.toString() === user.userId.toString()
+        );
+        const prevWeek = week === 1 ? 1 : week - 1;
+        return {
           userId: user.userId,
           totalScore: user.totalScore,
           username: username,
           currentWeek: user[week],
-          lastWeek: user[weekAccessor],
+          lastWeek: user[prevWeek],
         };
-        arrayForLeaderBoard.push(filledOutUser);
-      }
+      });
+
       arrayForLeaderBoard.sort((a, b) => b.totalScore - a.totalScore);
       return arrayForLeaderBoard;
     } catch (err) {
@@ -637,14 +646,8 @@ export default {
     }
   },
   getCurrAndLastWeekScores: async (groupId, season, week) => {
-    const weekAccessor = (week === 1 ? 1 : week - 1).toString();
     try {
-      return await getOrCreateUserScoreList(
-        groupId,
-        season,
-        weekAccessor,
-        week
-      );
+      return await getOrCreateUserScoreList(groupId, season, week);
     } catch (err) {
       console.log('Error inside getCurrAndLastWeekScores: ', {
         groupId,

@@ -137,7 +137,7 @@ export default {
       console.log(`Error Uploading Avatar for ${id}   err: `, err);
     }
   },
-  getUserAvatar: async (id) => {
+  getSingleAvatar: async (id) => {
     if (id === 'undefined') {
       throw 'Id cannot be undefined';
     }
@@ -150,23 +150,13 @@ export default {
   getMultipleUserAvatars: async function (idArray) {
     const userAvatars = {};
     for (let id of idArray) {
-      userAvatars[id] = await this.getUserAvatar(id);
+      userAvatars[id] = await this.getSingleAvatar(id);
     }
     return userAvatars;
   },
   updatePlayerAvatars: (playerIdArray) => {
     const linkedListHead = createLinkedList(playerIdArray);
     updatePlayerAvatarFromLinkedList(linkedListHead);
-  },
-  getPlayerAvatar: async (id) => {
-    if (id === 'undefined') {
-      throw 'Id cannot be undefined';
-    }
-    const command = new GetObjectCommand({
-      Bucket: 'football-eliminator',
-      Key: id.toString(),
-    });
-    return await getAvatarFromAWS(command, false);
   },
   getMultiplePlayerAvatars: async function (idArray) {
     const avatarsById = {};

@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom';
-import { withFirebase } from '../Firebase';
+import { withFirebase } from '../../contexts/Firebase';
 import * as Routes from '../../constants/routes';
-import axios from 'axios';
 
-import './signInOutStyle.css';
 import ElimLogo from '../../constants/elimLogos/LargeElimLogo.png';
 import Stadium from '../../constants/elimLogos/stadium.jpg';
 
@@ -13,7 +11,7 @@ import {
   PasswordInput,
   UsernameInput,
   ConfirmPasswordInput,
-} from '../Profile/ProfileInputs';
+} from '../Tools/ProfileInputs';
 
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';

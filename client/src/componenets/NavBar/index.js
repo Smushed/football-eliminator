@@ -9,7 +9,7 @@ const NavBar = ({ toggleSideBar }) => (
   <nav className='navbar navbar-light border-bottom border-2'>
     <div className='row w-100 position-relative'>
       <div
-        className='ms-5 mt-3 position-absolute w-auto'
+        className='ms-3 ms-md-5 mt-3 position-absolute w-auto'
         role='button'
         onClick={() => toggleSideBar()}
       >
@@ -19,12 +19,12 @@ const NavBar = ({ toggleSideBar }) => (
           <rect y='60' width='100' height='20' rx='6'></rect>
         </svg>
       </div>
-      <div className='d-none d-md-block ms-3 flex-grow-1 text-center'>
+      <div className='d-none d-md-block text-center'>
         <Link to={Routes.home}>
           <img src={ElimLogo} />
         </Link>
       </div>
-      <div className='d-block d-md-none ms-5 flex-grow-1 text-center'>
+      <div className='d-block d-md-none text-center'>
         <Link to={Routes.home}>
           <img src={SmallElimLogo} />
         </Link>

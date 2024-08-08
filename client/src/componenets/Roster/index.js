@@ -3,21 +3,23 @@ import axios from 'axios';
 import fuzzysort from 'fuzzysort';
 
 import { RosterDisplay, PlayerDisplayTable } from './RosterDisplay';
-import Session from '../Session';
+import Session from '../../contexts/Firebase/Session/index.js';
 
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import './rosterStyle.css';
-import './playerStyle.css';
 
-import { loading, doneLoading } from '../LoadingAlert';
-import { WeekSearch, PositionSearch, TeamSearch } from './SearchDropdowns';
+import { loading, doneLoading } from '../Tools/LoadingAlert.js';
+import {
+  WeekSearch,
+  PositionSearch,
+  TeamSearch,
+} from '../Tools/SearchDropdowns.js';
 import { toast } from 'react-hot-toast';
 import { AvatarContext } from '../../contexts/Avatars';
-import { CurrentUserContext, NFLScheduleContext } from '../../App.js';
-import { useParams } from 'react-router-dom';
+import { CurrentUserContext } from '../../contexts/CurrentUser';
+import { NFLScheduleContext } from '../../contexts/NFLSchedule';
+import { useParams, useHistory } from 'react-router-dom';
 import { axiosHandler, httpErrorHandler } from '../../utils/axiosHandler.js';
-import { useHistory } from 'react-router-dom';
 import * as Routes from '../../constants/routes.js';
 
 const Alert = withReactContent(Swal);
